@@ -1,0 +1,274 @@
+/*
+ * Estilos para a página de estatísticas de segurança
+ * Inclui visualização de dados de honeypot e monitoramento de ameaças
+ */
+
+.security-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
+}
+
+/* Cabeçalho da seção */
+.security-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.security-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color); /* Use primary color for titles */
+  margin: 0;
+}
+
+/* Indicadores de carregamento */
+.loading {
+  position: relative;
+  min-height: 100px;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Use a CSS spinner or a themeable SVG if possible, or at least theme the background */
+  background-color: rgba(var(--surface-rgb), 0.7); /* Use surface RGB for overlay */
+  /* Spinner itself would ideally be CSS or an SVG that can inherit color */
+  z-index: 10;
+  border-radius: var(--border-radius);
+}
+
+/* Cards de estatísticas */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stats-card {
+  padding: 1.25rem;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--light-text);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-card-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--dark-text);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card-subtitle {
+  font-size: 0.75rem;
+  color: var(--light-text);
+}
+
+/* Variações de cores para cards */
+.stats-card.primary {
+  background-color: var(--info-bg-light); /* Using info as a general "primary" stat card */
+  border: 1px solid var(--info-color);
+}
+.stats-card.primary .stats-card-value {
+  color: var(--info-color);
+}
+
+
+.stats-card.secondary {
+  background-color: var(--accent-bg-light); /* Using accent for secondary stat card */
+  border: 1px solid var(--accent-color);
+}
+.stats-card.secondary .stats-card-value {
+  color: var(--accent-color);
+}
+
+.stats-card.warning {
+  background-color: var(--warning-bg-light);
+  border: 1px solid var(--warning-color);
+}
+.stats-card.warning .stats-card-value {
+  color: var(--warning-color);
+}
+
+
+/* Tabela de ameaças */
+.threat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.threat-table th,
+.threat-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--light-border);
+  text-align: left;
+}
+
+.threat-table th {
+  font-weight: 600;
+  color: var(--dark-text);
+  background-color: var(--light-bg);
+}
+
+.threat-table tr:hover {
+  background-color: var(--surface-hover-color);
+}
+
+/* Classes de risco para tabela */
+.high-risk {
+  color: var(--contrast-text);
+  background-color: var(--danger-color);
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+.medium-risk {
+  color: var(--dark-text); /* Assuming warning color is light */
+  background-color: var(--warning-color);
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+/* For verde-escuro-theme, .medium-risk text might need to be var(--contrast-text) if warning is dark */
+.verde-escuro-theme .medium-risk {
+  color: var(--contrast-text);
+}
+
+
+.low-risk {
+  color: var(--contrast-text);
+  background-color: var(--success-color);
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+/* Lista de honeypots */
+.honeypot-container {
+  margin-top: 1.5rem;
+}
+
+.honeypot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.honeypot-endpoint {
+  background-color: var(--light-bg);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--light-text);
+}
+
+.honeypot-endpoint code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* Gráfico de padrões de ataque */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-top: 1.5rem;
+}
+
+/* Informações de última atualização */
+.last-updated {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--light-text);
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* Botões */
+.btn-refresh {
+  background-color: var(--primary-color);
+  color: var(--contrast-text);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.btn-refresh:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-refresh.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-refresh .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .security-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .threat-table {
+    font-size: 0.75rem;
+  }
+
+  .threat-table th,
+  .threat-table td {
+    padding: 0.5rem;
+  }
+}

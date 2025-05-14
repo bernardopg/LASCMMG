@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Carlos Oliveira",
+    "nickname": "COli",
+    "gender": "Masculino",
+    "skill_level": "Expert",
+    "GamesPlayed": 120,
+    "Wins": 95,
+    "Losses": 25
+  },
+  {
+    "name": "Ana Silva",
+    "nickname": "ASil",
+    "gender": "Feminino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 78,
+    "Wins": 52,
+    "Losses": 26
+  },
+  {
+    "name": "Pedro Santos",
+    "nickname": "PSan",
+    "gender": "Masculino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 200,
+    "Wins": 180,
+    "Losses": 20
+  },
+  {
+    "name": "Maria Costa",
+    "nickname": "MCos",
+    "gender": "Feminino",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 45,
+    "Wins": 22,
+    "Losses": 23
+  },
+  {
+    "name": "João Pereira",
+    "nickname": "JPer",
+    "gender": "Masculino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 90,
+    "Wins": 65,
+    "Losses": 25
+  },
+  {
+    "name": "Roberto Almeida",
+    "nickname": "RAlm",
+    "gender": "Masculino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 25,
+    "Wins": 8,
+    "Losses": 17
+  },
+  {
+    "name": "Carolina Lima",
+    "nickname": "CLim",
+    "gender": "Feminino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 150,
+    "Wins": 135,
+    "Losses": 15
+  },
+  {
+    "name": "Fernando Martins",
+    "nickname": "FMar",
+    "gender": "Masculino",
+    "skill_level": "Expert",
+    "GamesPlayed": 110,
+    "Wins": 82,
+    "Losses": 28
+  },
+  {
+    "name": "Camila Souza",
+    "nickname": "CSou",
+    "gender": "Feminino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 70,
+    "Wins": 42,
+    "Losses": 28
+  },
+  {
+    "name": "Marcos Rodrigues",
+    "nickname": "MRod",
+    "gender": "Masculino",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 55,
+    "Wins": 30,
+    "Losses": 25
+  },
+  {
+    "name": "Patrícia Gomes",
+    "nickname": "PGom",
+    "gender": "Feminino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 85,
+    "Wins": 65,
+    "Losses": 20
+  },
+  {
+    "name": "Lucas Ferreira",
+    "nickname": "LFer",
+    "gender": "Masculino",
+    "skill_level": "Expert",
+    "GamesPlayed": 102,
+    "Wins": 80,
+    "Losses": 22
+  },
+  {
+    "name": "Amanda Carvalho",
+    "nickname": "ACar",
+    "gender": "Feminino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 30,
+    "Wins": 12,
+    "Losses": 18
+  },
+  {
+    "name": "Daniel Ribeiro",
+    "nickname": "DRib",
+    "gender": "Masculino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 180,
+    "Wins": 160,
+    "Losses": 20
+  },
+  {
+    "name": "Fernanda Araújo",
+    "nickname": "FAra",
+    "gender": "Feminino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 92,
+    "Wins": 70,
+    "Losses": 22
+  },
+  {
+    "name": "José Melo",
+    "nickname": "JMel",
+    "gender": "Masculino",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 60,
+    "Wins": 35,
+    "Losses": 25
+  }
+]

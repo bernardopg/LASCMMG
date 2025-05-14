@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Campeão Regional",
+    "nickname": "CReg",
+    "gender": "Masculino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Vice-Campeão",
+    "nickname": "VCamp",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Semifinalista 1",
+    "nickname": "Semi1",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Semifinalista 2",
+    "nickname": "Semi2",
+    "gender": "Masculino",
+    "skill_level": "Intermediário"
+  }
+]

@@ -1,0 +1,74 @@
+/**
+ * Sistema de alternância entre temas claro e escuro
+ * Para o Sistema de Gerenciamento de Torneios LASCMMG
+ */
+
+/* Botão de alternância de tema */
+/* As variáveis de cor (--primary-color, --contrast-text, --box-shadow, --primary-hover)
+   serão fornecidas pelos arquivos de tema ativos (faculdade-theme.css ou verde-escuro-theme.css)
+   ou pelos fallbacks em style.css.
+   A variável --theme-transition foi removida pois não estava consistentemente definida;
+   transições podem ser adicionadas diretamente ou através de variáveis de tema se necessário.
+*/
+.theme-toggle-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.theme-toggle-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: var(--contrast-text);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--box-shadow);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.theme-toggle-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--contrast-text);
+}
+
+/* Ícones de lua e sol - ajustados para as classes de tema atuais */
+.icon-moon, .icon-sun {
+  transition: opacity 0.3s ease;
+}
+
+/* Por padrão (ou tema claro como faculdade-theme), mostrar sol e esconder lua */
+html:not(.verde-escuro-theme) .theme-toggle-btn .icon-moon,
+html.faculdade-theme .theme-toggle-btn .icon-moon {
+  display: none;
+}
+
+html:not(.verde-escuro-theme) .theme-toggle-btn .icon-sun,
+html.faculdade-theme .theme-toggle-btn .icon-sun {
+  display: block;
+}
+
+/* No tema verde-escuro, mostrar lua e esconder sol */
+html.verde-escuro-theme .theme-toggle-btn .icon-moon {
+  display: block;
+}
+
+html.verde-escuro-theme .theme-toggle-btn .icon-sun {
+  display: none;
+}
+
+/* Os ajustes específicos de componentes para temas escuros/claros
+   devem ser tratados dentro dos respectivos arquivos de tema (verde-escuro-theme.css, faculdade-theme.css)
+   ou em style.css usando as variáveis de tema.
+   Removendo as regras :root.dark-theme ... daqui. */

@@ -1,0 +1,334 @@
+/* Estilos para o módulo de estatísticas */
+
+.statistics-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: var(--light-bg); /* Fallback, themes will override */
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color); /* Added for consistency */
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+.section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--light-text); /* Fallback, themes will override */
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab-btn:hover {
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.tab-content {
+  position: relative;
+  min-height: 200px;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* Cards de estatísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.stats-card {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  border: 1px solid var(--border-color); /* Added for consistency */
+}
+
+.stats-card h3 {
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--surface-hover-color); /* Use a slightly off-white for header */
+  color: var(--dark-text); /* Fallback, themes will override */
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats-card-content {
+  padding: 1rem;
+}
+
+/* Informações do torneio */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--light-text); /* Fallback, themes will override */
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+/* TOP jogadores */
+.top-players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-player-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--surface-hover-color); /* Fallback, themes will override */
+  border-radius: var(--border-radius-sm);
+}
+
+.top-player-item.champion {
+  background-color: var(--warning-bg-light);
+  border: 1px solid var(--warning-color);
+}
+
+.player-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--light-bg); /* Fallback, themes will override */
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  font-weight: bold;
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+.top-player-item.champion .player-rank {
+  background-color: var(--warning-color);
+  color: var(--dark-text); /* Or --contrast-text if warning is dark */
+}
+.verde-escuro-theme .top-player-item.champion .player-rank {
+  color: var(--contrast-text);
+}
+
+
+.player-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--dark-text); /* Ensure player name has a color */
+}
+
+.player-wins {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+/* Placares comuns */
+.common-scores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--surface-hover-color); /* Fallback, themes will override */
+  border-radius: var(--border-radius-sm);
+}
+
+.score-pattern {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+.score-count {
+  color: var(--light-text); /* Fallback, themes will override */
+}
+
+/* Seleção de jogadores */
+.player-select-container {
+  margin-bottom: 1.5rem;
+}
+
+.player-select-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.player-select-container select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--surface-color);
+  font-size: 1rem;
+  color: var(--dark-text); /* Fallback, themes will override */
+}
+
+/* Estatísticas do jogador */
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.match-history-table, .opponent-stats-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.match-history-table table, .opponent-stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.match-history-table th, .opponent-stats-table th {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--light-text); /* Fallback, themes will override */
+  font-weight: 600;
+}
+
+.match-history-table td, .opponent-stats-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.match-history-table tr.win {
+  background-color: var(--success-bg-light);
+}
+
+.match-history-table tr.loss {
+  background-color: var(--danger-bg-light);
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.result-badge.win {
+  background-color: var(--success-bg-light);
+  color: var(--success-color);
+}
+
+.result-badge.loss {
+  background-color: var(--danger-bg-light);
+  color: var(--danger-color);
+}
+
+/* Mensagens e placeholders */
+.loading-placeholder, .no-data-message, .error-message {
+  padding: 2rem;
+  text-align: center;
+  color: var(--light-text); /* Fallback, themes will override */
+}
+
+.no-data-message, .error-message {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-message {
+  color: var(--danger-color);
+}
+
+.stats-note {
+  font-size: 0.875rem;
+  color: var(--light-text); /* Fallback, themes will override */
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .stats-grid, .player-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 0.5rem;
+  }
+
+  .match-history-table, .opponent-stats-table {
+    overflow-x: auto;
+  }
+}

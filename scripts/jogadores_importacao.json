@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Lucas Oliveira",
+    "nickname": "LO",
+    "gender": "Não informado",
+    "skill_level": "Avançado",
+    "GamesPlayed": 86,
+    "Wins": 43,
+    "Losses": 9
+  },
+  {
+    "name": "Ricardo Costa",
+    "nickname": "RC",
+    "gender": "Não informado",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 18,
+    "Wins": 18,
+    "Losses": 26
+  },
+  {
+    "name": "Carlos Oliveira",
+    "nickname": "CO",
+    "gender": "Feminino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 71,
+    "Wins": 4,
+    "Losses": 16
+  },
+  {
+    "name": "José Almeida",
+    "nickname": "JA",
+    "gender": "Não informado",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 18,
+    "Wins": 42,
+    "Losses": 11
+  },
+  {
+    "name": "Carla Nascimento",
+    "nickname": "CN",
+    "gender": "Não informado",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 39,
+    "Wins": 66,
+    "Losses": 19
+  },
+  {
+    "name": "Rafael Santos",
+    "nickname": "RS",
+    "gender": "Feminino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 32,
+    "Wins": 11,
+    "Losses": 19
+  },
+  {
+    "name": "Juliana Almeida",
+    "nickname": "JA",
+    "gender": "Feminino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 13,
+    "Wins": 14,
+    "Losses": 11
+  },
+  {
+    "name": "Maria Nascimento",
+    "nickname": "MN",
+    "gender": "Masculino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 37,
+    "Wins": 16,
+    "Losses": 16
+  },
+  {
+    "name": "Juliana Silva",
+    "nickname": "JS",
+    "gender": "Masculino",
+    "skill_level": "Avançado",
+    "GamesPlayed": 84,
+    "Wins": 38,
+    "Losses": 29
+  },
+  {
+    "name": "Maria Rodrigues",
+    "nickname": "MR",
+    "gender": "Feminino",
+    "skill_level": "Expert",
+    "GamesPlayed": 40,
+    "Wins": 30,
+    "Losses": 28
+  },
+  {
+    "name": "Amanda Santos",
+    "nickname": "AS",
+    "gender": "Feminino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 36,
+    "Wins": 12,
+    "Losses": 10
+  },
+  {
+    "name": "Mariana Almeida",
+    "nickname": "MA",
+    "gender": "Masculino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 35,
+    "Wins": 28,
+    "Losses": 11
+  },
+  {
+    "name": "Lucas Oliveira",
+    "nickname": "LO",
+    "gender": "Não informado",
+    "skill_level": "Avançado",
+    "GamesPlayed": 15,
+    "Wins": 59,
+    "Losses": 20
+  },
+  {
+    "name": "Ana Lima",
+    "nickname": "AL",
+    "gender": "Feminino",
+    "skill_level": "Intermediário",
+    "GamesPlayed": 7,
+    "Wins": 26,
+    "Losses": 27
+  },
+  {
+    "name": "Amanda Rodrigues",
+    "nickname": "AR",
+    "gender": "Feminino",
+    "skill_level": "Iniciante",
+    "GamesPlayed": 97,
+    "Wins": 59,
+    "Losses": 6
+  },
+  {
+    "name": "Juliana Rodrigues",
+    "nickname": "JR",
+    "gender": "Masculino",
+    "skill_level": "Mestre",
+    "GamesPlayed": 60,
+    "Wins": 6,
+    "Losses": 11
+  }
+]

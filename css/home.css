@@ -1,0 +1,217 @@
+/**
+ * Estilos da Página Inicial - LASCMMG
+ * Para o sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
+ */
+
+/* Seção Hero - Cabeçalho da página inicial */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(to bottom, rgba(var(--primary-rgb), 0.1), rgba(var(--accent-color-rgb), 0.05));
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.faculdade-theme .hero-section {
+  background: linear-gradient(to bottom, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.05)); /* Usando secondary-rgb para dourado */
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+}
+
+.hero-logo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  border: 4px solid var(--secondary-color);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.faculdade-theme .hero-logo {
+  border-color: var(--accent-color);
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.hero-content h2 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  border-bottom: none; /* Remove a borda inferior padrão dos h2 */
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.faculdade-theme .hero-content h2 {
+  color: var(--primary-color);
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.faculdade-theme .hero-subtitle {
+  color: var(--secondary-color);
+}
+
+/* Cards da página inicial */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--hover-shadow);
+}
+
+.card-icon {
+  background-color: var(--primary-color);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.faculdade-theme .card-icon {
+  background-color: var(--primary-color);
+}
+
+.card-icon .icon {
+  width: 32px;
+  height: 32px;
+  fill: white;
+  margin-right: 0;
+}
+
+.home-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.faculdade-theme .home-card h3 {
+  color: var(--primary-color);
+}
+
+.home-card p {
+  color: var(--dark-text);
+  line-height: 1.6;
+}
+
+/* Seção de anúncios */
+.home-announcements {
+  margin-bottom: 2rem;
+}
+
+.home-announcements h3 {
+  font-size: 1.4rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.faculdade-theme .home-announcements h3 {
+  color: var(--primary-color);
+  border-bottom-color: var(--border-color);
+}
+
+.announcement-list {
+  list-style: none;
+  padding: 0;
+}
+
+.announcement-item {
+  display: flex;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--light-border);
+}
+
+.announcement-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.announcement-date {
+  flex: 0 0 120px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.6rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  text-align: center;
+  height: fit-content;
+}
+
+.faculdade-theme .announcement-date {
+  background-color: var(--primary-color);
+}
+
+.announcement-content {
+  flex: 1;
+  padding-left: 1rem;
+}
+
+.announcement-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: var(--dark-text);
+}
+
+.announcement-content p {
+  margin: 0;
+  color: var(--light-text);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .hero-content h2 {
+    font-size: 1.6rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .home-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .announcement-item {
+    flex-direction: column;
+  }
+
+  .announcement-date {
+    margin-bottom: 0.8rem;
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .announcement-content {
+    padding-left: 0;
+  }
+}

@@ -1,0 +1,312 @@
+  /**
+ * Tema da Faculdade Ciências Médicas de Minas Gerais para o Sistema de Gerenciamento de Torneios
+ *
+ * Tema inspirado na logo da LASCMMG (Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais)
+ * Cores predominantes: verde esmeralda e dourado
+ */
+
+:root.faculdade-theme {
+  /* Cores primárias baseadas na logo */
+  --primary-color: #0F6435; /* Verde esmeralda escuro */
+  --primary-hover: #084C27; /* Verde esmeralda mais escuro */
+  --primary-rgb: 15, 100, 53; /* Para uso com transparência */
+
+  --secondary-color: #D4AF37; /* Dourado */
+  --secondary-hover: #B4941F; /* Dourado mais escuro */
+  --secondary-rgb: 212, 175, 55; /* Para uso com transparência */
+
+  --accent-color: #D4AF37; /* Dourado como destaque */
+  --accent-hover: #B4941F; /* Dourado mais escuro */
+  --accent-color-rgb: 212, 175, 55; /* Para uso com transparência */
+
+  /* Cores de fundo */
+  --light-bg: #F2F7F5; /* Fundo claro esverdeado */
+  --dark-bg: #0A3A20; /* Fundo verde escuro */
+
+  /* Cores de texto */
+  --dark-text: #0A2918; /* Texto principal verde muito escuro */
+  --light-text: #5D6E64; /* Texto secundário esverdeado */
+  --contrast-text: #FFFFFF; /* Texto sobre fundos escuros */
+
+  /* Cores de borda */
+  --border-color: #AACCB1; /* Borda verde claro */
+  --light-border: #D6E8D9; /* Borda verde mais clara */
+
+  /* Cores de superfície */
+  --surface-color: #FFFFFF; /* Fundo de cartões */
+  --surface-rgb: 255, 255, 255; /* RGB de --surface-color */
+  --surface-hover-color: #F2F7F5; /* Hover suave esverdeado */
+
+  /* Sombras */
+  --box-shadow: 0 0.5rem 1rem rgba(10, 41, 24, 0.1); /* Sombra esverdeada */
+  --hover-shadow: 0 0.75rem 1.5rem rgba(10, 41, 24, 0.15);
+  --inner-shadow: inset 0 1px 2px rgba(10, 41, 24, 0.075);
+
+  /* Cores de status */
+  --success-color: #0F6435; /* Verde da logo */
+  --success-hover: #0B4F2A; /* Verde da logo mais escuro */
+  --danger-color: #dc3545; /* Vermelho padrão */
+  --danger-hover: #b02a37; /* Vermelho mais escuro */
+  --warning-color: #D4AF37; /* Dourado da logo */
+  --warning-hover: #B4941F; /* Dourado mais escuro */
+  --info-color: #2A9D8F; /* Turquesa esverdeado */
+
+  /* Cores de fundo suaves */
+  --success-bg-light: #E3F0E8;
+  --danger-bg-light: #f8d7da;
+  --warning-bg-light: #FFF6DD; /* Usada para fundo do campeão */
+  --info-bg-light: #E1F5F3;
+  --accent-bg-light: #FFF6DD; /* Dourado/Amarelo claro para fundos de destaque */
+
+  /* Cores de Campeão (específicas para o tema faculdade) */
+  --champion-text-color-faculdade: #705A00; /* Dourado escuro para texto */
+  /* --champion-bg-color já é var(--warning-bg-light) */
+  /* --champion-border-color já é var(--secondary-color) ou var(--warning-color) */
+
+
+  /* Cores específicas para sidebar */
+  --sidebar-bg: #0F6435; /* Verde da logo */
+  --sidebar-text: #FFFFFF; /* Texto branco */
+  --sidebar-hover: #0A4A28; /* Verde mais escuro */
+  --sidebar-active-bg: rgba(212, 175, 55, 0.15); /* Dourado com transparência */
+  --sidebar-active-border: #D4AF37; /* Dourado */
+  --sidebar-icon-color: #9ECBA6; /* Verde mais claro */
+}
+
+/* Aplicação do tema nos elementos */
+.faculdade-theme body {
+  background-color: var(--light-bg);
+  color: var(--dark-text);
+}
+
+/* Sidebar estilizada com as cores da faculdade */
+.faculdade-theme .sidebar {
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+}
+
+.faculdade-theme .sidebar-header h1 {
+  color: #FFFFFF;
+}
+
+.faculdade-theme .nav-item {
+  color: var(--sidebar-text);
+}
+
+.faculdade-theme .nav-item:hover {
+  background-color: var(--sidebar-hover);
+}
+
+.faculdade-theme .nav-item.active {
+  background-color: var(--sidebar-active-bg);
+  border-left-color: var(--sidebar-active-border);
+  color: var(--accent-color);
+}
+
+.faculdade-theme .icon {
+  fill: var(--sidebar-icon-color);
+}
+
+.faculdade-theme .nav-item:hover .icon {
+  fill: var(--contrast-text);
+}
+
+.faculdade-theme .nav-item.active .icon {
+  fill: var(--accent-color);
+}
+
+.faculdade-theme .separator {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Elementos de interface */
+.faculdade-theme .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.faculdade-theme .btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.faculdade-theme .btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: #000000; /* Texto preto para contraste com dourado */
+}
+
+.faculdade-theme .btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  border-color: var(--secondary-hover);
+  color: #000000;
+}
+
+/* Cards e painéis */
+.faculdade-theme .card {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+/* Tabelas */
+.faculdade-theme th {
+  background-color: var(--primary-color);
+  color: var(--contrast-text);
+}
+
+.faculdade-theme tr:nth-child(even) td {
+  background-color: var(--light-bg);
+}
+
+/* Formulários */
+.faculdade-theme input:focus,
+.faculdade-theme select:focus,
+.faculdade-theme textarea:focus {
+  border-color: var(--primary-color);
+}
+
+/* Botão de alternar tema */
+.faculdade-theme .theme-toggle {
+  background-color: var(--primary-color);
+}
+
+.faculdade-theme .theme-toggle:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Logo incorporada no cabeçalho e rodapé */
+.faculdade-theme .sidebar-header {
+  position: relative;
+  display: flex; /* Garante que o header seja flex */
+  align-items: center; /* Alinha itens verticalmente */
+  justify-content: space-between; /* Espaça o logo/título do botão */
+  padding: 10px 15px; /* Adiciona padding geral ao header */
+  /* padding-left: 65px; /* Removido para dar controle ao logo-container */
+}
+
+/* Container da logo */
+.logo-container {
+  display: flex;
+  align-items: center;
+  /* margin-bottom: 15px; /* Removido, padding do header controla */
+  /* padding-left: 15px; /* Removido, padding do header controla */
+}
+
+.logo-container h1 {
+  margin-left: 10px; /* Espaço entre logo e título */
+  font-size: 1.1em; /* Reduzido um pouco para evitar quebra com logo maior */
+  color: #FFFFFF; /* Garante que o título seja branco */
+  white-space: nowrap; /* Evita quebra de linha do título */
+}
+
+.logo-mini {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--secondary-color);
+}
+
+/* Quando o sidebar está colapsado */
+body.sidebar-collapsed .faculdade-theme .sidebar-header {
+  padding-left: 0; /* Removido padding */
+}
+
+body.sidebar-collapsed .faculdade-theme .logo-container {
+  padding-left: 5px; /* Padding menor quando colapsado */
+  justify-content: center; /* Centraliza o logo quando colapsado e o texto some */
+}
+
+body.sidebar-collapsed .faculdade-theme .logo-container h1 {
+  display: none; /* Esconde o título quando colapsado */
+}
+
+/* Personalização da barra de rolagem */
+.faculdade-theme ::-webkit-scrollbar-thumb {
+  background: var(--primary-hover);
+}
+
+.faculdade-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+
+.faculdade-theme ::-webkit-scrollbar-track {
+  background: var(--light-bg);
+}
+
+/* Mensagens de feedback */
+.faculdade-theme .message.success {
+  background-color: var(--success-bg-light);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.faculdade-theme .message.info {
+  background-color: var(--info-bg-light);
+  color: var(--info-color);
+  border: 1px solid var(--info-color);
+}
+
+.faculdade-theme .message.warning {
+  background-color: var(--warning-bg-light);
+  color: #705A00;
+  border: 1px solid var(--warning-color);
+}
+
+/* Estilos para o chaveamento */
+.faculdade-theme .match {
+  border-color: var(--border-color);
+  background-color: var(--surface-color); /* Fundo branco para o match */
+}
+
+.faculdade-theme .match:hover {
+  box-shadow: 0 0 0 2px var(--secondary-color);
+}
+
+/* Ajuste para o texto padrão do jogador ter melhor contraste com o fundo branco do match */
+.faculdade-theme .player {
+  color: var(--dark-text); /* Usar texto escuro para jogadores não definidos ou em andamento */
+}
+.faculdade-theme .player span.score {
+  color: var(--dark-text); /* Garantir que o placar também use texto escuro */
+  background-color: var(--light-bg); /* Fundo do placar */
+}
+.faculdade-theme .player span.score.not-played {
+  color: var(--dark-text); /* Manter o '-' escuro */
+  background-color: transparent;
+}
+
+
+.faculdade-theme .player.winner {
+  color: var(--primary-color); /* Verde escuro da faculdade */
+  background-color: var(--success-bg-light); /* Fundo verde claro */
+}
+
+.faculdade-theme .player.winner span.name,
+.faculdade-theme .player.winner span.score {
+  color: var(--primary-color); /* Verde escuro da faculdade */
+}
+
+/* Ajuste para o jogador perdedor ter melhor contraste */
+.faculdade-theme .player.loser {
+  color: #757575; /* Cinza mais escuro para melhor contraste com --light-bg */
+  background-color: var(--light-bg); /* Mantém o fundo claro */
+  /* text-decoration e opacity são herdados de style.css */
+}
+.faculdade-theme .player.loser span.name,
+.faculdade-theme .player.loser span.score {
+  color: #757575; /* Cinza mais escuro */
+}
+
+
+.faculdade-theme .player.champion {
+  border-color: var(--secondary-color); /* Usando a cor secundária (dourado) para borda */
+  background-color: var(--warning-bg-light); /* Usando o fundo de aviso (amarelo claro) */
+  color: var(--champion-text-color-faculdade); /* Usando a variável específica para texto */
+}
+
+.faculdade-theme .player.champion span.name,
+.faculdade-theme .player.champion span.score {
+  color: var(--champion-text-color-faculdade); /* Usando a variável específica para texto */
+}
