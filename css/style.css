@@ -51,7 +51,9 @@
   --font-family:
     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif; /* Modern sans-serif stack */
-  --focus-outline-color: var(--primary-hover); /* Fallback, themes should override */
+  --focus-outline-color: var(
+    --primary-hover
+  ); /* Fallback, themes should override */
   --focus-outline-width: 2px;
   --focus-outline-offset: 2px;
 
@@ -60,7 +62,12 @@
   /* Sidebar specific colors should be in themes or use generic vars */
   --sidebar-bg: var(--dark-bg); /* Example: use a generic dark background */
   --sidebar-text: var(--contrast-text);
-  --sidebar-hover: rgba(255, 255, 255, 0.1); /* Generic hover for dark backgrounds */
+  --sidebar-hover: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Generic hover for dark backgrounds */
   --sidebar-active-bg: rgba(var(--primary-rgb), 0.1); /* Fallback */
   --sidebar-active-border: var(--primary-color); /* Fallback */
   --sidebar-icon-color: var(--light-text); /* Fallback */
@@ -170,7 +177,9 @@ body {
 
 .toggle-sidebar-btn:hover {
   background-color: var(--sidebar-hover); /* Uses fallback or theme-defined */
-  color: var(--sidebar-text); /* Or --contrast-text if hover makes bg very dark */
+  color: var(
+    --sidebar-text
+  ); /* Or --contrast-text if hover makes bg very dark */
 }
 
 .sidebar-content {
@@ -237,11 +246,15 @@ body {
 
 .nav-item:hover {
   background-color: var(--sidebar-hover); /* Uses fallback or theme-defined */
-  color: var(--sidebar-text); /* Or --contrast-text if hover makes bg very dark */
+  color: var(
+    --sidebar-text
+  ); /* Or --contrast-text if hover makes bg very dark */
 }
 
 .nav-item.active {
-  background-color: var(--sidebar-active-bg); /* Uses fallback or theme-defined */
+  background-color: var(
+    --sidebar-active-bg
+  ); /* Uses fallback or theme-defined */
   border-left: 4px solid var(--sidebar-active-border); /* Uses fallback or theme-defined */
   color: var(--primary-color); /* Uses fallback or theme-defined */
   font-weight: 600;
@@ -265,7 +278,9 @@ body {
 }
 
 .nav-item:hover .icon {
-  fill: var(--sidebar-text); /* Or --contrast-text if hover makes bg very dark */
+  fill: var(
+    --sidebar-text
+  ); /* Or --contrast-text if hover makes bg very dark */
 }
 /* .nav-item.active .icon is already handled above */
 
@@ -279,7 +294,9 @@ body {
   padding-bottom: 8px;
 }
 .profile-info .icon {
-  fill: var(--sidebar-icon-color) !important; /* Uses fallback or theme-defined */
+  fill: var(
+    --sidebar-icon-color
+  ) !important; /* Uses fallback or theme-defined */
 }
 
 .separator {
@@ -410,7 +427,9 @@ body {
   transition: background-color var(--transition-speed);
 }
 .profile-menu-item:hover {
-  background-color: var(--surface-hover-color); /* Fallback, theme might override */
+  background-color: var(
+    --surface-hover-color
+  ); /* Fallback, theme might override */
 }
 .profile-menu-item .icon {
   width: 18px;
@@ -825,8 +844,8 @@ section {
 .match.selected {
   border-color: var(--accent-color); /* Fallback, theme might override */
   box-shadow:
-    0 0 0 3px rgba(var(--accent-color-rgb), 0.35), /* Uses fallback or theme-defined */
-    var(--hover-shadow);
+    0 0 0 3px rgba(var(--accent-color-rgb), 0.35),
+    /* Uses fallback or theme-defined */ var(--hover-shadow);
 }
 
 .player {
@@ -906,7 +925,9 @@ section {
 
 .player.champion {
   border: 2px solid var(--champion-border-color); /* Fallback, theme will override */
-  background-color: var(--champion-bg-color); /* Fallback, theme will override */
+  background-color: var(
+    --champion-bg-color
+  ); /* Fallback, theme will override */
   color: var(--champion-text-color); /* Fallback, theme will override */
   font-weight: 700;
   opacity: 1;
@@ -1015,7 +1036,9 @@ tr:nth-child(even) td {
 }
 
 tr:hover td {
-  background-color: var(--surface-hover-color); /* Fallback, theme might override */
+  background-color: var(
+    --surface-hover-color
+  ); /* Fallback, theme might override */
 }
 
 /* Forms */

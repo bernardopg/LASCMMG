@@ -4,8 +4,9 @@ const tournamentModel = require('../lib/models/tournamentModel');
 const playerModel = require('../lib/models/playerModel');
 const scoreModel = require('../lib/models/scoreModel');
 const matchModel = require('../lib/models/matchModel');
+const { authMiddleware } = require('../lib/authMiddleware');
 
-router.get('/system', async (req, res) => {
+router.get('/system', authMiddleware, async (req, res) => {
   try {
     const tournamentStats = await tournamentModel.getTournamentStats();
     const allTournaments = await tournamentModel.getAllTournaments();
@@ -29,7 +30,7 @@ router.get('/system', async (req, res) => {
   }
 });
 
-router.get('/tournaments/:tournamentId', async (req, res) => {
+router.get('/tournaments/:tournamentId', authMiddleware, async (req, res) => {
   const { tournamentId } = req.params;
 
   if (!tournamentId || typeof tournamentId !== 'string') {
@@ -81,66 +82,70 @@ router.get('/tournaments/:tournamentId', async (req, res) => {
   }
 });
 
-router.get('/players/:tournamentId/:playerName', async (req, res) => {
-  const { tournamentId, playerName } = req.params;
+router.get(
+  '/players/:tournamentId/:playerName',
+  authMiddleware,
+  async (req, res) => {
+    const { tournamentId, playerName } = req.params;
 
-  if (!tournamentId || !playerName) {
-    return res.status(400).json({
-      success: false,
-      message: 'ID de torneio e nome do jogador são obrigatórios',
-    });
-  }
-
-  try {
-    const player = await playerModel.getPlayerByNameInTournament(
-      tournamentId,
-      playerName
-    );
-    if (!player) {
-      return res.status(404).json({
+    if (!tournamentId || !playerName) {
+      return res.status(400).json({
         success: false,
-        message: 'Jogador não encontrado',
+        message: 'ID de torneio e nome do jogador são obrigatórios',
       });
     }
 
-    const allScoresInTournament =
-      await scoreModel.getScoresByTournamentId(tournamentId);
+    try {
+      const player = await playerModel.getPlayerByNameInTournament(
+        tournamentId,
+        playerName
+      );
+      if (!player) {
+        return res.status(404).json({
+          success: false,
+          message: 'Jogador não encontrado',
+        });
+      }
 
-    const playerScores = allScoresInTournament.filter(
-      (s) => s.player1_name === playerName || s.player2_name === playerName
-    );
+      const allScoresInTournament =
+        await scoreModel.getScoresByTournamentId(tournamentId);
 
-    const playerStats = calculatePlayerStatsDb(
-      playerName,
-      player,
-      playerScores
-    );
+      const playerScores = allScoresInTournament.filter(
+        (s) => s.player1_name === playerName || s.player2_name === playerName
+      );
 
-    res.json({
-      player: {
-        id: player.id,
-        name: player.name,
-        nickname: player.nickname || '',
-        gamesPlayed: player.games_played,
-        wins: player.wins,
-        losses: player.losses,
-      },
-      matchHistory: playerStats.matches,
-      winRate: playerStats.winRate,
-      averageScoreDifference: playerStats.averageScoreDifference,
-      opponentStats: playerStats.opponentStats,
-    });
-  } catch (error) {
-    console.error(
-      `Erro ao buscar estatísticas do jogador ${playerName} (DB):`,
-      error
-    );
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao calcular estatísticas do jogador',
-    });
+      const playerStats = calculatePlayerStatsDb(
+        playerName,
+        player,
+        playerScores
+      );
+
+      res.json({
+        player: {
+          id: player.id,
+          name: player.name,
+          nickname: player.nickname || '',
+          gamesPlayed: player.games_played,
+          wins: player.wins,
+          losses: player.losses,
+        },
+        matchHistory: playerStats.matches,
+        winRate: playerStats.winRate,
+        averageScoreDifference: playerStats.averageScoreDifference,
+        opponentStats: playerStats.opponentStats,
+      });
+    } catch (error) {
+      console.error(
+        `Erro ao buscar estatísticas do jogador ${playerName} (DB):`,
+        error
+      );
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao calcular estatísticas do jogador',
+      });
+    }
   }
-});
+);
 
 function calculateTournamentsByMonth(tournaments) {
   const months = {};

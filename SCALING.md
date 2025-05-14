@@ -24,20 +24,20 @@ A estratégia de escalabilidade do LASCMMG é projetada para permitir que o sist
 
 - **Padrão de Uso:** O sistema normalmente experimenta picos de tráfego durante competições ativas, com períodos mais tranquilos entre os eventos.
 - **Crescimento Estimado:** Prevê-se um crescimento anual de 30-50% no número de usuários e 20-40% no número de torneios.
-- **Limitações Atuais:** O sistema usa SQLite como banco de dados principal. Embora eficiente para muitas cargas de trabalho, o SQLite tem limitações inerentes de concorrência de escrita em cenários de altíssima escala, o que motiva o planejamento para bancos de dados cliente-servidor em fases futuras de crescimento.
+- **Limitações Atuais:** O sistema usa SQLite (via `better-sqlite3`) como banco de dados principal. Embora eficiente para muitas cargas de trabalho, o SQLite tem limitações inerentes de concorrência de escrita em cenários de altíssima escala, o que motiva o planejamento para bancos de dados cliente-servidor em fases futuras de crescimento.
 
 ## Métricas e Indicadores
 
 As seguintes métricas são monitoradas para determinar quando e como escalar:
 
-| Métrica | Descrição | Limiar para Escalar | Ferramenta de Monitoramento (Exemplos) |
-|---------|-----------|---------------------|----------------------------|
-| CPU | Uso médio de CPU | >70% por 15 minutos | Prometheus/Grafana, CloudWatch |
-| Memória | Uso de memória RAM | >80% por 10 minutos | Prometheus/Grafana, CloudWatch |
-| Tempo de Resposta | Latência média de requisições | >500ms para 95% das requisições | Sentry APM, New Relic |
-| Taxa de Erro | Percentual de respostas com erro | >1% em janela de 5 minutos | Sentry |
-| Conexões DB | (Relevante para DBs cliente-servidor) | >80% do pool configurado | Ferramentas específicas do DB |
-| Armazenamento | Uso de disco (para o arquivo SQLite e logs) | >85% | Prometheus Node Exporter, Monitoramento do SO |
+| Métrica           | Descrição                                   | Limiar para Escalar             | Ferramenta de Monitoramento (Exemplos)        |
+| ----------------- | ------------------------------------------- | ------------------------------- | --------------------------------------------- |
+| CPU               | Uso médio de CPU                            | >70% por 15 minutos             | Prometheus/Grafana, CloudWatch                |
+| Memória           | Uso de memória RAM                          | >80% por 10 minutos             | Prometheus/Grafana, CloudWatch                |
+| Tempo de Resposta | Latência média de requisições               | >500ms para 95% das requisições | Sentry APM, New Relic                         |
+| Taxa de Erro      | Percentual de respostas com erro            | >1% em janela de 5 minutos      | Sentry                                        |
+| Conexões DB       | (Relevante para DBs cliente-servidor)       | >80% do pool configurado        | Ferramentas específicas do DB                 |
+| Armazenamento     | Uso de disco (para o arquivo SQLite e logs) | >85%                            | Prometheus Node Exporter, Monitoramento do SO |
 
 ## Escalabilidade Vertical
 
@@ -77,9 +77,9 @@ Distribuir a carga entre múltiplas instâncias da aplicação. **Esta estratég
 ### Preparação Necessária (Plano Futuro)
 
 1. **Migração de Banco de Dados:** Planejar e executar a migração de SQLite para um sistema de banco de dados como PostgreSQL ou MySQL.
-    - Um script como `node scripts/migrate-to-postgresql.js` precisaria ser desenvolvido para esta finalidade.
-2. **Gestão de Sessões:** Se sessões de usuário forem armazenadas no servidor da aplicação, implementar um armazenamento de sessão compartilhado (ex: Redis).
-3. **Armazenamento de Arquivos (Uploads):** Para arquivos enviados por usuários (ex: JSON de importação, futuros avatares), considerar uma solução de armazenamento centralizada ou externa (ex: S3, Azure Blob) se múltiplas instâncias da aplicação precisarem acessá-los.
+   - Um script como `node scripts/migrate-to-postgresql.js` precisaria ser desenvolvido para esta finalidade.
+2. **Gestão de Sessões:** Se sessões de usuário forem armazenadas no servidor da aplicação (atualmente usa JWT, o que é stateless), mas se mudar para sessões, implementar um armazenamento de sessão compartilhado (ex: Redis).
+3. **Armazenamento de Arquivos (Uploads):** Para arquivos enviados por usuários (ex: JSON de importação), considerar uma solução de armazenamento centralizada ou externa (ex: S3, Azure Blob) se múltiplas instâncias da aplicação precisarem acessá-los.
 
 ### Processo de Escala Horizontal (Plano Futuro)
 
@@ -90,7 +90,7 @@ Distribuir a carga entre múltiplas instâncias da aplicação. **Esta estratég
 
 ### Considerações
 
-- Garantir que a aplicação seja o mais stateless possível.
+- Garantir que a aplicação seja o mais stateless possível (o uso de JWT já ajuda).
 - Lidar com consistência de dados se houver caches ou dados replicados.
 
 ## Otimização de Banco de Dados
@@ -98,11 +98,11 @@ Distribuir a carga entre múltiplas instâncias da aplicação. **Esta estratég
 ### SQLite (Estratégias Atuais e de Curto Prazo)
 
 - **Índices:** Garantir que todas as colunas frequentemente usadas em cláusulas `WHERE`, `JOIN`, e `ORDER BY` estejam indexadas.
-  - Exemplos de índices já implementados em `lib/schema.js`: `idx_players_tournament`, `idx_matches_tournament`, `idx_scores_match`.
+  - A criação de tabelas em `lib/database.js` já inclui alguns índices (ex: chaves primárias, UNIQUE constraints).
   - **Futuro:** Considerar índices adicionais conforme o uso, como em colunas de data para filtragem de intervalo (ex: `CREATE INDEX IF NOT EXISTS idx_matches_scheduled_at ON matches(scheduled_at);`).
-- **Otimização de Queries:** Analisar e otimizar queries lentas.
+- **Otimização de Queries:** Analisar e otimizar queries lentas nos modelos.
 - **Vacuum:** Executar `VACUUM` periodicamente para reconstruir o banco de dados e reduzir a fragmentação (pode ser parte de um script de manutenção futuro, como um `scripts/optimize-database.js`).
-- **Modo WAL (Write-Ahead Logging):** Habilitar o modo WAL para melhor concorrência: `PRAGMA journal_mode=WAL;`.
+- **Modo WAL (Write-Ahead Logging):** Avaliar e implementar o modo WAL para melhor concorrência: `PRAGMA journal_mode=WAL;`.
 
 ### PostgreSQL/MySQL (Estratégias de Médio/Longo Prazo, após migração)
 
@@ -131,7 +131,7 @@ Distribuir a carga entre múltiplas instâncias da aplicação. **Esta estratég
 ### Atual (Monolítica com SQLite)
 
 ```text
-[Cliente (HTML, CSS, JS)] → [Servidor Express (API Routes)] → [Camada de Modelos (lib/models)] → [SQLite (lib/db.js)]
+[Cliente (HTML, CSS, JS)] → [Servidor Express (API Routes)] → [Camada de Modelos (lib/models)] → [SQLite (lib/db.js via better-sqlite3)]
 ```
 
 Esta arquitetura é adequada para o estado atual do projeto.
@@ -155,9 +155,9 @@ A separação em serviços (API, workers, notificações) seria uma evolução p
 
 1. **Cache de Navegador:** Configurar headers HTTP (`Cache-Control`, `ETag`, `Last-Modified`) para assets estáticos (parcialmente feito em `server.js`).
 2. **Cache de Aplicação (Backend):**
-    - Implementar uma solução como Redis para cachear resultados de queries de banco de dados frequentes ou dados computacionalmente caros.
+   - Implementar uma solução como Redis para cachear resultados de queries de banco de dados frequentes ou dados computacionalmente caros.
 3. **CDN (Content Delivery Network):**
-    - Servir assets estáticos (CSS, JS, imagens) através de uma CDN para reduzir latência para usuários globais.
+   - Servir assets estáticos (CSS, JS, imagens) através de uma CDN para reduzir latência para usuários globais.
 
 ## Monitoramento e Alertas
 
@@ -165,7 +165,7 @@ A separação em serviços (API, workers, notificações) seria uma evolução p
 
 - **Sistema:** CPU, memória, disco, rede.
 - **Aplicação:** Tempo de resposta da API, taxa de erros (HTTP 5xx, 4xx), throughput (requisições/segundo).
-- **Banco de Dados (SQLite):** Tamanho do arquivo, verificar por queries lentas se possível (mais difícil com SQLite embutido). Para PostgreSQL/MySQL, monitorar conexões, queries lentas, bloqueios.
+- **Banco de Dados (SQLite):** Tamanho do arquivo. Para PostgreSQL/MySQL, monitorar conexões, queries lentas, bloqueios.
 - **Negócio:** Número de usuários ativos, torneios criados, partidas registradas.
 
 ### Sistema de Alertas (Exemplos)
@@ -179,11 +179,11 @@ A separação em serviços (API, workers, notificações) seria uma evolução p
 ### Fase 1: Otimização da Configuração Atual (SQLite)
 
 - **[CONCLUÍDO]** Migração de dados de JSON para SQLite.
-- **[EM ANDAMENTO]** Otimizar consultas SQL e garantir índices adequados em `lib/schema.js`.
-- **[EM ANDAMENTO]** Implementar monitoramento básico de saúde da aplicação e logs.
-- **[NOVO]** Implementar cache de assets estáticos mais robusto e headers de cache HTTP.
-- **[NOVO]** Avaliar e implementar o modo WAL para SQLite.
-- **[NOVO]** Criar script de manutenção para `VACUUM` (ex: `scripts/optimize-database.js`).
+- **[EM ANDAMENTO/CONCLUÍDO PARCIALMENTE]** Otimizar consultas SQL e garantir índices adequados (revisão de modelos e esquema realizada).
+- **[EM ANDAMENTO/CONCLUÍDO PARCIALMENTE]** Implementar monitoramento básico de saúde da aplicação e logs (health check existe, logs de honeypot melhorados).
+- **[A FAZER]** Implementar cache de assets estáticos mais robusto e headers de cache HTTP.
+- **[A FAZER]** Avaliar e implementar o modo WAL para SQLite.
+- **[A FAZER]** Criar script de manutenção para `VACUUM` (ex: `scripts/optimize-database.js`).
 
 ### Fase 2: Preparação para Escala Maior (Plano Futuro)
 

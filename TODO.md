@@ -1,6 +1,6 @@
-# Lista de Melhorias e Implementações Futuras - Sistema de Gerenciamento de Torneios LASCMMG
+# Lista de Tarefas e Melhorias - LASCMMG
 
-Esta lista contém melhorias práticas e implementações viáveis organizadas por prioridade e complexidade, focando em valor real para os usuários e aprimoramentos técnicos alcançáveis.
+Este documento rastreia as tarefas pendentes, melhorias planejadas e ideias para o futuro do Sistema de Gerenciamento de Torneios LASCMMG.
 
 **Legenda de Status:**
 
@@ -9,105 +9,78 @@ Esta lista contém melhorias práticas e implementações viáveis organizadas p
 - **[CONCLUÍDO]** - Tarefa finalizada.
 - **[REVISAR]** - Tarefa precisa ser reavaliada ou redefinida.
 
-## Melhorias de Curto Prazo (1-3 meses)
+## Prioridade Alta / Curto Prazo
 
-### Interface e Experiência do Usuário - Curto Prazo
+### Backend e Estrutura
 
-1. **[EM ANDAMENTO]** **Tema Completo da LASCMMG:** Padronizar toda a aplicação com as cores e identidade visual da LASCMMG (temas "Faculdade Claro" e "Faculdade Escuro") em todas as páginas e componentes. Garantir consistência visual e bom contraste. (Alta Prioridade, Baixa Complexidade restante)
-2. **[NOVO]** **Visualização Responsiva de Chaveamentos:** Melhorar a visualização de chaveamentos em dispositivos móveis com zoom e navegação otimizada. (Alta Prioridade, Média Complexidade)
-3. **[CONCLUÍDO]** **Modo Noturno/Claro:** Implementada alternância entre os temas "Faculdade (Claro)" e "Faculdade (Escuro)" com persistência de preferência do usuário e respeito à preferência do sistema.
-4. **[EM ANDAMENTO]** **Indicadores de Progresso:** Adicionar/melhorar barras de progresso e indicadores de carregamento durante operações longas. (Alta Prioridade, Baixa Complexidade)
-5. **[NOVO]** **Melhorias nas Notificações:** Sistema de notificações mais eficiente para alertar sobre atualizações de placares, novos torneios, etc. (Alta Prioridade, Média Complexidade)
-6. **[EM ANDAMENTO]** **Filtros e Pesquisa Avançada:** Adicionar/melhorar opções de pesquisa e filtros para torneios, jogadores e resultados (filtros de placares já iniciados). (Alta Prioridade, Média Complexidade)
+1. **[CONCLUÍDO]** **Migração para SQLite e `better-sqlite3`**: Persistência de dados de torneios, jogadores, placares, partidas e estado do chaveamento migrada de arquivos JSON para SQLite, utilizando `better-sqlite3`.
+2. **[CONCLUÍDO]** **Configuração de ESLint e Prettier**: Unificada e regras mais estritas para qualidade de código.
+3. **[CONCLUÍDO]** **Configuração de Testes com Vitest**: Framework de testes Vitest configurado com JSDOM. Testes unitários existentes para `securityUtils.js` passam.
+4. **[CONCLUÍDO]** **Revisão e Refatoração de Modelos**: Modelos (`adminModel`, `tournamentModel`, `playerModel`, `scoreModel`, `matchModel`) revisados, esquema de DB atualizado, e uso de transações síncronas melhorado.
+5. **[CONCLUÍDO]** **Revisão e Melhoria de Rotas Principais**: Rotas de autenticação, torneios, estatísticas e sistema revisadas. Segurança de endpoints reforçada. Lógica de geração de chaveamento usa dados reais. Código obsoleto removido.
+6. **[CONCLUÍDO]** **Melhoria do Honeypot**: Logs de honeypot agora são persistidos e o endpoint de estatísticas usa dados reais. Campos de honeypot injetados nas páginas HTML servidas.
+7. **[A FAZER]** **Refatorar Lógica de Chaveamento**: Mover a lógica complexa de geração e avanço de chaveamentos de `routes/tournaments-sqlite.js` para módulos de serviço dedicados (ex: `lib/services/bracketService.js`). (Alta Prioridade, Média Complexidade)
+8. **[A FAZER]** **Otimização de Consultas SQL e Índices**: Continuar a revisão de todas as consultas nos modelos para otimizar performance e garantir índices apropriados para todas as tabelas e colunas frequentemente consultadas. (Alta Prioridade, Média Complexidade)
+9. **[A FAZER]** **Backup Automatizado e Otimização de DB**: Criar script para `VACUUM` e avaliar modo WAL para SQLite. Automatizar backups. (Alta Prioridade, Média Complexidade)
+10. **[A FAZER]** **Logs Aprimorados do Servidor**: Melhorar o sistema de logs do servidor (além do `morgan` e `auditLogger`) para facilitar diagnóstico e auditoria. (Média Prioridade, Média Complexidade)
 
-### Backend e Funcionalidades - Curto Prazo
+### Interface e Experiência do Usuário (Frontend)
 
-1. **[EM ANDAMENTO]** **Otimização de Consultas SQL:** Revisar e otimizar as consultas SQL (agora que o sistema usa SQLite) para melhorar o tempo de resposta. (Alta Prioridade, Média Complexidade)
-2. **[EM ANDAMENTO]** **Exportação de Dados:** Permitir exportação de dados em formatos comuns (CSV, PDF) para torneios, estatísticas e resultados (funcionalidade básica de exportação JSON existe, expandir). (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Backup Automatizado:** Implementar sistema de backup automatizado do banco de dados SQLite com rotação e verificação de integridade (script manual existe, automatizar). (Alta Prioridade, Média Complexidade)
-4. **[REVISAR]** **Limpeza de Dados Temporários:** Com a migração para SQLite, verificar se ainda há necessidade de limpeza de arquivos temporários (ex: uploads). (Média Prioridade, Baixa Complexidade)
-5. **[EM ANDAMENTO]** **Logs Aprimorados:** Melhorar o sistema de logs do servidor para facilitar diagnóstico de problemas e auditoria de segurança. (Alta Prioridade, Média Complexidade)
-6. **[CONCLUÍDO]** **Migração para SQLite:** Persistência de dados de torneios, jogadores, placares e estado do chaveamento migrada de arquivos JSON para SQLite.
+1. **[EM ANDAMENTO]** **Tema Completo da LASCMMG**: Finalizar a padronização visual em todas as páginas e componentes. (Alta Prioridade, Baixa Complexidade restante)
+2. **[A FAZER]** **Revisão Completa do Frontend**: Analisar e refatorar o código JavaScript do frontend (`js/`) para melhor modularização, eficiência, e manutenibilidade. (Alta Prioridade, Alta Complexidade)
+3. **[A FAZER]** **Visualização Responsiva de Chaveamentos**: Melhorar a usabilidade em dispositivos móveis. (Alta Prioridade, Média Complexidade)
+4. **[EM ANDAMENTO]** **Indicadores de Progresso**: Adicionar/melhorar feedback visual durante operações. (Média Prioridade, Baixa Complexidade)
+5. **[A FAZER]** **Melhorias nas Notificações**: Implementar um sistema de notificações mais robusto. (Média Prioridade, Média Complexidade)
+6. **[EM ANDAMENTO]** **Filtros e Pesquisa Avançada**: Melhorar filtros existentes e adicionar novas opções. (Média Prioridade, Média Complexidade)
 
-## Melhorias de Médio Prazo (3-6 meses)
+### Testes
 
-### Interface e Experiência do Usuário - Médio Prazo
+1. **[A FAZER]** **Ampliar Cobertura de Testes Unitários**: Escrever testes para todos os modelos, rotas e principais lógicas de serviço. (Alta Prioridade, Média Complexidade)
+2. **[A FAZER]** **Testes de Integração**: Implementar testes de integração para fluxos críticos (ex: criação de torneio, registro de placar, avanço de chaveamento). (Média Prioridade, Média Complexidade)
 
-1. **[NOVO]** **Dashboard Personalizado:** Permitir que usuários personalizem seu dashboard com widgets e informações relevantes. (Alta Prioridade, Média Complexidade)
-2. **[EM ANDAMENTO]** **Visualizações de Estatísticas:** Criar gráficos e visualizações mais intuitivas para estatísticas de jogadores e torneios (seção de estatísticas existe, aprimorar visualizações). (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Tutorial Interativo:** Adicionar tutoriais passo-a-passo para novos usuários. (Média Prioridade, Média Complexidade)
-4. **[NOVO]** **Histórico de Atividades:** Exibir histórico de ações recentes dos usuários administradores. (Média Prioridade, Média Complexidade)
-5. **[NOVO]** **Melhorias de Impressão:** Otimizar a impressão de chaveamentos e resultados. (Alta Prioridade, Média Complexidade)
+## Médio Prazo
 
-### Backend e Funcionalidades - Médio Prazo
+### Backend e Funcionalidades
 
-1. **[EM ANDAMENTO]** **API RESTful Documentada:** Completar e documentar a API REST (ex: usando Swagger/OpenAPI). (Alta Prioridade, Média Complexidade)
-2. **[NOVO]** **Cache Inteligente:** Implementar sistema de cache para dados frequentemente acessados. (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Sistema de Fila para Tarefas Pesadas:** (Se necessário) Implementar fila para processar operações intensivas em background. (Alta Prioridade, Média Complexidade)
-4. **[NOVO]** **Monitoramento de Performance:** Adicionar sistema para monitorar a performance da aplicação. (Alta Prioridade, Média Complexidade)
-5. **[NOVO]** **Otimização de Assets:** Implementar compressão, minificação e entrega otimizada de assets (JS, CSS, imagens). (Alta Prioridade, Média Complexidade)
+1. **[EM ANDAMENTO]** **API RESTful Documentada**: Gerar documentação da API (ex: Swagger/OpenAPI). (Média Prioridade, Média Complexidade)
+2. **[A FAZER]** **Cache Inteligente**: Implementar cache para dados frequentemente acessados (ex: Redis). (Média Prioridade, Média Complexidade)
+3. **[A FAZER]** **Otimização de Assets**: Compressão, minificação de JS/CSS. (Média Prioridade, Média Complexidade)
+4. **[A FAZER]** **Persistência para Blacklist de Tokens**: Mover a blacklist de tokens JWT e contadores de brute-force para um armazenamento persistente (ex: Redis) para suportar múltiplos workers/instâncias. (Média Prioridade, Média Complexidade)
 
-## Novos Recursos Práticos
+### Interface e Experiência do Usuário
 
-1. **[NOVO]** **Sistema de Inscrição Online:** Permitir que jogadores se inscrevam em torneios. (Alta Prioridade, Média Complexidade)
-2. **[NOVO]** **Notificações por Email/SMS:** Enviar comunicações automatizadas. (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Compartilhamento em Redes Sociais:** Facilitar o compartilhamento. (Média Prioridade, Baixa Complexidade)
-4. **[NOVO]** **Geração de Certificados:** Criar certificados de participação/premiação. (Média Prioridade, Média Complexidade)
-5. **[NOVO]** **Sistema de Rankings:** Implementar rankings baseados em resultados. (Alta Prioridade, Média Complexidade)
-6. **[NOVO]** **Modo Espectador:** Visualização otimizada para telões/eventos. (Alta Prioridade, Média Complexidade)
-7. **[NOVO]** **Histórico de Confrontos:** Mostrar histórico H2H entre jogadores. (Alta Prioridade, Média Complexidade)
-8. **[EM ANDAMENTO]** **Agendamento de Partidas:** Sistema para organizar e agendar partidas (funcionalidade básica existe, pode ser aprimorada com notificações). (Alta Prioridade, Média Complexidade)
+1. **[EM ANDAMENTO]** **Visualizações de Estatísticas**: Melhorar gráficos e visualizações. (Média Prioridade, Média Complexidade)
+2. **[A FAZER]** **Melhorias de Impressão**: Otimizar impressão de chaveamentos. (Média Prioridade, Média Complexidade)
 
-## Aprimoramentos de Segurança
+### Novos Recursos
 
-1. **[NOVO]** **Duplo Fator de Autenticação (2FA):** Implementar 2FA para admins. (Alta Prioridade, Média Complexidade)
-2. **[NOVO]** **Auditoria de Segurança:** Conduzir revisão de segurança completa. (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Gestão Granular de Permissões:** (Se necessário) Implementar controle de acesso mais detalhado. (Alta Prioridade, Média Complexidade)
-4. **[EM ANDAMENTO]** **Proteção Contra Ataques Comuns:** Continuar aprimorando medidas contra força bruta, injeção SQL, XSS, CSRF (base já implementada). (Alta Prioridade, Média Complexidade)
-5. **[EM ANDAMENTO]** **Sessões Seguras:** Melhorar gerenciamento de sessões (uso de cookies seguros já implementado, revisar rotação de tokens). (Alta Prioridade, Média Complexidade)
+1. **[A FAZER]** **Sistema de Inscrição Online**: Permitir que jogadores se inscrevam em torneios. (Alta Prioridade, Média Complexidade)
+2. **[A FAZER]** **Sistema de Rankings**: Implementar rankings baseados em resultados. (Média Prioridade, Média Complexidade)
+3. **[A FAZER]** **Histórico de Confrontos (H2H)**: Mostrar histórico entre jogadores. (Média Prioridade, Média Complexidade)
 
-## Melhorias de Acessibilidade
+## Aprimoramentos de Segurança (Contínuo)
 
-1. **[EM ANDAMENTO]** **Conformidade com WCAG 2.1 AA:** Garantir que o sistema atenda aos critérios WCAG 2.1 AA. (Alta Prioridade, Média Complexidade)
-2. **[EM ANDAMENTO]** **Navegação por Teclado:** Melhorar a navegação completa por teclado (base já implementada). (Alta Prioridade, Média Complexidade)
-3. **[EM ANDAMENTO]** **Textos Alternativos e Legendas:** Garantir alternativas acessíveis (base já implementada). (Alta Prioridade, Baixa Complexidade)
-4. **[NOVO]** **Teste com Leitores de Tela:** Verificar e corrigir problemas de compatibilidade. (Alta Prioridade, Média Complexidade)
-5. **[EM ANDAMENTO]** **Contraste e Redimensionamento:** Garantir contraste adequado e comportamento correto ao redimensionar textos (ajustes de contraste recentes foram feitos). (Alta Prioridade, Média Complexidade)
+1. **[A FAZER]** **Duplo Fator de Autenticação (2FA)**: Para administradores. (Média Prioridade, Média Complexidade)
+2. **[A FAZER]** **Auditoria de Segurança Completa**: Revisão de segurança periódica. (Média Prioridade, Média Complexidade)
+3. **[EM ANDAMENTO]** **Proteção Contra Ataques Comuns**: Continuar monitorando e aprimorando defesas.
+4. **[EM ANDAMENTO]** **Sessões Seguras**: Revisar e garantir melhores práticas para JWT e cookies.
 
-## Otimizações Técnicas
+## Otimizações Técnicas e DevOps
 
-1. **[EM ANDAMENTO]** **Refatoração de Código Legado:** Identificar e refatorar partes do código (migração JSON->SQLite foi um grande passo). (Alta Prioridade, Alta Complexidade)
-2. **[NOVO]** **Migração para TypeScript:** (Opcional) Migrar gradualmente para TypeScript. (Média Prioridade, Alta Complexidade)
-3. **[NOVO]** **Testes Automatizados:** Ampliar cobertura de testes unitários e implementar testes de integração/end-to-end. (Alta Prioridade, Alta Complexidade)
-4. **[NOVO]** **CI/CD Pipeline:** Implementar pipeline de integração/entrega contínua. (Alta Prioridade, Média Complexidade)
-5. **[EM ANDAMENTO]** **Modularização de Componentes:** Reorganizar o frontend em componentes reutilizáveis (estrutura JS já é modular, continuar aprimorando). (Alta Prioridade, Alta Complexidade)
+1. **[A FAZER]** **CI/CD Pipeline**: Implementar integração e entrega contínua. (Média Prioridade, Média Complexidade)
+2. **[REVISAR]** **Migração para TypeScript**: Avaliar os benefícios e custos de uma migração gradual. (Baixa Prioridade, Alta Complexidade)
 
-## Expansão para Plataformas Móveis
+## Considerações Futuras / Baixa Prioridade Atual
 
-1. **[EM ANDAMENTO]** **Design Mobile-First:** Redesenhar/otimizar interfaces críticas com abordagem mobile-first (responsividade base existe). (Alta Prioridade, Média Complexidade)
-2. **[NOVO]** **PWA (Progressive Web App):** Transformar a aplicação em uma PWA. (Alta Prioridade, Média Complexidade)
-3. **[NOVO]** **Aplicativos Híbridos:** (Opcional, futuro distante) Desenvolver apps híbridos. (Média Prioridade, Alta Complexidade)
-4. **[NOVO]** **API Mobile-Specific:** Otimizar endpoints de API para mobile. (Alta Prioridade, Média Complexidade)
-5. **[NOVO]** **Sincronização Offline:** (Se PWA/App) Implementar sincronização de dados. (Média Prioridade, Alta Complexidade)
-
-## Melhorias para Organizadores de Torneios
-
-1. **[NOVO]** **Gestão de Locais e Recursos:** Sistema para gerenciar disponibilidade de locais, mesas, etc. (Alta Prioridade, Média Complexidade)
-2. **[NOVO]** **Templates de Torneios:** Permitir salvar e reutilizar configurações de torneios. (Alta Prioridade, Baixa Complexidade)
-3. **[NOVO]** **Gestão de Voluntários/Staff:** Sistema para gerenciar equipe de apoio. (Média Prioridade, Média Complexidade)
-4. **[EM ANDAMENTO]** **Dashboard do Organizador:** Visão consolidada com métricas (dashboard admin existe, pode ser aprimorado). (Alta Prioridade, Média Complexidade)
-5. **[EM ANDAMENTO]** **Controle de Cronograma:** Ferramentas para gerenciar e ajustar cronogramas (agendamento de partidas existe). (Alta Prioridade, Média Complexidade)
+- **[NOVO]** Tutorial Interativo para novos usuários.
+- **[NOVO]** Histórico de Atividades de Administradores.
+- **[NOVO]** Notificações por Email/SMS.
+- **[NOVO]** Compartilhamento em Redes Sociais.
+- **[NOVO]** Geração de Certificados.
+- **[NOVO]** Modo Espectador para eventos.
+- **[NOVO]** Gestão de Locais, Recursos, Voluntários/Staff.
+- **[NOVO]** Templates de Torneios.
+- **[NOVO]** PWA (Progressive Web App) e otimizações mobile-specific.
 
 ---
-
-## Abordagem de Implementação
-
-Para tornar esse roadmap realizável, recomendamos:
-
-1. **Desenvolvimento Iterativo:** Implementar melhorias em ciclos curtos (2-4 semanas) com entrega contínua.
-2. **Priorização por Valor:** Focar primeiro nas melhorias que trazem maior valor aos usuários com menor esforço.
-3. **Feedback Contínuo:** Coletar e incorporar feedback de usuários reais em cada ciclo de desenvolvimento.
-4. **Métricas de Desempenho:** Estabelecer métricas claras para avaliar o impacto das melhorias implementadas.
-5. **Documentação Incremental:** Manter documentação atualizada para facilitar contribuições futuras e treinamento.
-
-Esta lista será revisada e atualizada regularmente conforme o progresso do desenvolvimento e feedback dos usuários.
+Esta lista será revisada e atualizada regularmente.

@@ -52,7 +52,9 @@
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--light-border);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
@@ -74,17 +76,17 @@
 }
 
 .tournament-icon::before {
-  content: "🏆";
+  content: '🏆';
   font-size: 1.5rem;
 }
 
 .player-icon::before {
-  content: "👤";
+  content: '👤';
   font-size: 1.5rem;
 }
 
 .match-icon::before {
-  content: "🎮";
+  content: '🎮';
   font-size: 1.5rem;
 }
 
@@ -163,7 +165,9 @@
   margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid var(--light-border);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .match-item:last-child {

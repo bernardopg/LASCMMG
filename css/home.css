@@ -10,13 +10,21 @@
   align-items: center;
   padding: 2rem 1rem;
   margin-bottom: 2rem;
-  background: linear-gradient(to bottom, rgba(var(--primary-rgb), 0.1), rgba(var(--accent-color-rgb), 0.05));
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--primary-rgb), 0.1),
+    rgba(var(--accent-color-rgb), 0.05)
+  );
   border-radius: var(--border-radius);
   text-align: center;
 }
 
 .faculdade-theme .hero-section {
-  background: linear-gradient(to bottom, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.05)); /* Usando secondary-rgb para dourado */
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--primary-rgb), 0.1),
+    rgba(var(--secondary-rgb), 0.05)
+  ); /* Usando secondary-rgb para dourado */
   border: 1px solid rgba(var(--primary-rgb), 0.2);
 }
 
@@ -75,7 +83,9 @@
   align-items: center;
   text-align: center;
   padding: 1.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .home-card:hover {

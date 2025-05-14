@@ -16,27 +16,31 @@
   --accent-color: #17a2b8; /* Ciano para acento, combina bem com verde */
   --accent-hover: #138496;
   --accent-color-rgb: 23, 162, 184;
-  --accent-bg-light: rgba(var(--accent-color-rgb), 0.15); /* Ciano claro para fundos de destaque */
+  --accent-bg-light: rgba(
+    var(--accent-color-rgb),
+    0.15
+  ); /* Ciano claro para fundos de destaque */
 
   /* Cores de fundo (tons escuros, alguns com leve matiz verde) */
-  --bg-color: #1A2A1A; /* Verde muito escuro para o fundo principal */
+  --bg-color: #1a2a1a; /* Verde muito escuro para o fundo principal */
   --bg-color-secondary: #223322; /* Verde escuro para fundos secundários (sidebar, navbar) */
-  --surface-rgb: 34, 51, 34; /* RGB de --bg-color-secondary, usado como surface */
-  --bg-color-tertiary: #2C3E2C; /* Verde um pouco mais claro para painéis */
+  --surface-rgb:
+    34, 51, 34; /* RGB de --bg-color-secondary, usado como surface */
+  --bg-color-tertiary: #2c3e2c; /* Verde um pouco mais claro para painéis */
   --panel-bg: var(--bg-color-tertiary);
   --modal-bg: #253825;
-  --dropdown-bg: #2E422E;
+  --dropdown-bg: #2e422e;
 
   /* Cores de texto (claras para contraste) */
   --text-color: #e8f5e9; /* Branco esverdeado muito claro */
   --text-color-secondary: #c8e6c9; /* Verde claro para texto secundário */
   --text-color-muted: #a5d6a7; /* Verde mais suave para texto silenciado */
-  --text-color-disabled: #556B55;
+  --text-color-disabled: #556b55;
 
   /* Cores de borda */
   --border-color: #385338;
-  --border-color-light: #4A6A4A;
-  --separator-color: #334A33;
+  --border-color-light: #4a6a4a;
+  --separator-color: #334a33;
 
   /* Cores de seleção e hover */
   --selection-bg: rgba(40, 167, 69, 0.3); /* Verde primário com alfa */
@@ -59,7 +63,7 @@
   /* Cores de tabela */
   --table-header-bg: var(--bg-color-tertiary);
   --table-row-bg: var(--bg-color-secondary);
-  --table-row-alt-bg: #273B27; /* Alternativo um pouco diferente */
+  --table-row-alt-bg: #273b27; /* Alternativo um pouco diferente */
   --table-row-hover: #304530;
   --table-border: var(--border-color);
 
@@ -68,7 +72,7 @@
   --bracket-line: var(--primary-color);
   --bracket-border: var(--border-color);
   --match-bg: var(--bg-color-secondary);
-  --match-completed-bg: #2A4A3A; /* Verde escuro para partida completada */
+  --match-completed-bg: #2a4a3a; /* Verde escuro para partida completada */
   --match-hover: #304530;
 
   /* Cores de formulário */
@@ -76,25 +80,27 @@
   --input-border: var(--border-color);
   --input-focus-border: var(--primary-color);
   --input-disabled-bg: #152015;
-  --input-disabled-text: #4A6A4A;
+  --input-disabled-text: #4a6a4a;
   --placeholder-color: #81c784; /* Verde claro para placeholder */
 
   /* Cores de botão */
-  --button-secondary-bg: var(--secondary-color); /* Cinza mantido para secundário */
+  --button-secondary-bg: var(
+    --secondary-color
+  ); /* Cinza mantido para secundário */
   --button-secondary-hover: var(--secondary-hover);
   --button-danger-bg: #c62828; /* Vermelho escuro para perigo */
   --button-danger-hover: #b71c1c;
 
   /* Cores de scroll */
-  --scrollbar-thumb: #4A6A4A;
-  --scrollbar-thumb-hover: #5C7A5C;
-  --scrollbar-track: #101C10;
+  --scrollbar-thumb: #4a6a4a;
+  --scrollbar-thumb-hover: #5c7a5c;
+  --scrollbar-track: #101c10;
 
   /* Cores de feedback (alertas) */
   --success-bg: rgba(102, 187, 106, 0.2); /* Fundo de alerta de sucesso */
-  --warning-bg: rgba(255, 193, 7, 0.2);   /* Fundo de alerta de aviso */
-  --error-bg: rgba(239, 83, 80, 0.2);     /* Fundo de alerta de erro */
-  --info-bg: rgba(66, 165, 245, 0.2);      /* Fundo de alerta de informação */
+  --warning-bg: rgba(255, 193, 7, 0.2); /* Fundo de alerta de aviso */
+  --error-bg: rgba(239, 83, 80, 0.2); /* Fundo de alerta de erro */
+  --info-bg: rgba(66, 165, 245, 0.2); /* Fundo de alerta de informação */
 
   /* Outras */
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
@@ -113,12 +119,14 @@
 }
 
 .verde-escuro-theme .sidebar {
-  background-color: var(--bg-color-secondary); /* Sidebar com fundo verde escuro */
+  background-color: var(
+    --bg-color-secondary
+  ); /* Sidebar com fundo verde escuro */
   border-right: 1px solid var(--border-color);
   color: var(--text-color); /* Texto claro na sidebar */
 }
 .verde-escuro-theme .sidebar-header h1 {
- color: var(--text-color);
+  color: var(--text-color);
 }
 .verde-escuro-theme .nav-item {
   color: var(--text-color);
@@ -127,7 +135,10 @@
   background-color: var(--bg-color-tertiary); /* Hover um pouco mais claro */
 }
 .verde-escuro-theme .nav-item.active {
-  background-color: rgba(var(--primary-rgb), 0.15); /* Fundo ativo com primário transparente */
+  background-color: rgba(
+    var(--primary-rgb),
+    0.15
+  ); /* Fundo ativo com primário transparente */
   border-left-color: var(--primary-color);
   color: var(--primary-color); /* Texto do item ativo com cor primária */
 }
@@ -139,17 +150,17 @@
   fill: var(--primary-color);
 }
 
-
 .verde-escuro-theme .card,
 .verde-escuro-theme .panel,
-.verde-escuro-theme .admin-card { /* Incluindo admin-card */
+.verde-escuro-theme .admin-card {
+  /* Incluindo admin-card */
   background-color: var(--panel-bg);
   border-color: var(--border-color);
   color: var(--text-color);
 }
 .verde-escuro-theme .admin-card h3 {
-    color: var(--primary-color);
-    border-bottom-color: var(--separator-color);
+  color: var(--primary-color);
+  border-bottom-color: var(--separator-color);
 }
 
 /* Ajuste para texto em cards da home no tema verde escuro */
@@ -159,7 +170,9 @@
 
 /* Ajuste para o subtítulo da hero section no tema verde escuro */
 .verde-escuro-theme .hero-subtitle {
-  color: var(--text-color-secondary); /* Usar uma cor de texto mais clara para subtítulos */
+  color: var(
+    --text-color-secondary
+  ); /* Usar uma cor de texto mais clara para subtítulos */
 }
 
 /* Ajuste para o texto dos parágrafos de anúncio no tema verde escuro */
@@ -171,7 +184,6 @@
 .verde-escuro-theme .announcement-content h4 {
   color: var(--text-color); /* Usar a cor de texto principal do tema escuro */
 }
-
 
 .verde-escuro-theme .modal {
   background-color: var(--modal-bg);
@@ -232,13 +244,13 @@
 }
 
 .verde-escuro-theme .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: var(--contrast-text); /* Texto branco para botões primários verdes */
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--contrast-text); /* Texto branco para botões primários verdes */
 }
 .verde-escuro-theme .btn-primary:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .verde-escuro-theme .btn-secondary {
@@ -278,14 +290,17 @@
 
 /* Chaveamento no tema Verde Escuro */
 .verde-escuro-theme #bracket, /* Alvo específico para o ID #bracket */
-.verde-escuro-theme .bracket-container { /* Alvo para a classe .bracket-container */
+.verde-escuro-theme .bracket-container {
+  /* Alvo para a classe .bracket-container */
   background-color: var(--bracket-bg); /* --bracket-bg é var(--panel-bg) */
   border-color: var(--bracket-border);
 }
 
 .verde-escuro-theme .match {
   background-color: var(--match-bg);
-  border-color: var(--bracket-border); /* Usar a mesma borda do bracket para consistência */
+  border-color: var(
+    --bracket-border
+  ); /* Usar a mesma borda do bracket para consistência */
 }
 
 .verde-escuro-theme .match.completed {
@@ -301,18 +316,18 @@
 }
 
 /* Jogadores no chaveamento */
-.verde-escuro-theme .player { /* Estilo base para jogador no tema verde escuro */
-    color: var(--text-color-secondary);
+.verde-escuro-theme .player {
+  /* Estilo base para jogador no tema verde escuro */
+  color: var(--text-color-secondary);
 }
 .verde-escuro-theme .player span.score {
-    color: var(--text-color);
-    background-color: var(--bg-color-tertiary);
+  color: var(--text-color);
+  background-color: var(--bg-color-tertiary);
 }
 .verde-escuro-theme .player span.score.not-played {
-    color: var(--text-color-secondary);
-    background-color: transparent;
+  color: var(--text-color-secondary);
+  background-color: transparent;
 }
-
 
 .verde-escuro-theme .player.winner {
   color: var(--success-color);
@@ -320,9 +335,8 @@
 }
 .verde-escuro-theme .player.winner span.name,
 .verde-escuro-theme .player.winner span.score {
-    color: var(--success-color);
+  color: var(--success-color);
 }
-
 
 .verde-escuro-theme .player.loser {
   color: var(--text-color-loser-dark-theme);
@@ -331,7 +345,7 @@
 }
 .verde-escuro-theme .player.loser span.name,
 .verde-escuro-theme .player.loser span.score {
-    color: var(--text-color-loser-dark-theme);
+  color: var(--text-color-loser-dark-theme);
 }
 
 .verde-escuro-theme .player.champion {
@@ -341,22 +355,26 @@
 }
 .verde-escuro-theme .player.champion span.name,
 .verde-escuro-theme .player.champion span.score {
-    color: var(--champion-text-color-dark);
+  color: var(--champion-text-color-dark);
 }
 
 .verde-escuro-theme .player.undefined,
-.verde-escuro-theme .player:not(.winner):not(.loser):not(.champion) { /* Mais específico */
+.verde-escuro-theme .player:not(.winner):not(.loser):not(.champion) {
+  /* Mais específico */
   color: var(--text-color-secondary);
   background-color: transparent;
 }
 
 .verde-escuro-theme .match-datetime {
-  color: var(--info-color); /* Mantendo azul para datas para destaque, ou pode ser um verde claro */
+  color: var(
+    --info-color
+  ); /* Mantendo azul para datas para destaque, ou pode ser um verde claro */
 }
 
 /* Ajuste para texto de "sem dados" no chaveamento no tema verde escuro */
 .verde-escuro-theme #bracket .no-data p,
-.verde-escuro-theme .bracket-container .no-data p { /* Adicionando seletor mais genérico */
+.verde-escuro-theme .bracket-container .no-data p {
+  /* Adicionando seletor mais genérico */
   color: var(--text-color-secondary); /* Usar uma cor de texto clara e suave */
 }
 
@@ -367,7 +385,9 @@
 
 /* Ajustes para os cards de estatísticas no tema verde escuro */
 .verde-escuro-theme .stats-card h3 {
-  background-color: var(--bg-color-tertiary); /* Um tom de verde escuro ligeiramente diferente para o cabeçalho do card */
+  background-color: var(
+    --bg-color-tertiary
+  ); /* Um tom de verde escuro ligeiramente diferente para o cabeçalho do card */
   color: var(--primary-color); /* Cor primária do tema para o título */
   border-bottom-color: var(--border-color);
 }
@@ -381,8 +401,12 @@
 }
 
 .verde-escuro-theme .stats-card {
-  background-color: var(--panel-bg); /* Usar o fundo de painel padrão do tema escuro */
-  border-color: var(--border-color); /* Usar a cor de borda padrão do tema escuro */
+  background-color: var(
+    --panel-bg
+  ); /* Usar o fundo de painel padrão do tema escuro */
+  border-color: var(
+    --border-color
+  ); /* Usar a cor de borda padrão do tema escuro */
 }
 
 /* Ajustes para o container de filtros no tema verde escuro */
@@ -424,19 +448,24 @@
   border-color: var(--input-border); /* Ou var(--button-secondary-bg) */
 }
 .verde-escuro-theme .btn-filter-reset:hover {
-  background-color: var(--bg-color-tertiary); /* Um pouco mais escuro que input-bg */
+  background-color: var(
+    --bg-color-tertiary
+  ); /* Um pouco mais escuro que input-bg */
 }
 
 /* Ajuste para o título do chaveamento no tema verde escuro */
 .verde-escuro-theme #bracket-heading {
-  color: var(--text-color); /* Título do chaveamento com cor principal do texto */
+  color: var(
+    --text-color
+  ); /* Título do chaveamento com cor principal do texto */
   border-bottom-color: var(--border-color);
 }
 /* O fundo do #bracket já é tratado por .verde-escuro-theme .bracket */
 
 /* Ajustes para labels de formulário em admin.html no tema verde escuro */
 .verde-escuro-theme .admin-card form label,
-.verde-escuro-theme .form-group label { /* Seletor mais genérico para labels em forms */
+.verde-escuro-theme .form-group label {
+  /* Seletor mais genérico para labels em forms */
   color: var(--text-color-secondary);
 }
 
@@ -458,25 +487,29 @@
 }
 
 /* Alertas */
-.verde-escuro-theme .alert-success, .verde-escuro-theme .message.success {
+.verde-escuro-theme .alert-success,
+.verde-escuro-theme .message.success {
   background-color: var(--success-bg);
   color: var(--success-color);
   border-color: var(--success-color);
 }
 
-.verde-escuro-theme .alert-warning, .verde-escuro-theme .message.warning {
+.verde-escuro-theme .alert-warning,
+.verde-escuro-theme .message.warning {
   background-color: var(--warning-bg);
   color: var(--warning-color);
   border-color: var(--warning-color);
 }
 
-.verde-escuro-theme .alert-danger, .verde-escuro-theme .message.error {
+.verde-escuro-theme .alert-danger,
+.verde-escuro-theme .message.error {
   background-color: var(--error-bg);
   color: var(--error-color);
   border-color: var(--error-color);
 }
 
-.verde-escuro-theme .alert-info, .verde-escuro-theme .message.info {
+.verde-escuro-theme .alert-info,
+.verde-escuro-theme .message.info {
   background-color: var(--info-bg);
   color: var(--info-color);
   border-color: var(--info-color);

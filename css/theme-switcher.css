@@ -29,7 +29,10 @@
   border: none;
   cursor: pointer;
   box-shadow: var(--box-shadow);
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .theme-toggle-btn:hover {
@@ -44,7 +47,8 @@
 }
 
 /* Ícones de lua e sol - ajustados para as classes de tema atuais */
-.icon-moon, .icon-sun {
+.icon-moon,
+.icon-sun {
   transition: opacity 0.3s ease;
 }
 

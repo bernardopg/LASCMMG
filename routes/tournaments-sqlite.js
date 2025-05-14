@@ -1405,12 +1405,21 @@ router.post(
     }
 
     try {
-      const registeredPlayers = [
-        { name: 'Jogador A', nickname: 'A' },
-        { name: 'Jogador B', nickname: 'B' },
-        { name: 'Jogador C', nickname: 'C' },
-        { name: 'Jogador D', nickname: 'D' },
-      ];
+      const playersFromDB =
+        await playerModel.getPlayersByTournamentId(tournamentId);
+      if (!playersFromDB || playersFromDB.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Nenhum jogador registrado para este torneio.',
+        });
+      }
+
+      // Mapear para o formato esperado pela função de geração de chaveamento
+      const registeredPlayers = playersFromDB.map((p) => ({
+        name: p.name,
+        nickname: p.nickname,
+        id: p.id,
+      }));
 
       if (registeredPlayers.length < 2) {
         return res.status(400).json({
@@ -1646,6 +1655,145 @@ router.patch('/:tournamentId/description', authMiddleware, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao atualizar descrição do torneio no banco de dados.',
+    });
+  }
+});
+
+// Rota PATCH para entry_fee (copiada de routes/tournaments.js)
+router.patch('/:tournamentId/entry_fee', authMiddleware, async (req, res) => {
+  const { tournamentId } = req.params;
+  const { entry_fee } = req.body;
+
+  if (!isValidTournamentId(tournamentId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'ID de torneio inválido.' });
+  }
+
+  const fee = parseFloat(entry_fee);
+  if (isNaN(fee) || fee < 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Taxa de entrada inválida. Deve ser um número não negativo.',
+    });
+  }
+
+  try {
+    const updatedTournament = await tournamentModel.updateTournament(
+      tournamentId,
+      { entry_fee: fee }
+    );
+
+    if (!updatedTournament) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Torneio não encontrado.' });
+    }
+    res.json({
+      success: true,
+      message: 'Taxa de entrada do torneio atualizada com sucesso!',
+      tournament: updatedTournament,
+    });
+  } catch (error) {
+    console.error(
+      `Erro ao atualizar taxa de entrada para o torneio ${tournamentId}:`,
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar taxa de entrada do torneio.',
+    });
+  }
+});
+
+// Rota PATCH para prize_pool (copiada de routes/tournaments.js)
+router.patch('/:tournamentId/prize_pool', authMiddleware, async (req, res) => {
+  const { tournamentId } = req.params;
+  const { prize_pool } = req.body;
+
+  if (!isValidTournamentId(tournamentId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'ID de torneio inválido.' });
+  }
+
+  if (typeof prize_pool !== 'string' && prize_pool !== null) {
+    return res.status(400).json({
+      success: false,
+      message: 'Premiação inválida. Deve ser um texto ou nulo.',
+    });
+  }
+
+  try {
+    const updatedTournament = await tournamentModel.updateTournament(
+      tournamentId,
+      { prize_pool: prize_pool }
+    );
+
+    if (!updatedTournament) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Torneio não encontrado.' });
+    }
+    res.json({
+      success: true,
+      message: 'Premiação do torneio atualizada com sucesso!',
+      tournament: updatedTournament,
+    });
+  } catch (error) {
+    console.error(
+      `Erro ao atualizar premiação para o torneio ${tournamentId}:`,
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar premiação do torneio.',
+    });
+  }
+});
+
+// Rota PATCH para rules (copiada de routes/tournaments.js)
+router.patch('/:tournamentId/rules', authMiddleware, async (req, res) => {
+  const { tournamentId } = req.params;
+  const { rules } = req.body;
+
+  if (!isValidTournamentId(tournamentId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'ID de torneio inválido.' });
+  }
+
+  if (typeof rules !== 'string' && rules !== null) {
+    return res.status(400).json({
+      success: false,
+      message: 'Regras inválidas. Devem ser um texto ou nulo.',
+    });
+  }
+
+  try {
+    const updatedTournament = await tournamentModel.updateTournament(
+      tournamentId,
+      { rules: rules }
+    );
+
+    if (!updatedTournament) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Torneio não encontrado.' });
+    }
+    res.json({
+      success: true,
+      message: 'Regras do torneio atualizadas com sucesso!',
+      tournament: updatedTournament,
+    });
+  } catch (error) {
+    console.error(
+      `Erro ao atualizar regras para o torneio ${tournamentId}:`,
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar regras do torneio.',
     });
   }
 });

@@ -21,18 +21,21 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 **Solução**:
 
 1. Execute `npm install` novamente para garantir que todas as dependências sejam instaladas.
-2. Verifique se o seu Node.js está atualizado (v14.x ou superior é recomendado).
+2. Verifique se o seu Node.js está atualizado (v16.x ou superior é recomendado).
 3. Limpe o cache do npm: `npm cache clean --force`.
 4. Remova a pasta `node_modules` e o arquivo `package-lock.json`, depois reinstale: `rm -rf node_modules package-lock.json && npm install`.
 
-### Erro durante a execução do npm install
+### Erro durante a execução do `npm install` (especialmente com `better-sqlite3`)
 
-**Problema**: O comando `npm install` falha com erros de dependência ou incompatibilidade.
+**Problema**: O comando `npm install` falha, frequentemente com erros relacionados à compilação de `better-sqlite3`.
 
 **Solução**:
 
-1. Verifique se sua versão do Node.js e npm são compatíveis com as especificadas no `README.md` ou `package.json`.
-2. Se estiver usando Windows, pode ser necessário instalar as ferramentas de compilação: `npm install --global windows-build-tools`.
+1. Verifique se sua versão do Node.js e npm são compatíveis (Node.js v16+).
+2. `better-sqlite3` é um módulo nativo e pode precisar de ferramentas de compilação:
+   - **Linux (Debian/Ubuntu):** `sudo apt-get install -y python3 make g++ build-essential`
+   - **Windows:** Pode ser necessário instalar as ferramentas de compilação do Windows: `npm install --global --production windows-build-tools` (execute como administrador) ou instalar o Visual Studio Build Tools.
+   - **macOS:** As ferramentas de linha de comando do Xcode geralmente são suficientes (`xcode-select --install`).
 3. Tente excluir `package-lock.json` e a pasta `node_modules` e rodar `npm install` novamente.
 
 ## Problemas de Configuração
@@ -46,7 +49,7 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 1. Verifique se você copiou o arquivo `.env.example` para `.env` na raiz do projeto.
 2. Garanta que o arquivo `.env` está formatado corretamente (CHAVE=VALOR, sem espaços extras, sem aspas a menos que o valor contenha espaços).
 3. Reinicie o servidor após modificar o arquivo `.env`.
-4. Verifique se o pacote `dotenv` está sendo carregado corretamente no início do `server.js` (se utilizado explicitamente, ou se o framework/scripts o fazem).
+4. Verifique se o pacote `dotenv` está sendo carregado corretamente no início do `server.js` (`require('dotenv').config();`).
 
 ### Erro de CORS no frontend
 
@@ -56,7 +59,7 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 
 1. Verifique a configuração de CORS no arquivo `server.js`.
 2. Em produção, certifique-se de que a variável de ambiente `CORS_ORIGIN` no seu arquivo `.env` esteja configurada para o domínio correto do seu frontend.
-3. Durante o desenvolvimento, `CORS_ORIGIN` pode ser `*` ou o endereço do seu servidor de desenvolvimento frontend (ex: `http://localhost:8080`).
+3. Durante o desenvolvimento, `CORS_ORIGIN` pode ser `*` ou o endereço do seu servidor de desenvolvimento frontend (ex: `http://localhost:3000` se servindo do mesmo local).
 
 ## Problemas do Banco de Dados (SQLite)
 
@@ -66,31 +69,20 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 
 **Solução**:
 
-1. Verifique se a pasta `data/` (ou o caminho definido em `DB_PATH` no `.env`) existe na raiz do projeto e se a aplicação tem permissões de escrita nela.
-2. O arquivo do banco de dados (ex: `data/lascmmg.sqlite`) e suas tabelas devem ser criados automaticamente na primeira inicialização do servidor através de `lib/db-init.js` e `lib/schema.js`.
+1. Verifique se a pasta `data/` existe na raiz do projeto e se a aplicação tem permissões de escrita nela. O arquivo do banco de dados é `data/data.db`.
+2. O arquivo do banco de dados e suas tabelas devem ser criados automaticamente na primeira inicialização do servidor através de `lib/database.js` (chamado ao iniciar `server.js`) e as migrações de esquema são aplicadas por `lib/db-init.js` (também chamado em `server.js`).
 3. Verifique os logs do servidor para mensagens de erro relacionadas à inicialização do banco de dados ou migrações de esquema.
-4. Se necessário, você pode tentar remover o arquivo `.sqlite` existente (faça backup antes se contiver dados importantes) e reiniciar o servidor para forçar a recriação do esquema.
+4. Se necessário, você pode tentar remover o arquivo `data/data.db` (faça backup antes se contiver dados importantes) e reiniciar o servidor para forçar a recriação do esquema.
 
-### Erro durante a migração de dados JSON antigos para SQLite (se aplicável)
-
-**Problema**: Se você está migrando de uma versão anterior que usava arquivos JSON e o script `scripts/migrate-to-sqlite.js` (ou a função `migrateDataFromJson` em `lib/db-init.js`) falha.
-
-**Solução**:
-
-1. Certifique-se de que os arquivos JSON antigos (`tournaments_list.json` e os JSONs dentro da antiga pasta `tournaments/`) estão íntegros e no formato esperado pela função de migração.
-2. Execute o script com a opção `--verbose` (se disponível) para mais detalhes.
-3. Verifique os logs de erro para identificar qual arquivo ou dado específico está causando o problema.
-4. Considere migrar um torneio de cada vez (se o script permitir) para isolar o problema.
-
-### Dados não aparecem na interface após a migração ou operações
+### Dados não aparecem na interface após operações
 
 **Problema**: Dados foram inseridos/migrados para o SQLite, mas não são exibidos corretamente na interface.
 
 **Solução**:
 
 1. Verifique se há erros no console do navegador (F12 > Console) e nos logs do servidor.
-2. Use uma ferramenta como "DB Browser for SQLite" para inspecionar diretamente o conteúdo do arquivo `data/lascmmg.sqlite` e confirmar se os dados estão lá e corretos.
-3. Verifique se as rotas da API (`routes/tournaments-sqlite.js`) estão buscando e retornando os dados corretamente do banco.
+2. Use uma ferramenta como "DB Browser for SQLite" para inspecionar diretamente o conteúdo do arquivo `data/data.db` e confirmar se os dados estão lá e corretos.
+3. Verifique se as rotas da API (`routes/tournaments-sqlite.js`, etc.) estão buscando e retornando os dados corretamente do banco.
 4. Confirme se o frontend (`js/apiService.js` e os handlers relevantes) está fazendo as chamadas corretas à API e processando as respostas adequadamente.
 
 ## Problemas de Interface
@@ -104,18 +96,18 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 1. Limpe o cache do navegador (Ctrl+F5 ou Cmd+Shift+R).
 2. Verifique se há erros no console do navegador (F12 > Console).
 3. Teste em diferentes navegadores para identificar se é um problema específico.
-4. Verifique se todos os arquivos CSS, incluindo os de tema (`faculdade-theme.css`, `faculdade-escuro-theme.css`), estão sendo carregados corretamente na aba "Network" das ferramentas de desenvolvedor.
+4. Verifique se todos os arquivos CSS, incluindo os de tema (`faculdade-theme.css`, `verde-escuro-theme.css`), estão sendo carregados corretamente na aba "Network" das ferramentas de desenvolvedor.
 
-### Problemas com os temas "Faculdade Claro" / "Faculdade Escuro"
+### Problemas com os temas
 
 **Problema**: O alternador de tema não funciona ou o tema não é aplicado corretamente.
 
 **Solução**:
 
 1. Verifique se o `localStorage` está habilitado e funcionando no seu navegador.
-2. Tente limpar o `localStorage` do site (pode ser feito pelo console do navegador com `localStorage.removeItem('lascmmg-theme-preference');` e recarregando a página).
-3. Confirme se os arquivos `css/faculdade-theme.css` e `css/faculdade-escuro-theme.css` estão sendo carregados.
-4. Inspecione o elemento `<html>` para ver se as classes `faculdade-theme` ou `faculdade-escuro-theme` estão sendo aplicadas corretamente pelo `js/ui/theme/themeSwitcher.js`.
+2. Tente limpar o `localStorage` do site (pode ser feito pelo console do navegador com `localStorage.removeItem('theme-preference');` e recarregando a página).
+3. Confirme se os arquivos CSS de tema estão sendo carregados.
+4. Inspecione o elemento `<html>` para ver se as classes de tema estão sendo aplicadas corretamente pelo JavaScript (ver `js/themeManager.js` e `js/themeSwitcher.js` ou `js/themeToggler.js`).
 
 ### Problemas de responsividade em dispositivos móveis
 
@@ -148,8 +140,8 @@ Este guia foi criado para ajudar a solucionar problemas comuns que podem surgir 
 
 1. Verifique os logs do servidor para identificar gargalos ou erros frequentes.
 2. Monitore o uso de CPU e memória do processo do servidor.
-3. Otimize consultas ao banco de dados SQLite, garantindo que índices apropriados existam para colunas usadas em filtros e ordenações (veja `lib/schema.js`).
-4. Considere habilitar o modo WAL para o SQLite para melhor concorrência, se apropriado para sua carga de trabalho.
+3. Otimize consultas ao banco de dados SQLite, garantindo que índices apropriados existam para colunas usadas em filtros e ordenações (verifique as definições de tabela em `lib/database.js`).
+4. Considere habilitar o modo WAL para o SQLite para melhor concorrência (`PRAGMA journal_mode=WAL;`), se apropriado para sua carga de trabalho.
 
 ## Problemas de Implantação
 

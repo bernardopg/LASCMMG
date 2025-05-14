@@ -36,10 +36,18 @@ router.post('/login', async (req, res) => {
 router.post('/change-password', async (req, res) => {
   const { username, currentPassword, newPassword } = req.body;
 
-  if (!username || !currentPassword || !newPassword) {
+  if (
+    !username ||
+    !currentPassword ||
+    !newPassword ||
+    typeof username !== 'string' ||
+    typeof currentPassword !== 'string' ||
+    typeof newPassword !== 'string'
+  ) {
     return res.status(400).json({
       success: false,
-      message: 'Usuário, senha atual e nova senha são obrigatórios.',
+      message:
+        'Usuário, senha atual e nova senha (como strings) são obrigatórios.',
     });
   }
 

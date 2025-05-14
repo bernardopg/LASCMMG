@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administração - Torneio de Sinuca</title>
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/faculdade-theme.css" /> <!-- Tema Faculdade (Verdes e Dourados) -->
-    <link rel="stylesheet" href="css/verde-escuro-theme.css" /> <!-- Tema Verde Escuro (Verde e Preto) -->
+    <link rel="stylesheet" href="css/faculdade-theme.css" />
+    <!-- Tema Faculdade (Verdes e Dourados) -->
+    <link rel="stylesheet" href="css/verde-escuro-theme.css" />
+    <!-- Tema Verde Escuro (Verde e Preto) -->
     <link rel="stylesheet" href="css/admin.css" />
     <link rel="stylesheet" href="css/visual-improvements.css" />
     <link rel="stylesheet" href="css/dashboard.css" />
@@ -21,7 +23,7 @@
       <!-- Mudado de div para aside -->
       <div class="sidebar-header">
         <div class="logo-container">
-          <img src="assets/logo.jpeg" alt="Logo LASCMMG" class="logo-mini">
+          <img src="assets/logo.jpeg" alt="Logo LASCMMG" class="logo-mini" />
           <h1>Painel Admin</h1>
         </div>
         <button
@@ -109,27 +111,31 @@
           <!-- Container para itens inferiores -->
           <nav class="sidebar-nav">
             <ul>
-          <li>
-            <button id="menu-lixeira" class="nav-item" aria-pressed="false">
-              <svg class="icon" viewBox="0 0 24 24">
-                <path
-                  d="M9,3V4H4V6H5V19C5,20.1 5.9,21 7,21H17C18.1,21 19,20.1 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"
-                ></path>
-              </svg>
-              <span title="Lixeira">Lixeira</span>
-            </button>
-          </li>
-          <li>
-            <a href="admin-security.html" class="nav-item" title="Segurança">
-              <svg class="icon" viewBox="0 0 24 24">
-                <path
-                  d="M12,12H19C18.47,16.11 15.72,19.78 12,20.92V12H5V6.3L12,3.19M12,1L3,5V11C3,16.55 6.84,21.73 12,23C17.16,21.73 21,16.55 21,11V5L12,1Z"
-                ></path>
-              </svg>
-              <span>Segurança</span>
-            </a>
-          </li>
-          <!-- Item de Perfil removido -->
+              <li>
+                <button id="menu-lixeira" class="nav-item" aria-pressed="false">
+                  <svg class="icon" viewBox="0 0 24 24">
+                    <path
+                      d="M9,3V4H4V6H5V19C5,20.1 5.9,21 7,21H17C18.1,21 19,20.1 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"
+                    ></path>
+                  </svg>
+                  <span title="Lixeira">Lixeira</span>
+                </button>
+              </li>
+              <li>
+                <a
+                  href="admin-security.html"
+                  class="nav-item"
+                  title="Segurança"
+                >
+                  <svg class="icon" viewBox="0 0 24 24">
+                    <path
+                      d="M12,12H19C18.47,16.11 15.72,19.78 12,20.92V12H5V6.3L12,3.19M12,1L3,5V11C3,16.55 6.84,21.73 12,23C17.16,21.73 21,16.55 21,11V5L12,1Z"
+                    ></path>
+                  </svg>
+                  <span>Segurança</span>
+                </a>
+              </li>
+              <!-- Item de Perfil removido -->
               <li>
                 <!-- Botão Sair adicionado de volta -->
                 <button id="logout-btn" class="nav-item">
@@ -308,7 +314,10 @@
                 <div class="dashboard-section">
                   <h3>Torneios Ativos</h3>
                   <div class="table-actions">
-                    <button id="refresh-dashboard-btn" class="btn btn-primary btn-small">
+                    <button
+                      id="refresh-dashboard-btn"
+                      class="btn btn-primary btn-small"
+                    >
                       Atualizar Dashboard
                     </button>
                   </div>
@@ -419,15 +428,33 @@
                 </div>
                 <div class="form-group">
                   <label for="tournament-entry-fee">Taxa de Inscrição:</label>
-                  <input type="number" id="tournament-entry-fee" name="entry_fee" step="0.01" min="0" placeholder="Ex: 10.00" />
+                  <input
+                    type="number"
+                    id="tournament-entry-fee"
+                    name="entry_fee"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ex: 10.00"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="tournament-prize-pool">Premiação:</label>
-                  <input type="text" id="tournament-prize-pool" name="prize_pool" placeholder="Ex: Troféu + Medalhas" />
+                  <input
+                    type="text"
+                    id="tournament-prize-pool"
+                    name="prize_pool"
+                    placeholder="Ex: Troféu + Medalhas"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="tournament-rules">Regras:</label>
-                  <textarea id="tournament-rules" name="rules" rows="3" maxlength="1000" placeholder="Descreva as regras do torneio..."></textarea>
+                  <textarea
+                    id="tournament-rules"
+                    name="rules"
+                    rows="3"
+                    maxlength="1000"
+                    placeholder="Descreva as regras do torneio..."
+                  ></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">
                   Criar Torneio
@@ -546,16 +573,36 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="edit-tournament-entry-fee">Taxa de Inscrição:</label>
-                  <input type="number" id="edit-tournament-entry-fee" name="entry_fee" step="0.01" min="0" placeholder="Ex: 10.00" />
+                  <label for="edit-tournament-entry-fee"
+                    >Taxa de Inscrição:</label
+                  >
+                  <input
+                    type="number"
+                    id="edit-tournament-entry-fee"
+                    name="entry_fee"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ex: 10.00"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="edit-tournament-prize-pool">Premiação:</label>
-                  <input type="text" id="edit-tournament-prize-pool" name="prize_pool" placeholder="Ex: Troféu + Medalhas" />
+                  <input
+                    type="text"
+                    id="edit-tournament-prize-pool"
+                    name="prize_pool"
+                    placeholder="Ex: Troféu + Medalhas"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="edit-tournament-rules">Regras:</label>
-                  <textarea id="edit-tournament-rules" name="rules" rows="3" maxlength="1000" placeholder="Descreva as regras do torneio..."></textarea>
+                  <textarea
+                    id="edit-tournament-rules"
+                    name="rules"
+                    rows="3"
+                    maxlength="1000"
+                    placeholder="Descreva as regras do torneio..."
+                  ></textarea>
                 </div>
                 <button
                   type="submit"
@@ -932,9 +979,11 @@
                       O arquivo JSON deve conter um array de objetos com campos:
                       <code>PlayerName</code> (obrigatório),
                       <code>Nickname</code> (opcional),
-                      <code>gender</code> (opcional, ex: "Masculino", "Feminino", "Outro"), e
-                      <code>skill_level</code> (opcional, ex: "Iniciante", "Intermediário", "Avançado", "Profissional").
-                      Veja o exemplo abaixo:
+                      <code>gender</code> (opcional, ex: "Masculino",
+                      "Feminino", "Outro"), e
+                      <code>skill_level</code> (opcional, ex: "Iniciante",
+                      "Intermediário", "Avançado", "Profissional"). Veja o
+                      exemplo abaixo:
                       <pre>
 [
   {
@@ -1053,7 +1102,10 @@
                 </div>
                 <div class="form-group">
                   <label for="manual-tournament-player-gender">Gênero:</label>
-                  <select id="manual-tournament-player-gender" name="manualGender">
+                  <select
+                    id="manual-tournament-player-gender"
+                    name="manualGender"
+                  >
                     <option value="">Não especificado</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
@@ -1061,8 +1113,13 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="manual-tournament-player-skill-level">Nível de Habilidade:</label>
-                  <select id="manual-tournament-player-skill-level" name="manualSkillLevel">
+                  <label for="manual-tournament-player-skill-level"
+                    >Nível de Habilidade:</label
+                  >
+                  <select
+                    id="manual-tournament-player-skill-level"
+                    name="manualSkillLevel"
+                  >
                     <option value="">Não especificado</option>
                     <option value="Iniciante">Iniciante</option>
                     <option value="Intermediário">Intermediário</option>
@@ -1098,8 +1155,9 @@
                     O arquivo JSON deve conter um array de objetos com campos:
                     <code>PlayerName</code> (obrigatório),
                     <code>Nickname</code> (opcional),
-                    <code>gender</code> (opcional, ex: "Masculino", "Feminino", "Outro"), e
-                    <code>skill_level</code> (opcional, ex: "Iniciante", "Intermediário", "Avançado", "Profissional").
+                    <code>gender</code> (opcional, ex: "Masculino", "Feminino",
+                    "Outro"), e <code>skill_level</code> (opcional, ex:
+                    "Iniciante", "Intermediário", "Avançado", "Profissional").
                     Veja o exemplo abaixo:
                     <pre>
 [

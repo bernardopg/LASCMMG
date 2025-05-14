@@ -43,7 +43,10 @@
   right: 0;
   bottom: 0;
   /* Use a CSS spinner or a themeable SVG if possible, or at least theme the background */
-  background-color: rgba(var(--surface-rgb), 0.7); /* Use surface RGB for overlay */
+  background-color: rgba(
+    var(--surface-rgb),
+    0.7
+  ); /* Use surface RGB for overlay */
   /* Spinner itself would ideally be CSS or an SVG that can inherit color */
   z-index: 10;
   border-radius: var(--border-radius);
@@ -64,7 +67,9 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .stats-card:hover {
@@ -96,16 +101,19 @@
 
 /* Variações de cores para cards */
 .stats-card.primary {
-  background-color: var(--info-bg-light); /* Using info as a general "primary" stat card */
+  background-color: var(
+    --info-bg-light
+  ); /* Using info as a general "primary" stat card */
   border: 1px solid var(--info-color);
 }
 .stats-card.primary .stats-card-value {
   color: var(--info-color);
 }
 
-
 .stats-card.secondary {
-  background-color: var(--accent-bg-light); /* Using accent for secondary stat card */
+  background-color: var(
+    --accent-bg-light
+  ); /* Using accent for secondary stat card */
   border: 1px solid var(--accent-color);
 }
 .stats-card.secondary .stats-card-value {
@@ -119,7 +127,6 @@
 .stats-card.warning .stats-card-value {
   color: var(--warning-color);
 }
-
 
 /* Tabela de ameaças */
 .threat-table {
@@ -168,7 +175,6 @@
 .verde-escuro-theme .medium-risk {
   color: var(--contrast-text);
 }
-
 
 .low-risk {
   color: var(--contrast-text);

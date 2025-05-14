@@ -238,23 +238,23 @@ function generateAndSavePlayersJson(count, filePath) {
 }
 
 // Função para verificar os jogadores de um torneio
-async function checkTournamentPlayers(tournamentId) {
-  try {
-    const response = await axios.get(
-      `${BASE_URL}/tournaments/${tournamentId}/players`
-    );
-    console.log(
-      `✅ O torneio ${tournamentId} tem ${response.data.length} jogadores.`
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      `❌ Erro ao verificar jogadores do torneio ${tournamentId}:`,
-      error.response?.data || error.message
-    );
-    throw error;
-  }
-}
+// async function checkTournamentPlayers(tournamentId) {
+//   try {
+//     const response = await axios.get(
+//       `${BASE_URL}/tournaments/${tournamentId}/players`
+//     );
+//     console.log(
+//       `✅ O torneio ${tournamentId} tem ${response.data.length} jogadores.`
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error(
+//       `❌ Erro ao verificar jogadores do torneio ${tournamentId}:`,
+//       error.response?.data || error.message
+//     );
+//     throw error;
+//   }
+// }
 
 // Função principal para testar a importação de jogadores
 async function testPlayerImport() {
@@ -306,6 +306,8 @@ async function testPlayerImport() {
     // 6. Gerar chaveamento para o torneio
     console.log('\n--- GERANDO CHAVEAMENTO PARA O TORNEIO ---');
     try {
+      await axios.post(
+        // Adicionado await axios.post(
         `${BASE_URL}/tournaments/${importTournamentId}/generate-bracket`,
         {},
         {

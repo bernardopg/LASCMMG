@@ -6,8 +6,16 @@ const fs = require('fs');
 const { DB_CONFIG } = require('../lib/config');
 
 const { models } = require('../lib/db-init');
+const { authMiddleware } = require('../lib/authMiddleware');
+const { readJsonFile } = require('../lib/fileUtils'); // Para ler o log do honeypot
+const HONEYPOT_LOG_PATH = path.join(
+  __dirname,
+  '..',
+  'data',
+  'honeypot_activity.log'
+);
 
-router.get('/stats', async (req, res) => {
+router.get('/stats', authMiddleware, async (req, res) => {
   try {
     const tournamentCount = await models.tournament.countTournaments();
     const playerCount = await models.player.countPlayers();
@@ -145,41 +153,46 @@ function checkDiskSpace() {
   }
 }
 
-router.get('/security/honeypot-stats', async (req, res) => {
+router.get('/security/honeypot-stats', authMiddleware, async (req, res) => {
   try {
-    const simulatedStats = {
-      totalEvents: 123,
-      uniqueIps: 45,
-      uniquePatterns: 12,
-      lastUpdated: new Date().toISOString(),
-      topIps: [
-        {
-          ip: '192.168.1.100',
-          count: 50,
-          lastSeen: new Date().toISOString(),
-          topPatterns: [
-            { pattern: 'SQL_INJECTION', count: 20 },
-            { pattern: 'XSS', count: 30 },
-          ],
-        },
-        {
-          ip: '10.0.0.5',
-          count: 30,
-          lastSeen: new Date().toISOString(),
-          topPatterns: [{ pattern: 'PATH_TRAVERSAL', count: 30 }],
-        },
-      ],
-      activeHoneypots: ['/wp-login.php', '/admin/login', '/old-backup.zip'],
-      topPatterns: [
-        { pattern: 'SQL_INJECTION', count: 50 },
-        { pattern: 'XSS', count: 40 },
-        { pattern: 'PATH_TRAVERSAL', count: 33 },
-      ],
+    const logs = await readJsonFile(HONEYPOT_LOG_PATH, []);
+
+    const stats = {
+      totalEvents: logs.length,
+      uniqueIps: new Set(logs.map((log) => log.ip)).size,
+      eventTypes: {},
+      topIps: {},
+      lastEventTimestamp:
+        logs.length > 0 ? logs[logs.length - 1].timestamp : null,
     };
+
+    for (const log of logs) {
+      // Contar tipos de evento
+      stats.eventTypes[log.type] = (stats.eventTypes[log.type] || 0) + 1;
+
+      // Contar IPs
+      if (!stats.topIps[log.ip]) {
+        stats.topIps[log.ip] = { count: 0, types: {}, lastSeen: log.timestamp };
+      }
+      stats.topIps[log.ip].count++;
+      stats.topIps[log.ip].types[log.type] =
+        (stats.topIps[log.ip].types[log.type] || 0) + 1;
+      if (new Date(log.timestamp) > new Date(stats.topIps[log.ip].lastSeen)) {
+        stats.topIps[log.ip].lastSeen = log.timestamp;
+      }
+    }
+
+    // Converter topIps para array e ordenar (ex: top 10)
+    const sortedTopIps = Object.entries(stats.topIps)
+      .map(([ip, data]) => ({ ip, ...data }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    stats.topIps = sortedTopIps;
 
     res.json({
       success: true,
-      data: simulatedStats,
+      data: stats,
     });
   } catch (error) {
     console.error('Erro ao obter estatísticas de honeypot:', error);

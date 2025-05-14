@@ -1,4 +1,4 @@
-  /**
+/**
  * Tema da Faculdade Ciências Médicas de Minas Gerais para o Sistema de Gerenciamento de Torneios
  *
  * Tema inspirado na logo da LASCMMG (Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais)
@@ -7,35 +7,35 @@
 
 :root.faculdade-theme {
   /* Cores primárias baseadas na logo */
-  --primary-color: #0F6435; /* Verde esmeralda escuro */
-  --primary-hover: #084C27; /* Verde esmeralda mais escuro */
+  --primary-color: #0f6435; /* Verde esmeralda escuro */
+  --primary-hover: #084c27; /* Verde esmeralda mais escuro */
   --primary-rgb: 15, 100, 53; /* Para uso com transparência */
 
-  --secondary-color: #D4AF37; /* Dourado */
-  --secondary-hover: #B4941F; /* Dourado mais escuro */
+  --secondary-color: #d4af37; /* Dourado */
+  --secondary-hover: #b4941f; /* Dourado mais escuro */
   --secondary-rgb: 212, 175, 55; /* Para uso com transparência */
 
-  --accent-color: #D4AF37; /* Dourado como destaque */
-  --accent-hover: #B4941F; /* Dourado mais escuro */
+  --accent-color: #d4af37; /* Dourado como destaque */
+  --accent-hover: #b4941f; /* Dourado mais escuro */
   --accent-color-rgb: 212, 175, 55; /* Para uso com transparência */
 
   /* Cores de fundo */
-  --light-bg: #F2F7F5; /* Fundo claro esverdeado */
-  --dark-bg: #0A3A20; /* Fundo verde escuro */
+  --light-bg: #f2f7f5; /* Fundo claro esverdeado */
+  --dark-bg: #0a3a20; /* Fundo verde escuro */
 
   /* Cores de texto */
-  --dark-text: #0A2918; /* Texto principal verde muito escuro */
-  --light-text: #5D6E64; /* Texto secundário esverdeado */
-  --contrast-text: #FFFFFF; /* Texto sobre fundos escuros */
+  --dark-text: #0a2918; /* Texto principal verde muito escuro */
+  --light-text: #5d6e64; /* Texto secundário esverdeado */
+  --contrast-text: #ffffff; /* Texto sobre fundos escuros */
 
   /* Cores de borda */
-  --border-color: #AACCB1; /* Borda verde claro */
-  --light-border: #D6E8D9; /* Borda verde mais clara */
+  --border-color: #aaccb1; /* Borda verde claro */
+  --light-border: #d6e8d9; /* Borda verde mais clara */
 
   /* Cores de superfície */
-  --surface-color: #FFFFFF; /* Fundo de cartões */
+  --surface-color: #ffffff; /* Fundo de cartões */
   --surface-rgb: 255, 255, 255; /* RGB de --surface-color */
-  --surface-hover-color: #F2F7F5; /* Hover suave esverdeado */
+  --surface-hover-color: #f2f7f5; /* Hover suave esverdeado */
 
   /* Sombras */
   --box-shadow: 0 0.5rem 1rem rgba(10, 41, 24, 0.1); /* Sombra esverdeada */
@@ -43,34 +43,33 @@
   --inner-shadow: inset 0 1px 2px rgba(10, 41, 24, 0.075);
 
   /* Cores de status */
-  --success-color: #0F6435; /* Verde da logo */
-  --success-hover: #0B4F2A; /* Verde da logo mais escuro */
+  --success-color: #0f6435; /* Verde da logo */
+  --success-hover: #0b4f2a; /* Verde da logo mais escuro */
   --danger-color: #dc3545; /* Vermelho padrão */
   --danger-hover: #b02a37; /* Vermelho mais escuro */
-  --warning-color: #D4AF37; /* Dourado da logo */
-  --warning-hover: #B4941F; /* Dourado mais escuro */
-  --info-color: #2A9D8F; /* Turquesa esverdeado */
+  --warning-color: #d4af37; /* Dourado da logo */
+  --warning-hover: #b4941f; /* Dourado mais escuro */
+  --info-color: #2a9d8f; /* Turquesa esverdeado */
 
   /* Cores de fundo suaves */
-  --success-bg-light: #E3F0E8;
+  --success-bg-light: #e3f0e8;
   --danger-bg-light: #f8d7da;
-  --warning-bg-light: #FFF6DD; /* Usada para fundo do campeão */
-  --info-bg-light: #E1F5F3;
-  --accent-bg-light: #FFF6DD; /* Dourado/Amarelo claro para fundos de destaque */
+  --warning-bg-light: #fff6dd; /* Usada para fundo do campeão */
+  --info-bg-light: #e1f5f3;
+  --accent-bg-light: #fff6dd; /* Dourado/Amarelo claro para fundos de destaque */
 
   /* Cores de Campeão (específicas para o tema faculdade) */
-  --champion-text-color-faculdade: #705A00; /* Dourado escuro para texto */
+  --champion-text-color-faculdade: #705a00; /* Dourado escuro para texto */
   /* --champion-bg-color já é var(--warning-bg-light) */
   /* --champion-border-color já é var(--secondary-color) ou var(--warning-color) */
 
-
   /* Cores específicas para sidebar */
-  --sidebar-bg: #0F6435; /* Verde da logo */
-  --sidebar-text: #FFFFFF; /* Texto branco */
-  --sidebar-hover: #0A4A28; /* Verde mais escuro */
+  --sidebar-bg: #0f6435; /* Verde da logo */
+  --sidebar-text: #ffffff; /* Texto branco */
+  --sidebar-hover: #0a4a28; /* Verde mais escuro */
   --sidebar-active-bg: rgba(212, 175, 55, 0.15); /* Dourado com transparência */
-  --sidebar-active-border: #D4AF37; /* Dourado */
-  --sidebar-icon-color: #9ECBA6; /* Verde mais claro */
+  --sidebar-active-border: #d4af37; /* Dourado */
+  --sidebar-icon-color: #9ecba6; /* Verde mais claro */
 }
 
 /* Aplicação do tema nos elementos */
@@ -86,7 +85,7 @@
 }
 
 .faculdade-theme .sidebar-header h1 {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .faculdade-theme .nav-item {
@@ -195,7 +194,7 @@
 .logo-container h1 {
   margin-left: 10px; /* Espaço entre logo e título */
   font-size: 1.1em; /* Reduzido um pouco para evitar quebra com logo maior */
-  color: #FFFFFF; /* Garante que o título seja branco */
+  color: #ffffff; /* Garante que o título seja branco */
   white-space: nowrap; /* Evita quebra de linha do título */
 }
 
@@ -250,7 +249,7 @@ body.sidebar-collapsed .faculdade-theme .logo-container h1 {
 
 .faculdade-theme .message.warning {
   background-color: var(--warning-bg-light);
-  color: #705A00;
+  color: #705a00;
   border: 1px solid var(--warning-color);
 }
 
@@ -266,7 +265,9 @@ body.sidebar-collapsed .faculdade-theme .logo-container h1 {
 
 /* Ajuste para o texto padrão do jogador ter melhor contraste com o fundo branco do match */
 .faculdade-theme .player {
-  color: var(--dark-text); /* Usar texto escuro para jogadores não definidos ou em andamento */
+  color: var(
+    --dark-text
+  ); /* Usar texto escuro para jogadores não definidos ou em andamento */
 }
 .faculdade-theme .player span.score {
   color: var(--dark-text); /* Garantir que o placar também use texto escuro */
@@ -276,7 +277,6 @@ body.sidebar-collapsed .faculdade-theme .logo-container h1 {
   color: var(--dark-text); /* Manter o '-' escuro */
   background-color: transparent;
 }
-
 
 .faculdade-theme .player.winner {
   color: var(--primary-color); /* Verde escuro da faculdade */
@@ -299,14 +299,21 @@ body.sidebar-collapsed .faculdade-theme .logo-container h1 {
   color: #757575; /* Cinza mais escuro */
 }
 
-
 .faculdade-theme .player.champion {
-  border-color: var(--secondary-color); /* Usando a cor secundária (dourado) para borda */
-  background-color: var(--warning-bg-light); /* Usando o fundo de aviso (amarelo claro) */
-  color: var(--champion-text-color-faculdade); /* Usando a variável específica para texto */
+  border-color: var(
+    --secondary-color
+  ); /* Usando a cor secundária (dourado) para borda */
+  background-color: var(
+    --warning-bg-light
+  ); /* Usando o fundo de aviso (amarelo claro) */
+  color: var(
+    --champion-text-color-faculdade
+  ); /* Usando a variável específica para texto */
 }
 
 .faculdade-theme .player.champion span.name,
 .faculdade-theme .player.champion span.score {
-  color: var(--champion-text-color-faculdade); /* Usando a variável específica para texto */
+  color: var(
+    --champion-text-color-faculdade
+  ); /* Usando a variável específica para texto */
 }

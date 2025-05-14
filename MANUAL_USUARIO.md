@@ -2,7 +2,7 @@
 
 ## Introdução
 
-Bem-vindo ao Sistema de Gerenciamento de Torneios de Sinuca da LASCMMG! Este manual guiará você através das funcionalidades disponíveis tanto para visualização pública quanto para administração dos torneios. O sistema utiliza um banco de dados SQLite para armazenar todas as informações de forma robusta.
+Bem-vindo ao Sistema de Gerenciamento de Torneios de Sinuca da LASCMMG! Este manual guiará você através das funcionalidades disponíveis tanto para visualização pública quanto para administração dos torneios. O sistema utiliza um banco de dados SQLite para armazenar todas as informações.
 
 ## 1. Visualização Pública (`index.html`)
 
@@ -10,149 +10,116 @@ Esta é a página principal onde qualquer pessoa pode visualizar o andamento dos
 
 ### 1.1. Selecionar um Torneio
 
-- No topo da página, você encontrará um menu suspenso (dropdown).
-- Clique nele para ver a lista de torneios disponíveis, ordenados por data (mais recentes primeiro).
+- No topo da página, um menu suspenso (dropdown) lista os torneios disponíveis, ordenados por data.
 - Selecione um torneio para visualizar seus detalhes (chaveamento e placares).
-- O torneio selecionado ficará ativo e seu chaveamento será exibido por padrão. A URL também será atualizada para refletir o torneio selecionado, permitindo o compartilhamento de links diretos.
+- A URL é atualizada para permitir o compartilhamento de links diretos para o torneio selecionado.
 
 ### 1.2. Navegação (Barra Lateral Esquerda)
 
-- **Início:** Retorna à página inicial de boas-vindas.
-- **Chaveamento:** Exibe a estrutura de partidas do torneio selecionado. Mostra os jogadores, o placar (`-` se não jogado), e a data/hora agendada (ou "TBD"). Vencedores são destacados.
-- **Histórico de Placares:** Mostra uma tabela com todos os placares registrados para o torneio selecionado. Você pode ordenar a tabela clicando nos cabeçalhos das colunas e usar os filtros para refinar a busca.
-- **Adicionar Placar:** (Visível apenas para administradores logados) Permite registrar o resultado de uma partida do torneio selecionado.
-- **Estatísticas:** Exibe estatísticas relevantes sobre o torneio selecionado.
-- **Login Admin / Voltar para Admin:**
-  - Se você não estiver logado como administrador, verá um botão "Login Admin" que leva à página de administração.
-  - Se estiver logado, verá o botão "Voltar para Admin". O logout é feito pelo Menu de Perfil.
+- **Início:** Retorna à página inicial.
+- **Chaveamento:** Exibe a estrutura de partidas do torneio.
+- **Histórico de Placares:** Tabela com placares registrados, ordenável e filtrável.
+- **Adicionar Placar:** (Visível para administradores logados) Permite registrar resultados.
+- **Estatísticas:** Exibe estatísticas do torneio.
+- **Login Admin / Voltar para Admin:** Alterna o link dependendo do status de login.
 
 ### 1.3. Menu de Perfil (Canto Superior Direito)
 
-- Um ícone de perfil aparece no canto superior direito.
-- Clicar nele abre um menu:
-  - Se não estiver logado: Mostra um link para a "Área Admin".
-  - Se estiver logado: Mostra um botão "Sair (Admin)".
+- Ícone de perfil para acesso à "Área Admin" ou "Sair (Admin)".
 
 ### 1.4. Alternador de Tema
 
-- Um botão (geralmente no canto inferior direito ou em local acessível) permite alternar entre os temas visuais:
-  - **Tema Faculdade (Claro):** Tema padrão com cores claras, baseado na identidade visual da LASCMMG (verdes e dourados).
-  - **Tema Faculdade (Escuro):** Versão escura do tema Faculdade, mantendo a paleta de cores adaptada para fundos escuros.
-- Sua preferência de tema é salva localmente no navegador. O sistema também tenta respeitar a preferência de tema do seu sistema operacional na primeira visita.
+- Botão para alternar entre os temas Claro e Escuro. A preferência é salva localmente e respeita a configuração do sistema operacional na primeira visita.
 
 ## 2. Painel Administrativo (`admin.html`)
 
-Esta área é restrita e requer login para acessar as funcionalidades de gerenciamento.
+Requer login para acesso.
 
 ### 2.1. Login e Logout
 
-- **Login:** Acesse `admin.html`. Insira o nome de usuário e senha corretos e clique em "Entrar".
-- **Logout:**
-  - Clique no botão "Sair" na parte inferior da barra lateral esquerda.
-  - Ou clique no ícone de perfil no canto superior direito e depois no botão "Sair" no menu flutuante.
+- **Login:** Acesse `admin.html`, insira credenciais e clique em "Entrar".
+- **Logout:** Via botão "Sair" na barra lateral ou no menu de perfil.
 
 ### 2.2. Navegação (Barra Lateral Esquerda - Admin)
 
-- **Painel Administrativo:** Dashboard com resumo de torneios ativos, próximos jogos e estatísticas do sistema.
-- **Torneios:** Gerenciar torneios existentes (editar detalhes, status) e criar novos.
-- **Agendamento:** Definir ou alterar data e hora das partidas pendentes para o torneio selecionado.
-- **Placares:** Adicionar ou editar placares (e opcionalmente a data/hora) para o torneio selecionado.
-- **Jogadores:** Gerenciar a lista de jogadores do torneio selecionado (adicionar, editar, excluir, importar).
-- **Lixeira:** Visualizar torneios movidos para a lixeira, com opções para restaurá-los ou excluí-los permanentemente.
-- **Segurança:** (Link para `admin-security.html`) Acesso a estatísticas e configurações de segurança do sistema.
-- **Voltar ao Torneio:** Retorna à página de visualização pública (`index.html`).
+- **Painel Administrativo:** Dashboard com resumos e estatísticas.
+- **Torneios:** Gerenciar e criar torneios.
+- **Agendamento:** Definir/alterar data/hora de partidas.
+- **Placares:** Adicionar/editar placares.
+- **Jogadores:** Gerenciar jogadores do torneio (adicionar, editar, excluir, importar).
+- **Lixeira:** Visualizar torneios cancelados, restaurar ou excluir permanentemente.
+- **Segurança:** Link para `admin-security.html` (estatísticas de honeypot, etc.).
+- **Voltar ao Torneio:** Retorna à `index.html`.
 
 ### 2.3. Selecionar Torneio Ativo (Admin)
 
-- Use o menu suspenso no topo da área de conteúdo para selecionar o torneio que deseja administrar.
-- Apenas torneios com status diferente de 'NaLixeira' aparecerão aqui.
-- Clique em "Atualizar" para recarregar a lista de torneios do servidor.
+- Menu suspenso para selecionar o torneio a ser administrado.
+- Apenas torneios não cancelados aparecem. Botão "Atualizar" recarrega a lista.
 
 ### 2.4. Gerenciamento de Torneios (Seção "Torneios")
 
 - **Criar Novo Torneio:**
-  - Preencha o nome, data, descrição (opcional).
-  - Selecione o número de jogadores e o tipo de chaveamento.
-  - Opcionalmente, importe uma lista inicial de jogadores via arquivo JSON (um exemplo do formato pode ser encontrado na ajuda contextual da seção "Jogadores").
-  - Clique em "Criar Torneio". O torneio será salvo no banco de dados.
+  - Campos: Nome, data, descrição, nº esperado de jogadores, tipo de chaveamento, taxa de inscrição, premiação, regras.
+  - Clique em "Criar Torneio".
 - **Torneios Existentes:**
-  - A tabela lista os torneios ativos (não na lixeira).
-  - **Selecionar:** Define o torneio como o ativo para administração nas outras seções. A linha selecionada será destacada e o formulário "Detalhes do Torneio Selecionado" será preenchido.
-  - **Visualizar:** Abre a página pública (`index.html`) para aquele torneio em uma nova aba.
-  - **Excluir:** Move o torneio para a Lixeira (atualiza o status do torneio no banco de dados para 'NaLixeira').
+  - Tabela lista torneios ativos.
+  - **Selecionar:** Define o torneio ativo para administração.
+  - **Visualizar:** Abre a página pública do torneio.
+  - **Mover para Lixeira:** Altera o status do torneio para 'Cancelado'.
 - **Detalhes do Torneio Selecionado:**
-  - Após selecionar um torneio, seus detalhes aparecem em um card para edição.
-  - Você pode editar o Nome, Descrição e Status.
-  - Data e Tipo de Chaveamento são apenas para visualização após a criação.
-  - Clique em "Salvar Alterações" para persistir as mudanças no banco de dados.
+  - Edite Nome, Descrição, Status, Taxa de Inscrição, Premiação, Regras.
+  - Data e Tipo de Chaveamento são apenas para visualização após criação.
+  - "Salvar Alterações" persiste as mudanças.
 
 ### 2.5. Agendamento de Partidas (Seção "Agendamento")
 
-- _Requer um torneio selecionado._
-- **Selecionar Partida:** Escolha uma partida pendente (sem placar registrado) no menu suspenso.
-- **Nova Data/Hora:** Use o seletor para escolher a nova data e hora.
-- **Salvar Agendamento:** Salva a data/hora no banco de dados para a partida.
+- Requer um torneio selecionado.
+- Selecione uma partida pendente e defina nova data/hora.
 
 ### 2.6. Gerenciamento de Placares (Seção "Placares")
 
-- _Requer um torneio selecionado._
-- **Adicionar/Editar Placar:**
-  - **Selecionar Partida:** Escolha uma partida do chaveamento. Isso preencherá os jogadores e a rodada.
-  - **Placares:** Insira os placares (0, 1 ou 2).
-  - **Data/Hora da Partida:** (Opcional) Defina ou ajuste a data/hora da partida.
-  - **Salvar Placar:** Registra o placar no banco de dados. Isso também pode avançar jogadores no chaveamento.
-- **Histórico de Placares:**
-  - Lista os placares do torneio.
-  - **Editar/Excluir:** Permite modificar ou remover registros de placar.
+- Requer um torneio selecionado.
+- **Adicionar/Editar Placar:** Selecione a partida, insira placares, opcionalmente ajuste data/hora.
+- **Histórico de Placares:** Lista placares com opções de edição/exclusão.
 
 ### 2.7. Gerenciamento de Jogadores (Seção "Jogadores")
 
-- _Requer um torneio selecionado._
-- **Adicionar Jogador:** Insira nome e apelido.
-- **Lista de Jogadores:** Edite ou exclua jogadores do torneio.
-- **Importar JSON:** Adicione/atualize jogadores em massa via arquivo JSON.
+- Requer um torneio selecionado.
+- **Adicionar Jogador:** Insira nome, apelido, gênero (opcional), nível de habilidade (opcional).
+- **Lista de Jogadores:** Edite ou exclua jogadores.
+- **Importar JSON:** Adicione/atualize jogadores em massa.
+- **Exportar Jogadores:** Baixa um JSON com os jogadores do torneio.
 
 ### 2.8. Gerenciamento do Torneio Selecionado (Seção "Torneio")
-
-- _Requer um torneio selecionado._
-- **Chaveamento:** Visualização do chaveamento. Clicar em uma partida pode levar à edição de placar.
-- **Ações do Torneio:**
-  - **Gerar Chaveamento Automático:** Cria/recria o chaveamento com base nos jogadores.
-  - **Reiniciar Torneio:** Limpa placares e estado do chaveamento.
-  - **Exportar Dados:** (Funcionalidade pode variar) Permite exportar dados do torneio.
-- **Adicionar/Importar Jogadores:** Formulários para adicionar jogadores manualmente ou via JSON a este torneio específico.
+   (Esta seção parece ter sido integrada/substituída pelas outras seções mais específicas no painel admin atual. As funcionalidades como "Gerar Chaveamento", "Reiniciar Torneio" e "Exportar Dados" estão disponíveis nas respectivas seções ou diretamente na lista de torneios.)
 
 ### 2.9. Lixeira (Seção "Lixeira")
 
-- Lista os torneios com status 'NaLixeira'.
-- **Restaurar:** Muda o status do torneio para 'Pendente', retornando-o à lista principal.
-- **Excluir Perm.:** Exclui permanentemente o registro do torneio do banco de dados (requer confirmação).
-- **Esvaziar Lixeira:** Exclui permanentemente _todos_ os torneios na lixeira.
+- Lista torneios com status 'Cancelado'.
+- **Restaurar:** Muda status para 'Pendente'.
+- **Excluir Perm.:** Exclui permanentemente (requer confirmação).
+- **Esvaziar Lixeira:** Exclui permanentemente todos os torneios cancelados.
 
 ## 3. Configuração e Administração do Servidor
 
 ### 3.1. Persistência de Dados
 
-- O sistema utiliza **exclusivamente SQLite** para armazenar todos os dados (torneios, jogadores, placares, administradores). O arquivo do banco de dados (`lascmmg.sqlite`) está localizado na pasta `data/`.
+- O sistema utiliza SQLite. O arquivo do banco de dados é `data/data.db`.
 
 ### 3.2. Administração de Usuários (Admin)
 
 - **Criação do Primeiro Administrador:**
-  Use o script `npm run setup-admin` (ou `node scripts/setup-admin-sqlite.js --verbose`) para criar o primeiro usuário administrador. Siga as instruções do prompt.
+  Use o script: `node scripts/initialize_admin.js --username seu_usuario --password sua_senha_forte`
 - **Gerenciamento de Senhas:**
-  - Para gerar um novo hash de senha (e opcionalmente atualizar o usuário 'admin'):
-    `npm run generate-hash -- --new SuaNovaSenha [--update]`
-  - Para verificar uma senha contra o hash armazenado:
-    `npm run verify-hash -- --verify SenhaParaTestar`
+  - O sistema de gerenciamento de senhas via scripts como `generate_admin_hash.js` pode ter sido substituído pela funcionalidade de "Alterar Senha" no painel de autenticação (`/api/auth/change-password`). Verifique a documentação de implantação (`DEPLOYMENT.md`) para os métodos atuais de gerenciamento de credenciais.
 - **Segurança:**
-  - Utilize senhas fortes para contas de administrador.
+  - Utilize senhas fortes.
   - O sistema armazena hashes de senha usando bcrypt.
 
 ## 4. Observações Importantes
 
-- **Backups:** É crucial fazer backups regulares do arquivo do banco de dados `data/lascmmg.sqlite`.
-- **Segurança em Produção:** Para ambientes de produção, reveja e reforce todas as configurações de segurança, incluindo as definidas no arquivo `.env` (como `COOKIE_SECRET`, `CORS_ORIGIN`), e considere medidas adicionais como HTTPS, firewalls, e monitoramento.
+- **Backups:** Faça backups regulares do arquivo `data/data.db`. Um script `scripts/backup-database.js` está disponível.
+- **Segurança em Produção:** Reforce as configurações de segurança (variáveis de ambiente, HTTPS, firewalls).
 
 ---
-
 Esperamos que este manual ajude você a utilizar o sistema de torneios!

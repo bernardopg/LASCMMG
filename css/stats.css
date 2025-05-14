@@ -95,7 +95,9 @@
 .stats-card h3 {
   margin: 0;
   padding: 1rem;
-  background-color: var(--surface-hover-color); /* Use a slightly off-white for header */
+  background-color: var(
+    --surface-hover-color
+  ); /* Use a slightly off-white for header */
   color: var(--dark-text); /* Fallback, themes will override */
   font-size: 1.1rem;
   border-bottom: 1px solid var(--border-color);
@@ -141,7 +143,9 @@
   display: flex;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background-color: var(--surface-hover-color); /* Fallback, themes will override */
+  background-color: var(
+    --surface-hover-color
+  ); /* Fallback, themes will override */
   border-radius: var(--border-radius-sm);
 }
 
@@ -171,7 +175,6 @@
   color: var(--contrast-text);
 }
 
-
 .player-name {
   flex: 1;
   font-weight: 500;
@@ -195,7 +198,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background-color: var(--surface-hover-color); /* Fallback, themes will override */
+  background-color: var(
+    --surface-hover-color
+  ); /* Fallback, themes will override */
   border-radius: var(--border-radius-sm);
 }
 
@@ -237,17 +242,20 @@
   gap: 1.5rem;
 }
 
-.match-history-table, .opponent-stats-table {
+.match-history-table,
+.opponent-stats-table {
   width: 100%;
   overflow-x: auto;
 }
 
-.match-history-table table, .opponent-stats-table table {
+.match-history-table table,
+.opponent-stats-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.match-history-table th, .opponent-stats-table th {
+.match-history-table th,
+.opponent-stats-table th {
   text-align: left;
   padding: 0.75rem;
   border-bottom: 2px solid var(--border-color);
@@ -255,7 +263,8 @@
   font-weight: 600;
 }
 
-.match-history-table td, .opponent-stats-table td {
+.match-history-table td,
+.opponent-stats-table td {
   padding: 0.75rem;
   border-bottom: 1px solid var(--light-border);
 }
@@ -287,13 +296,16 @@
 }
 
 /* Mensagens e placeholders */
-.loading-placeholder, .no-data-message, .error-message {
+.loading-placeholder,
+.no-data-message,
+.error-message {
   padding: 2rem;
   text-align: center;
   color: var(--light-text); /* Fallback, themes will override */
 }
 
-.no-data-message, .error-message {
+.no-data-message,
+.error-message {
   min-height: 150px;
   display: flex;
   flex-direction: column;
@@ -314,7 +326,8 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .stats-grid, .player-stats-grid {
+  .stats-grid,
+  .player-stats-grid {
     grid-template-columns: 1fr;
   }
 
@@ -328,7 +341,8 @@
     padding: 0.6rem 0.5rem;
   }
 
-  .match-history-table, .opponent-stats-table {
+  .match-history-table,
+  .opponent-stats-table {
     overflow-x: auto;
   }
 }

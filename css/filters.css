@@ -10,7 +10,9 @@
   margin-bottom: 20px;
   box-shadow: var(--box-shadow);
   /* transition: var(--theme-transition); /* --theme-transition is not defined, remove or define */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease; /* Example transition */
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease; /* Example transition */
 }
 
 .filters-header {
@@ -87,7 +89,9 @@
   border-radius: 4px;
   background-color: var(--surface-color);
   color: var(--dark-text); /* Fallback, themes will adjust */
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .filter-input:focus,
@@ -110,7 +114,9 @@
   border: none;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .btn-filter-apply {

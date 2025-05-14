@@ -36,7 +36,7 @@ export default tseslint.config(
       ecmaVersion: 'latest',
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': 'off', // Allow console logs in backend for now
     },
   },
@@ -52,7 +52,7 @@ export default tseslint.config(
       ecmaVersion: 'latest',
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': 'off', // Allow console logs in frontend for now
     },
   },
@@ -63,7 +63,7 @@ export default tseslint.config(
   // Custom Prettier rule override (optional, but good practice)
   {
     rules: {
-      'prettier/prettier': ['warn', { endOfLine: 'auto' }], // Show as warning, adjust endOfLine if needed
+      'prettier/prettier': ['error', { endOfLine: 'auto' }], // Show as error, adjust endOfLine if needed
     },
   }
 );
