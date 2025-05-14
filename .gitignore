@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Production
+build/
+dist/
+.env
+
+# Development
+.DS_Store
+*.sqlite
+*.sqlite-journal
+*.log
+admin_credentials.json
+cookies.txt
+headers.txt
+
+# Temporary files
+temp/
+backups/
+
+# Audit logs
+audit/audit_log.jsonl
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
