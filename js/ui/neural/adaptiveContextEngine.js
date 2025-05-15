@@ -1,5 +1,5 @@
 import userBehaviorTracker from './userBehaviorTracker.js';
-import { dynamicColorSystem } from '../theme/dynamicColorSystem.js';
+import * as theme from '../theme/index.js'; // Importa de index.js
 
 const CONTEXT_CHECK_INTERVAL = 30000;
 const CONTEXT_STORAGE_KEY = 'adaptiveContextPreferences';
@@ -626,11 +626,11 @@ class AdaptiveContextEngine {
     }
 
     if (
-      dynamicColorSystem &&
-      typeof dynamicColorSystem.setUserPreference === 'function'
+      theme.dynamicColorSystem &&
+      typeof theme.dynamicColorSystem.setUserPreference === 'function'
     ) {
-      dynamicColorSystem.setUserPreference('preferredHue', primaryHue);
-      dynamicColorSystem.setUserPreference('colorIntensity', intensity);
+      theme.dynamicColorSystem.setUserPreference('preferredHue', primaryHue);
+      theme.dynamicColorSystem.setUserPreference('colorIntensity', intensity);
     }
   }
 

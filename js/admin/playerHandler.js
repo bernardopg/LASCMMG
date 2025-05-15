@@ -128,7 +128,7 @@ function renderAdminPlayersTable() {
         'Excluir',
         'delete',
         null,
-        ['btn-delete'],
+        ['btn-danger'], // Alterado de btn-delete para btn-danger
         async (e) => {
           await deletePlayer(player.name, e.target);
         }

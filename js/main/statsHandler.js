@@ -5,6 +5,7 @@ import {
   removeLoadingSpinner,
 } from '../uiUtils.js';
 import { getCurrentTournamentId } from '../state.js';
+import ui from '../uiUtils.js';
 
 let statsContainer;
 let tournamentStatsSection;
@@ -521,7 +522,7 @@ function renderMatchHistory(matches) {
 
     html += `
       <tr class="${isWin ? 'win' : 'loss'}">
-        <td>${formatMatchDate(match.date)}</td>
+        <td>${ui.formatMatchDate(match.date)}</td>
         <td>${opponent || 'N/A'}</td>
         <td><span class="result-badge ${isWin ? 'win' : 'loss'}">${isWin ? 'Vitória' : 'Derrota'}</span></td>
         <td>${playerScore} - ${opponentScore}</td>
@@ -536,19 +537,6 @@ function renderMatchHistory(matches) {
   `;
 
   return html;
-}
-
-function formatMatchDate(dateString) {
-  if (!dateString) return 'N/A';
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return 'Data inválida';
-
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
 }
 
 function renderOpponentStats(opponentStats) {

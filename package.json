@@ -9,7 +9,8 @@
     "lint": "eslint . --ext .js --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "torneio",
@@ -30,7 +31,10 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
     "proper-lockfile": "^4.1.2",
+    "serve-static": "^2.2.0",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {

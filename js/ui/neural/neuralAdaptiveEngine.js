@@ -1,5 +1,5 @@
 import userBehaviorTracker from './userBehaviorTracker.js';
-import { dynamicColorSystem } from '../theme/dynamicColorSystem.js';
+import * as theme from '../theme/index.js'; // Importa de index.js
 
 const LEARNING_RATE = 0.05;
 const ADAPTATION_THRESHOLD = 0.65;
@@ -657,7 +657,7 @@ export class NeuralAdaptiveEngine {
   }
 
   applyColorScheme(scheme) {
-    return dynamicColorSystem.setColorScheme(scheme);
+    return theme.dynamicColorSystem.setColorScheme(scheme);
   }
 
   evaluateContextualAdaptations() {

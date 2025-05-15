@@ -117,17 +117,7 @@ function renderTournamentsTable(tournamentsToRender = null) {
       row.classList.add('selected-row');
     }
 
-    let dateStr = 'Data Indisponível';
-    if (tournament.date) {
-      try {
-        const dateObj = new Date(tournament.date);
-        if (!isNaN(dateObj.getTime())) {
-          dateStr = dateObj.toLocaleDateString('pt-BR');
-        }
-      } catch {
-        /* Ignora erro de data inválida */
-      }
-    }
+    const dateStr = ui.formatMatchDate(tournament.date);
 
     row.insertCell().textContent = tournament.name || 'Sem Nome';
     row.insertCell().textContent = dateStr;
@@ -159,7 +149,7 @@ function renderTournamentsTable(tournamentsToRender = null) {
       'Excluir',
       'delete',
       tournament.id,
-      ['btn-delete'],
+      ['btn-danger'], // Alterado de btn-delete para btn-danger para usar o estilo vermelho
       async (e) => {
         const tournamentId = tournament.id;
         const tournamentName = tournament.name || tournament.id;
@@ -290,88 +280,70 @@ async function handleSaveTournamentDetails(event) {
   }
 
   const originalData = state.findTournamentById(tournamentId);
+  const updatedData = {};
   let changesMade = false;
-  let errors = [];
+
+  if (originalData) {
+    if (name !== originalData.name) {
+      updatedData.name = name;
+      changesMade = true;
+    }
+    if (description !== originalData.description) {
+      updatedData.description = description;
+      changesMade = true;
+    }
+    if (status !== originalData.status) {
+      updatedData.status = status;
+      changesMade = true;
+    }
+    if (entryFee !== (originalData.entry_fee?.toString() || '')) {
+      updatedData.entry_fee = parseFloat(entryFee) || 0;
+      changesMade = true;
+    }
+    if (prizePool !== (originalData.prize_pool || '')) {
+      updatedData.prize_pool = prizePool;
+      changesMade = true;
+    }
+    if (rules !== (originalData.rules || '')) {
+      updatedData.rules = rules;
+      changesMade = true;
+    }
+  } else {
+    // If original data not found, assume all fields are changes
+    updatedData.name = name;
+    updatedData.description = description;
+    updatedData.status = status;
+    updatedData.entry_fee = parseFloat(entryFee) || 0;
+    updatedData.prize_pool = prizePool;
+    updatedData.rules = rules;
+    changesMade = true;
+  }
+
+  if (!changesMade) {
+    ui.showMessage('Nenhuma alteração detectada.', 'info');
+    ui.setButtonLoading(elements.saveDetailsBtn, false);
+    return;
+  }
 
   try {
-    if (originalData && name !== originalData.name) {
-      try {
-        await api.updateTournamentName(tournamentId, name);
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Nome: ${err.message}`);
-      }
-    }
+    // Assuming an API endpoint exists to update tournament details with a single request
+    const result = await api.updateTournamentDetails(tournamentId, updatedData);
 
-    if (originalData && description !== originalData.description) {
-      try {
-        await api.updateTournamentDescription(tournamentId, description);
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Descrição: ${err.message}`);
-      }
-    }
-
-    if (originalData && status !== originalData.status) {
-      try {
-        await api.updateTournamentStatus(tournamentId, status);
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Status: ${err.message}`);
-      }
-    }
-
-    // Novos campos
-    if (
-      originalData &&
-      entryFee !== (originalData.entry_fee?.toString() || '')
-    ) {
-      try {
-        await api.updateTournamentEntryFee(
-          tournamentId,
-          parseFloat(entryFee) || 0
-        );
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Taxa de Inscrição: ${err.message}`);
-      }
-    }
-
-    if (originalData && prizePool !== (originalData.prize_pool || '')) {
-      try {
-        await api.updateTournamentPrizePool(tournamentId, prizePool);
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Premiação: ${err.message}`);
-      }
-    }
-
-    if (originalData && rules !== (originalData.rules || '')) {
-      try {
-        await api.updateTournamentRules(tournamentId, rules);
-        changesMade = true;
-      } catch (err) {
-        errors.push(`Regras: ${err.message}`);
-      }
-    }
-
-    if (errors.length > 0) {
+    if (result.success) {
       ui.showMessage(
-        'Erro ao salvar algumas alterações:',
-        'error',
-        errors.join('<br>')
+        result.message || 'Alterações salvas com sucesso!',
+        'success'
       );
-    } else if (changesMade) {
-      ui.showMessage('Alterações salvas com sucesso!', 'success');
       await loadTournamentsList();
-      const updatedData = state.findTournamentById(tournamentId);
-      if (updatedData) displaySelectedTournamentDetails(updatedData);
+      const updatedTournamentData = state.findTournamentById(tournamentId);
+      if (updatedTournamentData)
+        displaySelectedTournamentDetails(updatedTournamentData);
       renderTournamentsTable();
     } else {
-      ui.showMessage('Nenhuma alteração detectada.', 'info');
+      ui.showMessage(result.message || 'Erro ao salvar alterações.', 'error');
     }
   } catch (error) {
-    console.error('Erro geral ao salvar detalhes do torneio:', error);
+    console.error('Erro ao salvar detalhes do torneio:', error);
     ui.showMessage(
       'Erro de comunicação ao salvar alterações.',
       'error',

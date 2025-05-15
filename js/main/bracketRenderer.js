@@ -75,7 +75,6 @@ export function renderBracket() {
     displayContainer.appendChild(gfContainer);
   }
 
-  highlightWinnersLosers();
   addMatchClickListener();
 }
 
@@ -175,67 +174,53 @@ function createMatchElement(match) {
   return matchDiv;
 }
 
-function createPlayerElement(playerData) {
+function createPlayerElement(playerData, match) {
   const pDiv = document.createElement('div');
   pDiv.classList.add('player');
-  if (
-    playerData?.name &&
-    playerData.name !== 'A definir' &&
-    playerData.name !== 'BYE'
-  ) {
+
+  const playerName = playerData?.name || 'A definir';
+  const playerScore = playerData?.score;
+
+  if (playerName && playerName !== 'A definir' && playerName !== 'BYE') {
     pDiv.classList.add('active-player');
   }
 
   const nameSpan = document.createElement('span');
   nameSpan.className = 'name';
-  nameSpan.textContent = playerData?.name || 'A definir';
+  nameSpan.textContent = playerName;
   pDiv.appendChild(nameSpan);
 
   const scoreSpan = document.createElement('span');
   scoreSpan.classList.add('score');
-  if (playerData?.score !== null && playerData?.score !== undefined) {
-    scoreSpan.textContent = playerData.score;
+  if (playerScore !== null && playerScore !== undefined) {
+    scoreSpan.textContent = playerScore;
   } else {
     scoreSpan.textContent = '-';
     scoreSpan.classList.add('not-played');
   }
   pDiv.appendChild(scoreSpan);
 
-  return pDiv;
-}
+  // Adicionar classes de vencedor/perdedor/campeão diretamente
+  if (match && match.winner !== null && match.winner !== undefined) {
+    const winnerIndex = parseInt(match.winner);
+    const isWinner = match.players?.[winnerIndex]?.name === playerName;
+    const isLoser = match.players?.[1 - winnerIndex]?.name === playerName;
 
-function highlightWinnersLosers() {
-  const tournamentState = state.getTournamentState();
-  if (!tournamentState?.matches) return;
-
-  Object.entries(tournamentState.matches).forEach(([matchId, match]) => {
-    if (
-      match &&
-      typeof match === 'object' &&
-      match.winner !== null &&
-      match.winner !== undefined
-    ) {
-      const matchElement = elements.bracketContainer?.querySelector(
-        `.match[data-match-id="${matchId}"]`
-      );
-      if (matchElement) {
-        const players = matchElement.querySelectorAll('.player');
-        if (players.length >= 2) {
-          const winnerIndex = parseInt(match.winner);
-          const loserIndex = 1 - winnerIndex;
-          players[winnerIndex]?.classList.add('winner');
-          players[loserIndex]?.classList.add('loser');
-          if (
-            match.roundName === 'Final' ||
-            match.roundName === 'Grande Final' ||
-            match.roundName === 'Grande Final Reset'
-          ) {
-            players[winnerIndex]?.classList.add('champion');
-          }
-        }
+    if (isWinner) {
+      pDiv.classList.add('winner');
+      if (
+        match.roundName === 'Final' ||
+        match.roundName === 'Grande Final' ||
+        match.roundName === 'Grande Final Reset'
+      ) {
+        pDiv.classList.add('champion');
       }
+    } else if (isLoser) {
+      pDiv.classList.add('loser');
     }
-  });
+  }
+
+  return pDiv;
 }
 
 function addMatchClickListener() {

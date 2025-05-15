@@ -19,9 +19,6 @@ class ThemeSwitcher {
    * Configuração inicial do sistema de tema
    */
   initialSetup() {
-    // Criar o botão de alternância se ainda não existir
-    this.createToggleButton();
-
     // Configurar os listeners de eventos
     this.setupEventListeners();
 
@@ -30,37 +27,6 @@ class ThemeSwitcher {
 
     // Monitorar mudanças na preferência do sistema
     this.observeSystemPreference();
-  }
-
-  /**
-   * Cria o botão de alternância de tema na interface
-   */
-  createToggleButton() {
-    // Verificar se o botão já existe
-    if (document.querySelector('.theme-toggle-wrapper')) {
-      return; // Usar o botão existente que foi adicionado direto no HTML
-    }
-
-    // Criar o wrapper do botão
-    const wrapper = document.createElement('div');
-    wrapper.className = 'theme-toggle-wrapper';
-
-    // Criar o botão com ícones e texto
-    const button = document.createElement('button');
-    button.className = 'theme-toggle-btn';
-    button.setAttribute('aria-label', 'Alternar tema');
-    button.setAttribute('title', 'Alternar tema');
-    button.innerHTML = `
-      <span class="theme-icon"></span>
-      <span class="theme-label"></span>
-    `;
-
-    wrapper.appendChild(button);
-    document.body.appendChild(wrapper);
-
-    this.updateToggleButtonUI();
-
-    console.log('Botão de alternância de tema criado dinamicamente');
   }
 
   /**

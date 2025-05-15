@@ -185,14 +185,20 @@
 }
 
 /* Selected Row Highlight */
-#tournaments-body tr.selected-row td {
-  /* More specific selector */
+#tournaments-body tr.selected-row td,
+.data-table tbody tr.selected-row td /* Add generic selected row for other tables */ {
   background-color: rgba(
     var(--primary-rgb),
-    0.1
-  ) !important; /* Use primary light bg */
-  color: var(--primary-hover); /* Darker primary text */
-  font-weight: 500; /* Slightly bolder */
+    0.15
+  ); /* Slightly darker or more noticeable */
+  color: var(--primary-hover);
+  font-weight: 600; /* Bolder */
+}
+/* Ensure higher specificity if needed, without !important if possible */
+.admin-card .data-table tbody tr.selected-row td {
+  background-color: rgba(var(--primary-rgb), 0.15);
+  color: var(--primary-hover);
+  font-weight: 600;
 }
 
 /* Specific Admin Bracket Styles */

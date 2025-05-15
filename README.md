@@ -62,6 +62,7 @@ cp .env.example .env
 
 - Ao iniciar o servidor pela primeira vez, o banco de dados SQLite (`data/data.db`) será criado automaticamente, e as tabelas serão inicializadas.
 - **Primeiro Administrador:**
+
   - Use o script `scripts/initialize_admin.js` para criar o primeiro usuário administrador. Execute:
 
     ```bash

@@ -83,4 +83,5 @@ Este documento rastreia as tarefas pendentes, melhorias planejadas e ideias para
 - **[NOVO]** PWA (Progressive Web App) e otimizações mobile-specific.
 
 ---
+
 Esta lista será revisada e atualizada regularmente.

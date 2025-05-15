@@ -299,31 +299,7 @@ function renderUpcomingMatches() {
     );
 
     const matchDate = safeDOM.createElement('span', { class: 'match-date' });
-    try {
-      const date = new Date(match.datetime);
-      const isToday = new Date().toDateString() === date.toDateString();
-      if (isToday) {
-        safeDOM.setText(
-          matchDate,
-          date.toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        );
-      } else {
-        safeDOM.setText(
-          matchDate,
-          date.toLocaleDateString('pt-BR') +
-            ' ' +
-            date.toLocaleTimeString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-        );
-      }
-    } catch {
-      safeDOM.setText(matchDate, 'Data/hora não definida');
-    }
+    safeDOM.setText(matchDate, ui.formatMatchDateTime(match.datetime));
 
     matchHeader.appendChild(tournamentName);
     matchHeader.appendChild(matchDate);
@@ -444,32 +420,7 @@ function renderSystemStats() {
       const activityTime = safeDOM.createElement('span', {
         class: 'activity-time',
       });
-
-      try {
-        const date = new Date(activity.timestamp);
-        const isToday = new Date().toDateString() === date.toDateString();
-        if (isToday) {
-          safeDOM.setText(
-            activityTime,
-            date.toLocaleTimeString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          );
-        } else {
-          safeDOM.setText(
-            activityTime,
-            date.toLocaleDateString('pt-BR') +
-              ' ' +
-              date.toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-          );
-        }
-      } catch {
-        safeDOM.setText(activityTime, 'Horário desconhecido');
-      }
+      safeDOM.setText(activityTime, ui.formatMatchDateTime(activity.timestamp));
 
       activityItem.appendChild(activityText);
       activityItem.appendChild(activityTime);

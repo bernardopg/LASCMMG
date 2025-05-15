@@ -52,7 +52,7 @@ export function sanitizeHTML(input) {
     // As tags <script> serão neutralizadas pelo escape de '<' e '>'.
   };
 
-  return input.replace(/[&<>"'`\/]/g, (char) => map[char] || char);
+  return input.replace(/[&<>"'`/]/g, (char) => map[char] || char);
 }
 
 export function createSafeTextNode(content) {

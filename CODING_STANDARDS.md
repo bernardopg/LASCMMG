@@ -52,13 +52,17 @@ Este documento estabelece os padrões de codificação e práticas recomendadas 
 
   ```javascript
   const playerName = 'João';
-  function calculateScore() { /* ... */ }
+  function calculateScore() {
+    /* ... */
+  }
   ```
 
 - Use **PascalCase** para classes e construtores:
 
   ```javascript
-  class TournamentManager { /* ... */ }
+  class TournamentManager {
+    /* ... */
+  }
   ```
 
 - Use **UPPER_SNAKE_CASE** para constantes globais ou de módulo:
@@ -175,7 +179,9 @@ Este documento estabelece os padrões de codificação e práticas recomendadas 
    * @param {string} paramName - Descrição do parâmetro.
    * @returns {boolean} Descrição do retorno.
    */
-  function minhaFuncao(paramName) { /* ... */ }
+  function minhaFuncao(paramName) {
+    /* ... */
+  }
   ```
 
 ## Testes
@@ -245,4 +251,5 @@ npm run lint:fix
 ```
 
 ---
+
 Estas diretrizes são um documento vivo e podem ser atualizadas.

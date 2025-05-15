@@ -24,8 +24,8 @@
   /* Cores de fundo (tons escuros, alguns com leve matiz verde) */
   --bg-color: #1a2a1a; /* Verde muito escuro para o fundo principal */
   --bg-color-secondary: #223322; /* Verde escuro para fundos secundários (sidebar, navbar) */
-  --surface-rgb:
-    34, 51, 34; /* RGB de --bg-color-secondary, usado como surface */
+  --surface-rgb: 34, 51, 34;
+  --surface-color: #223322; /* Definir --surface-color explicitamente para o tema escuro */
   --bg-color-tertiary: #2c3e2c; /* Verde um pouco mais claro para painéis */
   --panel-bg: var(--bg-color-tertiary);
   --modal-bg: #253825;
@@ -34,13 +34,21 @@
   /* Cores de texto (claras para contraste) */
   --text-color: #e8f5e9; /* Branco esverdeado muito claro */
   --text-color-secondary: #c8e6c9; /* Verde claro para texto secundário */
+  --light-text: var(
+    --text-color-secondary
+  ); /* Redefinir --light-text para o tema escuro */
   --text-color-muted: #a5d6a7; /* Verde mais suave para texto silenciado */
   --text-color-disabled: #556b55;
 
+  /* Cores de fundo */
+  --light-bg: var(
+    --bg-color-tertiary
+  ); /* Redefinir --light-bg para um tom escuro apropriado */
+
   /* Cores de borda */
   --border-color: #385338;
-  --border-color-light: #4a6a4a;
-  --separator-color: #334a33;
+  --light-border: #4a6a4a; /* Adicionando --light-border */
+  --separator-color: #334a33; /* Adicionando --separator-color */
 
   /* Cores de seleção e hover */
   --selection-bg: rgba(40, 167, 69, 0.3); /* Verde primário com alfa */

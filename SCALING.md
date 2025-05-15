@@ -179,11 +179,11 @@ A separação em serviços (API, workers, notificações) seria uma evolução p
 ### Fase 1: Otimização da Configuração Atual (SQLite)
 
 - **[CONCLUÍDO]** Migração de dados de JSON para SQLite.
-- **[EM ANDAMENTO/CONCLUÍDO PARCIALMENTE]** Otimizar consultas SQL e garantir índices adequados (revisão de modelos e esquema realizada).
-- **[EM ANDAMENTO/CONCLUÍDO PARCIALMENTE]** Implementar monitoramento básico de saúde da aplicação e logs (health check existe, logs de honeypot melhorados).
-- **[A FAZER]** Implementar cache de assets estáticos mais robusto e headers de cache HTTP.
-- **[A FAZER]** Avaliar e implementar o modo WAL para SQLite.
-- **[A FAZER]** Criar script de manutenção para `VACUUM` (ex: `scripts/optimize-database.js`).
+- **[CONCLUÍDO]** Otimizar consultas SQL e garantir índices adequados (revisão de modelos e esquema realizada).
+- **[EM ANDAMENTO]** Implementar monitoramento básico de saúde da aplicação e logs (health check existe, logs de honeypot melhorados).
+- **[CONCLUÍDO]** Implementar cache de assets estáticos mais robusto e headers de cache HTTP.
+- **[CONCLUÍDO]** Avaliar e implementar o modo WAL para SQLite.
+- **[CONCLUÍDO]** Criar script de manutenção para `VACUUM` (ex: `scripts/optimize-database.js`).
 
 ### Fase 2: Preparação para Escala Maior (Plano Futuro)
 

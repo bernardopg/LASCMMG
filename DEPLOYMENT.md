@@ -88,20 +88,20 @@ O servidor principal é `server.js`.
 
 Copie `.env.example` para `.env` e configure:
 
-| Variável               | Descrição                                | Valor Padrão (Exemplo)           | Obrigatório        |
-| ---------------------- | ---------------------------------------- | -------------------------------- | ------------------ |
-| `PORT`                 | Porta do servidor                        | `3000`                           | Não                |
-| `NODE_ENV`             | Ambiente (development, production)       | `development`                    | Não                |
-| `JWT_SECRET`           | Segredo para tokens JWT                  | `your-very-strong-jwt-secret`    | **Sim (Produção)** |
-| `JWT_EXPIRATION`       | Expiração dos tokens JWT                 | `1h`                             | Não                |
-| `JWT_ISSUER`           | Emissor do token JWT                     | `yourdomain.com`                 | Sim (Produção)     |
-| `JWT_AUDIENCE`         | Audiência do token JWT                   | `yourdomain.com`                 | Sim (Produção)     |
-| `COOKIE_SECRET`        | Segredo para cookies de sessão           | `your-very-strong-cookie-secret` | **Sim (Produção)** |
-| `CORS_ORIGIN`          | Origens permitidas pelo CORS em produção | `https://seu-dominio.com`        | Sim (Produção)     |
-| `RATE_LIMIT_WINDOW_MS` | Janela de tempo para rate limiting (ms)  | `900000` (15 min)                | Não                |
-| `RATE_LIMIT_MAX`       | Máximo de requisições por janela/IP      | `100`                            | Não                |
+| Variável               | Descrição                                   | Valor Padrão (Exemplo)           | Obrigatório        |
+| ---------------------- | ------------------------------------------- | -------------------------------- | ------------------ |
+| `PORT`                 | Porta do servidor                           | `3000`                           | Não                |
+| `NODE_ENV`             | Ambiente (development, production)          | `development`                    | Não                |
+| `JWT_SECRET`           | Segredo para tokens JWT                     | `your-very-strong-jwt-secret`    | **Sim (Produção)** |
+| `JWT_EXPIRATION`       | Expiração dos tokens JWT                    | `1h`                             | Não                |
+| `JWT_ISSUER`           | Emissor do token JWT                        | `yourdomain.com`                 | Sim (Produção)     |
+| `JWT_AUDIENCE`         | Audiência do token JWT                      | `yourdomain.com`                 | Sim (Produção)     |
+| `COOKIE_SECRET`        | Segredo para cookies de sessão              | `your-very-strong-cookie-secret` | **Sim (Produção)** |
+| `CORS_ORIGIN`          | Origens permitidas pelo CORS em produção    | `https://seu-dominio.com`        | Sim (Produção)     |
+| `RATE_LIMIT_WINDOW_MS` | Janela de tempo para rate limiting (ms)     | `900000` (15 min)                | Não                |
+| `RATE_LIMIT_MAX`       | Máximo de requisições por janela/IP         | `100`                            | Não                |
 | `LOG_LEVEL`            | Nível de log (não implementado globalmente) | `info`                           | Não                |
-| `SENTRY_DSN`           | DSN para Sentry (opcional)               | —                                | Não                |
+| `SENTRY_DSN`           | DSN para Sentry (opcional)                  | —                                | Não                |
 
 **Nota:** O caminho do banco de dados é fixo em `data/data.db` (relativo à raiz do projeto).
 
@@ -149,7 +149,7 @@ Copie `.env.example` para `.env` e configure:
          # ou via um arquivo .env referenciado pelo docker-compose.
          # Ex: JWT_SECRET: ${JWT_SECRET_FROM_HOST_ENV}
        volumes:
-         - ./data:/usr/src/app/data      # Persiste o banco de dados SQLite
+         - ./data:/usr/src/app/data # Persiste o banco de dados SQLite
          - ./backups:/usr/src/app/backups # Persiste backups
        ports:
          - '3000:3000' # Mapeia a porta do container para a porta do host
@@ -160,6 +160,7 @@ Copie `.env.example` para `.env` e configure:
 Para um servidor dedicado/VPS:
 
 1. **Preparar o Servidor:**
+
    - Instale Node.js, npm, Git.
    - Instale ferramentas de compilação se `better-sqlite3` precisar delas (`sudo apt-get install -y python3 make g++ build-essential` em Debian/Ubuntu).
    - Clone o projeto: `git clone <URL_DO_SEU_REPOSITORIO_GIT> /var/www/lascmmg`
@@ -171,6 +172,7 @@ Para um servidor dedicado/VPS:
    (Consulte a documentação do Nginx para um exemplo detalhado, incluindo SSL/TLS com Let's Encrypt).
 
 3. **Configurar Systemd (ou PM2) para Gerenciar o Processo Node.js:**
+
    - Crie um arquivo de serviço (ex: `/etc/systemd/system/lascmmg.service`):
 
      ```ini
@@ -223,4 +225,5 @@ Para um servidor dedicado/VPS:
 5. Reinicie o serviço e monitore.
 
 ---
+
 Este guia é um documento vivo e deve ser atualizado conforme o sistema evolui.

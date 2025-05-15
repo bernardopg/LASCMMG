@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const morgan = require('morgan');
+// const morgan = require('morgan'); // Morgan será substituído pelo logger do Pino
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -10,6 +10,7 @@ const xss = require('xss-clean');
 const csrfMiddleware = require('./lib/csrfMiddleware');
 const honeypot = require('./lib/honeypot'); // Contém middleware e injectFields
 const fs = require('fs').promises; // Para ler arquivos HTML async
+const serveStatic = require('serve-static'); // Adicionado para cache de assets
 const {
   PORT: envPort,
   NODE_ENV,
@@ -18,14 +19,40 @@ const {
 } = require('./lib/config');
 const { globalErrorHandler } = require('./lib/errorHandler');
 const { applyDatabaseMigrations } = require('./lib/db-init');
+const { logger, httpLogger } = require('./lib/logger'); // Importar logger e httpLogger
 
 const app = express();
 const port = envPort || 3000;
 
+// Adicionar o httpLogger do Pino logo no início dos middlewares
+// para logar todas as requisições que passam por ele.
+// No entanto, o ID da requisição é gerado pelo httpLogger, então o middleware que o adiciona ao req.id
+// deve vir *depois* do httpLogger.
+app.use((req, res, next) => {
+  // Este middleware garante que req.id está disponível para o httpLogger e para o globalErrorHandler
+  // O httpLogger já tem genReqId, mas o adiciona ao log, não necessariamente ao objeto req em si
+  // para uso em outros middlewares ANTES do log final da requisição.
+  // Para garantir que req.id esteja disponível em toda parte, incluindo no globalErrorHandler,
+  // e para que o httpLogger possa usar um ID existente se já definido (ex: por um load balancer),
+  // vamos gerar/usar o ID aqui.
+
+  // Usar X-Request-Id se já existir (ex: de um proxy reverso/LB)
+  let requestId = req.headers['x-request-id'];
+  if (!requestId) {
+    requestId = require('crypto').randomBytes(16).toString('hex');
+    // Definir o header para a resposta também, para que o cliente possa vê-lo
+    res.setHeader('X-Request-Id', requestId);
+  }
+  req.id = requestId; // Adicionar ao objeto req para uso interno
+  next();
+});
+
+app.use(httpLogger); // Agora o httpLogger pode usar req.id se já estiver definido
+
 if (NODE_ENV !== 'production') {
-  console.log('Servidor rodando em modo de desenvolvimento');
+  logger.info('Servidor rodando em modo de desenvolvimento');
 } else {
-  console.log('Servidor rodando em modo de produção');
+  logger.info('Servidor rodando em modo de produção');
 
   app.use((req, res, next) => {
     if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
@@ -85,16 +112,16 @@ const cookieSecret =
   process.env.COOKIE_SECRET || crypto.randomBytes(32).toString('hex');
 
 if (!process.env.COOKIE_SECRET) {
-  console.error('⚠️ ALERTA DE SEGURANÇA: COOKIE_SECRET não configurado!');
-  console.error(
+  logger.error('⚠️ ALERTA DE SEGURANÇA: COOKIE_SECRET não configurado!');
+  logger.error(
     'Uma chave aleatória temporária foi gerada, mas será redefinida em cada reinicialização.'
   );
-  console.error(
+  logger.error(
     'Isto é inseguro para produção e causará invalidação de sessões.'
   );
 
   if (NODE_ENV === 'production') {
-    console.error(' CRÍTICO: COOKIE_SECRET ausente em ambiente de PRODUÇÃO! ');
+    logger.error(' CRÍTICO: COOKIE_SECRET ausente em ambiente de PRODUÇÃO! ');
   }
 }
 
@@ -117,7 +144,7 @@ app.use(csrfMiddleware.csrfProtection);
 
 app.use(honeypot.middleware);
 
-app.use(morgan('dev'));
+// app.use(morgan('dev')); // Remover morgan
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -140,42 +167,80 @@ app.use((req, res, next) => {
   next();
 });
 
-const staticOptions = {
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+// Configuração para servir arquivos estáticos com cache
+// const staticPath = path.join(__dirname, 'public'); // Removido pois não é usado
+// Se seus assets já estão em 'css', 'js', 'assets', ajuste ou adicione múltiplos middlewares
+// Por exemplo, para manter a estrutura atual:
+const oneDay = 86400000; // Milissegundos em um dia
 
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-    }
+app.use(
+  '/css',
+  serveStatic(path.join(__dirname, 'css'), {
+    maxAge: oneDay,
+    setHeaders: (res, filePath) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      if (serveStatic.mime.lookup(filePath) === 'text/css') {
+        res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+      }
+    },
+  })
+);
 
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-  },
-};
+app.use(
+  '/js',
+  serveStatic(path.join(__dirname, 'js'), {
+    maxAge: oneDay,
+    setHeaders: (res, filePath) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      if (serveStatic.mime.lookup(filePath) === 'application/javascript') {
+        res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+      }
+    },
+  })
+);
 
-app.use('/css', express.static(path.join(__dirname, 'css'), staticOptions));
-app.use('/js', express.static(path.join(__dirname, 'js'), staticOptions));
 app.use(
   '/assets',
-  express.static(path.join(__dirname, 'assets'), staticOptions)
+  serveStatic(path.join(__dirname, 'assets'), {
+    maxAge: oneDay, // Cache por 1 dia
+    setHeaders: (res, _filePath) => {
+      // Alterado para _filePath para indicar que não é usado
+      // Definir outros headers se necessário, ex: Content-Type para tipos específicos
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    },
+  })
 );
 
 const authRoutes = require('./routes/auth');
 const tournamentSqliteRoutes = require('./routes/tournaments-sqlite');
 const systemStatsRouter = require('./routes/system-stats');
 const legacyStatsRoutes = require('./routes/stats');
+const { checkDbConnection } = require('./lib/database'); // Importar checkDbConnection
 
 app.use('/api', authRoutes);
 app.use('/api/tournaments', tournamentSqliteRoutes);
 app.use('/api/system', systemStatsRouter);
 app.use('/api/stats', legacyStatsRoutes);
-app.get('/ping', (req, res) => res.status(200).send('pong')); // Movido para cá
 
-app.use((req, res, next) => {
-  req.startTime = Date.now();
-  req.requestId = require('crypto').randomBytes(16).toString('hex');
-  next();
+// Atualizar o endpoint /ping para incluir a verificação do banco de dados
+app.get('/ping', (req, res) => {
+  const dbStatus = checkDbConnection();
+  if (dbStatus.status === 'ok') {
+    res.status(200).json({
+      status: 'ok',
+      message: 'pong',
+      database: dbStatus,
+    });
+  } else {
+    res.status(503).json({
+      status: 'error',
+      message: 'Service Unavailable',
+      database: dbStatus,
+      dependencies: {
+        database: 'error',
+      },
+    });
+  }
 });
 
 app.use(globalErrorHandler);
@@ -193,7 +258,7 @@ app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
     const injectedHtml = honeypot.injectFields(htmlContent);
     res.send(injectedHtml);
   } catch (error) {
-    console.error('Erro ao servir admin.html com honeypot:', error);
+    logger.error('Erro ao servir admin.html com honeypot:', error);
     next(error);
   }
 });
@@ -208,7 +273,7 @@ app.get(
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
     } catch (error) {
-      console.error('Erro ao servir admin-security.html com honeypot:', error);
+      logger.error('Erro ao servir admin-security.html com honeypot:', error);
       next(error);
     }
   }
@@ -224,7 +289,7 @@ app.get(
       // CSP global do Helmet será aplicado
       res.send(injectedHtml);
     } catch (error) {
-      console.error('Erro ao servir index.html com honeypot:', error);
+      logger.error('Erro ao servir index.html com honeypot:', error);
       next(error);
     }
   }
@@ -262,23 +327,23 @@ async function startServer() {
     // Aqui aplicamos quaisquer migrações de esquema pendentes.
     await applyDatabaseMigrations();
     const server = app.listen(port, () => {
-      console.log(`Servidor rodando em http://localhost:${port}`);
+      logger.info(`Servidor rodando em http://localhost:${port}`);
     });
 
     process.on('SIGTERM', () => {
-      console.log('SIGTERM recebido. Encerrando servidor graciosamente...');
+      logger.info('SIGTERM recebido. Encerrando servidor graciosamente...');
       server.close(() => {
-        console.log('Servidor encerrado.');
+        logger.info('Servidor encerrado.');
         process.exit(0);
       });
 
       setTimeout(() => {
-        console.error('Tempo limite de encerramento excedido. Forçando saída.');
+        logger.error('Tempo limite de encerramento excedido. Forçando saída.');
         process.exit(1);
       }, 10000);
     });
   } catch (error) {
-    console.error('Erro fatal ao iniciar o servidor:', error);
+    logger.fatal({ err: error }, 'Erro fatal ao iniciar o servidor:');
     process.exit(1);
   }
 }
@@ -286,13 +351,20 @@ async function startServer() {
 startServer();
 
 process.on('uncaughtException', (error) => {
-  console.error('Erro não capturado:', error);
+  logger.fatal({ err: error }, 'Erro não capturado (uncaughtException):');
   if (NODE_ENV !== 'production') {
     process.exit(1);
   }
+  // Em produção, idealmente o processo seria reiniciado por um gerenciador de processos (PM2, systemd)
 });
 
-process.on('unhandledRejection', (reason, _promise) => {
-  console.error('Rejeição de Promise não tratada:', reason);
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error(
+    { err_reason: reason, promise_rejection_at: promise },
+    'Rejeição de Promise não tratada (unhandledRejection):'
+  );
+  // Considerar encerrar o processo em caso de unhandledRejection, dependendo da política
+  // if (NODE_ENV !== 'production') {
+  //   process.exit(1);
+  // }
 });
-// app.get('/ping', ...) foi movido para cima

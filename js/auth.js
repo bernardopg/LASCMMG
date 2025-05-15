@@ -120,7 +120,7 @@ export async function handleLogout(showLoginCallback) {
   } finally {
     sessionStorage.removeItem(LOGIN_TOKEN_KEY);
 
-    localStorage.removeItem(LOGIN_TOKEN_KEY);
+    // localStorage.removeItem(LOGIN_TOKEN_KEY); // Removido, token é armazenado em sessionStorage
 
     if (loginAttempts) {
       loginAttempts.count = 0;

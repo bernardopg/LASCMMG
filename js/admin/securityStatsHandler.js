@@ -1,5 +1,6 @@
 import { showMessage, setButtonLoading } from '../uiUtils.js';
 import { fetchApi } from '../apiService.js';
+import ui from '../uiUtils.js';
 
 let securityStatsContainer;
 let refreshStatsButton;
@@ -115,9 +116,7 @@ function renderThreatTable(threatIps) {
       riskClass = 'medium-risk';
     }
 
-    const lastSeen = threatData.lastSeen
-      ? new Date(threatData.lastSeen).toLocaleString()
-      : 'N/A';
+    const lastSeen = ui.formatMatchDateTime(threatData.lastSeen);
 
     let patternsList = 'Nenhum padrão detectado';
     if (threatData.topPatterns && threatData.topPatterns.length > 0) {

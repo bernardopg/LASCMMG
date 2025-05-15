@@ -43,10 +43,10 @@ export async function populateScheduleMatchSelect() {
   pendingMatches.forEach((match) => {
     const option = document.createElement('option');
     option.value = match.id;
-    const currentDateTime = match.dateTime
+    const formattedDateTime = match.dateTime
       ? ` [${ui.formatMatchDateTime(match.dateTime)}]`
       : '';
-    option.textContent = `${match.roundName || '?'} (#${match.id}): ${match.players[0].name} vs ${match.players[1].name}${currentDateTime}`;
+    option.textContent = `${match.roundName || '?'} (#${match.id}): ${match.players[0].name} vs ${match.players[1].name}${formattedDateTime}`;
     option.dataset.currentDatetime = match.dateTime || '';
     elements.scheduleMatchSelect.appendChild(option);
   });

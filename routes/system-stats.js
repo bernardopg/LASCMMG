@@ -4,8 +4,12 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { DB_CONFIG } = require('../lib/config');
+const { checkDbConnection } = require('../lib/database'); // Importar checkDbConnection
+const tournamentModel = require('../lib/models/tournamentModel'); // Importar modelos individualmente
+const playerModel = require('../lib/models/playerModel');
+const matchModel = require('../lib/models/matchModel');
+const scoreModel = require('../lib/models/scoreModel');
 
-const { models } = require('../lib/db-init');
 const { authMiddleware } = require('../lib/authMiddleware');
 const { readJsonFile } = require('../lib/fileUtils'); // Para ler o log do honeypot
 const HONEYPOT_LOG_PATH = path.join(
@@ -17,12 +21,12 @@ const HONEYPOT_LOG_PATH = path.join(
 
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
-    const tournamentCount = await models.tournament.countTournaments();
-    const playerCount = await models.player.countPlayers();
-    const matchCount = await models.match.countMatches();
-    const scoreCount = await models.score.countScores();
+    const tournamentCount = await tournamentModel.countTournaments(); // Usar modelo importado
+    const playerCount = await playerModel.countPlayers(); // Usar modelo importado
+    const matchCount = await matchModel.countMatches(); // Usar modelo importado
+    const scoreCount = await scoreModel.countScores(); // Usar modelo importado
 
-    const tournamentsStats = await models.tournament.getTournamentStats();
+    const tournamentsStats = await tournamentModel.getTournamentStats(); // Usar modelo importado
 
     const dbFilePath = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
     const dbSize = fs.existsSync(dbFilePath)
@@ -74,7 +78,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
 
 router.get('/health', async (req, res) => {
   try {
-    const dbStatus = await checkDatabaseConnection();
+    const dbStatus = checkDbConnection(); // Usar checkDbConnection de lib/database.js
 
     const diskStatus = checkDiskSpace();
 
@@ -87,7 +91,9 @@ router.get('/health', async (req, res) => {
     };
 
     const status =
-      dbStatus.ok && diskStatus.ok && memoryStatus.ok ? 'ok' : 'degraded';
+      dbStatus.status === 'ok' && diskStatus.ok && memoryStatus.ok
+        ? 'ok'
+        : 'degraded'; // Ajustar verificação de status do DB
 
     res.status(status === 'ok' ? 200 : 503).json({
       status,
@@ -110,19 +116,7 @@ router.get('/health', async (req, res) => {
   }
 });
 
-async function checkDatabaseConnection() {
-  try {
-    await models.tournament.countTournaments();
-    return { ok: true, message: 'Conexão com o banco de dados OK' };
-  } catch (error) {
-    console.error('Erro na conexão com o banco de dados:', error);
-    return {
-      ok: false,
-      message: 'Falha na conexão com o banco de dados',
-      error: error.message,
-    };
-  }
-}
+// Função checkDatabaseConnection removida, usando checkDbConnection de lib/database.js
 
 function checkDiskSpace() {
   try {

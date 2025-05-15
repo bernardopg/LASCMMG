@@ -91,7 +91,8 @@ Requer login para acesso.
 - **Exportar Jogadores:** Baixa um JSON com os jogadores do torneio.
 
 ### 2.8. Gerenciamento do Torneio Selecionado (Seção "Torneio")
-   (Esta seção parece ter sido integrada/substituída pelas outras seções mais específicas no painel admin atual. As funcionalidades como "Gerar Chaveamento", "Reiniciar Torneio" e "Exportar Dados" estão disponíveis nas respectivas seções ou diretamente na lista de torneios.)
+
+(Esta seção parece ter sido integrada/substituída pelas outras seções mais específicas no painel admin atual. As funcionalidades como "Gerar Chaveamento", "Reiniciar Torneio" e "Exportar Dados" estão disponíveis nas respectivas seções ou diretamente na lista de torneios.)
 
 ### 2.9. Lixeira (Seção "Lixeira")
 
@@ -122,4 +123,5 @@ Requer login para acesso.
 - **Segurança em Produção:** Reforce as configurações de segurança (variáveis de ambiente, HTTPS, firewalls).
 
 ---
+
 Esperamos que este manual ajude você a utilizar o sistema de torneios!

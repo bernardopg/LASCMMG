@@ -367,6 +367,27 @@ export function formatMatchDateTime(dateTime) {
   }
 }
 
+/**
+ * Formata uma string de data para o formato DD/MM/YYYY.
+ * @param {string} dateString A string de data a ser formatada.
+ * @returns {string} A data formatada ou 'N/A' se inválida.
+ */
+export function formatMatchDate(dateString) {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Data inválida';
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  } catch (e) {
+    console.error('Error formatting date string:', dateString, e);
+    return 'Data inválida';
+  }
+}
+
 export function createLoadingSpinner() {
   const spinner = document.createElement('div');
   spinner.className = 'loading-spinner';

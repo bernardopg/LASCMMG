@@ -6,43 +6,16 @@ export function createColorPanel() {
   const toggleBtn = document.createElement('button');
   toggleBtn.innerHTML = '🎨';
   toggleBtn.title = 'Configurações de Cores';
-  toggleBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--surface-color);
-        border: 2px solid var(--border-color);
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: var(--box-shadow);
-    `;
+  toggleBtn.id = 'toggle-color-panel-btn'; // Adiciona um ID para estilização via CSS
+  toggleBtn.classList.add('color-panel-toggle-btn'); // Adiciona uma classe para estilização via CSS
 
   const panel = document.createElement('div');
   panel.id = 'dynamic-color-panel';
-  panel.style.cssText = `
-        position: fixed;
-        bottom: 80px;
-        right: 20px;
-        width: 300px;
-        background: var(--surface-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 15px;
-        z-index: 999;
-        box-shadow: var(--hover-shadow);
-        display: none;
-    `;
+  panel.classList.add('color-config-panel'); // Adiciona uma classe para estilização via CSS
 
   const title = document.createElement('h3');
   title.textContent = 'Personalização de Cores';
-  title.style.marginBottom = '15px';
+  title.classList.add('panel-title'); // Adiciona uma classe para estilização via CSS
   panel.appendChild(title);
 
   addControlsToPanels(panel);
@@ -102,9 +75,7 @@ function addControlsToPanels(panel) {
 
   const resetBtn = document.createElement('button');
   resetBtn.textContent = 'Restaurar Padrões';
-  resetBtn.className = 'btn btn-secondary';
-  resetBtn.style.marginTop = '15px';
-  resetBtn.style.width = '100%';
+  resetBtn.className = 'btn btn-secondary reset-button'; // Adiciona classe para estilização
 
   resetBtn.addEventListener('click', () => {
     dynamicColorSystem.userPreferences = {
@@ -117,34 +88,45 @@ function addControlsToPanels(panel) {
     dynamicColorSystem.saveUserPreferences();
     dynamicColorSystem.updateColorsByTimeOfDay();
 
-    panel.querySelectorAll('select, input').forEach((el) => {
-      if (el.type === 'checkbox') {
-        el.checked = false;
-      } else if (el.type === 'color') {
-        el.value = '#0d6efd';
-      } else {
-        el.value = dynamicColorSystem.userPreferences[el.dataset.preference];
-      }
-    });
+    // Atualiza os controles do painel para refletir os padrões restaurados
+    updatePanelControls(panel);
   });
 
   panel.appendChild(resetBtn);
 }
 
+function updatePanelControls(panel) {
+  panel.querySelectorAll('[data-preference]').forEach((el) => {
+    const prefKey = el.dataset.preference;
+    const currentValue = dynamicColorSystem.userPreferences[prefKey];
+
+    if (el.type === 'checkbox') {
+      el.checked = currentValue;
+    } else if (el.type === 'color') {
+      el.value = currentValue
+        ? dynamicColorSystem.hslToHex(currentValue, 80, 50)
+        : '#0d6efd';
+      const useDefaultCheck = panel.querySelector('#use-default-color');
+      if (useDefaultCheck) {
+        useDefaultCheck.checked = !currentValue;
+      }
+    } else {
+      el.value = currentValue;
+    }
+  });
+}
+
 function addSelectControl(panel, label, prefKey, options, currentValue) {
   const container = document.createElement('div');
-  container.style.marginBottom = '10px';
+  container.classList.add('control-group'); // Adiciona classe para estilização
 
   const labelEl = document.createElement('label');
   labelEl.textContent = label;
-  labelEl.style.display = 'block';
-  labelEl.style.marginBottom = '5px';
   container.appendChild(labelEl);
 
   const select = document.createElement('select');
-  select.style.width = '100%';
-  select.style.padding = '8px';
   select.dataset.preference = prefKey;
+  select.classList.add('control-input'); // Adiciona classe para estilização
 
   for (const [value, text] of Object.entries(options)) {
     const option = document.createElement('option');
@@ -166,31 +148,27 @@ function addSelectControl(panel, label, prefKey, options, currentValue) {
 
 function addColorPicker(panel, label, prefKey, currentValue) {
   const container = document.createElement('div');
-  container.style.marginBottom = '10px';
+  container.classList.add('control-group'); // Adiciona classe para estilização
 
   const labelEl = document.createElement('label');
   labelEl.textContent = label;
-  labelEl.style.display = 'block';
-  labelEl.style.marginBottom = '5px';
   container.appendChild(labelEl);
 
   const row = document.createElement('div');
-  row.style.display = 'flex';
-  row.style.alignItems = 'center';
+  row.classList.add('color-picker-row'); // Adiciona classe para estilização
 
   const colorPicker = document.createElement('input');
   colorPicker.type = 'color';
   colorPicker.value = currentValue
     ? dynamicColorSystem.hslToHex(currentValue, 80, 50)
     : '#0d6efd';
-  colorPicker.style.marginRight = '10px';
   colorPicker.dataset.preference = prefKey;
+  colorPicker.classList.add('control-input'); // Adiciona classe para estilização
 
   const useDefaultCheck = document.createElement('input');
   useDefaultCheck.type = 'checkbox';
   useDefaultCheck.id = 'use-default-color';
   useDefaultCheck.checked = !currentValue;
-  useDefaultCheck.style.marginRight = '5px';
 
   const useDefaultLabel = document.createElement('label');
   useDefaultLabel.htmlFor = 'use-default-color';
@@ -202,6 +180,17 @@ function addColorPicker(panel, label, prefKey, currentValue) {
 
     if (useDefaultCheck.checked) {
       useDefaultCheck.checked = false;
+    }
+    dynamicColorSystem.setUserPreference(prefKey, hsl[0]);
+  });
+
+  useDefaultCheck.addEventListener('change', () => {
+    if (useDefaultCheck.checked) {
+      dynamicColorSystem.setUserPreference(prefKey, null);
+      colorPicker.value = '#0d6efd'; // Reset color picker visual
+    } else {
+      const hexValue = colorPicker.value;
+      const hsl = dynamicColorSystem.hexToHsl(hexValue);
       dynamicColorSystem.setUserPreference(prefKey, hsl[0]);
     }
   });
@@ -215,21 +204,17 @@ function addColorPicker(panel, label, prefKey, currentValue) {
 
 function addToggleControl(panel, label, prefKey, currentValue) {
   const container = document.createElement('div');
-  container.style.marginBottom = '10px';
-  container.style.display = 'flex';
-  container.style.alignItems = 'center';
-  container.style.justifyContent = 'space-between';
+  container.classList.add('control-group', 'toggle-control'); // Adiciona classes para estilização
 
   const labelEl = document.createElement('label');
   labelEl.textContent = label;
-  labelEl.style.marginRight = '10px';
   container.appendChild(labelEl);
 
   const toggle = document.createElement('input');
   toggle.type = 'checkbox';
   toggle.checked = currentValue;
   toggle.dataset.preference = prefKey;
-  toggle.style.cursor = 'pointer';
+  toggle.classList.add('control-input'); // Adiciona classe para estilização
 
   toggle.addEventListener('change', () => {
     dynamicColorSystem.setUserPreference(prefKey, toggle.checked);

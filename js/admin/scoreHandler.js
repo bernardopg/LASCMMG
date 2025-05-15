@@ -107,7 +107,7 @@ function renderAdminScoresTable() {
         return cell;
       };
 
-      createCell(score.timestamp);
+      createCell(ui.formatMatchDate(score.timestamp));
       createCell(score.player1);
       createCell(score.player2);
       createCell(`${score.score1 ?? 0}-${score.score2 ?? 0}`);
@@ -129,7 +129,7 @@ function renderAdminScoresTable() {
         'Excluir',
         'delete',
         null,
-        ['btn-delete'],
+        ['btn-danger'], // Alterado de btn-delete para btn-danger
         async (e) => {
           await deleteScore(originalIndex, score, e.target);
         }
@@ -301,14 +301,21 @@ function editScore(originalIndex, scoreData) {
 
   const tournamentState = state.getTournamentState();
   const matchDataFromState = tournamentState.matches?.[scoreData.matchId];
-  const dateTimeValue =
-    scoreData.dateTime || matchDataFromState?.dateTime || '';
-  try {
-    elements.dateTimeInput.value = dateTimeValue
-      ? new Date(dateTimeValue).toISOString().slice(0, 16)
-      : '';
-  } catch (e) {
-    console.warn('Could not format date for input:', dateTimeValue, e);
+  const dateTimeValue = scoreData.dateTime || matchDataFromState?.dateTime;
+  if (dateTimeValue) {
+    try {
+      elements.dateTimeInput.value = new Date(dateTimeValue)
+        .toISOString()
+        .slice(0, 16);
+    } catch (e) {
+      console.warn(
+        'Could not format existing date for input:',
+        dateTimeValue,
+        e
+      );
+      elements.dateTimeInput.value = '';
+    }
+  } else {
     elements.dateTimeInput.value = '';
   }
 
@@ -442,7 +449,7 @@ async function handleScoreFormSubmit(event) {
   }
 
   const winnerName = score1 > score2 ? player1 : player2;
-  const timestamp = new Date().toLocaleDateString('pt-BR');
+  const timestamp = ui.formatMatchDate(new Date()); // Use ui.formatMatchDate for consistency
 
   try {
     let responseData;

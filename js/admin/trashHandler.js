@@ -51,17 +51,7 @@ function renderTrashTable() {
     paginatedTrashed.forEach((tournament) => {
       const row = elements.trashTableBody.insertRow();
 
-      let dateStr = 'Data Indisponível';
-      if (tournament.date) {
-        try {
-          const dateObj = new Date(tournament.date);
-          if (!isNaN(dateObj.getTime())) {
-            dateStr = dateObj.toLocaleDateString('pt-BR');
-          }
-        } catch {
-          /* Ignora erro de data inválida */
-        }
-      }
+      const dateStr = ui.formatMatchDate(tournament.date);
 
       row.insertCell().textContent = tournament.name || 'Sem Nome';
       row.insertCell().textContent = dateStr;
@@ -86,7 +76,7 @@ function renderTrashTable() {
         'Excluir Perm.',
         'delete-permanently',
         tournament.id,
-        ['btn-delete'],
+        ['btn-danger'], // Alterado de btn-delete para btn-danger
         async (e) => {
           await handleDeletePermanently(
             tournament.id,
