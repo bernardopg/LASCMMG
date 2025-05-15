@@ -1,36 +1,42 @@
-# Dependencies
+# Node.js
 node_modules/
-npm-debug.log
-yarn-error.log
-package.json
-# Production
-build/
-dist/
-.env
-.node_modules/
-node_modules/
-# Logs
+.npm/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
-# Development
-.DS_Store
+yarn.lock
+pnpm-lock.yaml
+
+# Produção
+build/
+dist/
+
+# Ambiente
+.env
+.env.*
+
+# SQLite e bancos de dados
 *.sqlite
 *.sqlite-journal
+data/*.sqlite
+data/*.sqlite-journal
+
+# Logs e auditoria
 *.log
+audit/*.jsonl
+honeypot_activity.log
+
+# Arquivos temporários e backups
+temp/
+backups/
+
+# Arquivos sensíveis
 admin_credentials.json
 cookies.txt
 headers.txt
 
-# Temporary files
-temp/
-backups/
-
-# Audit logs
-audit/audit_log.jsonl
-
-# OS generated files
+# Sistema operacional
 .DS_Store
 .DS_Store?
 ._*
@@ -38,3 +44,20 @@ audit/audit_log.jsonl
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# VSCode
+.vscode/
+.history/
+
+# Testes
+coverage/
+
+# Outras exclusões comuns
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignorar arquivos de configuração locais
+*.local.js
+*.local.json
