@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG)
 
-## 🎱 Gerencie Seus Torneios de Sinuca com Eficiência e Segurança!
+## 🎱 Gerencie Seus Torneios de Sinuca com Eficiência e Segurança
 
 O LASCMMG é um sistema web completo e robusto, projetado para simplificar a organização e o acompanhamento de torneios de sinuca. Seja para um clube local ou uma competição maior, o LASCMMG oferece as ferramentas necessárias para gerenciar chaveamentos, registrar placares e administrar jogadores de forma intuitiva e segura.
 
@@ -8,29 +8,29 @@ Desenvolvido com Node.js, Express no backend e JavaScript Vanilla no frontend, u
 
 ## ✨ Funcionalidades em Destaque
 
-*   **Visualização Dinâmica de Torneios:** Navegue facilmente entre torneios passados e futuros com uma interface clara e responsiva.
-*   **Chaveamentos Interativos:** Visualize a estrutura de partidas em formatos de eliminatória simples ou dupla, com atualização em tempo real dos resultados.
-*   **Histórico Completo de Placares:** Acesse uma tabela detalhada com todos os placares registrados, com opções de ordenação e filtragem.
-*   **Painel Administrativo Seguro:** Uma área restrita com autenticação robusta para controle total:
-    *   **Dashboard:** Visão geral e estatísticas chave dos torneios ativos.
-    *   **Gerenciamento de Torneios:** Crie, edite e controle o ciclo de vida dos torneios (Pendente, Em Andamento, Concluído, Cancelado), definindo todos os detalhes, desde nome e data até regras e premiação.
-    *   **Gerenciamento de Jogadores:** Adicione, edite, exclua jogadores individualmente ou importe listas completas via JSON.
-    *   **Geração Automática de Chaveamento:** Gere a estrutura de partidas com base nos jogadores inscritos com um clique.
-    *   **Agendamento Flexível:** Defina ou ajuste datas e horários para as partidas.
-    *   **Registro e Edição de Placares:** Insira e modifique os resultados das partidas de forma rápida.
-    *   **Lixeira Inteligente:** Gerencie torneios cancelados, com opções de restauração ou exclusão permanente segura.
-*   **Design Moderno e Responsivo:** Interface adaptável a qualquer dispositivo (desktops, tablets, celulares) com temas claro e escuro personalizáveis.
-*   **Foco em Acessibilidade (A11y):** Melhorias contínuas para garantir que o sistema seja utilizável por todos, incluindo navegação por teclado e uso de atributos ARIA.
-*   **Segurança de Nível Profissional:** Proteção integrada contra as ameaças web mais comuns:
-    *   Prevenção contra XSS (Cross-Site Scripting).
-    *   Proteção contra CSRF (Cross-Site Request Forgery) com tokens.
-    *   Headers de segurança HTTP robustos via Helmet.
-    *   Rate limiting para mitigar ataques de força bruta e DoS.
-    *   Uso de cookies seguros (HttpOnly, Secure, SameSite).
-    *   Mecanismo de Honeypot para detecção e bloqueio de bots maliciosos.
-    *   Autenticação JWT com blacklist de tokens e proteção contra brute-force.
-    *   Senhas armazenadas com hashing seguro (bcrypt).
-*   **Persistência Confiável:** Dados armazenados em um banco de dados SQLite local, garantindo performance e facilidade de gerenciamento para a maioria dos casos de uso.
+* **Visualização Dinâmica de Torneios:** Navegue facilmente entre torneios passados e futuros com uma interface clara e responsiva.
+* **Chaveamentos Interativos:** Visualize a estrutura de partidas em formatos de eliminatória simples ou dupla, com atualização em tempo real dos resultados.
+* **Histórico Completo de Placares:** Acesse uma tabela detalhada com todos os placares registrados, com opções de ordenação e filtragem.
+* **Painel Administrativo Seguro:** Uma área restrita com autenticação robusta para controle total:
+    * **Dashboard:** Visão geral e estatísticas chave dos torneios ativos.
+    * **Gerenciamento de Torneios:** Crie, edite e controle o ciclo de vida dos torneios (Pendente, Em Andamento, Concluído, Cancelado), definindo todos os detalhes, desde nome e data até regras e premiação.
+    * **Gerenciamento de Jogadores:** Adicione, edite, exclua jogadores individualmente ou importe listas completas via JSON.
+    * **Geração Automática de Chaveamento:** Gere a estrutura de partidas com base nos jogadores inscritos com um clique.
+    * **Agendamento Flexível:** Defina ou ajuste datas e horários para as partidas.
+    * **Registro e Edição de Placares:** Insira e modifique os resultados das partidas de forma rápida.
+    * **Lixeira Inteligente:** Gerencie torneios cancelados, com opções de restauração ou exclusão permanente segura.
+* **Design Moderno e Responsivo:** Interface adaptável a qualquer dispositivo (desktops, tablets, celulares) com temas claro e escuro personalizáveis.
+* **Foco em Acessibilidade (A11y):** Melhorias contínuas para garantir que o sistema seja utilizável por todos, incluindo navegação por teclado e uso de atributos ARIA.
+* **Segurança de Nível Profissional:** Proteção integrada contra as ameaças web mais comuns:
+    * Prevenção contra XSS (Cross-Site Scripting).
+    * Proteção contra CSRF (Cross-Site Request Forgery) com tokens.
+    * Headers de segurança HTTP robustos via Helmet.
+    * Rate limiting para mitigar ataques de força bruta e DoS.
+    * Uso de cookies seguros (HttpOnly, Secure, SameSite).
+    * Mecanismo de Honeypot para detecção e bloqueio de bots maliciosos.
+    * Autenticação JWT com blacklist de tokens e proteção contra brute-force.
+    * Senhas armazenadas com hashing seguro (bcrypt).
+* **Persistência Confiável:** Dados armazenados em um banco de dados SQLite local, garantindo performance e facilidade de gerenciamento para a maioria dos casos de uso.
 
 ## 🛠️ Configuração e Execução Rápida
 
@@ -40,10 +40,10 @@ Para colocar o LASCMMG para rodar, siga estes passos simples:
 
 Certifique-se de ter instalado em seu sistema:
 
-*   **Node.js:** Versão 16.x ou superior (recomendado).
-*   **npm:** Gerenciador de pacotes do Node.js (geralmente incluído na instalação do Node.js).
-*   **Git:** Para clonar o repositório.
-*   **Ferramentas de Compilação:** Em alguns sistemas, a biblioteca `better-sqlite3` pode precisar de ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências.
+* **Node.js:** Versão 16.x ou superior (recomendado).
+* **npm:** Gerenciador de pacotes do Node.js (geralmente incluído na instalação do Node.js).
+* **Git:** Para clonar o repositório.
+* **Ferramentas de Compilação:** Em alguns sistemas, a biblioteca `better-sqlite3` pode precisar de ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências.
 
 ### 2. Instalação
 
@@ -101,29 +101,35 @@ node scripts/initialize_admin.js --username seu_usuario_admin --password sua_sen
 
 Escolha o modo de execução:
 
-*   **Modo de Desenvolvimento (com reinício automático via Nodemon):**
+* **Modo de Desenvolvimento (com reinício automático via Nodemon):**
+
     ```bash
     npm run dev
     ```
-*   **Modo de Produção:**
+
+* **Modo de Produção:**
+
     ```bash
     npm start
     ```
 
 O servidor estará acessível em `http://localhost:[PORTA]` (onde `[PORTA]` é a porta configurada no `.env`, padrão 3000).
 
-*   **Interface Pública:** `http://localhost:[PORTA]`
-*   **Painel Administrativo:** `http://localhost:[PORTA]/admin.html`
+* **Interface Pública:** `http://localhost:[PORTA]`
+* **Painel Administrativo:** `http://localhost:[PORTA]/admin.html`
 
 ## 🧪 Testes Automatizados
 
 O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do código através de testes unitários.
 
-*   Execute todos os testes:
+* Execute todos os testes:
+
     ```bash
     npm test
     ```
-*   Execute os testes em modo de observação (watch mode):
+
+* Execute os testes em modo de observação (watch mode):
+
     ```bash
     npm run test:watch
     ```
@@ -154,20 +160,20 @@ O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do có
 
 O LASCMMG foi construído com a segurança em mente. Além das medidas já mencionadas, o sistema inclui:
 
-*   **Middleware de Autenticação JWT:** Protege as rotas da API, garantindo que apenas usuários autenticados e autorizados possam acessá-las.
-*   **Blacklist de Tokens JWT:** Permite invalidar tokens após logout ou em caso de comprometimento.
-*   **Validação de Entrada:** Dados recebidos nas requisições são validados para prevenir injeções e outros ataques.
-*   **Tratamento Centralizado de Erros:** Evita que informações sensíveis do servidor vazem para o cliente em caso de falhas.
+* **Middleware de Autenticação JWT:** Protege as rotas da API, garantindo que apenas usuários autenticados e autorizados possam acessá-las.
+* **Blacklist de Tokens JWT:** Permite invalidar tokens após logout ou em caso de comprometimento.
+* **Validação de Entrada:** Dados recebidos nas requisições são validados para prevenir injeções e outros ataques.
+* **Tratamento Centralizado de Erros:** Evita que informações sensíveis do servidor vazem para o cliente em caso de falhas.
 
 ## 🤝 Contribuição
 
 Contribuições são bem-vindas! Siga os padrões de codificação definidos em `CODING_STANDARDS.md` e o fluxo de trabalho de Pull Request.
 
-1.  Faça um fork do projeto.
-2.  Crie uma branch para sua feature ou correção (`git checkout -b feature/minha-feature`).
-3.  Faça commit de suas mudanças (`git commit -am 'feat: Adiciona minha feature'`).
-4.  Envie para o seu fork (`git push origin feature/minha-feature`).
-5.  Abra um Pull Request para o repositório original.
+1. Faça um fork do projeto.
+2. Crie uma branch para sua feature ou correção (`git checkout -b feature/minha-feature`).
+3. Faça commit de suas mudanças (`git commit -am 'feat: Adiciona minha feature'`).
+4. Envie para o seu fork (`git push origin feature/minha-feature`).
+5. Abra um Pull Request para o repositório original.
 
 Certifique-se de que seus commits sigam o padrão [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) e que os testes (`npm test`) e o lint (`npm run lint`) passem.
 

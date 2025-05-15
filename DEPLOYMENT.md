@@ -8,11 +8,11 @@ Este guia detalha o processo de implantação do Sistema de Gerenciamento de Tor
 
 Antes de iniciar a implantação, certifique-se de que seu ambiente possui o software necessário:
 
-*   **Node.js:** Versão 16.x ou superior é fortemente recomendada para compatibilidade e performance.
-*   **npm:** O gerenciador de pacotes do Node.js, geralmente incluído na instalação do Node.js.
-*   **Git:** Essencial para clonar o repositório do projeto.
-*   **Ferramentas de Compilação:** A biblioteca `better-sqlite3` é um módulo nativo e pode exigir ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências via `npm install`. Consulte a documentação da `better-sqlite3` para requisitos específicos do seu sistema operacional.
-*   **Opcional para Produção:** Docker, Docker Compose, Nginx (ou outro proxy reverso), um gerenciador de processos como PM2 ou Systemd.
+* **Node.js:** Versão 16.x ou superior é fortemente recomendada para compatibilidade e performance.
+* **npm:** O gerenciador de pacotes do Node.js, geralmente incluído na instalação do Node.js.
+* **Git:** Essencial para clonar o repositório do projeto.
+* **Ferramentas de Compilação:** A biblioteca `better-sqlite3` é um módulo nativo e pode exigir ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências via `npm install`. Consulte a documentação da `better-sqlite3` para requisitos específicos do seu sistema operacional.
+* **Opcional para Produção:** Docker, Docker Compose, Nginx (ou outro proxy reverso), um gerenciador de processos como PM2 ou Systemd.
 
 ### Recursos de Hardware Recomendados
 
@@ -20,15 +20,15 @@ Os requisitos de hardware podem variar dependendo da escala de uso.
 
 **Ambiente de Desenvolvimento:**
 
-*   CPU: 2 cores
-*   RAM: 4GB
-*   Armazenamento: 2GB (suficiente para o código e um banco de dados pequeno)
+* CPU: 2 cores
+* RAM: 4GB
+* Armazenamento: 2GB (suficiente para o código e um banco de dados pequeno)
 
 **Ambiente de Produção (Pequeno/Médio Porte):**
 
-*   CPU: 2-4 cores
-*   RAM: 4-8GB
-*   Armazenamento: 10-20GB (considerando o crescimento do banco de dados e o armazenamento de backups)
+* CPU: 2-4 cores
+* RAM: 4-8GB
+* Armazenamento: 10-20GB (considerando o crescimento do banco de dados e o armazenamento de backups)
 
 ## 💻 Instalação em Ambiente de Desenvolvimento
 
@@ -66,8 +66,8 @@ cp .env.example .env
 
 **Variáveis Cruciais para Segurança (Especialmente em Produção):**
 
-*   `COOKIE_SECRET`: Uma string longa, aleatória e única para assinar cookies de sessão. **Essencial para a segurança das sessões.**
-*   `JWT_SECRET`: Uma string longa, aleatória e única para assinar tokens JWT. **Essencial para a segurança da API.**
+* `COOKIE_SECRET`: Uma string longa, aleatória e única para assinar cookies de sessão. **Essencial para a segurança das sessões.**
+* `JWT_SECRET`: Uma string longa, aleatória e única para assinar tokens JWT. **Essencial para a segurança da API.**
 
 **Exemplo de `.env` (Desenvolvimento):**
 
@@ -130,7 +130,7 @@ O arquivo `.env` é crucial para configurar o comportamento do sistema. Copie `.
 
 O uso de contêineres Docker simplifica a implantação e garante consistência entre ambientes.
 
-1.  **`Dockerfile` (Exemplo):**
+1. **`Dockerfile` (Exemplo):**
 
     ```dockerfile
     # Use uma imagem Node.js oficial
@@ -166,7 +166,7 @@ O uso de contêineres Docker simplifica a implantação e garante consistência 
     CMD [ "node", "server.js" ]
     ```
 
-2.  **`docker-compose.yml` (Exemplo):**
+2. **`docker-compose.yml` (Exemplo):**
 
     ```yaml
     version: '3.8'
@@ -208,17 +208,17 @@ docker-compose up -d
 
 Para implantar em um servidor dedicado ou VPS, você pode usar Nginx como proxy reverso para servir a aplicação Node.js.
 
-1.  **Preparar o Servidor:**
-    *   Instale Node.js, npm, Git.
-    *   Instale as ferramentas de compilação se necessário (ex: `sudo apt-get install -y python3 make g++ build-essential` em Debian/Ubuntu).
-    *   Clone o projeto para um diretório apropriado (ex: `/var/www/lascmmg`): `git clone <URL_DO_SEU_REPOSITORIO_GIT> /var/www/lascmmg`
-    *   Acesse o diretório do projeto: `cd /var/www/lascmmg`
-    *   Instale as dependências de produção: `npm ci --production`
-    *   Configure o arquivo `.env` com as variáveis de ambiente de **produção**.
-    *   Crie os diretórios `data/` e `backups/` na raiz do projeto (`/var/www/lascmmg/data`, `/var/www/lascmmg/backups`) e garanta que o usuário que executará a aplicação Node.js tenha permissões de escrita neles.
-    *   Execute o script de inicialização do administrador se ainda não o fez.
+1. **Preparar o Servidor:**
+    * Instale Node.js, npm, Git.
+    * Instale as ferramentas de compilação se necessário (ex: `sudo apt-get install -y python3 make g++ build-essential` em Debian/Ubuntu).
+    * Clone o projeto para um diretório apropriado (ex: `/var/www/lascmmg`): `git clone <URL_DO_SEU_REPOSITORIO_GIT> /var/www/lascmmg`
+    * Acesse o diretório do projeto: `cd /var/www/lascmmg`
+    * Instale as dependências de produção: `npm ci --production`
+    * Configure o arquivo `.env` com as variáveis de ambiente de **produção**.
+    * Crie os diretórios `data/` e `backups/` na raiz do projeto (`/var/www/lascmmg/data`, `/var/www/lascmmg/backups`) e garanta que o usuário que executará a aplicação Node.js tenha permissões de escrita neles.
+    * Execute o script de inicialização do administrador se ainda não o fez.
 
-2.  **Configurar Nginx como Proxy Reverso:**
+2. **Configurar Nginx como Proxy Reverso:**
     Crie um arquivo de configuração para seu site (ex: `/etc/nginx/sites-available/lascmmg`):
 
     ```nginx
@@ -277,7 +277,7 @@ Para implantar em um servidor dedicado ou VPS, você pode usar Nginx como proxy 
     Teste a configuração: `sudo nginx -t`
     Recarregue o Nginx: `sudo systemctl reload nginx`
 
-3.  **Configurar um Gerenciador de Processos (Systemd ou PM2):**
+3. **Configurar um Gerenciador de Processos (Systemd ou PM2):**
     Para garantir que a aplicação Node.js rode continuamente e reinicie em caso de falha, use um gerenciador de processos.
 
     **Exemplo com Systemd:**
@@ -318,43 +318,43 @@ Para implantar em um servidor dedicado ou VPS, você pode usar Nginx como proxy 
 
 Para atualizar o sistema para uma nova versão:
 
-1.  **Faça Backup:** Execute o script de backup: `node scripts/backup-database.js`
-2.  **Pare o Serviço:** Pare o processo da aplicação (ex: `sudo systemctl stop lascmmg` ou `pm2 stop lascmmg` ou `docker-compose down`).
-3.  **Atualize o Código:** No diretório do projeto, puxe as últimas mudanças do Git: `git pull`
-4.  **Instale Novas Dependências:** Se o `package.json` foi alterado, instale as dependências atualizadas: `npm ci --production`
-5.  **Migrações de Banco de Dados:** O sistema executa migrações de esquema automaticamente ao iniciar (via `applyDatabaseMigrations` em `server.js`).
-6.  **Reinicie o Serviço:** Inicie o processo da aplicação novamente (ex: `sudo systemctl start lascmmg` ou `pm2 start lascmmg` ou `docker-compose up -d`).
-7.  **Monitore:** Verifique os logs para garantir que a aplicação iniciou sem erros.
+1. **Faça Backup:** Execute o script de backup: `node scripts/backup-database.js`
+2. **Pare o Serviço:** Pare o processo da aplicação (ex: `sudo systemctl stop lascmmg` ou `pm2 stop lascmmg` ou `docker-compose down`).
+3. **Atualize o Código:** No diretório do projeto, puxe as últimas mudanças do Git: `git pull`
+4. **Instale Novas Dependências:** Se o `package.json` foi alterado, instale as dependências atualizadas: `npm ci --production`
+5. **Migrações de Banco de Dados:** O sistema executa migrações de esquema automaticamente ao iniciar (via `applyDatabaseMigrations` em `server.js`).
+6. **Reinicie o Serviço:** Inicie o processo da aplicação novamente (ex: `sudo systemctl start lascmmg` ou `pm2 start lascmmg` ou `docker-compose up -d`).
+7. **Monitore:** Verifique os logs para garantir que a aplicação iniciou sem erros.
 
 ## 📊 Monitoramento Essencial
 
 Monitorar a aplicação em produção é vital para garantir sua saúde e performance.
 
-*   **Logs:** Utilize `journalctl -u lascmmg -f` (Systemd) ou `pm2 logs lascmmg` (PM2) ou `docker-compose logs -f app` (Docker) para acompanhar os logs da aplicação.
-*   **Sentry:** Configure a variável `SENTRY_DSN` no seu arquivo `.env` para integrar com Sentry e monitorar erros em tempo real.
-*   **Health Check:** O endpoint `/ping` (`/api/system/health` também existe e é protegido) pode ser usado para verificar se o servidor está respondendo e se a conexão com o banco de dados está ativa.
+* **Logs:** Utilize `journalctl -u lascmmg -f` (Systemd) ou `pm2 logs lascmmg` (PM2) ou `docker-compose logs -f app` (Docker) para acompanhar os logs da aplicação.
+* **Sentry:** Configure a variável `SENTRY_DSN` no seu arquivo `.env` para integrar com Sentry e monitorar erros em tempo real.
+* **Health Check:** O endpoint `/ping` (`/api/system/health` também existe e é protegido) pode ser usado para verificar se o servidor está respondendo e se a conexão com o banco de dados está ativa.
 
 ## 💾 Backup e Recuperação de Dados
 
 A persistência dos dados é crucial. O sistema utiliza um arquivo SQLite (`data/data.db`).
 
-*   **Backup:** Utilize o script `node scripts/backup-database.js`. **É altamente recomendado automatizar a execução deste script** (ex: via cron job) para garantir backups regulares. Os backups são armazenados no diretório `backups/`.
-*   **Recuperação:** Em caso de perda de dados ou corrupção do arquivo `data/data.db`:
-    1.  Pare o serviço da aplicação.
-    2.  Localize o backup mais recente e válido no diretório `backups/`.
-    3.  Substitua o arquivo `data/data.db` pelo arquivo de banco de dados contido no backup (você precisará extrair o `.tar.gz`).
-    4.  Reinicie o serviço da aplicação.
+* **Backup:** Utilize o script `node scripts/backup-database.js`. **É altamente recomendado automatizar a execução deste script** (ex: via cron job) para garantir backups regulares. Os backups são armazenados no diretório `backups/`.
+* **Recuperação:** Em caso de perda de dados ou corrupção do arquivo `data/data.db`:
+    1. Pare o serviço da aplicação.
+    2. Localize o backup mais recente e válido no diretório `backups/`.
+    3. Substitua o arquivo `data/data.db` pelo arquivo de banco de dados contido no backup (você precisará extrair o `.tar.gz`).
+    4. Reinicie o serviço da aplicação.
 
 ## ⏪ Rollback em Caso de Falha na Atualização
 
 Se uma atualização causar problemas, você pode reverter para uma versão estável anterior:
 
-1.  Pare o serviço da aplicação.
-2.  Reverta o código para um commit estável conhecido: `git reset --hard <commit_hash_estavel>`.
-3.  Restaure o backup do banco de dados que corresponde à versão do código para a qual você está revertendo.
-4.  Reinstale as dependências caso o `package.json` da versão anterior seja diferente: `npm ci --production`.
-5.  Reinicie o serviço da aplicação.
-6.  Monitore cuidadosamente para confirmar que o sistema está operando normalmente.
+1. Pare o serviço da aplicação.
+2. Reverta o código para um commit estável conhecido: `git reset --hard <commit_hash_estavel>`.
+3. Restaure o backup do banco de dados que corresponde à versão do código para a qual você está revertendo.
+4. Reinstale as dependências caso o `package.json` da versão anterior seja diferente: `npm ci --production`.
+5. Reinicie o serviço da aplicação.
+6. Monitore cuidadosamente para confirmar que o sistema está operando normalmente.
 
 ---
 
