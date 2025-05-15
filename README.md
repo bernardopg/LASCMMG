@@ -1,6 +1,24 @@
 # Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG)
 
-## 🎱 Gerencie Seus Torneios de Sinuca com Eficiência e Segurança
+<!-- Badges -->
+
+![GitHub last commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO)
+![GitHub issues](https://img.shields.io/github/issues/SEU_USUARIO/SEU_REPOSITORIO)
+![GitHub license](https://img.shields.io/github/license/SEU_USUARIO/SEU_REPOSITORIO)
+
+## Índice
+
+- [Visão Geral](#visão-geral)
+- [Funcionalidades em Destaque](#funcionalidades-em-destaque)
+- [Configuração e Execução Rápida](#configuração-e-execução-rápida)
+- [Documentação](#documentação)
+- [Testes Automatizados](#🧪-testes-automatizados)
+- [Estrutura de Arquivos](#📂-estrutura-de-arquivos-principais)
+- [Segurança Detalhada](#🛡️-segurança-detalhada)
+- [Contribuição](#🤝-contribuição)
+- [Licença](#📄-licença)
+
+## Visão Geral
 
 O LASCMMG é um sistema web completo e robusto, projetado para simplificar a organização e o acompanhamento de torneios de sinuca. Seja para um clube local ou uma competição maior, o LASCMMG oferece as ferramentas necessárias para gerenciar chaveamentos, registrar placares e administrar jogadores de forma intuitiva e segura.
 
@@ -118,6 +136,15 @@ O servidor estará acessível em `http://localhost:[PORTA]` (onde `[PORTA]` é a
 * **Interface Pública:** `http://localhost:[PORTA]`
 * **Painel Administrativo:** `http://localhost:[PORTA]/admin.html`
 
+## Documentação
+
+- [Manual do Usuário](MANUAL_USUARIO.md)
+- [Padrões de Codificação](CODING_STANDARDS.md)
+- [Guia de Deploy](DEPLOYMENT.md)
+- [Escalabilidade](SCALING.md)
+- [Resolução de Problemas (Troubleshooting)](TROUBLESHOOTING.md)
+- [Lista de Tarefas (TODO)](TODO.md)
+
 ## 🧪 Testes Automatizados
 
 O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do código através de testes unitários.
@@ -136,7 +163,7 @@ O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do có
 
 ## 📂 Estrutura de Arquivos (Principais)
 
-```
+```text
 /
 ├── admin.html              # Página do painel administrativo
 ├── admin-security.html     # Página de estatísticas de segurança
@@ -167,7 +194,7 @@ O LASCMMG foi construído com a segurança em mente. Além das medidas já menci
 
 ## 🤝 Contribuição
 
-Contribuições são bem-vindas! Siga os padrões de codificação definidos em `CODING_STANDARDS.md` e o fluxo de trabalho de Pull Request.
+Contribuições são bem-vindas! Consulte o arquivo [CODING_STANDARDS.md](CODING_STANDARDS.md) para seguir as diretrizes do projeto. Para sugerir melhorias, abra uma issue ou envie um pull request.
 
 1. Faça um fork do projeto.
 2. Crie uma branch para sua feature ou correção (`git checkout -b feature/minha-feature`).
@@ -179,7 +206,7 @@ Certifique-se de que seus commits sigam o padrão [Conventional Commits](https:/
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a Licença ISC. Veja o arquivo `LICENSE` para mais detalhes.
+Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para mais informações.
 
 ---
 

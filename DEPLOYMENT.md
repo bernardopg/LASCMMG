@@ -1,5 +1,18 @@
 # Guia Abrangente de Implantação - LASCMMG
 
+[⬅ Voltar ao README](README.md)
+
+## Índice
+
+- [Pré-requisitos](#📋-pré-requisitos-essenciais)
+- [Instalação em Desenvolvimento](#💻-instalação-em-ambiente-de-desenvolvimento)
+- [Configuração Inicial](#configuração-inicial-essencial)
+- [Banco de Dados e Administrador](#inicialização-do-banco-de-dados-e-administrador)
+- [Execução](#execução-em-modo-de-desenvolvimento)
+- [Dicas de Produção](#opcional-para-produção)
+
+---
+
 ## 🚀 Prepare Seu Ambiente para Rodar o Sistema de Gerenciamento de Torneios de Sinuca
 
 Este guia detalha o processo de implantação do Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG), desde a configuração inicial até estratégias avançadas para ambientes de produção. O sistema é construído com Node.js, Express e utiliza SQLite (via `better-sqlite3`) como banco de dados principal, oferecendo flexibilidade para diferentes cenários de hospedagem.
@@ -358,4 +371,4 @@ Se uma atualização causar problemas, você pode reverter para uma versão est�
 
 ---
 
-Este guia é um documento vivo. Mantenha-o atualizado conforme o sistema evolui e novas estratégias de implantação são adotadas.
+[⬆ Voltar ao topo](#guia-abrangente-de-implantação---lascmmg) | [Voltar ao README](README.md)

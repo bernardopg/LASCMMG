@@ -1,5 +1,22 @@
 # Padrões de Codificação - LASCMMG
 
+[⬅ Voltar ao README](README.md)
+
+## Índice
+
+- [Princípios Gerais](#1-princípios-gerais)
+- [Formatação do Código](#2-formatação-do-código)
+- [Convenções de Nomenclatura](#3-convenções-de-nomenclatura)
+- [JavaScript (Backend e Frontend)](#4-javascript-backend-e-frontend)
+- [HTML](#5-html)
+- [CSS](#6-css)
+- [Documentação do Código](#7-documentação-do-código)
+- [Testes](#8-testes)
+- [Controle de Versão (Git)](#9-controle-de-versão-git)
+- [Conformidade e Aplicação](#10-conformidade-e-aplicação)
+
+---
+
 ## ✍️ Diretrizes para um Código Consistente, Legível e de Alta Qualidade
 
 Este documento estabelece os padrões de codificação e práticas recomendadas para todos os colaboradores do projeto LASCMMG (Sistema de Gerenciamento de Torneios de Sinuca). Seguir estas diretrizes é fundamental para manter a consistência, legibilidade, manutenibilidade e qualidade do código em todo o projeto.
@@ -298,3 +315,7 @@ npm test       # Para rodar os testes
 ---
 
 Seguindo estes padrões, contribuímos para um projeto LASCMMG mais robusto, manutenível e colaborativo. Boas codificações!
+
+---
+
+[⬆ Voltar ao topo](#padrões-de-codificação---lascmmg) | [Voltar ao README](README.md)

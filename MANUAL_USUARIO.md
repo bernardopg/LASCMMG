@@ -1,5 +1,17 @@
 # Manual do Usuário - Sistema de Gerenciamento de Torneios de Sinuca LASCMMG
 
+[⬅ Voltar ao README](README.md)
+
+## Índice
+
+- [Introdução](#🎯-domine-o-lascmmg-seu-guia-completo-para-gerenciar-torneios-de-sinuca)
+- [Visualização Pública](#1-explorando-a-visualização-pública-indexhtml)
+- [Painel Administrativo](#2-gerenciando-torneios-o-painel-administrativo-adminhtml)
+- [Navegação e Dicas](#13-menu-de-perfil-e-acesso-rápido-canto-superior-direito)
+- [Personalização](#14-personalizando-sua-experiência-alternador-de-tema)
+
+---
+
 ## 🎯 Domine o LASCMMG: Seu Guia Completo para Gerenciar Torneios de Sinuca
 
 Bem-vindo ao manual oficial do Sistema de Gerenciamento de Torneios de Sinuca da LASCMMG! Este documento foi elaborado para guiar você através de todas as funcionalidades, desde a simples visualização de torneios até a administração completa. Nosso objetivo é que você aproveite ao máximo o sistema, seja como espectador ou como administrador.
@@ -138,3 +150,7 @@ Esta seção aborda pontos importantes para quem administra a infraestrutura do 
 ---
 
 Esperamos que este manual torne sua experiência com o LASCMMG a mais fluida e produtiva possível! Se tiver dúvidas ou encontrar problemas, consulte o guia `TROUBLESHOOTING.md` ou procure suporte.
+
+---
+
+[⬆ Voltar ao topo](#manual-do-usuário---sistema-de-gerenciamento-de-torneios-de-sinuca-lascmmg) | [Voltar ao README](README.md)

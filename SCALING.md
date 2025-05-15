@@ -1,5 +1,19 @@
 # Estratégia de Escalabilidade - LASCMMG
 
+[⬅ Voltar ao README](README.md)
+
+## Índice
+
+- [Visão Geral](#1-visão-geral-e-considerações)
+- [Métricas de Monitoramento](#2-métricas-chave-de-monitoramento)
+- [Estratégias de Escalabilidade](#3-estratégias-de-escalabilidade)
+- [Otimização de Banco de Dados](#4-otimização-de-banco-de-dados-sqlite)
+- [Otimização de Código](#5-otimização-de-código-backend-e-frontend)
+- [Arquitetura e Roadmap](#6-arquitetura-atual-e-evolução)
+- [Cache e Monitoramento](#7-cache)
+
+---
+
 ## 📈 Preparando o Sistema para Crescer: Otimização e Arquitetura para Alta Performance
 
 Este documento detalha a estratégia de escalabilidade do Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG). Nosso objetivo é garantir que o sistema possa crescer de forma sustentável, mantendo alta performance, confiabilidade e disponibilidade à medida que o número de usuários, torneios e a carga de trabalho aumentam.
@@ -192,4 +206,4 @@ Nossa jornada de escalabilidade é dividida em fases:
 
 ---
 
-Este documento será revisado e atualizado periodicamente para refletir o estado atual do sistema e os planos de crescimento.
+[⬆ Voltar ao topo](#estratégia-de-escalabilidade---lascmmg) | [Voltar ao README](README.md)

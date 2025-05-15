@@ -1,5 +1,22 @@
 # Guia de Resolução de Problemas - LASCMMG
 
+[⬅ Voltar ao README](README.md)
+
+## Índice
+
+- [Antes de Começar](#1-antes-de-começar-informações-essenciais)
+- [Instalação e Dependências](#2-problemas-de-instalação-e-dependências)
+- [Configuração](#3-problemas-de-configuração-env)
+- [Banco de Dados](#4-problemas-do-banco-de-dados-sqlite)
+- [Inicialização do Servidor](#5-problemas-de-inicialização-do-servidor)
+- [Acesso e Autenticação](#6-problemas-de-acesso-e-autenticação)
+- [Interface e Frontend](#7-problemas-de-interface-e-frontend)
+- [Performance](#8-problemas-de-performance)
+- [Implantação](#9-problemas-de-implantação)
+- [Coletando Informações](#10-coletando-informações-para-suporte)
+
+---
+
 ## 🔍 Solucionando Questões Comuns: Um Guia Prático
 
 Este guia foi elaborado para ajudar você a diagnosticar e resolver problemas comuns que podem surgir durante a instalação, configuração, execução e implantação do Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG). Se você encontrar um obstáculo, este é o primeiro lugar para procurar uma solução.
@@ -249,3 +266,5 @@ Se você precisar de ajuda externa (ex: abrir uma issue no GitHub), forneça o m
 ---
 
 Este guia será atualizado conforme novos problemas forem identificados e solucionados.
+
+[⬆ Voltar ao topo](#guia-de-resolução-de-problemas---lascmmg) | [Voltar ao README](README.md)
