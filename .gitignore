@@ -2,12 +2,13 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-
+package.json
 # Production
 build/
 dist/
 .env
-
+.node_modules/
+package-lock.json
 # Development
 .DS_Store
 *.sqlite
