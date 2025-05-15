@@ -1,182 +1,180 @@
 # Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG)
 
-Este é um sistema web robusto para gerenciar torneios de sinuca, permitindo o acompanhamento de chaveamentos, registro de placares e administração completa de jogadores e torneios. Utiliza Node.js, Express e SQLite como banco de dados principal.
+## 🎱 Gerencie Seus Torneios de Sinuca com Eficiência e Segurança!
 
-## Funcionalidades Principais
+O LASCMMG é um sistema web completo e robusto, projetado para simplificar a organização e o acompanhamento de torneios de sinuca. Seja para um clube local ou uma competição maior, o LASCMMG oferece as ferramentas necessárias para gerenciar chaveamentos, registrar placares e administrar jogadores de forma intuitiva e segura.
 
-- **Visualização de Chaveamento:** Exibe o chaveamento atual do torneio em formato de eliminatória simples ou dupla.
-- **Histórico de Placares:** Mostra uma tabela com todos os placares registrados para o torneio.
-- **Painel Administrativo Seguro:** Área protegida por autenticação para gerenciamento completo:
-  - **Dashboard:** Resumo com informações relevantes e estatísticas.
-  - **Gerenciamento de Torneios:** Criação, edição, e gerenciamento do ciclo de vida dos torneios (Pendente, Em Andamento, Concluído, Cancelado). Inclui definição de nome, data, descrição, número de jogadores, tipo de chaveamento, taxa de inscrição, premiação e regras.
-  - **Gerenciamento de Jogadores:** Adição, edição, exclusão e importação em massa de jogadores (via JSON) para torneios.
-  - **Geração de Chaveamento:** Geração automática do chaveamento com base nos jogadores inscritos.
-  - **Agendamento de Partidas:** Definição de data e hora para partidas.
-  - **Gerenciamento de Placares:** Adição e edição de placares.
-  - **Lixeira de Torneios:** Funcionalidade para mover torneios para a lixeira, restaurá-los ou excluí-los permanentemente.
-- **Seleção de Torneios:** Interface para selecionar e visualizar diferentes torneios.
-- **Design Responsivo e Temas:** Interface adaptável com temas claro e escuro, com persistência da preferência do usuário.
-- **Feedback Visual:** Indicadores de carregamento e mensagens de status.
-- **Acessibilidade:** Melhorias para navegação por teclado, textos alternativos para imagens e uso de atributos ARIA.
-- **Segurança Avançada:**
-  - Proteção contra XSS (Cross-Site Scripting).
-  - Prevenção de CSRF (Cross-Site Request Forgery) com tokens.
-  - Headers de segurança HTTP configurados via Helmet.
-  - Rate limiting para proteger contra ataques de força bruta.
-  - Uso de cookies seguros (HttpOnly, Secure, SameSite).
-  - Mecanismo de Honeypot para detecção de bots.
-- **Persistência de Dados:** Todos os dados são armazenados em um banco de dados SQLite, utilizando `better-sqlite3` para melhor performance.
+Desenvolvido com Node.js, Express no backend e JavaScript Vanilla no frontend, utilizando SQLite para persistência de dados, o sistema é performático, fácil de implantar e focado na experiência do usuário e na segurança.
 
-## Configuração e Execução
+## ✨ Funcionalidades em Destaque
+
+*   **Visualização Dinâmica de Torneios:** Navegue facilmente entre torneios passados e futuros com uma interface clara e responsiva.
+*   **Chaveamentos Interativos:** Visualize a estrutura de partidas em formatos de eliminatória simples ou dupla, com atualização em tempo real dos resultados.
+*   **Histórico Completo de Placares:** Acesse uma tabela detalhada com todos os placares registrados, com opções de ordenação e filtragem.
+*   **Painel Administrativo Seguro:** Uma área restrita com autenticação robusta para controle total:
+    *   **Dashboard:** Visão geral e estatísticas chave dos torneios ativos.
+    *   **Gerenciamento de Torneios:** Crie, edite e controle o ciclo de vida dos torneios (Pendente, Em Andamento, Concluído, Cancelado), definindo todos os detalhes, desde nome e data até regras e premiação.
+    *   **Gerenciamento de Jogadores:** Adicione, edite, exclua jogadores individualmente ou importe listas completas via JSON.
+    *   **Geração Automática de Chaveamento:** Gere a estrutura de partidas com base nos jogadores inscritos com um clique.
+    *   **Agendamento Flexível:** Defina ou ajuste datas e horários para as partidas.
+    *   **Registro e Edição de Placares:** Insira e modifique os resultados das partidas de forma rápida.
+    *   **Lixeira Inteligente:** Gerencie torneios cancelados, com opções de restauração ou exclusão permanente segura.
+*   **Design Moderno e Responsivo:** Interface adaptável a qualquer dispositivo (desktops, tablets, celulares) com temas claro e escuro personalizáveis.
+*   **Foco em Acessibilidade (A11y):** Melhorias contínuas para garantir que o sistema seja utilizável por todos, incluindo navegação por teclado e uso de atributos ARIA.
+*   **Segurança de Nível Profissional:** Proteção integrada contra as ameaças web mais comuns:
+    *   Prevenção contra XSS (Cross-Site Scripting).
+    *   Proteção contra CSRF (Cross-Site Request Forgery) com tokens.
+    *   Headers de segurança HTTP robustos via Helmet.
+    *   Rate limiting para mitigar ataques de força bruta e DoS.
+    *   Uso de cookies seguros (HttpOnly, Secure, SameSite).
+    *   Mecanismo de Honeypot para detecção e bloqueio de bots maliciosos.
+    *   Autenticação JWT com blacklist de tokens e proteção contra brute-force.
+    *   Senhas armazenadas com hashing seguro (bcrypt).
+*   **Persistência Confiável:** Dados armazenados em um banco de dados SQLite local, garantindo performance e facilidade de gerenciamento para a maioria dos casos de uso.
+
+## 🛠️ Configuração e Execução Rápida
+
+Para colocar o LASCMMG para rodar, siga estes passos simples:
 
 ### 1. Pré-requisitos
 
-- Node.js (v16.x ou superior recomendado)
-- npm (geralmente incluído com Node.js)
+Certifique-se de ter instalado em seu sistema:
+
+*   **Node.js:** Versão 16.x ou superior (recomendado).
+*   **npm:** Gerenciador de pacotes do Node.js (geralmente incluído na instalação do Node.js).
+*   **Git:** Para clonar o repositório.
+*   **Ferramentas de Compilação:** Em alguns sistemas, a biblioteca `better-sqlite3` pode precisar de ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências.
 
 ### 2. Instalação
 
+Clone o repositório do projeto e instale as dependências:
+
 ```bash
-# Clone o repositório
-git clone <url-do-repositorio>
+# Clone o repositório (substitua pela URL real do seu repositório)
+git clone <url-do-repositorio> lascmmg
 cd lascmmg
 
-# Instale as dependências
+# Instale as dependências do projeto
 npm install
-
-# Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o arquivo .env e defina as variáveis, especialmente:
-# PORT (ex: 3000)
-# COOKIE_SECRET (uma string longa e aleatória para segurança das sessões)
-# JWT_SECRET (uma string longa e aleatória para tokens JWT)
-# JWT_EXPIRATION (ex: 1h, 7d)
-# JWT_ISSUER (ex: lascmmg.com)
-# JWT_AUDIENCE (ex: lascmmg.com)
-# CORS_ORIGIN (domínio permitido em produção, ex: https://seusite.com)
 ```
 
-**Importante:** `COOKIE_SECRET` e `JWT_SECRET` devem ser valores fortes e únicos para ambientes de produção.
+### 3. Configuração do Ambiente
 
-### 3. Inicialização do Banco de Dados e Administrador
+Copie o arquivo de exemplo de variáveis de ambiente e configure-o:
 
-- Ao iniciar o servidor pela primeira vez, o banco de dados SQLite (`data/data.db`) será criado automaticamente, e as tabelas serão inicializadas.
-- **Primeiro Administrador:**
+```bash
+# Copie o arquivo de configuração de exemplo
+cp .env.example .env
+```
 
-  - Use o script `scripts/initialize_admin.js` para criar o primeiro usuário administrador. Execute:
+Edite o arquivo recém-criado `.env` e defina as variáveis essenciais. **Para ambientes de produção, é CRUCIAL definir valores fortes e únicos para `COOKIE_SECRET` e `JWT_SECRET`**.
 
+```ini
+# Exemplo de configuração no arquivo .env
+PORT=3000
+NODE_ENV=development # Use 'production' para ambiente de produção
+COOKIE_SECRET=sua_chave_secreta_longa_e_aleatoria_para_cookies
+JWT_SECRET=sua_chave_secreta_longa_e_aleatoria_para_jwt
+JWT_EXPIRATION=1h # Tempo de expiração do token JWT (ex: 1h, 7d)
+JWT_ISSUER=seu_dominio.com # Emissor do token JWT
+JWT_AUDIENCE=seu_dominio.com # Audiência do token JWT
+CORS_ORIGIN=* # Domínio permitido para requisições CORS em desenvolvimento. Use o domínio do seu frontend em produção (ex: https://seusite.com)
+RATE_LIMIT_WINDOW_MS=900000 # Janela de tempo para rate limiting (15 minutos)
+RATE_LIMIT_MAX=100 # Máximo de requisições por IP na janela
+# Outras variáveis podem ser adicionadas conforme .env.example
+```
+
+### 4. Inicialização do Banco de Dados e Primeiro Administrador
+
+O banco de dados SQLite (`data/data.db`) e suas tabelas são criados automaticamente na primeira vez que o servidor é iniciado.
+
+Para criar o primeiro usuário administrador, **recomendamos** usar o script dedicado:
+
+```bash
+# Execute o script para criar o admin. Siga os prompts ou use argumentos:
+node scripts/initialize_admin.js --username seu_usuario_admin --password sua_senha_forte_aqui
+```
+
+**Nota:** Este script utiliza um arquivo `admin_credentials.json` (que você precisará criar ou atualizar com o nome de usuário e um hash bcrypt **pré-gerado** da senha) para adicionar o usuário ao banco de dados. Consulte `scripts/initialize_admin.js` para mais detalhes sobre a dependência do arquivo JSON.
+
+### 5. Execução do Servidor
+
+Escolha o modo de execução:
+
+*   **Modo de Desenvolvimento (com reinício automático via Nodemon):**
     ```bash
-    node scripts/initialize_admin.js --username seu_usuario --password sua_senha_forte
+    npm run dev
+    ```
+*   **Modo de Produção:**
+    ```bash
+    npm start
     ```
 
-  - Alternativamente, o sistema de migração de `admin_credentials.json` (se o arquivo existir na raiz e o admin não estiver no banco) tentará criar o usuário no primeiro login bem-sucedido com as credenciais do arquivo. Recomenda-se remover `admin_credentials.json` após a configuração inicial no banco.
+O servidor estará acessível em `http://localhost:[PORTA]` (onde `[PORTA]` é a porta configurada no `.env`, padrão 3000).
 
-### 4. Execução
+*   **Interface Pública:** `http://localhost:[PORTA]`
+*   **Painel Administrativo:** `http://localhost:[PORTA]/admin.html`
 
-- **Modo de Desenvolvimento (com reinício automático):**
+## 🧪 Testes Automatizados
 
-  ```bash
-  npm run dev
-  ```
+O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do código através de testes unitários.
 
-- **Modo de Produção:**
+*   Execute todos os testes:
+    ```bash
+    npm test
+    ```
+*   Execute os testes em modo de observação (watch mode):
+    ```bash
+    npm run test:watch
+    ```
 
-  ```bash
-  npm start
-  ```
-
-- O servidor será iniciado na porta definida em `.env` (padrão `3000`).
-- Acesse `http://localhost:[PORTA]` para a interface pública e `http://localhost:[PORTA]/admin.html` para o painel administrativo.
-
-### 5. Scripts NPM Disponíveis
-
-- `npm start`: Inicia o servidor em modo produção.
-- `npm run dev`: Inicia o servidor com `nodemon` para desenvolvimento.
-- `npm test`: Executa os testes unitários com Vitest.
-- `npm run test:watch`: Executa os testes unitários em modo de observação.
-- `npm run lint`: Executa a verificação de código com ESLint.
-- `npm run lint:fix`: Tenta corrigir automaticamente problemas de ESLint.
-- `npm run format`: Formata o código com Prettier.
-
-## Testes
-
-- O projeto utiliza [Vitest](https://vitest.dev/) para testes unitários.
-- Os arquivos de teste estão localizados em `tests/`.
-- A configuração do Vitest está em `vitest.config.js`, utilizando `jsdom` para simular o ambiente do navegador.
-- Para executar os testes:
-
-  ```bash
-  npm test
-  ```
-
-  Ou, para execução direta (caso `npm test` tenha problemas de cache):
-
-  ```bash
-  npx vitest run
-  ```
-
-## Arquitetura do Sistema
-
-### Backend (Node.js/Express)
-
-- **API RESTful**: Endpoints para todas as operações do sistema.
-- **Middleware de Autenticação**: JWT para proteger rotas, com blacklist de tokens em memória e proteção contra brute-force.
-- **Persistência de Dados**: SQLite, acessado via `better-sqlite3`.
-- **Modelos de Dados**: (`lib/models/`) Abstraem o acesso ao banco de dados para cada entidade.
-- **Estrutura de Rotas**: (`routes/`) Módulos dedicados para cada conjunto de funcionalidades (auth, tournaments, stats, system-stats).
-
-### Frontend (JavaScript Vanilla)
-
-- **Arquitetura Modular**: Código JavaScript organizado em módulos (ESM).
-- **Gerenciamento de Estado**: Lógica de estado contida nos respectivos módulos de UI ou componentes.
-- **Comunicação com Backend**: Centralizada no `js/apiService.js`.
-
-## Estrutura de Arquivos (Principais)
+## 📂 Estrutura de Arquivos (Principais)
 
 ```
 /
-├── admin.html
-├── admin-security.html
-├── index.html
-├── server.js                 # Ponto de entrada do servidor Express
-├── package.json
-├── eslint.config.mjs         # Configuração do ESLint
-├── vitest.config.js          # Configuração do Vitest
-├── .env.example
-├── data/
-│   ├── data.db               # Arquivo do banco de dados SQLite
-│   └── honeypot_activity.log # Log de atividades do Honeypot
-├── js/                       # JavaScript do Frontend
-├── css/                      # CSS
-├── lib/                      # Código do Backend (modelos, middlewares, etc.)
-├── routes/                   # Definições de rotas Express
-├── scripts/                  # Scripts utilitários
-└── tests/                    # Testes unitários
+├── admin.html              # Página do painel administrativo
+├── admin-security.html     # Página de estatísticas de segurança
+├── index.html              # Página pública principal
+├── server.js               # Ponto de entrada do servidor Express
+├── package.json            # Dependências e scripts do projeto
+├── .env.example            # Exemplo de variáveis de ambiente
+├── .env                    # Variáveis de ambiente (configuração local)
+├── data/                   # Contém o arquivo do banco de dados SQLite
+│   └── data.db             # Arquivo do banco de dados
+├── js/                     # Código JavaScript do Frontend (modularizado)
+├── css/                    # Arquivos CSS
+├── lib/                    # Código do Backend (modelos, middlewares, utilitários)
+├── routes/                 # Definições das rotas da API Express
+├── scripts/                # Scripts utilitários (backup, inicialização, etc.)
+└── tests/                  # Testes unitários
+    └── unit/               # Testes unitários específicos
 ```
 
-## Segurança
+## 🛡️ Segurança Detalhada
 
-- **Autenticação**: JWT com segredos configuráveis e expiração. Blacklist de tokens revogados.
-- **Autorização**: Middleware para proteger rotas.
-- **Prevenção de XSS**: Sanitização de entradas e uso de `xss-clean`.
-- **Prevenção de CSRF**: Middleware `csurf` (via `lib/csrfMiddleware.js`).
-- **Headers de Segurança**: `helmet` para configurar diversos headers HTTP.
-- **Rate Limiting**: Para proteger contra ataques de força bruta e DoS.
-- **Honeypot**: Para detecção de bots.
-- **Validação de Entrada**: Em rotas e modelos.
-- **Senhas**: Hashing com `bcrypt`.
-- **Tratamento de Erros**: Centralizado para evitar vazamento de informações.
+O LASCMMG foi construído com a segurança em mente. Além das medidas já mencionadas, o sistema inclui:
 
-## Contribuição
+*   **Middleware de Autenticação JWT:** Protege as rotas da API, garantindo que apenas usuários autenticados e autorizados possam acessá-las.
+*   **Blacklist de Tokens JWT:** Permite invalidar tokens após logout ou em caso de comprometimento.
+*   **Validação de Entrada:** Dados recebidos nas requisições são validados para prevenir injeções e outros ataques.
+*   **Tratamento Centralizado de Erros:** Evita que informações sensíveis do servidor vazem para o cliente em caso de falhas.
 
-1. Faça um fork do repositório.
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`).
-3. Faça commit de suas mudanças (`git commit -am 'Adiciona nova feature'`).
-4. Envie para a branch (`git push origin feature/nova-feature`).
-5. Crie um novo Pull Request.
+## 🤝 Contribuição
 
-Certifique-se de seguir o estilo de código (`npm run lint && npm run format`) e adicionar testes relevantes.
+Contribuições são bem-vindas! Siga os padrões de codificação definidos em `CODING_STANDARDS.md` e o fluxo de trabalho de Pull Request.
 
-## Licença
+1.  Faça um fork do projeto.
+2.  Crie uma branch para sua feature ou correção (`git checkout -b feature/minha-feature`).
+3.  Faça commit de suas mudanças (`git commit -am 'feat: Adiciona minha feature'`).
+4.  Envie para o seu fork (`git push origin feature/minha-feature`).
+5.  Abra um Pull Request para o repositório original.
 
-ISC
+Certifique-se de que seus commits sigam o padrão [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) e que os testes (`npm test`) e o lint (`npm run lint`) passem.
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença ISC. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+Desenvolvido com paixão pela sinuca e por código de qualidade.

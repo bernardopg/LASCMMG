@@ -1,255 +1,292 @@
 # Padrões de Codificação - LASCMMG
 
-Este documento estabelece os padrões de codificação e práticas recomendadas para o projeto LASCMMG (Sistema de Gerenciamento de Torneios de Sinuca). Ele serve como guia para manter a consistência, legibilidade e qualidade do código em todo o projeto.
+## ✍️ Diretrizes para um Código Consistente, Legível e de Alta Qualidade
 
-## Índice
+Este documento estabelece os padrões de codificação e práticas recomendadas para todos os colaboradores do projeto LASCMMG (Sistema de Gerenciamento de Torneios de Sinuca). Seguir estas diretrizes é fundamental para manter a consistência, legibilidade, manutenibilidade e qualidade do código em todo o projeto.
 
-1. [Formatação do Código](#formatação-do-código)
-2. [Convenções de Nomenclatura](#convenções-de-nomenclatura)
-3. [JavaScript](#javascript)
-4. [HTML](#html)
-5. [CSS](#css)
-6. [Documentação do Código](#documentação-do-código)
-7. [Testes](#testes)
-8. [Controle de Versão](#controle-de-versão)
+Nosso objetivo é criar um código que seja fácil de entender, modificar e expandir, promovendo a colaboração eficiente entre os membros da equipe.
 
-## Formatação do Código
+## 📑 Índice
+
+1.  [Princípios Gerais](#princípios-gerais)
+2.  [Formatação do Código](#formatação-do-código)
+3.  [Convenções de Nomenclatura](#convenções-de-nomenclatura)
+4.  [JavaScript (Backend e Frontend)](#javascript-backend-e-frontend)
+5.  [HTML](#html)
+6.  [CSS](#css)
+7.  [Documentação do Código](#documentação-do-código)
+8.  [Testes](#testes)
+9.  [Controle de Versão (Git)](#controle-de-versão-git)
+10. [Conformidade e Aplicação](#conformidade-e-aplicação)
+
+## 1. Princípios Gerais
+
+*   **Clareza é Prioridade:** Escreva código que seja fácil de ler e entender. Seções complexas devem ser explicadas com comentários ou documentação.
+*   **Consistência:** Mantenha um estilo consistente em todo o projeto, mesmo que difira de suas preferências pessoais.
+*   **Simplicidade:** Prefira soluções simples e diretas a abordagens excessivamente complexas.
+*   **DRY (Don't Repeat Yourself):** Evite duplicação de código. Refatore lógicas comuns em funções ou módulos reutilizáveis.
+*   **KISS (Keep It Simple, Stupid):** Mantenha as coisas o mais simples possível.
+*   **Responsabilidade Única:** Módulos, classes e funções devem ter uma única responsabilidade bem definida.
+
+## 2. Formatação do Código
+
+A formatação é automatizada para garantir consistência.
 
 ### Geral
 
-- Utilize **2 espaços** para indentação em todos os arquivos (controlado pelo Prettier).
-- Mantenha as linhas com no máximo **80 caracteres** (configuração padrão do Prettier, pode ser ajustado em `.prettierrc.json` se necessário).
-- Evite linhas em branco no fim dos arquivos.
-- Certifique-se de que todos os arquivos terminem com uma nova linha.
-- Use codificação UTF-8 sem BOM para todos os arquivos.
+*   Utilize **2 espaços** para indentação em todos os arquivos.
+*   Mantenha as linhas com no máximo **80 caracteres** (configuração padrão do Prettier). Ajustes podem ser feitos em `.prettierrc.json` se houver um consenso da equipe.
+*   Evite linhas em branco desnecessárias, especialmente no fim dos arquivos.
+*   Certifique-se de que todos os arquivos terminem com uma nova linha.
+*   Use codificação **UTF-8 sem BOM** para todos os arquivos.
 
-### Automação de Formatação
+### Automação de Formatação e Linting
 
-- Use **Prettier** para garantir a formatação consistente. O projeto já possui `.prettierrc.json`. Execute:
+Utilizamos ferramentas para automatizar a formatação e identificar problemas de código:
 
-  ```bash
-  npm run format
-  ```
+*   **Prettier:** Garante a formatação consistente do código. A configuração está em `.prettierrc.json`.
+*   **ESLint:** Analisa o código JavaScript para encontrar erros, problemas de estilo e práticas questionáveis. A configuração está em `eslint.config.mjs`.
 
-- Use **ESLint** para verificar a qualidade do código JavaScript. O projeto já possui `eslint.config.mjs`. Execute:
+**Comandos Úteis:**
 
-  ```bash
-  npm run lint
-  npm run lint:fix
-  ```
+```bash
+# Formata todos os arquivos do projeto
+npm run format
 
-## Convenções de Nomenclatura
+# Executa a análise estática do código JavaScript
+npm run lint
+
+# Tenta corrigir automaticamente os problemas identificados pelo ESLint
+npm run lint:fix
+```
+
+**Recomendação:** Configure seu editor de código (VSCode, etc.) para rodar Prettier e ESLint automaticamente ao salvar arquivos.
+
+## 3. Convenções de Nomenclatura
+
+Nomes devem ser descritivos e refletir a intenção.
 
 ### Arquivos e Diretórios
 
-- Use substantivos para arquivos que contêm classes ou agrupamentos lógicos de funções (modelos, handlers): `tournamentModel.js`, `bracketHandler.js`.
-- Use **camelCase** para arquivos JavaScript: `apiService.js`, `uiUtils.js`.
-- Use **kebab-case** para arquivos CSS e HTML: `admin.css`, `index.html`, `faculdade-theme.css`.
+*   Use substantivos para arquivos que contêm classes ou agrupamentos lógicos de funções (modelos, handlers): `tournamentModel.js`, `bracketHandler.js`.
+*   Use **camelCase** para arquivos JavaScript: `apiService.js`, `uiUtils.js`.
+*   Use **kebab-case** para arquivos CSS e HTML: `admin.css`, `index.html`, `faculdade-theme.css`.
 
-### Código
+### Código (Variáveis, Funções, Classes, Constantes)
 
-- Use **camelCase** para variáveis, funções e métodos:
+*   Use **camelCase** para variáveis, funções e métodos:
+    ```javascript
+    const playerName = 'João';
+    function calculateScore() { /* ... */ }
+    async function fetchUserData() { /* ... */ }
+    ```
+*   Use **PascalCase** para classes e construtores:
+    ```javascript
+    class TournamentManager { /* ... */ }
+    class Player { /* ... */ }
+    ```
+*   Use **UPPER_SNAKE_CASE** para constantes globais ou de módulo que representam valores fixos e imutáveis:
+    ```javascript
+    const MAX_PLAYERS = 32;
+    const API_BASE_URL = '/api';
+    const DEFAULT_TIMEOUT_MS = 5000;
+    ```
+*   Use prefixo `is`, `has`, `can` ou similar para variáveis booleanas:
+    ```javascript
+    const isActive = true;
+    const hasPermission = checkUserPermission();
+    let canEdit = false;
+    ```
+*   Evite abreviações excessivas que possam dificultar a compreensão.
 
-  ```javascript
-  const playerName = 'João';
-  function calculateScore() {
-    /* ... */
-  }
-  ```
+## 4. JavaScript (Backend e Frontend)
 
-- Use **PascalCase** para classes e construtores:
+### Estrutura e Padrões
 
-  ```javascript
-  class TournamentManager {
-    /* ... */
-  }
-  ```
-
-- Use **UPPER_SNAKE_CASE** para constantes globais ou de módulo:
-
-  ```javascript
-  const MAX_PLAYERS = 32;
-  const API_BASE_URL = '/api';
-  ```
-
-- Use prefixo `is`, `has`, ou similar para variáveis booleanas:
-
-  ```javascript
-  const isActive = true;
-  const hasPermission = checkUserPermission();
-  ```
-
-- Use nomes descritivos que revelem intenção. Evite abreviações excessivas.
-
-## JavaScript
-
-### Estrutura Geral
-
-- Use ES6+ (ECMAScript 2015 e superior).
-- **Módulos**:
-  - O código do **backend** (`server.js`, `routes/`, `lib/`, `scripts/`) utiliza **CommonJS** (`require`/`module.exports`).
-  - O código do **frontend** (`js/`) utiliza **Módulos ESM** (`import`/`export`).
-- Organize o código em módulos com responsabilidades bem definidas.
-- Prefira funções nomeadas a funções anônimas para facilitar a depuração.
-- Use arrow functions para callbacks curtos e quando o contexto de `this` não for um problema.
+*   Utilize **ES6+ (ECMAScript 2015 e superior)**.
+*   **Módulos:**
+    *   O código do **backend** (`server.js`, `routes/`, `lib/`, `scripts/`) utiliza **CommonJS** (`require`/`module.exports`).
+    *   O código do **frontend** (`js/`) utiliza **Módulos ESM** (`import`/`export`).
+*   Organize o código em módulos com responsabilidades bem definidas (Princípio da Responsabilidade Única).
+*   Prefira funções nomeadas a funções anônimas para facilitar a depuração e o rastreamento de stack traces.
+*   Use arrow functions (`=>`) para callbacks curtos, para manter o contexto de `this` (quando necessário) ou para maior concisão em funções simples.
 
 ### Práticas Recomendadas
 
-- Use destructuring para acessar propriedades de objetos e arrays.
-- Utilize parâmetros padrão e o operador spread/rest quando apropriado.
-- Prefira métodos funcionais de array (`map`, `filter`, `reduce`, etc.) a loops `for` tradicionais quando a legibilidade e a imutabilidade forem beneficiadas.
-- Use encadeamento opcional (`?.`) e o operador de coalescência nula (`??`).
-- Sempre use `===` e `!==` (igualdade/desigualdade estrita).
+*   Use **destructuring** para acessar propriedades de objetos e elementos de arrays de forma concisa.
+*   Utilize **parâmetros padrão** para definir valores default para argumentos de função.
+*   Use o operador **spread (`...`)** para expandir iteráveis ou copiar objetos/arrays.
+*   Use o operador **rest (`...`)** para coletar múltiplos argumentos de função em um array.
+*   Prefira métodos funcionais de array (`map`, `filter`, `reduce`, `forEach`, `some`, `every`, etc.) a loops `for` tradicionais quando a operação for clara e a imutabilidade for beneficiada.
+*   Use **encadeamento opcional (`?.`)** e o **operador de coalescência nula (`??`)** para lidar com valores `null` ou `undefined` de forma segura e concisa.
+*   Sempre use **`===` e `!==`** (igualdade/desigualdade estrita) em vez de `==` e `!=` para evitar coerção de tipo inesperada.
+*   Gerencie Promises usando **`async/await`** para código assíncrono mais legível. Sempre utilize blocos `try...catch` em funções `async` para tratar erros.
 
 ### Manipulação do DOM (Frontend)
 
-- Armazene referências a elementos DOM frequentemente acessados.
-- Use delegação de eventos para otimizar performance.
-- Prefira `textContent` a `innerHTML` para inserir texto simples por segurança. Use `innerHTML` com cautela e apenas com conteúdo sanitizado.
-- Utilize métodos DOM modernos.
+*   Armazene referências a elementos DOM frequentemente acessados em variáveis.
+*   Use **delegação de eventos** para otimizar performance ao lidar com múltiplos elementos similares.
+*   Prefira `textContent` a `innerHTML` para inserir texto simples por segurança (previne XSS). Use `innerHTML` com cautela e apenas com conteúdo proveniente de fontes confiáveis ou após sanitização rigorosa.
+*   Utilize métodos DOM modernos sempre que possível.
 
 ### Tratamento de Erros
 
-- Use blocos `try...catch` para capturar exceções.
-- Registre informações detalhadas de erro no console.
-- Forneça feedback claro ao usuário em caso de erros.
+*   Use blocos `try...catch` para capturar e tratar exceções de forma controlada.
+*   Registre informações detalhadas de erro utilizando o sistema de logs do projeto (`lib/logger.js`).
+*   Forneça feedback claro e útil ao usuário em caso de erros na interface.
 
-### Código Assíncrono
-
-- Prefira `async/await` para código assíncrono.
-- Sempre trate rejeições de Promises.
-
-## HTML
+## 5. HTML
 
 ### Estrutura e Semântica
 
-- Use HTML5 semântico (`<header>`, `<nav>`, `<main>`, etc.).
-- Use a doctype HTML5: `<!DOCTYPE html>`.
-- Organize o documento de forma lógica com cabeçalhos (`<h1>` a `<h6>`) corretamente aninhados.
-- Inclua `lang="pt-BR"` no elemento `<html>`.
+*   Use **HTML5 semântico** (`<header>`, `<nav>`, `<main>`, `<article>`, `<aside>`, `<footer>`, etc.) para estruturar o conteúdo de forma lógica e acessível.
+*   Use a doctype HTML5: `<!DOCTYPE html>`.
+*   Organize o documento com cabeçalhos (`<h1>` a `<h6>`) aninhados corretamente para definir a estrutura do conteúdo.
+*   Inclua o atributo `lang="pt-BR"` no elemento `<html>` para indicar o idioma principal da página.
 
 ### Práticas Recomendadas para HTML
 
-- Use IDs para elementos únicos.
-- Prefira classes para estilização e seleção de múltiplos elementos.
-- Utilize atributos `data-*` para informações específicas para JavaScript.
+*   Use **IDs** para identificar elementos únicos na página (geralmente para JavaScript ou links âncora).
+*   Prefira **classes** para estilização e seleção de múltiplos elementos com JavaScript.
+*   Utilize atributos **`data-*`** para armazenar informações personalizadas não visuais associadas a elementos HTML, que podem ser acessadas via JavaScript.
 
 ### Acessibilidade (A11y)
 
-- Inclua `alt` descritivos para imagens de conteúdo. Para imagens decorativas, `alt=""`.
-- Use elementos semânticos e atributos ARIA quando necessário.
-- Garanta que controles de formulário tenham rótulos associados.
-- Garanta uma ordem de foco lógica e navegabilidade por teclado.
+*   Inclua o atributo `alt` descritivo para todas as imagens de conteúdo. Para imagens puramente decorativas, use `alt=""`.
+*   Use elementos semânticos nativos sempre que possível. Complemente com atributos **ARIA** (`aria-*`) quando a semântica nativa não for suficiente para descrever a função ou estado de um elemento interativo.
+*   Garanta que todos os controles de formulário (`<input>`, `<textarea>`, `<select>`) tenham rótulos (`<label>`) associados corretamente (usando o atributo `for` ou aninhamento).
+*   Verifique a ordem de foco dos elementos interativos para garantir uma navegação lógica por teclado.
 
-## CSS
+## 6. CSS
 
 ### Organização e Estrutura
 
-- Organize o CSS em arquivos separados por escopo.
-- Use seletores de classe como padrão. Evite seletores de ID para estilização.
-- Prefira classes específicas a seletores aninhados profundamente.
+*   Organize o CSS em arquivos separados por escopo ou funcionalidade para melhor manutenibilidade (ex: `style.css` para estilos gerais, `admin.css` para a área admin, arquivos para temas específicos).
+*   Use **seletores de classe** como padrão. Evite seletores de ID para estilização, pois eles têm alta especificidade e dificultam a reutilização.
+*   Prefira classes específicas e evite seletores aninhados profundamente (`.sidebar ul li a`) que tornam o CSS frágil e difícil de sobrescrever.
 
 ### Convenções
 
-- Use **kebab-case** para nomes de classes CSS (`.nav-item`).
-- Organize as propriedades CSS de forma consistente.
-- Utilize **variáveis CSS (`--var-name`)** para cores, espaçamentos, fontes, etc.
+*   Use **kebab-case** para nomes de classes CSS (`.nav-item`, `.btn-primary`).
+*   Organize as propriedades CSS dentro de uma regra de forma consistente (ex: por tipo - layout, box model, typography, visual; ou alfabeticamente).
+*   Utilize **variáveis CSS (`--nome-da-variavel`)** para definir cores, espaçamentos, tamanhos de fonte, etc., promovendo a consistência visual e facilitando a criação de temas.
 
 ### Responsividade
 
-- Use media queries para design responsivo.
-- Considere mobile-first.
-- Use unidades relativas (rem, em, %, vw, vh).
+*   Utilize **media queries** para adaptar o layout e o estilo a diferentes tamanhos de tela e dispositivos.
+*   Considere uma abordagem **mobile-first**, começando a estilizar para telas menores e adicionando regras para telas maiores com media queries (`min-width`).
+*   Use **unidades relativas** (rem, em, %, vw, vh) em vez de unidades fixas (px) sempre que apropriado para garantir que os elementos escalem corretamente.
 
-## Documentação do Código
+## 7. Documentação do Código
+
+Um código bem documentado é mais fácil de entender e manter.
 
 ### Comentários
 
-- Explique o "porquê" de lógicas complexas, não o "o quê" se o código for claro.
-- Use blocos de comentários JSDoc para documentar funções, classes e módulos.
+*   Use comentários para explicar o "porquê" de uma decisão de design ou de uma lógica complexa, não o "o quê" (se o código for autoexplicativo).
+*   Remova código comentado obsoleto.
 
 ### JSDoc
 
-- Documente todas as funções públicas, classes e módulos.
-- Para funções, documente parâmetros (`@param`), valor de retorno (`@returns`), e exceções (`@throws`).
+*   Documente todas as funções públicas, classes, métodos e módulos utilizando blocos de comentários **JSDoc**.
+*   Para funções, inclua:
+    *   Uma breve descrição da sua finalidade.
+    *   `@param {Tipo} nomeParametro - Descrição do parâmetro.` para cada parâmetro.
+    *   `@returns {Tipo} Descrição do valor de retorno.`
+    *   `@throws {Error} Descrição da exceção lançada.` (se aplicável).
 
-  ```javascript
-  /**
-   * Descrição da função.
-   * @param {string} paramName - Descrição do parâmetro.
-   * @returns {boolean} Descrição do retorno.
-   */
-  function minhaFuncao(paramName) {
-    /* ... */
-  }
-  ```
+    ```javascript
+    /**
+     * Calcula o resultado final de uma partida com base nos placares.
+     * @param {number} scorePlayer1 - Placar do jogador 1.
+     * @param {number} scorePlayer2 - Placar do jogador 2.
+     * @returns {string} O resultado da partida ('Jogador 1 Vence', 'Jogador 2 Vence', 'Empate').
+     * @throws {Error} Se os placares forem negativos.
+     */
+    function determineMatchResult(scorePlayer1, scorePlayer2) {
+      if (scorePlayer1 < 0 || scorePlayer2 < 0) {
+        throw new Error('Placares não podem ser negativos.');
+      }
+      // ... lógica ...
+    }
+    ```
 
-## Testes
+## 8. Testes
+
+Testes automatizados são essenciais para garantir a estabilidade e prevenir regressões.
 
 ### Ferramentas e Configuração
 
-- O projeto utiliza **Vitest** como framework de testes.
-- O ambiente de teste para o DOM é simulado usando **jsdom**.
-- A configuração do Vitest encontra-se em `vitest.config.js`.
+*   O projeto utiliza **Vitest** como framework de testes unitários.
+*   O ambiente de teste para código que interage com o DOM é simulado usando **jsdom**.
+*   A configuração do Vitest encontra-se em `vitest.config.js`.
 
 ### Organização
 
-- Arquivos de teste unitário estão localizados em `tests/unit/`.
-- Nomeie os arquivos de teste seguindo o padrão `nomeDoModulo.test.js` (ex: `securityUtils.test.js`).
-- Agrupe testes logicamente usando `describe`.
+*   Arquivos de teste unitário estão localizados no diretório `tests/unit/`.
+*   Nomeie os arquivos de teste seguindo o padrão `nomeDoModulo.test.js` (ex: `securityUtils.test.js`, `tournamentModel.test.js`).
+*   Agrupe testes relacionados logicamente usando blocos `describe`.
 
-### Práticas
+### Práticas de Escrita de Testes
 
-- Escreva testes claros e descritivos com `test` (ou `it`).
-- Siga o padrão Arrange-Act-Assert (AAA).
-- Teste casos de sucesso, casos de borda e casos de falha.
-- Use mocks ou stubs para dependências externas em testes unitários.
+*   Escreva testes claros, concisos e descritivos usando `test` (ou `it`).
+*   Siga o padrão **Arrange-Act-Assert (AAA)**:
+    1.  **Arrange:** Configure o ambiente de teste e os dados necessários.
+    2.  **Act:** Execute a ação ou função que está sendo testada.
+    3.  **Assert:** Verifique se o resultado da ação é o esperado.
+*   Teste casos de sucesso, casos de borda (edge cases) e casos de falha/erro.
+*   Use mocks, stubs ou spies para isolar a unidade de código sendo testada e gerenciar dependências externas (como chamadas de API ou acesso a banco de dados) em testes unitários.
 
-## Controle de Versão (Git)
+## 9. Controle de Versão (Git)
+
+Utilizamos Git para gerenciar o histórico do código.
 
 ### Commits
 
-- Escreva mensagens de commit claras e concisas.
-- Siga o padrão [Conventional Commits](https://www.conventionalcommits.org/):
-  - `feat: (nova funcionalidade)`
-  - `fix: (correção de bug)`
-  - `docs: (alterações na documentação)`
-  - `style: (formatação, etc.; sem mudança de código)`
-  - `refactor: (refatoração de código)`
-  - `test: (adição ou correção de testes)`
-  - `chore: (atualização de build, pacotes, etc.)`
-- Faça commits pequenos e atômicos.
+*   Escreva mensagens de commit claras, concisas e informativas.
+*   A primeira linha do commit deve ser um resumo (máx. 50 caracteres).
+*   Deixe uma linha em branco e, se necessário, adicione um corpo mais detalhado.
+*   Siga o padrão [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) para o resumo, facilitando a automação de changelogs e a compreensão do histórico:
+    *   `feat: Adiciona funcionalidade X` (Nova funcionalidade)
+    *   `fix: Corrige bug Y` (Correção de bug)
+    *   `docs: Atualiza manual do usuário` (Alterações na documentação)
+    *   `style: Formata arquivos com Prettier` (Mudanças de estilo, sem alteração na lógica)
+    *   `refactor: Refatora módulo Z` (Refatoração de código, sem mudança de funcionalidade)
+    *   `test: Adiciona testes para W` (Adição ou correção de testes)
+    *   `chore: Atualiza dependência A` (Tarefas de manutenção, build, etc.)
+*   Faça commits pequenos e atômicos, focando em uma única mudança lógica por commit.
 
 ### Branches
 
-- Use branches para features e fixes (`feature/nome-da-feature`, `fix/problema-corrigido`).
-- Mantenha a branch principal (`main` ou `master`) estável.
-- Faça merge via Pull Requests (PRs).
+*   Utilize branches para desenvolver novas features, corrigir bugs ou experimentar (`feature/nome-da-feature`, `fix/problema-corrigido`, `chore/tarefa-de-manutencao`).
+*   Mantenha a branch principal (`main` ou `master`) sempre estável e pronta para implantação.
+*   Faça merge de suas branches de feature/fix na branch principal via Pull Requests (PRs).
 
 ### Pull Requests (PRs)
 
-- Mantenha PRs pequenos e focados.
-- Inclua descrições detalhadas.
-- Referencie issues, se aplicável.
-- Garanta que testes e lint passem antes de solicitar revisão.
-- Responda a comentários de revisão.
+*   Mantenha os PRs pequenos e focados em uma única feature ou correção.
+*   Inclua descrições detalhadas do que o PR faz, por que foi feito e como testar.
+*   Referencie issues relevantes (ex: `Fixes #123`, `Closes #456`).
+*   Garanta que todos os testes e verificações de lint/formatação passem antes de solicitar revisão.
+*   Participe ativamente do processo de revisão, respondendo a comentários e fazendo as alterações solicitadas.
 
-## Conformidade e Aplicação
+## 10. Conformidade e Aplicação
 
-Estas diretrizes são reforçadas através de:
+Estas diretrizes são ativamente reforçadas para manter a qualidade do código:
 
-1. Configurações do ESLint e Prettier.
-2. Hooks de pré-commit (recomendado configurar com Husky e lint-staged).
-3. Revisões de código em Pull Requests.
+1.  **Configurações de Ferramentas:** ESLint e Prettier são configurados para sinalizar e corrigir automaticamente muitos problemas de estilo e qualidade.
+2.  **Hooks de Git (Recomendado):** Considere configurar hooks de pré-commit (ex: usando Husky e lint-staged) para rodar formatadores e linters automaticamente antes de cada commit.
+3.  **Revisões de Código:** Todos os Pull Requests devem ser revisados por pelo menos um outro membro da equipe antes de serem mesclados.
 
-Para aplicar formatações e verificações manualmente:
+Para verificar a conformidade manualmente, execute:
 
 ```bash
-npm run format
-npm run lint
-npm run lint:fix
+npm run format # Para formatar
+npm run lint   # Para verificar problemas
+npm run lint:fix # Para tentar corrigir problemas automaticamente
+npm test       # Para rodar os testes
 ```
 
 ---
 
-Estas diretrizes são um documento vivo e podem ser atualizadas.
+Seguindo estes padrões, contribuímos para um projeto LASCMMG mais robusto, manutenível e colaborativo. Boas codificações!
