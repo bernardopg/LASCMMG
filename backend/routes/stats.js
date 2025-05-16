@@ -5,17 +5,17 @@ const playerModel = require('../lib/models/playerModel');
 const scoreModel = require('../lib/models/scoreModel');
 const matchModel = require('../lib/models/matchModel');
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
-const logger = require('../lib/logger/logger').logger; // Adicionado logger
+const logger = require('../lib/logger/logger').logger;
 const {
   calculateTopPlayersDb,
   calculateCommonScoresDb,
   calculatePlayerPerformanceDb,
   calculatePlayerStatsDb,
-} = require('../lib/services/statsService'); // Importar funções de cálculo de estatísticas
+} = require('../lib/services/statsService');
 
 router.get('/tournaments/:tournamentId', authMiddleware, async (req, res) => {
   const { tournamentId } = req.params;
-  const reqId = req.id; // Captura req.id para uso em logs
+  const reqId = req.id;
 
   if (!tournamentId || typeof tournamentId !== 'string') {
     logger.warn(
@@ -79,7 +79,7 @@ router.get(
   authMiddleware,
   async (req, res) => {
     const { tournamentId, playerName } = req.params;
-    const reqId = req.id; // Captura req.id para uso em logs
+    const reqId = req.id;
 
     if (!tournamentId || !playerName) {
       logger.warn(
@@ -151,7 +151,5 @@ router.get(
     }
   }
 );
-
-// Funções de cálculo de estatísticas movidas para lib/statsService.js
 
 module.exports = router;
