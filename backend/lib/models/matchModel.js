@@ -1,21 +1,12 @@
-/**
- * Modelo de Match (Partida)
- * Implementa operações no banco de dados relacionadas a partidas de torneios
- */
-
 const {
   queryAsync,
   runAsync,
   getOneAsync,
   transactionAsync,
-} = require('../db/database'); // Atualizado para database
+} = require('../db/database');
 const playerModel = require('./playerModel');
+const { logger } = require('../logger/logger');
 
-/**
- * Busca uma partida pelo ID
- * @param {number} matchId ID da partida
- * @returns {Promise<object|null>} Dados da partida ou null se não encontrada
- */
 async function getMatchById(matchId) {
   if (!matchId) {
     throw new Error('ID da partida não fornecido');
@@ -24,17 +15,15 @@ async function getMatchById(matchId) {
   try {
     return await getOneAsync(sql, [matchId]);
   } catch (err) {
-    console.error(`Erro ao buscar partida com ID ${matchId}:`, err.message);
+    logger.error(
+      'MatchModel',
+      `Erro ao buscar partida com ID ${matchId}: ${err.message}`,
+      { matchId, error: err }
+    );
     throw err;
   }
 }
 
-/**
- * Busca todas as partidas de um torneio específico
- * @param {string} tournamentId ID do torneio
- * @param {object} options Opções de paginação e ordenação
- * @returns {Promise<{matches: Array, total: number}>} Lista de partidas e contagem total
- */
 async function getMatchesByTournamentId(tournamentId, options = {}) {
   if (!tournamentId) {
     throw new Error('ID do torneio não fornecido');
@@ -42,7 +31,6 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
 
   const { limit, offset, orderBy = 'match_number', order = 'ASC' } = options;
 
-  // Validação para orderBy e order
   const allowedOrderFields = [
     'id',
     'match_number',
@@ -96,9 +84,10 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
     const totalResult = await getOneAsync(countSql, [tournamentId]);
     return { matches, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    console.error(
-      `Erro ao buscar partidas para o torneio ${tournamentId}:`,
-      err.message
+    logger.error(
+      'MatchModel',
+      `Erro ao buscar partidas para o torneio ${tournamentId}: ${err.message}`,
+      { tournamentId, error: err }
     );
     throw err;
   }
@@ -142,9 +131,12 @@ async function createMatch(matchData) {
       next_loser_match || null,
       bracket,
     ]);
-    return await getMatchById(result.lastID);
+    return await getMatchById(result.lastInsertRowid); // Corrigido para lastInsertRowid
   } catch (err) {
-    console.error('Erro ao criar partida:', err.message);
+    logger.error('MatchModel', 'Erro ao criar partida:', {
+      error: err,
+      matchData,
+    });
     throw err;
   }
 }
@@ -220,7 +212,11 @@ async function updateMatch(matchId, matchData) {
     }
     return await getMatchById(matchId);
   } catch (err) {
-    console.error(`Erro ao atualizar partida ${matchId}:`, err.message);
+    logger.error(
+      'MatchModel',
+      `Erro ao atualizar partida ${matchId}: ${err.message}`,
+      { matchId, matchData, error: err }
+    );
     throw err;
   }
 }
@@ -239,9 +235,10 @@ async function deleteMatchesByTournamentId(tournamentId) {
     const result = await runAsync(sql, [tournamentId]);
     return result.changes;
   } catch (err) {
-    console.error(
-      `Erro ao remover partidas do torneio ${tournamentId}:`,
-      err.message
+    logger.error(
+      'MatchModel',
+      `Erro ao remover partidas do torneio ${tournamentId}: ${err.message}`,
+      { tournamentId, error: err }
     );
     throw err;
   }
@@ -327,10 +324,6 @@ async function importMatchesFromState(tournamentId, state) {
   if (matchesFromState.length > 0) {
     try {
       await deleteMatchesByTournamentId(tournamentId);
-      // bulkCreateMatches was here
-      // const created = await bulkCreateMatches(tournamentId, matchesFromState);
-      // stats.created = created.length;
-      // Using createMatchesBulk instead
       const result = await createMatchesBulk(tournamentId, matchesFromState);
       stats.created = result.createdCount;
       stats.errors.push(
@@ -364,14 +357,12 @@ async function createMatchesBulk(tournamentId, matchesDataArray) {
   const errors = [];
   let createdCount = 0;
 
-  // Usar uma transação para garantir atomicidade
   await transactionAsync((db) => {
-    // Tornar a callback síncrona
     const insertSql = `
       INSERT INTO matches (tournament_id, match_number, round, player1_id, player2_id, scheduled_at, next_match, next_loser_match, bracket)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    const stmt = db.prepare(insertSql); // Preparar statement sincronamente
+    const stmt = db.prepare(insertSql);
 
     for (const matchData of matchesDataArray) {
       const {
@@ -394,8 +385,7 @@ async function createMatchesBulk(tournamentId, matchesDataArray) {
       }
 
       try {
-        // Executar statement sincronamente
-        const result = stmt.run(
+        const runResult = stmt.run(
           tournamentId,
           match_number,
           round,
@@ -406,33 +396,30 @@ async function createMatchesBulk(tournamentId, matchesDataArray) {
           next_loser_match || null,
           bracket
         );
-        if (result.changes > 0) {
-          // better-sqlite3 usa 'changes' para DML
+        if (runResult.changes > 0) {
           createdCount++;
         }
       } catch (err) {
-        console.error('Erro ao criar partida em lote:', err.message, matchData);
+        logger.error(
+          'MatchModel',
+          'Erro ao criar partida em lote (dentro da transação):',
+          { error: err, matchData }
+        );
         errors.push({ matchData, error: err.message });
       }
     }
-    // Finalize não é necessário para statements preparadas desta forma em better-sqlite3
-    // se a instância do DB for fechada ou a statement não for mais usada.
   });
 
   return { createdCount, errors };
 }
 
-/**
- * Conta o número total de partidas em todos os torneios.
- * @returns {Promise<number>} Número total de partidas.
- */
 async function countMatches() {
   const sql = 'SELECT COUNT(*) as count FROM matches';
   try {
     const row = await getOneAsync(sql);
     return row ? row.count : 0;
   } catch (err) {
-    console.error('Erro ao contar partidas:', err.message);
+    logger.error('MatchModel', 'Erro ao contar partidas:', { error: err });
     throw err;
   }
 }
