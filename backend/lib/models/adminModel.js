@@ -2,13 +2,15 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const { runAsync, getOneAsync } = require('../db/database'); // Corrigido para database
+const { runAsync, getOneAsync } = require('../db/database');
 const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
+const { logger } = require('../logger/logger');
 
 const CREDENTIALS_FILE_PATH = path.join(
-  __dirname,
-  '..',
-  '..',
+  __dirname, // backend/lib/models
+  '..', // backend/lib
+  '..', // backend
+  '..', // lascmmg (raiz do projeto)
   'admin_credentials.json'
 );
 
@@ -23,9 +25,10 @@ async function adminExists(username) {
     const result = await getOneAsync(sql, [username]);
     return !!result;
   } catch (err) {
-    console.error(
-      `Erro ao verificar existência do admin ${username}:`,
-      err.message
+    logger.error(
+      'AdminModel',
+      `Erro ao verificar existência do admin ${username}: ${err.message}`,
+      { error: err }
     );
     throw err;
   }
@@ -37,12 +40,16 @@ async function getAdminByUsername(username) {
   }
 
   const sql =
-    'SELECT id, username, hashedPassword, role FROM users WHERE username = ?'; // Selecionar hashedPassword e role
+    'SELECT id, username, hashedPassword, role FROM users WHERE username = ?';
 
   try {
     return await getOneAsync(sql, [username]);
   } catch (err) {
-    console.error(`Erro ao buscar admin ${username}:`, err.message);
+    logger.error(
+      'AdminModel',
+      `Erro ao buscar admin ${username}: ${err.message}`,
+      { error: err }
+    );
     throw err;
   }
 }
@@ -58,7 +65,7 @@ async function createAdmin(admin) {
   const sql = `
     INSERT INTO users (username, hashedPassword, role)
     VALUES (?, ?, 'admin')
-  `; // Adicionado role, created_at tem default
+  `;
 
   try {
     const result = await runAsync(sql, [admin.username, hashedPassword]);
@@ -67,10 +74,11 @@ async function createAdmin(admin) {
       id: result.lastID,
       username: admin.username,
       role: 'admin',
-      // created_at será definido pelo DB
     };
   } catch (err) {
-    console.error('Erro ao criar administrador:', err.message);
+    logger.error('AdminModel', `Erro ao criar administrador: ${err.message}`, {
+      error: err,
+    });
     throw err;
   }
 }
@@ -87,9 +95,10 @@ async function updateLastLogin(username) {
     const result = await runAsync(sql, [username]);
     return result.changes > 0;
   } catch (err) {
-    console.error(
-      `Erro ao atualizar último login de ${username}:`,
-      err.message
+    logger.error(
+      'AdminModel',
+      `Erro ao atualizar último login de ${username}: ${err.message}`,
+      { error: err }
     );
     throw err;
   }
@@ -98,18 +107,49 @@ async function updateLastLogin(username) {
 async function migrateAdminCredentials() {
   try {
     if (!fs.existsSync(CREDENTIALS_FILE_PATH)) {
-      console.warn('Arquivo de credenciais não encontrado para migração.');
+      logger.info(
+        'AdminModel',
+        'Arquivo admin_credentials.json não encontrado. Nenhum administrador será migrado a partir dele.'
+      );
       return {
         success: true,
+        migrated: false,
         message: 'Arquivo de credenciais não encontrado, nada a migrar.',
       };
     }
-    const fileCredentials = JSON.parse(
-      fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
-    );
-    if (!fileCredentials || !fileCredentials.username) {
-      console.warn('Arquivo de credenciais inválido para migração.');
-      return { success: false, message: 'Arquivo de credenciais inválido.' };
+
+    let fileCredentials;
+    try {
+      fileCredentials = JSON.parse(
+        fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
+      );
+    } catch (parseError) {
+      logger.error(
+        'AdminModel',
+        'Erro ao fazer parse do arquivo admin_credentials.json:',
+        { error: parseError }
+      );
+      return {
+        success: false,
+        migrated: false,
+        message: 'Erro ao ler o arquivo de credenciais (JSON inválido).',
+      };
+    }
+
+    if (
+      !fileCredentials ||
+      !fileCredentials.username ||
+      !fileCredentials.hashedPassword
+    ) {
+      logger.warn(
+        'AdminModel',
+        'Arquivo admin_credentials.json está incompleto ou malformado (username ou hashedPassword ausente).'
+      );
+      return {
+        success: false,
+        migrated: false,
+        message: 'Arquivo de credenciais incompleto ou malformado.',
+      };
     }
 
     const checkUserSql =
@@ -117,38 +157,48 @@ async function migrateAdminCredentials() {
     const result = await getOneAsync(checkUserSql, [fileCredentials.username]);
 
     if (result && result.count > 0) {
-      console.log(
-        'Administradores já existem no banco de dados, pulando migração.'
+      logger.info(
+        'AdminModel',
+        'Administrador já existe no banco de dados, pulando migração.'
       );
-      return { success: true, message: 'Administradores já existem no banco.' };
-    }
-
-    if (!fileCredentials.hashedPassword) {
-      console.warn('Formato de credenciais inválido (hashedPassword ausente).');
-      return { success: false, message: 'Formato de credenciais inválido.' };
+      return {
+        success: true,
+        migrated: false,
+        message: 'Administrador já existe no banco.',
+      };
     }
 
     const insertSql = `
       INSERT INTO users (username, hashedPassword, role)
       VALUES (?, ?, 'admin')
-    `; // Adicionado role, created_at tem default
+    `;
 
     await runAsync(insertSql, [
       fileCredentials.username,
       fileCredentials.hashedPassword,
     ]);
 
-    console.log(
+    logger.info(
+      'AdminModel',
       `Administrador ${fileCredentials.username} migrado com sucesso para o banco de dados.`
     );
     return {
       success: true,
+      migrated: true,
       message: 'Credenciais migradas com sucesso.',
       username: fileCredentials.username,
     };
   } catch (err) {
-    console.error('Erro ao migrar credenciais:', err.message);
-    return { success: false, message: `Erro: ${err.message}` };
+    logger.error(
+      'AdminModel',
+      'Erro ao migrar credenciais (operação de banco de dados):',
+      { error: err }
+    );
+    return {
+      success: false,
+      migrated: false,
+      message: `Erro no banco de dados durante a migração: ${err.message}`,
+    };
   }
 }
 
@@ -161,90 +211,131 @@ async function authenticateAdmin(username, password) {
     const admin = await getAdminByUsername(username);
 
     if (!admin) {
+      // Admin não encontrado no banco de dados, tentar fallback para arquivo
       if (!fs.existsSync(CREDENTIALS_FILE_PATH)) {
-        throw new Error('Credenciais não encontradas');
+        logger.warn(
+          'AdminModel',
+          `Tentativa de login para ${username}: usuário não encontrado no DB e admin_credentials.json também não existe.`
+        );
+        throw new Error(
+          'Credenciais de administrador não configuradas no sistema.'
+        );
       }
 
-      const credentials = JSON.parse(
-        fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
-      );
+      let fileCredentials;
+      try {
+        fileCredentials = JSON.parse(
+          fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
+        );
+      } catch (parseError) {
+        logger.error(
+          'AdminModel',
+          'Erro ao fazer parse do admin_credentials.json durante o login:',
+          { error: parseError }
+        );
+        throw new Error(
+          'Erro ao processar arquivo de credenciais do administrador.'
+        );
+      }
 
       if (
-        !credentials ||
-        !credentials.username ||
-        !credentials.hashedPassword
+        !fileCredentials ||
+        !fileCredentials.username ||
+        !fileCredentials.hashedPassword
       ) {
-        throw new Error('Arquivo de credenciais inválido');
+        logger.warn(
+          'AdminModel',
+          'Arquivo admin_credentials.json encontrado, mas está incompleto ou malformado.'
+        );
+        throw new Error(
+          'Arquivo de credenciais do administrador principal inválido.'
+        );
       }
 
-      if (username !== credentials.username) {
-        return { success: false, message: 'Credenciais inválidas' };
+      if (username !== fileCredentials.username) {
+        return { success: false, message: 'Credenciais inválidas.' };
       }
 
       const isPasswordCorrect = await bcrypt.compare(
         password,
-        credentials.hashedPassword
+        fileCredentials.hashedPassword
       );
 
       if (!isPasswordCorrect) {
-        return { success: false, message: 'Credenciais inválidas' };
+        return { success: false, message: 'Credenciais inválidas.' };
       }
 
       const migrationResult = await migrateAdminCredentials();
 
-      if (!migrationResult.success) {
-        console.error(
-          'Falha ao migrar credenciais do admin durante o login:',
-          migrationResult.message
+      if (!migrationResult.success || !migrationResult.migrated) {
+        const adminAfterAttemptedMigration = await getAdminByUsername(
+          fileCredentials.username
         );
+        if (!adminAfterAttemptedMigration) {
+          logger.error(
+            'AdminModel',
+            'Falha crítica: Migração de credenciais do admin do arquivo para o DB falhou durante o login.',
+            { migrationMessage: migrationResult.message }
+          );
+          throw new Error(
+            `Erro ao configurar conta de administrador no banco de dados: ${migrationResult.message}. Verifique os logs do servidor.`
+          );
+        }
+      }
+
+      const finalAdminData = await getAdminByUsername(fileCredentials.username);
+      if (!finalAdminData) {
         throw new Error(
-          'Falha ao atualizar o sistema de credenciais. Por favor, contate o suporte.'
+          'Falha ao recuperar dados do administrador após a migração/verificação.'
         );
       }
 
+      await updateLastLogin(finalAdminData.username);
+
       const token = jwt.sign(
-        { username: credentials.username, role: 'admin' },
+        { username: finalAdminData.username, role: finalAdminData.role },
         JWT_SECRET,
-        {
-          expiresIn: JWT_EXPIRATION,
-        }
+        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() } // Adicionado jti
       );
 
       return {
         success: true,
-        message: 'Login bem-sucedido!',
+        message:
+          'Login bem-sucedido! Conta de administrador configurada/verificada.',
         token,
-        admin: { username: credentials.username },
+        admin: { username: finalAdminData.username, role: finalAdminData.role },
       };
     } else {
+      // Admin encontrado no banco de dados
       const isPasswordCorrect = await bcrypt.compare(
         password,
-        admin.hashedPassword // Alterado para hashedPassword
+        admin.hashedPassword
       );
 
       if (!isPasswordCorrect) {
-        return { success: false, message: 'Credenciais inválidas' };
+        return { success: false, message: 'Credenciais inválidas.' };
       }
 
       await updateLastLogin(username);
 
       const token = jwt.sign(
-        { username: admin.username, role: 'admin' },
+        { username: admin.username, role: admin.role },
         JWT_SECRET,
-        {
-          expiresIn: JWT_EXPIRATION,
-        }
+        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() } // Adicionado jti
       );
 
       return {
         success: true,
         message: 'Login bem-sucedido!',
         token,
-        admin: { username: admin.username },
+        admin: { username: admin.username, role: admin.role },
       };
     }
   } catch (err) {
-    console.error('Erro durante autenticação:', err.message);
+    logger.error('AdminModel', 'Erro durante o processo de autenticação:', {
+      error: err,
+      username,
+    });
     throw err;
   }
 }
@@ -255,9 +346,20 @@ async function changePassword(username, currentPassword, newPassword) {
   }
 
   try {
-    const authResult = await authenticateAdmin(username, currentPassword);
+    // Não usar authenticateAdmin aqui para evitar recursão ou efeitos colaterais de migração
+    const admin = await getAdminByUsername(username);
+    if (!admin) {
+      return {
+        success: false,
+        message: 'Usuário administrador não encontrado.',
+      };
+    }
 
-    if (!authResult.success) {
+    const isPasswordCorrect = await bcrypt.compare(
+      currentPassword,
+      admin.hashedPassword
+    );
+    if (!isPasswordCorrect) {
       return { success: false, message: 'Senha atual incorreta' };
     }
 
@@ -267,9 +369,17 @@ async function changePassword(username, currentPassword, newPassword) {
     const sql = 'UPDATE users SET hashedPassword = ? WHERE username = ?';
     await runAsync(sql, [hashedPassword, username]);
 
+    logger.info(
+      'AdminModel',
+      `Senha alterada com sucesso para o usuário ${username}.`
+    );
     return { success: true, message: 'Senha alterada com sucesso' };
   } catch (err) {
-    console.error('Erro ao alterar senha:', err.message);
+    logger.error(
+      'AdminModel',
+      `Erro ao alterar senha para ${username}: ${err.message}`,
+      { error: err }
+    );
     throw err;
   }
 }
