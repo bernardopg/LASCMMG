@@ -73,7 +73,7 @@ function renderScoresTable(scoresToRender = null) {
 
   if (!Array.isArray(scores) || scores.length === 0) {
     elements.scoresTableBody.innerHTML =
-      '<tr><td colspan="6" style="text-align: center;">Nenhum placar encontrado.</td></tr>';
+      '<tr><td colspan="6" style="text-align: center;">Nenhum placar encontrado. Aguarde o início de um torneio ou entre em contato com o organizador.</td></tr>';
     return;
   }
 

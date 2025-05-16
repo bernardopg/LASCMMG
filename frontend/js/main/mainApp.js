@@ -113,15 +113,15 @@ function addTournamentSelector() {
     console.error('Container for tournament selector not found.');
     return;
   }
-  elements.tournamentSelectorContainer.innerHTML = '';
+    elements.tournamentSelectorContainer.innerHTML = '';
 
-  const select = document.createElement('select');
-  select.id = 'tournament-select';
-  select.setAttribute('aria-label', 'Selecione um torneio');
+    const select = document.createElement('select');
+    select.id = 'tournament-select';
+    select.setAttribute('aria-label', 'Selecione um torneio');
 
-  const tournaments = state.getTournamentsList();
+    const tournaments = state.getTournamentsList();
 
-  if (tournaments.length > 0) {
+    if (tournaments.length > 0) {
     tournaments.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -165,8 +165,8 @@ function addTournamentSelector() {
     } else {
       state.setCurrentTournamentId(null);
     }
-  } else {
-    select.innerHTML = '<option value="">Nenhum torneio disponível</option>';
+    } else {
+    select.innerHTML = '<option value="">Nenhum torneio disponível no momento. Aguarde ou entre em contato com o organizador.</option>';
     select.disabled = true;
     state.setCurrentTournamentId(null);
   }

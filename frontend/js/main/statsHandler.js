@@ -165,7 +165,7 @@ function setupEventListeners() {
 function showStatsPlaceholder() {
   tournamentStatsSection.innerHTML = `
     <div class="no-data-message">
-      <p>Selecione um torneio para visualizar suas estatísticas</p>
+      <p>Nenhuma estatística disponível. Aguarde o início de um torneio ou entre em contato com o organizador.</p>
     </div>
   `;
 

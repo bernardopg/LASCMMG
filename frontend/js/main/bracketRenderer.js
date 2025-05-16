@@ -20,7 +20,7 @@ export function renderBracket() {
     Object.keys(tournamentState.matches).length === 0
   ) {
     elements.bracketContainer.innerHTML =
-      '<div class="no-data"><p>Nenhum chaveamento disponível para este torneio.</p></div>';
+      '<div class="no-data"><p>Nenhum chaveamento disponível. Aguarde o início de um torneio ou entre em contato com o organizador.</p></div>';
     return;
   }
 
