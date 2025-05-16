@@ -66,6 +66,9 @@
   - Filtros e busca aprimorados.
 - [x] ✅ **Favicon Dinâmico**
   - Ícone do site que se adapta ao tema do sistema.
+- [x] ✅ **Sidebar Responsiva e Colapsável**
+  - Navegação adaptativa para desktop e dispositivos móveis.
+  - Persistência de preferências do usuário.
 
 ### 🧪 Testes
 
@@ -132,7 +135,7 @@
 |-------------|:----------:|
 | 🆕 Novo     | 15         |
 | 🚧 Em andamento | 5      |
-| ✅ Concluído| 14         |
+| ✅ Concluído| 15         |
 | 🔄 Revisar  | 1          |
 
 ---
