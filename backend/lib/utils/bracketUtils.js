@@ -1,13 +1,5 @@
-/**
- * Utilitários para lógica de chaveamento de torneios
- * Inclui funções para gerar e avançar chaveamentos
- */
+const { logger } = require('../logger/logger');
 
-/**
- * Embaralha um array usando o algoritmo Fisher-Yates.
- * @param {Array} array O array a ser embaralhado.
- * @returns {Array} O array embaralhado.
- */
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -16,11 +8,6 @@ function shuffleArray(array) {
   return array;
 }
 
-/**
- * Obtém os nomes das rodadas a partir de um objeto de estado de chaveamento.
- * @param {object} state O objeto de estado do chaveamento.
- * @returns {Array<string>} Um array de nomes de rodadas únicos, ordenados.
- */
 function getRoundNames(state) {
   if (!state || !state.matches) return [];
   const roundNameSet = new Set();
@@ -35,12 +22,6 @@ function getRoundNames(state) {
   return Array.from(roundNameSet);
 }
 
-/**
- * Gera um objeto de estado para um chaveamento de eliminação simples.
- * @param {Array<object>} players Array de objetos de jogador (com 'name', 'nickname', 'id').
- * @param {object} baseState Objeto de estado base do torneio.
- * @returns {object} O objeto de estado do chaveamento gerado.
- */
 function generateSingleEliminationBracket(players, baseState) {
   const numPlayers = players.length;
   let bracketSize = 2;
@@ -166,12 +147,6 @@ function generateSingleEliminationBracket(players, baseState) {
   return newState;
 }
 
-/**
- * Gera um objeto de estado para um chaveamento de eliminação dupla.
- * @param {Array<object>} players Array de objetos de jogador (com 'name', 'nickname', 'id').
- * @param {object} baseState Objeto de estado base do torneio.
- * @returns {object} O objeto de estado do chaveamento gerado.
- */
 function generateDoubleEliminationBracket(players, baseState) {
   const numPlayers = players.length;
   let bracketSize = 2;
@@ -371,21 +346,21 @@ function generateDoubleEliminationBracket(players, baseState) {
   return newState;
 }
 
-/**
- * Avança jogadores no chaveamento com base no resultado de uma partida.
- * Atualiza o objeto de estado do chaveamento em memória.
- * @param {object} state O objeto de estado do chaveamento.
- * @param {string} completedMatchId O ID da partida que foi concluída.
- * @param {number|null} winnerIndexOverride O índice (0 ou 1) do vencedor, se não for determinado pelos scores.
- * @returns {object} O objeto de estado do chaveamento atualizado.
- */
 function advancePlayersInBracket(
   state,
   completedMatchId,
   winnerIndexOverride = null
 ) {
   if (!state || !state.matches || !state.matches[completedMatchId]) {
-    console.warn(`[advancePlayers] Match ID ${completedMatchId} not found.`);
+    logger.warn(
+      'BracketUtils',
+      `[advancePlayers] Match ID ${completedMatchId} not found.`,
+      {
+        stateExists: !!state,
+        matchesExists: !!state?.matches,
+        matchExists: !!state?.matches?.[completedMatchId],
+      }
+    );
     return state;
   }
   const currentMatch = state.matches[completedMatchId];
@@ -405,15 +380,22 @@ function advancePlayersInBracket(
     else if (currentMatch.players[1].score > currentMatch.players[0].score)
       winnerIdx = 1;
     else {
-      console.warn(
-        `[advancePlayers] Scores for match ${completedMatchId} are a draw.`
+      logger.warn(
+        'BracketUtils',
+        `[advancePlayers] Scores for match ${completedMatchId} are a draw. Cannot advance.`,
+        {
+          matchId: completedMatchId,
+          scores: currentMatch.players.map((p) => p.score),
+        }
       );
       return state;
     }
     currentMatch.winner = winnerIdx;
   } else {
-    console.warn(
-      `[advancePlayers] Scores not set for match ${completedMatchId}.`
+    logger.warn(
+      'BracketUtils',
+      `[advancePlayers] Scores not set for match ${completedMatchId}. Cannot advance.`,
+      { matchId: completedMatchId }
     );
     return state;
   }
@@ -448,8 +430,14 @@ function advancePlayersInBracket(
         nextMatch.players[1] = winnerPlayerObject; // Atualiza o objeto jogador
         placed = true;
       } else {
-        console.warn(
-          `[advancePlayers] Could not place winner ${winnerPlayerObject.name} into next match ${nextMatchId}. Both slots are taken by other players.`
+        logger.warn(
+          'BracketUtils',
+          `[advancePlayers] Could not place winner ${winnerPlayerObject.name} into next match ${nextMatchId}. Both slots are taken by other players.`,
+          {
+            winner: winnerPlayerObject.name,
+            nextMatchId,
+            nextMatchPlayers: nextMatch.players,
+          }
         );
       }
     }
@@ -478,7 +466,11 @@ function advancePlayersInBracket(
       }
     }
   } else if (nextMatchId) {
-    console.warn(`[advancePlayers] Next match ID ${nextMatchId} not found.`);
+    logger.warn(
+      'BracketUtils',
+      `[advancePlayers] Next match ID ${nextMatchId} not found in state.matches.`,
+      { nextMatchId }
+    );
   }
   if (currentMatch.bracket === 'WB' && currentMatch.nextLoserMatch) {
     const nextLoserMatchId = currentMatch.nextLoserMatch;
@@ -491,14 +483,22 @@ function advancePlayersInBracket(
         if (loserPos !== -1) {
           nextLoserMatch.players[loserPos] = loserPlayerObject;
         } else {
-          console.warn(
-            `[advancePlayers] Could not place loser ${loserPlayerObject.name} into LB match ${nextLoserMatchId}. Both slots are taken.`
+          logger.warn(
+            'BracketUtils',
+            `[advancePlayers] Could not place loser ${loserPlayerObject.name} into LB match ${nextLoserMatchId}. Both slots are taken.`,
+            {
+              loser: loserPlayerObject.name,
+              nextLoserMatchId,
+              nextLoserMatchPlayers: nextLoserMatch.players,
+            }
           );
         }
       }
     } else if (nextLoserMatchId) {
-      console.warn(
-        `[advancePlayers] Next loser match ID ${nextLoserMatchId} not found.`
+      logger.warn(
+        'BracketUtils',
+        `[advancePlayers] Next loser match ID ${nextLoserMatchId} not found in state.matches.`,
+        { nextLoserMatchId }
       );
     }
   }
