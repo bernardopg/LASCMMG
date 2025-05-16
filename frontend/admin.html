@@ -12,6 +12,23 @@
   <link rel="stylesheet" href="css/components/visual-improvements.css" />
   <link rel="stylesheet" href="css/pages/dashboard.css" />
   <meta name="description" content="Painel administrativo para gerenciamento do torneio de sinuca" />
+  <script>
+    // Remove parâmetros sensíveis da URL imediatamente ao carregar
+    (function() {
+      const SENSITIVE_PARAMS = ['username', 'password', 'email_confirm', 'url'];
+      const url = new URL(window.location.href);
+      let changed = false;
+      SENSITIVE_PARAMS.forEach(param => {
+        if (url.searchParams.has(param)) {
+          url.searchParams.delete(param);
+          changed = true;
+        }
+      });
+      if (changed) {
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+      }
+    })();
+  </script>
 </head>
 
 <body>
@@ -168,20 +185,21 @@
 
     <div id="message-container" role="alert" aria-live="assertive"></div>
 
-    <div class="admin-section" id="login-section">
-      <h1>Login Administrativo</h1>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="username">Usuário:</label>
-          <input type="text" id="username" name="username" required autocomplete="username" />
-        </div>
-        <div class="form-group">
-          <label for="password">Senha:</label>
-          <input type="password" id="password" name="password" required autocomplete="current-password" />
-        </div>
-        <button type="submit" class="btn btn-primary">Entrar</button>
-      </form>
+<div class="admin-section" id="login-section">
+  <h1>Login Administrativo</h1>
+  <form id="login-form" autocomplete="off">
+    <div class="form-group">
+      <label for="username">Usuário:</label>
+      <input type="text" id="username" name="username" required autocomplete="username" aria-required="true" />
     </div>
+    <div class="form-group">
+      <label for="password">Senha:</label>
+      <input type="password" id="password" name="password" required autocomplete="off" aria-required="true" />
+    </div>
+    <div id="login-message" class="form-message" aria-live="assertive" style="min-height:1.5em"></div>
+    <button type="submit" class="btn btn-primary" id="login-submit-btn" aria-label="Entrar no painel administrativo">Entrar</button>
+  </form>
+</div>
 
     <div class="admin-section hidden-section" id="admin-dashboard">
       <header>
@@ -861,6 +879,8 @@
   <!-- Load the main application module -->
   <script type="module" src="js/admin/navigation.js"></script>
   <script type="module" src="js/ui/theme/theme.js"></script>
+  <script type="module" src="js/admin/adminApp.js"></script>
+  <script type="module" src="js/admin/createSampleTournaments.js"></script>
   <!-- Old scripts (utils.js, admin.js) are no longer needed -->
 </body>
 
