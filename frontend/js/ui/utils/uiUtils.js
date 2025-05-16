@@ -175,7 +175,7 @@ function toggleSidebar() {
 
 export function setActiveNavItem(element) {
   if (!element) return;
-  document.querySelectorAll('.sidebar .nav-item').forEach((item) => {
+  document.querySelectorAll('.sidebar .sidebar-link').forEach((item) => {
     item.classList.remove('active');
     if (item.tagName === 'BUTTON') {
       item.setAttribute('aria-pressed', 'false');
@@ -260,7 +260,7 @@ export function initializeSidebar() {
     console.warn('Mobile sidebar toggle button not found.');
   }
 
-  document.querySelectorAll('.sidebar .nav-item').forEach((item) => {
+  document.querySelectorAll('.sidebar .sidebar-link').forEach((item) => {
     if (item.tagName === 'BUTTON' && !item.id?.includes('logout')) {
       item.addEventListener('click', function () {
         if (
