@@ -4,8 +4,8 @@
   "description": "Sistema de gerenciamento de torneios da LASCMMG",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+"start": "node backend/server.js",
+"dev": "nodemon backend/server.js",
     "lint": "eslint . --ext .js --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write .",

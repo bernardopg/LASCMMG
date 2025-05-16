@@ -4,7 +4,7 @@
  */
 
 const crypto = require('crypto');
-const { JWT_SECRET } = require('./config');
+const { JWT_SECRET } = require('../config/config');
 
 // Armazenamento de tokens para validação
 // Em uma aplicação em cluster, seria necessário usar Redis ou similar

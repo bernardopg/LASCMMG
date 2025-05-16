@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { runMigrations } = require('./schema');
-const tournamentModel = require('./models/tournamentModel'); // tournamentModel é usado em testDatabaseConnection
+const tournamentModel = require('../models/tournamentModel'); // tournamentModel é usado em testDatabaseConnection
 
 async function applyDatabaseMigrations() {
   const dataDir = path.join(__dirname, '..', 'data');

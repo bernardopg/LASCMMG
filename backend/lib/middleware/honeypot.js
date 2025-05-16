@@ -1,6 +1,6 @@
-const { formatErrorResponse } = require('./errorHandler');
+const { formatErrorResponse } = require('../middleware/errorHandler');
 const path = require('path'); // fs é usado por fileUtils
-const { readJsonFile, writeJsonFile } = require('./fileUtils');
+const { readJsonFile, writeJsonFile } = require('../utils/fileUtils');
 
 const HONEYPOT_LOG_PATH = path.join(
   __dirname,

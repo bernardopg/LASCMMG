@@ -1,7 +1,7 @@
 const express = require('express');
 const adminModel = require('../lib/models/adminModel');
 const router = express.Router();
-const { logger } = require('../lib/logger'); // Importar o logger
+const { logger } = require('../lib/logger/logger'); // Importar o logger
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;

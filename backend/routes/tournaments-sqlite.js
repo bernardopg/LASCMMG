@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { authMiddleware } = require('../lib/authMiddleware');
+const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const tournamentModel = require('../lib/models/tournamentModel');
 const playerModel = require('../lib/models/playerModel');
 const scoreModel = require('../lib/models/scoreModel');

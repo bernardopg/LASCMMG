@@ -1,5 +1,5 @@
-const { NODE_ENV } = require('./config');
-const { logger } = require('./logger'); // Importar o logger
+const { NODE_ENV } = require('../config/config');
+const { logger } = require('../logger/logger'); // Importar o logger
 
 function formatErrorResponse(message, status = 500, details = null) {
   const response = {

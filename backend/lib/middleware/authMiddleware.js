@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('./config');
+const config = require('../config/config');
 
 const { JWT_SECRET, JWT_ISSUER, JWT_AUDIENCE } = config;
 const { logAction } = require('./auditLogger'); // Importar diretamente a função

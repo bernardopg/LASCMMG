@@ -1,6 +1,6 @@
 const pino = require('pino');
 const pinoHttp = require('pino-http');
-const { NODE_ENV, DB_CONFIG } = require('./config');
+const { NODE_ENV, DB_CONFIG } = require('../config/config');
 
 const isProduction = NODE_ENV === 'production';
 const defaultLogLevel = isProduction ? 'info' : 'debug';

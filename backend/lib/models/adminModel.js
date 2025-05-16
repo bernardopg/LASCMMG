@@ -2,8 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const { runAsync, getOneAsync } = require('../database'); // Corrigido para database
-const { JWT_SECRET, JWT_EXPIRATION } = require('../config');
+const { runAsync, getOneAsync } = require('../db/database'); // Corrigido para database
+const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
 
 const CREDENTIALS_FILE_PATH = path.join(
   __dirname,

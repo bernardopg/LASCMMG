@@ -1,7 +1,7 @@
 const BetterSqlite3 = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
-const { DB_CONFIG, NODE_ENV } = require('./config'); // Importar NODE_ENV também
+const { DB_CONFIG, NODE_ENV } = require('../config/config'); // Importar NODE_ENV também
 
 // Construir DB_PATH usando DB_CONFIG.dataDir e DB_CONFIG.dbFile
 const DB_PATH = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
