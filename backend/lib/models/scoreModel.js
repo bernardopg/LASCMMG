@@ -1,20 +1,11 @@
-/**
- * Modelo de Score (Placar)
- * Implementa operações no banco de dados relacionadas a scores de partidas
- */
-
 const {
   queryAsync,
   runAsync,
   getOneAsync,
   transactionAsync,
-} = require('../db/database'); // Atualizado para database
+} = require('../db/database');
+const { logger } = require('../logger/logger');
 
-/**
- * Busca um score pelo ID
- * @param {number} scoreId ID do score
- * @returns {Promise<object|null>} Dados do score ou null se não encontrado
- */
 async function getScoreById(scoreId) {
   if (!scoreId) {
     throw new Error('ID do score não fornecido');
@@ -23,16 +14,15 @@ async function getScoreById(scoreId) {
   try {
     return await getOneAsync(sql, [scoreId]);
   } catch (err) {
-    console.error(`Erro ao buscar score com ID ${scoreId}:`, err.message);
+    logger.error(
+      'ScoreModel',
+      `Erro ao buscar score com ID ${scoreId}: ${err.message}`,
+      { scoreId, error: err }
+    );
     throw err;
   }
 }
 
-/**
- * Busca todos os scores de uma partida específica
- * @param {number} matchId ID da partida
- * @returns {Promise<Array>} Lista de scores para a partida (geralmente apenas um)
- */
 async function getScoresByMatchId(matchId) {
   if (!matchId) {
     throw new Error('ID da partida não fornecido');
@@ -42,19 +32,15 @@ async function getScoresByMatchId(matchId) {
   try {
     return await queryAsync(sql, [matchId]);
   } catch (err) {
-    console.error(
-      `Erro ao buscar scores para a partida ${matchId}:`,
-      err.message
+    logger.error(
+      'ScoreModel',
+      `Erro ao buscar scores para a partida ${matchId}: ${err.message}`,
+      { matchId, error: err }
     );
     throw err;
   }
 }
 
-/**
- * Adiciona um novo score para uma partida
- * @param {object} scoreData Dados do score (match_id, player1_score, player2_score, winner_id)
- * @returns {Promise<object>} Score adicionado com ID
- */
 async function addScore(scoreData) {
   const { match_id, player1_score, player2_score, winner_id } = scoreData;
   if (
@@ -78,19 +64,16 @@ async function addScore(scoreData) {
       player2_score,
       winner_id || null,
     ]);
-    return await getScoreById(result.lastID);
+    return await getScoreById(result.lastInsertRowid);
   } catch (err) {
-    console.error('Erro ao adicionar score:', err.message);
+    logger.error('ScoreModel', 'Erro ao adicionar score:', {
+      error: err,
+      scoreData,
+    });
     throw err;
   }
 }
 
-/**
- * Atualiza um score existente
- * @param {number} scoreId ID do score a ser atualizado
- * @param {object} scoreData Dados a serem atualizados (player1_score, player2_score, winner_id)
- * @returns {Promise<object|null>} Score atualizado ou null se não encontrado
- */
 async function updateScore(scoreId, scoreData) {
   if (!scoreId) {
     throw new Error('ID do score não fornecido');
@@ -133,17 +116,15 @@ async function updateScore(scoreId, scoreData) {
     }
     return await getScoreById(scoreId);
   } catch (err) {
-    console.error(`Erro ao atualizar score ${scoreId}:`, err.message);
+    logger.error(
+      'ScoreModel',
+      `Erro ao atualizar score ${scoreId}: ${err.message}`,
+      { scoreId, scoreData, error: err }
+    );
     throw err;
   }
 }
 
-/**
- * Busca todos os scores de um torneio (indiretamente, através das partidas)
- * @param {string} tournamentId ID do torneio
- * @param {object} options Opções de paginação e ordenação
- * @returns {Promise<object>} Lista de todos os scores do torneio e contagem total
- */
 async function getScoresByTournamentId(tournamentId, options = {}) {
   if (!tournamentId) {
     throw new Error('ID do torneio não fornecido.');
@@ -151,17 +132,14 @@ async function getScoresByTournamentId(tournamentId, options = {}) {
 
   const { limit, offset, orderBy = 'completed_at', order = 'DESC' } = options;
 
-  // Validação para orderBy e order
   const allowedOrderFields = [
     'id',
-    'round',
-    'player1',
-    'player2',
-    'score1',
-    'score2',
-    'winner',
-    'timestamp',
     'match_id',
+    'round',
+    'player1_score',
+    'player2_score',
+    'winner_id',
+    'timestamp',
     'completed_at',
   ];
   const allowedOrderDirections = ['ASC', 'DESC'];
@@ -209,19 +187,15 @@ async function getScoresByTournamentId(tournamentId, options = {}) {
     const totalResult = await getOneAsync(countSql, [tournamentId]);
     return { scores, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    console.error(
-      `Erro ao buscar scores para o torneio ${tournamentId}:`,
-      err.message
+    logger.error(
+      'ScoreModel',
+      `Erro ao buscar scores para o torneio ${tournamentId}: ${err.message}`,
+      { tournamentId, error: err }
     );
     throw err;
   }
 }
 
-/**
- * Remove todos os scores associados a um torneio (via partidas)
- * @param {string} tournamentId ID do torneio
- * @returns {Promise<number>} Número de scores deletados
- */
 async function deleteScoresByTournamentId(tournamentId) {
   if (!tournamentId) {
     throw new Error('ID do torneio não fornecido.');
@@ -234,21 +208,15 @@ async function deleteScoresByTournamentId(tournamentId) {
     const result = await runAsync(sql, [tournamentId]);
     return result.changes;
   } catch (err) {
-    console.error(
-      `Erro ao deletar scores do torneio ${tournamentId}:`,
-      err.message
+    logger.error(
+      'ScoreModel',
+      `Erro ao deletar scores do torneio ${tournamentId}: ${err.message}`,
+      { tournamentId, error: err }
     );
     throw err;
   }
 }
 
-/**
- * Importa um array de scores para um torneio.
- * Requer que as partidas e jogadores já existam no banco de dados.
- * @param {string} tournamentId ID do torneio.
- * @param {Array<object>} scoresData Array de objetos de score do JSON.
- * @returns {Promise<object>} Contagem de scores importados e quaisquer erros.
- */
 async function importScores(tournamentId, scoresData) {
   if (!tournamentId || !Array.isArray(scoresData)) {
     throw new Error('ID do torneio e array de scores são obrigatórios.');
@@ -295,10 +263,6 @@ async function importScores(tournamentId, scoresData) {
             continue;
           }
 
-          // Simplificação: Assume que scoreJson tem winner_id.
-          // A lógica de resolução de nome para ID para player1_id e player2_id foi removida
-          // pois não é usada diretamente na inserção do score se match_id é a referência principal.
-          // Se scoreJson.winner (nome) for fornecido e winner_id não, essa lógica não será tratada aqui.
           const winner_id = scoreJson.winner_id || null;
 
           const scoreEntry = {
@@ -326,33 +290,31 @@ async function importScores(tournamentId, scoresData) {
       }
     });
   } catch (transactionError) {
-    console.error(
+    logger.error(
+      'ScoreModel',
       `Erro na transação de importScores para torneio ${tournamentId}:`,
-      transactionError
+      { tournamentId, error: transactionError }
     );
     errors.push(`Erro geral na transação: ${transactionError.message}`);
   }
 
   if (errors.length > 0) {
-    console.warn(
-      `Erros durante a importação de scores para o torneio ${tournamentId}:`,
-      errors
+    logger.warn(
+      'ScoreModel',
+      `Erros durante a importação de scores para o torneio ${tournamentId}.`,
+      { tournamentId, errors }
     );
   }
   return { count: importedCount, errors };
 }
 
-/**
- * Conta o número total de scores registrados.
- * @returns {Promise<number>} Número total de scores.
- */
 async function countScores() {
   const sql = 'SELECT COUNT(*) as count FROM scores';
   try {
     const row = await getOneAsync(sql);
     return row ? row.count : 0;
   } catch (err) {
-    console.error('Erro ao contar scores:', err.message);
+    logger.error('ScoreModel', 'Erro ao contar scores:', { error: err });
     throw err;
   }
 }
