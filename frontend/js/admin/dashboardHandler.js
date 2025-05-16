@@ -138,11 +138,10 @@ async function fetchUpcomingMatches() {
 
 async function fetchSystemStats() {
   try {
-    const response = await fetch('/api/system/stats');
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`);
-    }
-    return await response.json();
+    // Utiliza api.fetchApi que já lida com autenticação
+    const response = await api.fetchApi('/system/stats');
+    // Não é mais necessário verificar response.ok aqui, fetchApi já faz isso.
+    return response; // fetchApi já retorna o JSON parseado e sanitizado
   } catch (error) {
     console.error('Erro ao buscar estatísticas do sistema:', error);
     return {
