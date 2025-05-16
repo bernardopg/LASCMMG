@@ -154,6 +154,17 @@ Nomes devem ser descritivos e refletir a intenção.
 * Sempre use **`===` e `!==`** (igualdade/desigualdade estrita) em vez de `==` e `!=` para evitar coerção de tipo inesperada.
 * Gerencie Promises usando **`async/await`** para código assíncrono mais legível. Sempre utilize blocos `try...catch` em funções `async` para tratar erros.
 
+#### Temas e Sistema de Cores (Frontend)
+
+* Utilize sempre o `ThemeManager` (theme.js) para alternância de temas e o `DynamicColorSystem` (dynamicColorSystem.js) para gerenciamento dinâmico de cores e preferências de acessibilidade.
+* Nunca exponha instâncias ou funções no escopo global (ex: `window.dynamicColorSystem` NÃO é permitido).
+* Ao alternar o tema, garanta que o esquema de cores seja recalculado chamando `dynamicColorSystem.updateColorsByTimeOfDay()`.
+* O painel de configuração de cor (`createColorPanel`) deve ser criado apenas quando explicitamente necessário, evitando poluição visual em páginas que não utilizam personalização.
+* Centralize o armazenamento de preferências de tema e cor, evitando múltiplas chaves de localStorage para o mesmo usuário.
+* Remova comentários desnecessários, código morto e redundâncias entre módulos de tema/cor.
+* Siga as recomendações de acessibilidade e segurança ao manipular classes e variáveis CSS.
+* Sempre que modificar a lógica de temas ou cores, atualize a documentação e os testes relacionados.
+
 ### Manipulação do DOM (Frontend)
 
 * Armazene referências a elementos DOM frequentemente acessados em variáveis.
