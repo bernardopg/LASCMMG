@@ -1,9 +1,21 @@
 const express = require('express');
 const adminModel = require('../lib/models/adminModel');
 const router = express.Router();
-const { logger } = require('../lib/logger/logger'); // Importar o logger
+const { logger } = require('../lib/logger/logger');
 
-router.post('/login', async (req, res) => {
+const rateLimit = require('express-rate-limit');
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    success: false,
+    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post('/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   if (
@@ -137,9 +149,12 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-router.post('/logout', async (req, res) => {
+const { authMiddleware } = require('../lib/middleware/authMiddleware');
+
+router.post('/logout', authMiddleware, async (req, res) => {
   try {
-    const username = req.user ? req.user.username : 'unknown_user';
+    // req.user é garantido pelo authMiddleware
+    const username = req.user.username;
 
     if (req.revokeToken) {
       const result = req.revokeToken();
