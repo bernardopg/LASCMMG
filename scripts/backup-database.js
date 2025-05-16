@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Script de backup do banco de dados
- * Realiza backup do banco de dados SQLite e mantém um histórico rotacionado
- */
-
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -30,7 +25,6 @@ const BACKUP_CONFIG = {
  */
 function ensureBackupDir() {
   if (!fs.existsSync(BACKUP_CONFIG.backupDir)) {
-    console.log(`Criando diretório de backups: ${BACKUP_CONFIG.backupDir}`);
     fs.mkdirSync(BACKUP_CONFIG.backupDir, { recursive: true });
   }
 }
@@ -90,9 +84,6 @@ function createBackup() {
     }
 
     // Criar o arquivo de backup usando tar
-    console.log(`Criando backup em: ${backupPath}`);
-    console.log('Arquivos incluídos:');
-    filesToBackup.forEach((file) => console.log(` - ${file}`));
 
     // Em sistemas Unix/Linux/Mac:
     const tarCommand = `tar -czf "${backupPath}" ${filesToBackup.map((f) => `"${f}"`).join(' ')}`;
@@ -134,22 +125,11 @@ function rotateBackups() {
 
     // Se temos mais backups do que o máximo configurado, remover os mais antigos
     if (backupFiles.length > BACKUP_CONFIG.maxBackups) {
-      console.log(
-        `Rotacionando backups antigos. Limite: ${BACKUP_CONFIG.maxBackups}, Encontrados: ${backupFiles.length}`
-      );
-
       const filesToRemove = backupFiles.slice(BACKUP_CONFIG.maxBackups);
 
       filesToRemove.forEach((file) => {
-        console.log(`Removendo backup antigo: ${file.name}`);
         fs.unlinkSync(file.path);
       });
-
-      console.log(`${filesToRemove.length} backups antigos removidos`);
-    } else {
-      console.log(
-        `Total de backups: ${backupFiles.length} (limite: ${BACKUP_CONFIG.maxBackups})`
-      );
     }
   } catch (error) {
     console.error('Erro ao rotacionar backups antigos:', error.message);
@@ -160,9 +140,6 @@ function rotateBackups() {
  * Função principal do script
  */
 function runBackup() {
-  console.log('=== Iniciando backup do banco de dados ===');
-  console.log(`Data e hora: ${new Date().toLocaleString()}`);
-
   try {
     // Garantir que o diretório de backups existe
     ensureBackupDir();
@@ -173,7 +150,6 @@ function runBackup() {
     if (backupPath) {
       // Remover backups antigos se necessário
       rotateBackups();
-      console.log('\n✅ Backup concluído com sucesso!');
     } else {
       console.error('\n❌ Falha ao criar backup');
       process.exit(1);
