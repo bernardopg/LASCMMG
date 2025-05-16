@@ -15,6 +15,7 @@ O LASCMMG é um sistema web completo para organização, acompanhamento e admini
 - **Estatísticas avançadas**: dashboards, gráficos, histórico, desempenho de jogadores.
 - **Design moderno e responsivo**:
     - Interface completamente renovada com design moderno e responsivo para todos os dispositivos.
+    - Sidebar inteligente colapsável em desktop e responsiva em dispositivos móveis.
     - Sistema de cores dinâmico que se adapta ao horário do dia e às preferências do sistema.
     - Efeitos visuais modernos para interações com elementos da interface.
     - Navegação intuitiva com feedback visual aprimorado e animações suaves.
@@ -23,6 +24,7 @@ O LASCMMG é um sistema web completo para organização, acompanhamento e admini
     - Formulários inteligentes com validação em tempo real e layout adaptativo.
     - Favicon dinâmico que se adapta ao tema do sistema.
     - Estilos de impressão otimizados para chaveamentos e tabelas.
+    - Persistência de preferências do usuário via localStorage.
 - **Acessibilidade (A11y)**: navegação por teclado, ARIA, contraste, responsividade, áreas de toque ampliadas em dispositivos móveis.
 - **Segurança**: CSRF, XSS, rate limiting, cookies seguros, headers HTTP, logs, honeypot, hashing de senhas.
 
