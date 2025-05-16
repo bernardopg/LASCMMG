@@ -1,4 +1,4 @@
-import { dynamicColorSystem } from './dynamicColorSystem.js';
+import dynamicColorSystem from './dynamicColorSystem.js';
 
 /**
  * ThemeManager moderno: aplica o tema institucional moderno da LASCMMG.
@@ -44,8 +44,10 @@ class ThemeManager {
    * Atualiza as cores dinâmicas com base no horário e preferências do sistema
    */
   updateDynamicColors() {
-    if (dynamicColorSystem && typeof dynamicColorSystem.updateColorsByTimeOfDay === 'function') {
-      dynamicColorSystem.updateColorsByTimeOfDay(this.timeOfDay, this.systemPrefersDark);
+    // O dynamicColorSystem já gerencia automaticamente as cores com base no horário
+    // Este método é mantido para compatibilidade com código existente
+    if (dynamicColorSystem) {
+      dynamicColorSystem.updateTimeBasedColors();
     }
   }
 
