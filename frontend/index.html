@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="css/components/responsive-fixes.css" />
   <link rel="stylesheet" href="css/components/modern-ui-enhancements.css" />
   <link rel="stylesheet" href="css/components/responsive-modern.css" />
+  <link rel="stylesheet" href="css/components/sidebar-overlay.css" />
 
   <!-- Páginas -->
   <link rel="stylesheet" href="css/pages/home.css" />
@@ -64,6 +65,9 @@
       <p class="loader-text">Carregando sistema...</p>
     </div>
   </div>
+
+  <!-- Overlay da sidebar para dispositivos móveis -->
+  <div class="sidebar-overlay"></div>
   <!-- Sidebar moderna -->
   <aside class="sidebar">
     <div class="sidebar-header">
@@ -71,7 +75,7 @@
         <img src="assets/logo.png" alt="Logo LASCMMG" />
         <span>Torneio de Sinuca</span>
       </a>
-      <button id="toggle-sidebar-btn" class="sidebar-close" aria-label="Fechar menu">
+      <button id="toggle-sidebar-btn" class="sidebar-toggle" aria-label="Recolher menu">
         <svg class="icon" viewBox="0 0 24 24">
           <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path>
         </svg>

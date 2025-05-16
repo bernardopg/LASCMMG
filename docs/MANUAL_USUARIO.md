@@ -55,6 +55,18 @@ A barra lateral oferece acesso rápido às diferentes seções do torneio seleci
 * 📈 **Estatísticas:** Apresenta dados e gráficos relevantes sobre o desempenho dos jogadores e o andamento do torneio.
 * 🔑 **Login Admin / Voltar para Admin:** Este link muda dependendo se você está logado como administrador. Use-o para acessar a área de login ou retornar ao painel administrativo se já estiver logado.
 
+#### 1.2.1. Barra Lateral Responsiva e Colapsável
+
+A barra lateral agora possui recursos avançados para melhorar sua experiência:
+
+* **Colapsável em Desktop:** Em telas maiores, você pode clicar no botão ✕ no topo da barra lateral para recolhê-la, liberando mais espaço para o conteúdo principal. Clique novamente no botão ☰ para expandir a barra lateral.
+
+* **Responsiva em Dispositivos Móveis:** Em smartphones e tablets, a barra lateral se transforma em um menu deslizante que pode ser acessado clicando no botão ☰ no cabeçalho móvel. Para fechar, clique no botão ✕, em qualquer área fora da barra lateral, ou pressione a tecla ESC.
+
+* **Navegação Inteligente:** Ao selecionar um item do menu em dispositivos móveis, a barra lateral se fecha automaticamente para mostrar o conteúdo selecionado em tela cheia.
+
+* **Persistência de Preferências:** O sistema lembra sua preferência de exibição da barra lateral entre sessões, mantendo-a expandida ou recolhida conforme seu último uso.
+
 ### 1.3. Menu de Perfil e Acesso Rápido (Canto Superior Direito)
 
 * Clique no ícone de perfil no canto superior direito.

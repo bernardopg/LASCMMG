@@ -1,0 +1,74 @@
+/*
+ * Estilos para o overlay da sidebar em dispositivos móveis
+ */
+
+body.sidebar-open {
+  overflow: hidden;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+body.sidebar-open .sidebar-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ajustes para o botão de toggle da sidebar */
+#toggle-sidebar-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s, transform 0.3s;
+}
+
+#toggle-sidebar-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#toggle-sidebar-btn .icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+body.sidebar-collapsed #toggle-sidebar-btn {
+  transform: rotate(180deg);
+}
+
+#mobile-sidebar-toggle {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+#mobile-sidebar-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#mobile-sidebar-toggle .icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
