@@ -1,20 +1,8 @@
-/**
- * Utilitários para operações de leitura/escrita de arquivos JSON
- * com tratamento de concorrência e segurança de dados
- */
-
 const fs = require('fs');
 const path = require('path');
 const lockfile = require('proper-lockfile');
+const { logger } = require('../logger/logger'); // Importar logger
 
-/**
- * Lê e analisa um arquivo JSON de forma assíncrona.
- *
- * @param {string} filePath - O caminho para o arquivo JSON.
- * @param {any} [defaultValueIfNotFound=[]] - O valor a retornar se o arquivo não existir.
- * @returns {Promise<any>} - Uma Promise que resolve com os dados JSON analisados ou o valor padrão.
- * @throws {Error} - Lança um erro se a leitura/análise falhar por motivos diferentes de arquivo não encontrado.
- */
 async function readJsonFile(filePath, defaultValueIfNotFound = []) {
   try {
     // Verificar se o diretório do arquivo existe
@@ -23,40 +11,47 @@ async function readJsonFile(filePath, defaultValueIfNotFound = []) {
       await fs.promises.access(dirPath);
     } catch (dirErr) {
       if (dirErr.code === 'ENOENT') {
-        console.warn(
-          `Diretório para ${filePath} não existe. Retornando valor padrão.`
+        logger.warn(
+          'FileUtils',
+          `Diretório para ${filePath} não existe. Retornando valor padrão.`,
+          { path: filePath, error: dirErr }
         );
         return defaultValueIfNotFound;
       }
+      // Se o erro não for ENOENT ao acessar o diretório, relançar.
+      throw dirErr;
     }
 
     const data = await fs.promises.readFile(filePath, 'utf8');
     return JSON.parse(data);
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.warn(
-        `Arquivo não encontrado: ${filePath}. Retornando valor padrão.`
+      logger.warn(
+        'FileUtils',
+        `Arquivo não encontrado: ${filePath}. Retornando valor padrão.`,
+        { path: filePath }
       );
       return defaultValueIfNotFound;
     }
     if (err instanceof SyntaxError) {
-      console.error(`Erro ao analisar JSON do arquivo ${filePath}:`, err);
+      logger.error(
+        'FileUtils',
+        `Erro ao analisar JSON do arquivo ${filePath}: ${err.message}`,
+        { path: filePath, error: err }
+      );
       throw new Error(
         `Formato JSON inválido no arquivo ${path.basename(filePath)}`
       );
     }
-    console.error(`Erro ao ler ou analisar arquivo JSON ${filePath}:`, err);
+    logger.error(
+      'FileUtils',
+      `Erro ao ler ou analisar arquivo JSON ${filePath}: ${err.message}`,
+      { path: filePath, error: err }
+    );
     throw err; // Re-throw other errors
   }
 }
 
-/**
- * Escreve dados em um arquivo JSON de forma assíncrona, garantindo que o diretório exista e usando bloqueio de arquivo.
- *
- * @param {string} filePath - O caminho para o arquivo JSON.
- * @param {any} data - Os dados a serem serializados e escritos.
- * @throws {Error} - Lança um erro se o bloqueio ou a escrita falhar.
- */
 async function writeJsonFile(filePath, data) {
   let release; // Variável para armazenar a função de desbloqueio
   try {
@@ -82,9 +77,10 @@ async function writeJsonFile(filePath, data) {
       'utf8'
     );
   } catch (err) {
-    console.error(
-      `Erro durante operação de bloqueio ou escrita para ${filePath}:`,
-      err
+    logger.error(
+      'FileUtils',
+      `Erro durante operação de bloqueio ou escrita para ${filePath}: ${err.message}`,
+      { path: filePath, error: err }
     );
 
     if (err.code === 'ENOSPC') {
@@ -104,7 +100,11 @@ async function writeJsonFile(filePath, data) {
       try {
         await release();
       } catch (unlockErr) {
-        console.error(`Erro ao desbloquear arquivo ${filePath}:`, unlockErr);
+        logger.error(
+          'FileUtils',
+          `Erro ao desbloquear arquivo ${filePath}: ${unlockErr.message}`,
+          { path: filePath, error: unlockErr }
+        );
       }
     }
   }
