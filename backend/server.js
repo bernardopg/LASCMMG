@@ -15,6 +15,7 @@ const {
   NODE_ENV,
   CORS_ORIGIN,
   RATE_LIMIT,
+  COOKIE_SECRET, // Importar COOKIE_SECRET
 } = require('./lib/config/config');
 const { globalErrorHandler } = require('./lib/middleware/errorHandler');
 const { applyDatabaseMigrations } = require('./lib/db/db-init');
@@ -53,19 +54,19 @@ app.use(
     contentSecurityPolicy:
       NODE_ENV === 'production'
         ? {
-          directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'"],
-            styleSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:'],
-            connectSrc: ["'self'"],
-            fontSrc: ["'self'"],
-            objectSrc: ["'none'"],
-            frameAncestors: ["'none'"],
-            baseUri: ["'self'"],
-            formAction: ["'self'"],
-          },
-        }
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: ["'self'"],
+              styleSrc: ["'self'"],
+              imgSrc: ["'self'", 'data:'],
+              connectSrc: ["'self'"],
+              fontSrc: ["'self'"],
+              objectSrc: ["'none'"],
+              frameAncestors: ["'none'"],
+              baseUri: ["'self'"],
+              formAction: ["'self'"],
+            },
+          }
         : false,
   })
 );
@@ -88,30 +89,55 @@ const apiLimiter = rateLimit({
     success: false,
     message: 'Muitas requisições deste IP, tente novamente após 15 minutos',
   },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-app.use('/api/', apiLimiter);
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/api/login') ||
+    req.path.startsWith('/api/auth/login')
+  ) {
+    return next();
+  }
+  apiLimiter(req, res, next);
+});
+
+// Limiter específico para rotas de login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    success: false,
+    message:
+      'Muitas tentativas de login deste IP. Tente novamente após 15 minutos.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.body && req.body.username
+      ? `${req.ip}-${req.body.username}`.toLowerCase()
+      : req.ip;
+  },
+  skip: (req) => req.method === 'OPTIONS',
+});
+app.use('/api/login', loginLimiter);
+app.use('/api/auth/login', loginLimiter);
 
 app.use(xss());
 
-const crypto = require('crypto');
-const cookieSecret =
-  process.env.COOKIE_SECRET || crypto.randomBytes(32).toString('hex');
-
-if (!process.env.COOKIE_SECRET) {
-  logger.error('⚠️ ALERTA DE SEGURANÇA: COOKIE_SECRET não configurado!');
-  logger.error(
-    'Uma chave aleatória temporária foi gerada, mas será redefinida em cada reinicialização.'
-  );
-  logger.error(
-    'Isto é inseguro para produção e causará invalidação de sessões.'
-  );
-
+if (!COOKIE_SECRET) {
   if (NODE_ENV === 'production') {
-    logger.error(' CRÍTICO: COOKIE_SECRET ausente em ambiente de PRODUÇÃO! ');
+    logger.fatal(
+      'CRÍTICO: COOKIE_SECRET não está definido em produção. Isso é um risco de segurança severo.'
+    );
+  } else {
+    logger.warn(
+      'AVISO: COOKIE_SECRET não está definido em ambiente de desenvolvimento. As sessões podem não funcionar como esperado e o CSRF pode ser menos seguro.'
+    );
   }
 }
 
-app.use(cookieParser(cookieSecret));
+app.use(cookieParser(COOKIE_SECRET)); // Usar o COOKIE_SECRET importado
 
 if (NODE_ENV === 'production') {
   app.set('trust proxy', 1);
@@ -181,6 +207,11 @@ app.use(
 );
 
 app.use(
+  '/favicon.ico',
+  serveStatic(path.join(__dirname, '../frontend/favicon.ico'))
+);
+
+app.use(
   '/assets',
   serveStatic(path.join(__dirname, '../frontend/assets'), {
     maxAge: oneDay,
@@ -191,15 +222,15 @@ app.use(
 );
 
 const authRoutes = require('./routes/auth');
-const tournamentSqliteRoutes = require('./routes/tournaments-sqlite');
+const tournamentSqliteRoutes = require('./routes/tournaments-sqlite'); // Mantido como sqlite, pode ser específico
 const systemStatsRouter = require('./routes/system-stats');
-const legacyStatsRoutes = require('./routes/stats');
+const statsRoutes = require('./routes/stats'); // Renomeado de legacyStatsRoutes
 const { checkDbConnection } = require('./lib/db/database');
 
 app.use('/api', authRoutes);
 app.use('/api/tournaments', tournamentSqliteRoutes);
 app.use('/api/system', systemStatsRouter);
-app.use('/api/stats', legacyStatsRoutes);
+app.use('/api/stats', statsRoutes); // Rota atualizada
 
 app.get('/ping', (req, res) => {
   const dbStatus = checkDbConnection();
