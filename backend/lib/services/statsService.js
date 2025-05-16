@@ -1,13 +1,3 @@
-/**
- * Serviço para cálculo de estatísticas de torneios e jogadores.
- * Contém funções de lógica de negócio para agregar dados.
- */
-
-/**
- * Calcula o número de torneios por mês.
- * @param {Array<object>} tournaments Array de objetos de torneio.
- * @returns {Array<object>} Array de objetos com contagem de torneios por mês.
- */
 function calculateTournamentsByMonth(tournaments) {
   const months = {};
 
@@ -32,12 +22,6 @@ function calculateTournamentsByMonth(tournaments) {
     .sort((a, b) => a.month.localeCompare(b.month));
 }
 
-/**
- * Calcula os jogadores com mais vitórias.
- * @param {Array<object>} players Array de objetos de jogador.
- * @param {Array<object>} scores Array de objetos de score.
- * @returns {Array<object>} Array de objetos com os top jogadores por vitórias.
- */
 function calculateTopPlayersDb(players, scores) {
   const playerWinsMap = {};
   scores.forEach((score) => {
@@ -58,11 +42,6 @@ function calculateTopPlayersDb(players, scores) {
     .slice(0, 5); // Limita aos top 5
 }
 
-/**
- * Calcula a frequência de placares comuns.
- * @param {Array<object>} scores Array de objetos de score.
- * @returns {Array<object>} Array de objetos com a contagem de placares comuns.
- */
 function calculateCommonScoresDb(scores) {
   const scorePatterns = {};
 
@@ -81,14 +60,8 @@ function calculateCommonScoresDb(scores) {
     .sort((a, b) => b.count - a.count);
 }
 
-/**
- * Calcula a performance dos jogadores (vitórias, derrotas, taxa de vitória).
- * Assume que os objetos de jogador já contêm games_played, wins e losses.
- * @param {Array<object>} players Array de objetos de jogador.
- * @param {Array<object>} _scores Array de objetos de score (não usado diretamente, mas mantido para consistência de assinatura se necessário).
- * @returns {Array<object>} Array de objetos com dados de performance dos jogadores.
- */
 function calculatePlayerPerformanceDb(players, _scores) {
+  // _scores não é usado atualmente
   const performanceData = players.map((player) => {
     const total = player.games_played || 0;
     const wins = player.wins || 0;
@@ -106,13 +79,6 @@ function calculatePlayerPerformanceDb(players, _scores) {
   return performanceData.sort((a, b) => b.winRate - a.winRate).slice(0, 10); // Limita aos top 10 por winRate
 }
 
-/**
- * Calcula estatísticas detalhadas para um jogador específico.
- * @param {string} playerName Nome do jogador.
- * @param {object} playerData Objeto de dados do jogador.
- * @param {Array<object>} playerScores Array de objetos de score onde o jogador participou.
- * @returns {object} Objeto com estatísticas detalhadas do jogador.
- */
 function calculatePlayerStatsDb(playerName, playerData, playerScores) {
   const gamesPlayed = playerData.games_played || 0;
   const wins = playerData.wins || 0;
