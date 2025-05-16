@@ -1,14 +1,10 @@
-/**
- * Middleware de proteção contra Cross-Site Request Forgery (CSRF)
- * Implementa proteção com tokens para requisições que modificam dados
- */
-
 const crypto = require('crypto');
 const { JWT_SECRET } = require('../config/config');
 
 // Armazenamento de tokens para validação
 // Em uma aplicação em cluster, seria necessário usar Redis ou similar
 const tokenStore = new Map();
+let tokenCleanupTimer = null;
 
 // Configurações
 const CSRF_CONFIG = {
@@ -25,11 +21,6 @@ const CSRF_CONFIG = {
   protectedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
 };
 
-/**
- * Gera um token CSRF para um usuário específico
- * @param {string} userId Identificador do usuário (username ou ID)
- * @returns {string} Token CSRF gerado
- */
 function generateToken(userId) {
   // Gerar valor aleatório
   const randomBytes = crypto.randomBytes(32).toString('hex');
@@ -55,17 +46,20 @@ function generateToken(userId) {
   });
 
   // Limpar tokens expirados periodicamente
-  cleanExpiredTokens();
+  cleanExpiredTokens(); // Limpeza imediata também é bom
+
+  // Iniciar timer de limpeza se não estiver ativo
+  if (!tokenCleanupTimer && tokenStore.size > 0) {
+    // Inicia apenas se houver tokens
+    tokenCleanupTimer = setInterval(
+      cleanExpiredTokens,
+      (CSRF_CONFIG.tokenValidity * 1000) / 2
+    ); // Limpa na metade do tempo de validade
+  }
 
   return token;
 }
 
-/**
- * Verifica se um token CSRF é válido
- * @param {string} token Token CSRF a ser verificado
- * @param {string} userId ID do usuário para quem o token foi emitido
- * @returns {boolean} True se o token for válido
- */
 function verifyToken(token, userId) {
   if (!token || !userId) {
     return false;
@@ -106,24 +100,25 @@ function verifyToken(token, userId) {
   return parts[2] === expectedSignature;
 }
 
-/**
- * Remove tokens expirados do armazenamento
- */
 function cleanExpiredTokens() {
   const now = Date.now();
-
   for (const [token, data] of tokenStore.entries()) {
     if (now > data.expires) {
       tokenStore.delete(token);
     }
   }
+  // if (removedCount > 0) { // Mantendo o comentário original para referência, mas a variável foi removida
+  //   console.log(`CSRF Token Cleanup: Removed ${removedCount} expired tokens.`);
+  // }
+
+  // Parar o timer se não houver mais tokens para limpar (para economizar recursos)
+  if (tokenStore.size === 0 && tokenCleanupTimer) {
+    clearInterval(tokenCleanupTimer);
+    tokenCleanupTimer = null;
+    // console.log('CSRF Token Cleanup: Store is empty, timer stopped.');
+  }
 }
 
-/**
- * Middleware para fornecer o token CSRF
- * Este middleware deve ser aplicado em rotas que não modificam dados
- * mas que preparam a UI para operações que precisarão de tokens
- */
 function csrfProvider(req, res, next) {
   // Verificar se o usuário está autenticado
   const userId = req.user?.username || 'anonymous';
@@ -150,10 +145,6 @@ function csrfProvider(req, res, next) {
   next();
 }
 
-/**
- * Middleware para validar o token CSRF
- * Este middleware deve ser aplicado em rotas que modificam dados
- */
 function csrfProtection(req, res, next) {
   // Não verificar para métodos que não modificam recursos
   if (!CSRF_CONFIG.protectedMethods.includes(req.method)) {
