@@ -223,5 +223,3 @@ function addToggleControl(panel, label, prefKey, currentValue) {
   container.appendChild(toggle);
   panel.appendChild(container);
 }
-
-document.addEventListener('DOMContentLoaded', createColorPanel);

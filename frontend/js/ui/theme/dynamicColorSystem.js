@@ -347,5 +347,3 @@ class DynamicColorSystem {
 }
 
 export const dynamicColorSystem = new DynamicColorSystem();
-
-window.dynamicColorSystem = dynamicColorSystem;

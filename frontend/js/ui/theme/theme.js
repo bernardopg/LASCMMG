@@ -1,7 +1,4 @@
-/**
- * Gerenciador de alternância de temas consolidado
- * Para o Sistema de Gerenciamento de Torneios LASCMMG
- */
+import { dynamicColorSystem } from './dynamicColorSystem.js';
 
 const THEME_STORAGE_KEY = 'lascmmg-theme-preference';
 const FACULDADE_THEME_CLASS = 'faculdade-theme'; // Tema "Faculdade" (Verdes e Dourados)
@@ -126,26 +123,18 @@ class ThemeManager {
     this.setTheme(nextTheme); // Alterna e salva a nova preferência
   }
 
-  /**
-   * Define o tema atual e opcionalmente salva a preferência.
-   * @param {string} themeName O nome do tema a ser aplicado ('faculdade' ou 'verde-escuro').
-   * @param {boolean} savePreference Se deve salvar a preferência do usuário (padrão: true).
-   */
   setTheme(themeName, savePreference = true) {
-    // Remover todas as classes de tema existentes
     document.documentElement.classList.remove(
       FACULDADE_THEME_CLASS,
       VERDE_ESCURO_THEME_CLASS
     );
 
-    // Adicionar a classe do novo tema
     if (themeName === 'faculdade') {
       document.documentElement.classList.add(FACULDADE_THEME_CLASS);
     } else if (themeName === 'verde-escuro') {
       document.documentElement.classList.add(VERDE_ESCURO_THEME_CLASS);
     } else {
-      console.warn(`Tema desconhecido: ${themeName}. Aplicando tema padrão.`);
-      document.documentElement.classList.add(THEME_ORDER[0]); // Aplica o primeiro tema como padrão
+      document.documentElement.classList.add(THEME_ORDER[0]);
       themeName = THEME_ORDER[0];
     }
 
@@ -153,10 +142,13 @@ class ThemeManager {
       localStorage.setItem(THEME_STORAGE_KEY, themeName);
     }
 
-    // Atualizar a UI do botão de alternância, se existir
     this.updateToggleButtonUI();
 
-    // Disparar evento customizado
+    // Integração: recalcula esquema de cor ao mudar tema
+    if (dynamicColorSystem && typeof dynamicColorSystem.updateColorsByTimeOfDay === 'function') {
+      dynamicColorSystem.updateColorsByTimeOfDay();
+    }
+
     document.dispatchEvent(
       new CustomEvent('themeChange', { detail: { theme: themeName } })
     );
@@ -222,30 +214,25 @@ class ThemeManager {
   }
 }
 
-// Criar e exportar instância do gerenciador de temas
+// Instância única do gerenciador de temas
 export const themeManager = new ThemeManager();
 export default themeManager;
 
-// Opcional: Função para adicionar o botão de alternância via JS, se necessário
-// Mantida do themeToggler.js, mas pode ser removida se o botão for sempre adicionado no HTML
 export function addThemeToggleButton(
   targetSelector = '.sidebar-nav',
   position = 'append'
 ) {
   const target = document.querySelector(targetSelector);
   if (!target) return;
-
-  if (document.querySelector('.theme-toggle-btn')) return; // Evita duplicar
+  if (document.querySelector('.theme-toggle-btn')) return;
 
   const btn = document.createElement('button');
   btn.className = 'theme-toggle-btn';
-  // aria-label e title serão atualizados por updateToggleButtonUI
   btn.setAttribute('aria-label', 'Alternar tema');
   btn.setAttribute('title', 'Alternar tema');
 
   const icon = document.createElement('span');
   icon.className = 'theme-icon';
-  // Ícone inicial será atualizado por updateToggleButtonUI
   btn.appendChild(icon);
 
   const text = document.createElement('span');
@@ -268,9 +255,5 @@ export function addThemeToggleButton(
       target.appendChild(btn);
   }
 
-  // Não adicionar listener aqui, pois já é tratado pelo listener global em setupEventListeners
-  // btn.addEventListener('click', toggleTheme);
-
-  // Atualizar o estado inicial do botão
   themeManager.updateToggleButtonUI();
 }
