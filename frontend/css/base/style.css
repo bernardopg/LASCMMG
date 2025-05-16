@@ -22,7 +22,8 @@
   --info-color: #0dcaf0;
 
   --light-bg: #f8f9fa;
-  --dark-bg: #212529; /* Used by dark themes */
+  --dark-bg: #212529;
+  /* Used by dark themes */
 
   --dark-text: #212529;
   --light-text: #6c757d;
@@ -41,8 +42,10 @@
 
   /* Layout and Spacing */
   --border-radius: 0.375rem;
-  --border-radius-sm: 0.25rem; /* 4px */
-  --border-radius-lg: 0.5rem; /* 8px */
+  --border-radius-sm: 0.25rem;
+  /* 4px */
+  --border-radius-lg: 0.5rem;
+  /* 8px */
 
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -50,27 +53,30 @@
 
   --font-family:
     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif; /* Modern sans-serif stack */
-  --focus-outline-color: var(
-    --primary-hover
-  ); /* Fallback, themes should override */
+    Arial, sans-serif;
+  /* Modern sans-serif stack */
+  --focus-outline-color: var(--primary-hover);
+  /* Fallback, themes should override */
   --focus-outline-width: 2px;
   --focus-outline-offset: 2px;
 
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 65px;
   /* Sidebar specific colors should be in themes or use generic vars */
-  --sidebar-bg: var(--dark-bg); /* Example: use a generic dark background */
+  --sidebar-bg: var(--dark-bg);
+  /* Example: use a generic dark background */
   --sidebar-text: var(--contrast-text);
-  --sidebar-hover: rgba(
-    255,
-    255,
-    255,
-    0.1
-  ); /* Generic hover for dark backgrounds */
-  --sidebar-active-bg: rgba(var(--primary-rgb), 0.1); /* Fallback */
-  --sidebar-active-border: var(--primary-color); /* Fallback */
-  --sidebar-icon-color: var(--light-text); /* Fallback */
+  --sidebar-hover: rgba(255,
+      255,
+      255,
+      0.1);
+  /* Generic hover for dark backgrounds */
+  --sidebar-active-bg: rgba(var(--primary-rgb), 0.1);
+  /* Fallback */
+  --sidebar-active-border: var(--primary-color);
+  /* Fallback */
+  --sidebar-icon-color: var(--light-text);
+  /* Fallback */
 
   --transition-speed: 0.2s;
 
@@ -96,13 +102,18 @@ body {
   font-family: var(--font-family);
   display: flex;
   margin: 0;
-  background-color: var(--light-bg); /* Fallback, theme will override */
-  color: var(--dark-text); /* Fallback, theme will override */
+  background-color: var(--light-bg);
+  /* Fallback, theme will override */
+  color: var(--dark-text);
+  /* Fallback, theme will override */
   line-height: 1.65;
-  min-height: 100vh; /* Use min-height para permitir crescimento */
+  min-height: 100vh;
+  /* Use min-height para permitir crescimento */
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased; /* Smoother fonts on WebKit */
-  -moz-osx-font-smoothing: grayscale; /* Smoother fonts on Firefox */
+  -webkit-font-smoothing: antialiased;
+  /* Smoother fonts on WebKit */
+  -moz-osx-font-smoothing: grayscale;
+  /* Smoother fonts on Firefox */
 }
 
 .container {
@@ -116,8 +127,10 @@ body {
 .sidebar {
   width: var(--sidebar-width);
   height: 100vh;
-  background-color: var(--sidebar-bg); /* Uses fallback or theme-defined */
-  color: var(--sidebar-text); /* Uses fallback or theme-defined */
+  background-color: var(--sidebar-bg);
+  /* Uses fallback or theme-defined */
+  color: var(--sidebar-text);
+  /* Uses fallback or theme-defined */
   position: fixed;
   left: 0;
   top: 0;
@@ -126,9 +139,12 @@ body {
     width var(--transition-speed) ease,
     transform var(--transition-speed) ease;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  display: flex; /* Make sidebar itself a flex container */
-  flex-direction: column; /* Stack header and content vertically */
-  overflow-y: hidden; /* Prevent scroll on sidebar itself */
+  display: flex;
+  /* Make sidebar itself a flex container */
+  flex-direction: column;
+  /* Stack header and content vertically */
+  overflow-y: hidden;
+  /* Prevent scroll on sidebar itself */
 }
 
 .sidebar::-webkit-scrollbar {
@@ -146,13 +162,16 @@ body {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex-shrink: 0;
+  /* Prevent header from shrinking */
   /* Estimate header height for calc() below, adjust if needed */
-  /* height: 70px; */ /* Or measure precisely */
+  /* height: 70px; */
+  /* Or measure precisely */
 }
 
 .sidebar-header h1 {
-  color: var(--sidebar-text); /* Use sidebar text color */
+  color: var(--sidebar-text);
+  /* Use sidebar text color */
   font-size: 1.3rem;
   margin: 0;
   white-space: nowrap;
@@ -162,7 +181,8 @@ body {
 .toggle-sidebar-btn {
   background: none;
   border: none;
-  color: var(--sidebar-icon-color); /* Uses fallback or theme-defined */
+  color: var(--sidebar-icon-color);
+  /* Uses fallback or theme-defined */
   font-size: 1.6rem;
   cursor: pointer;
   padding: var(--spacing-sm);
@@ -176,64 +196,86 @@ body {
 }
 
 .toggle-sidebar-btn:hover {
-  background-color: var(--sidebar-hover); /* Uses fallback or theme-defined */
-  color: var(
-    --sidebar-text
-  ); /* Or --contrast-text if hover makes bg very dark */
+  background-color: var(--sidebar-hover);
+  /* Uses fallback or theme-defined */
+  color: var(--sidebar-text);
+  /* Or --contrast-text if hover makes bg very dark */
 }
 
 .sidebar-content {
-  display: flex; /* Habilita Flexbox */
-  flex-direction: column; /* Itens empilhados verticalmente */
-  flex-grow: 1; /* Faz o content preencher o espaço restante */
-  overflow: hidden; /* Esconde overflow geral */
-  padding: 0; /* Remove padding para controle total do flex */
+  display: flex;
+  /* Habilita Flexbox */
+  flex-direction: column;
+  /* Itens empilhados verticalmente */
+  flex-grow: 1;
+  /* Faz o content preencher o espaço restante */
+  overflow: hidden;
+  /* Esconde overflow geral */
+  padding: 0;
+  /* Remove padding para controle total do flex */
 }
 
-.sidebar-content > .sidebar-nav:first-of-type {
+.sidebar-content>.sidebar-nav:first-of-type {
   /* Seleciona a nav principal */
-  flex-grow: 1; /* Faz a nav principal crescer */
-  overflow-y: auto; /* Permite scroll apenas na nav principal se necessário */
-  padding: var(--spacing-md) 0; /* Adiciona padding de volta */
-  scrollbar-width: thin; /* Estilo scrollbar */
-  scrollbar-color: var(--sidebar-hover) transparent; /* Cor scrollbar */
+  flex-grow: 1;
+  /* Faz a nav principal crescer */
+  overflow-y: auto;
+  /* Permite scroll apenas na nav principal se necessário */
+  padding: var(--spacing-md) 0;
+  /* Adiciona padding de volta */
+  scrollbar-width: thin;
+  /* Estilo scrollbar */
+  scrollbar-color: var(--sidebar-hover) transparent;
+  /* Cor scrollbar */
 }
-.sidebar-content > .sidebar-nav:first-of-type::-webkit-scrollbar {
+
+.sidebar-content>.sidebar-nav:first-of-type::-webkit-scrollbar {
   width: 6px;
 }
-.sidebar-content > .sidebar-nav:first-of-type::-webkit-scrollbar-thumb {
+
+.sidebar-content>.sidebar-nav:first-of-type::-webkit-scrollbar-thumb {
   background-color: var(--sidebar-hover);
   border-radius: 10px;
 }
 
 .sidebar-nav-bottom {
-  padding: var(--spacing-sm) 0; /* Padding vertical menor */
-  border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha separadora visual */
-  flex-shrink: 0; /* Impede que o container inferior encolha */
-  background-color: rgba(0, 0, 0, 0.1); /* Fundo sutilmente mais escuro */
+  padding: var(--spacing-sm) 0;
+  /* Padding vertical menor */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  /* Linha separadora visual */
+  flex-shrink: 0;
+  /* Impede que o container inferior encolha */
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Fundo sutilmente mais escuro */
 }
+
 .sidebar-nav-bottom .sidebar-nav ul {
-  padding-top: var(--spacing-sm); /* Espaço acima do primeiro item inferior */
+  padding-top: var(--spacing-sm);
+  /* Espaço acima do primeiro item inferior */
 }
 
 .sidebar-nav ul {
   list-style: none;
   padding: 0;
-  margin: 0; /* Garante que não haja margem na ul */
+  margin: 0;
+  /* Garante que não haja margem na ul */
 }
 
 .sidebar-nav li {
   margin-bottom: 5px;
 }
+
 .sidebar-nav-bottom li {
-  margin-bottom: 2px; /* Espaçamento menor para itens inferiores */
+  margin-bottom: 2px;
+  /* Espaçamento menor para itens inferiores */
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   padding: 12px var(--spacing-md);
-  color: var(--sidebar-text); /* Uses fallback or theme-defined */
+  color: var(--sidebar-text);
+  /* Uses fallback or theme-defined */
   text-decoration: none;
   width: 100%;
   border: none;
@@ -245,24 +287,26 @@ body {
 }
 
 .nav-item:hover {
-  background-color: var(--sidebar-hover); /* Uses fallback or theme-defined */
-  color: var(
-    --sidebar-text
-  ); /* Or --contrast-text if hover makes bg very dark */
+  background-color: var(--sidebar-hover);
+  /* Uses fallback or theme-defined */
+  color: var(--sidebar-text);
+  /* Or --contrast-text if hover makes bg very dark */
 }
 
 .nav-item.active {
-  background-color: var(
-    --sidebar-active-bg
-  ); /* Uses fallback or theme-defined */
-  border-left: 4px solid var(--sidebar-active-border); /* Uses fallback or theme-defined */
-  color: var(--primary-color); /* Uses fallback or theme-defined */
+  background-color: var(--sidebar-active-bg);
+  /* Uses fallback or theme-defined */
+  border-left: 4px solid var(--sidebar-active-border);
+  /* Uses fallback or theme-defined */
+  color: var(--primary-color);
+  /* Uses fallback or theme-defined */
   font-weight: 600;
   padding-left: calc(var(--spacing-md) - 4px);
 }
 
 .nav-item.active .icon {
-  fill: var(--primary-color); /* Uses fallback or theme-defined */
+  fill: var(--primary-color);
+  /* Uses fallback or theme-defined */
 }
 
 /* .admin-item styling can be merged or kept if specific styling is needed */
@@ -272,38 +316,45 @@ body {
   width: 20px;
   height: 20px;
   margin-right: var(--spacing-md);
-  fill: var(--sidebar-icon-color); /* Uses fallback or theme-defined */
+  fill: var(--sidebar-icon-color);
+  /* Uses fallback or theme-defined */
   flex-shrink: 0;
   transition: fill var(--transition-speed) ease;
 }
 
 .nav-item:hover .icon {
-  fill: var(
-    --sidebar-text
-  ); /* Or --contrast-text if hover makes bg very dark */
+  fill: var(--sidebar-text);
+  /* Or --contrast-text if hover makes bg very dark */
 }
+
 /* .nav-item.active .icon is already handled above */
 
 /* Estilo para o item de perfil (não clicável) */
 .profile-info {
   cursor: default;
-  background: none !important; /* Remove fundo no hover */
-  color: var(--sidebar-text) !important; /* Mantém cor do texto */
-  border-left-color: transparent !important; /* Remove borda ativa */
-  padding-top: 8px; /* Ajuste padding */
+  background: none !important;
+  /* Remove fundo no hover */
+  color: var(--sidebar-text) !important;
+  /* Mantém cor do texto */
+  border-left-color: transparent !important;
+  /* Remove borda ativa */
+  padding-top: 8px;
+  /* Ajuste padding */
   padding-bottom: 8px;
 }
+
 .profile-info .icon {
-  fill: var(
-    --sidebar-icon-color
-  ) !important; /* Uses fallback or theme-defined */
+  fill: var(--sidebar-icon-color) !important;
+  /* Uses fallback or theme-defined */
 }
 
 .separator {
   height: 1px;
   background-color: rgba(255, 255, 255, 0.1);
-  margin: var(--spacing-sm) var(--spacing-md); /* Adiciona margem horizontal */
+  margin: var(--spacing-sm) var(--spacing-md);
+  /* Adiciona margem horizontal */
 }
+
 .sidebar-nav-bottom .separator {
   margin-top: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
@@ -325,9 +376,11 @@ body {
   position: sticky;
   top: 0;
   width: 100%;
-  background-color: var(--light-bg); /* Fallback, theme might override */
+  background-color: var(--light-bg);
+  /* Fallback, theme might override */
   padding: var(--spacing-md);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Generic shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Generic shadow */
   z-index: 90;
   align-items: center;
 }
@@ -336,13 +389,16 @@ body {
   margin: 0;
   font-size: 1.3rem;
   margin-left: var(--spacing-md);
-  flex-grow: 1; /* Faz o H1 ocupar espaço para empurrar o perfil */
+  flex-grow: 1;
+  /* Faz o H1 ocupar espaço para empurrar o perfil */
 }
 
 /* Profile Menu Styles */
 .profile-container {
-  position: relative; /* Para posicionar o menu */
-  margin-left: auto; /* Empurra para a direita */
+  position: relative;
+  /* Para posicionar o menu */
+  margin-left: auto;
+  /* Empurra para a direita */
 }
 
 .profile-btn {
@@ -356,15 +412,19 @@ body {
   justify-content: center;
   transition: background-color var(--transition-speed);
 }
+
 .profile-btn:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 /* Fixed Profile Container - General Base (used by index.html directly) */
 /* Specific containers in admin.html will override/use this */
 .profile-container {
   position: fixed;
-  top: var(--spacing-md); /* Default top */
-  right: var(--spacing-lg); /* Default right */
+  top: var(--spacing-md);
+  /* Default top */
+  right: var(--spacing-lg);
+  /* Default right */
   z-index: 1050;
 }
 
@@ -372,19 +432,23 @@ body {
 .mobile-profile-container {
   display: none;
 }
+
 .desktop-profile-container {
   display: block;
   position: fixed;
   top: var(--spacing-md);
   right: var(--spacing-lg);
   z-index: 1050;
-} /* Ensure desktop is fixed */
+}
+
+/* Ensure desktop is fixed */
 
 /* Ensure icons within the fixed container are styled correctly */
 .profile-container .profile-btn .icon {
   width: 24px;
   height: 24px;
-  fill: var(--dark-text); /* Fallback, theme might override */
+  fill: var(--dark-text);
+  /* Fallback, theme might override */
   margin: 0;
 }
 
@@ -393,14 +457,18 @@ body {
   position: absolute;
   top: calc(100% + 5px);
   right: 0;
-  background-color: var(--surface-color); /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
   border-radius: var(--border-radius);
-  box-shadow: var(--hover-shadow); /* Generic shadow */
+  box-shadow: var(--hover-shadow);
+  /* Generic shadow */
   min-width: 180px;
   z-index: 110;
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
   overflow: hidden;
 }
+
 .profile-menu.show {
   display: block;
 }
@@ -408,8 +476,10 @@ body {
 .profile-menu-header {
   padding: var(--spacing-sm) var(--spacing-md);
   font-weight: 600;
-  color: var(--light-text); /* Fallback, theme might override */
-  border-bottom: 1px solid var(--light-border); /* Fallback, theme might override */
+  color: var(--light-text);
+  /* Fallback, theme might override */
+  border-bottom: 1px solid var(--light-border);
+  /* Fallback, theme might override */
   font-size: 0.9em;
 }
 
@@ -422,24 +492,30 @@ body {
   width: 100%;
   text-align: left;
   cursor: pointer;
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   font-size: 0.95em;
   transition: background-color var(--transition-speed);
 }
+
 .profile-menu-item:hover {
-  background-color: var(
-    --surface-hover-color
-  ); /* Fallback, theme might override */
+  background-color: var(--surface-hover-color);
+  /* Fallback, theme might override */
 }
+
 .profile-menu-item .icon {
   width: 18px;
   height: 18px;
   margin-right: var(--spacing-sm);
-  fill: var(--secondary-color); /* Fallback, theme might override */
+  fill: var(--secondary-color);
+  /* Fallback, theme might override */
 }
+
 .profile-menu-item:hover .icon {
-  fill: var(--primary-color); /* Fallback, theme might override */
+  fill: var(--primary-color);
+  /* Fallback, theme might override */
 }
+
 /* Ensure the menu position is relative to the fixed container */
 .profile-container .profile-menu {
   /* Position is already absolute, top/right are relative to the fixed container */
@@ -448,15 +524,21 @@ body {
 /* Responsive adjustments for profile containers */
 @media (max-width: 768px) {
   .mobile-profile-container {
-    display: block; /* Show mobile */
-    position: fixed; /* Make it fixed on mobile too */
-    top: var(--spacing-sm); /* Adjust position for mobile header */
+    display: block;
+    /* Show mobile */
+    position: fixed;
+    /* Make it fixed on mobile too */
+    top: var(--spacing-sm);
+    /* Adjust position for mobile header */
     right: var(--spacing-md);
     z-index: 1050;
   }
+
   .desktop-profile-container {
-    display: none; /* Hide desktop */
+    display: none;
+    /* Hide desktop */
   }
+
   /* Adjust main content padding top if fixed header/profile overlaps */
   body.mobile-view .content-wrapper {
     /* padding-top: 70px; /* Example: Adjust if needed based on mobile header/profile height */
@@ -480,17 +562,26 @@ body.sidebar-collapsed .nav-item span {
 
 body.sidebar-collapsed .nav-item {
   justify-content: center;
-  padding: 15px 5px;
+  align-items: center;
+  padding: 15px 0;
+  text-align: center;
 }
 
 body.sidebar-collapsed .icon {
   margin-right: 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 body.sidebar-collapsed .sidebar-header {
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: var(--spacing-md) 5px;
 }
+
 body.sidebar-collapsed .sidebar-nav-bottom .separator {
   margin-left: 5px;
   margin-right: 5px;
@@ -504,22 +595,27 @@ header {
 }
 
 h1 {
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   margin-bottom: var(--spacing-lg);
   font-weight: 700;
 }
 
 h2 {
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   margin-bottom: var(--spacing-md);
   font-weight: 700;
-  font-size: 1.75rem; /* Larger H2 */
-  border-bottom: 1px solid var(--light-border); /* Fallback, theme might override */
+  font-size: 1.75rem;
+  /* Larger H2 */
+  border-bottom: 1px solid var(--light-border);
+  /* Fallback, theme might override */
   padding-bottom: var(--spacing-sm);
 }
 
 h3 {
-  color: var(--primary-color); /* Fallback, theme might override */
+  color: var(--primary-color);
+  /* Fallback, theme might override */
   margin-bottom: var(--spacing-sm);
   font-weight: 600;
   font-size: 1.25rem;
@@ -538,15 +634,20 @@ nav#controls {
 nav#controls button,
 .btn {
   /* Generic button class */
-  display: inline-block; /* Ensure proper block model behavior */
+  display: inline-block;
+  /* Ensure proper block model behavior */
   padding: 10px var(--spacing-md);
   border-radius: var(--border-radius);
   cursor: pointer;
-  text-align: center; /* Center text */
-  vertical-align: middle; /* Align vertically */
-  user-select: none; /* Prevent text selection */
+  text-align: center;
+  /* Center text */
+  vertical-align: middle;
+  /* Align vertically */
+  user-select: none;
+  /* Prevent text selection */
   background-color: transparent;
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   font-size: 0.95em;
   font-weight: 500;
   transition:
@@ -558,16 +659,17 @@ nav#controls button,
   position: relative;
   overflow: hidden;
   /* text-transform: uppercase; /* Removed uppercase */
-  letter-spacing: 0.2px; /* Reduced letter spacing */
+  letter-spacing: 0.2px;
+  /* Reduced letter spacing */
 }
 
 /* Estilo de Foco Visível Genérico */
 *:focus-visible {
-  outline: var(--focus-outline-width) solid var(--focus-outline-color); /* Uses fallback or theme-defined */
+  outline: var(--focus-outline-width) solid var(--focus-outline-color);
+  /* Uses fallback or theme-defined */
   outline-offset: var(--focus-outline-offset);
-  box-shadow: 0 0 0
-    calc(var(--focus-outline-width) + var(--focus-outline-offset))
-    rgba(var(--primary-rgb), 0.25); /* Uses fallback or theme-defined */
+  box-shadow: 0 0 0 calc(var(--focus-outline-width) + var(--focus-outline-offset)) rgba(var(--primary-rgb), 0.25);
+  /* Uses fallback or theme-defined */
 }
 
 *:focus:not(:focus-visible) {
@@ -589,7 +691,8 @@ nav#controls button,
   left: 50%;
   margin-top: -9px;
   margin-left: -9px;
-  border: 3px solid rgba(255, 255, 255, 0.3); /* Lighter spinner track for primary */
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  /* Lighter spinner track for primary */
   border-top-color: var(--contrast-text);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -601,79 +704,114 @@ nav#controls button,
 nav#controls button.loading::after {
   /* Assuming nav#controls buttons are not primary */
   border: 3px solid rgba(0, 0, 0, 0.1);
-  border-top-color: var(--dark-text); /* Dark spinner for light buttons */
+  border-top-color: var(--dark-text);
+  /* Dark spinner for light buttons */
 }
 
 nav#controls button {
-  background-color: var(--surface-color); /* Fallback, theme might override */
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
-  color: var(--dark-text); /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
 }
 
 nav#controls button:hover:not(.active) {
-  background-color: var(--light-border); /* Fallback, theme might override */
-  border-color: var(--secondary-color); /* Fallback, theme might override */
-  color: var(--primary-color); /* Fallback, theme might override */
+  background-color: var(--light-border);
+  /* Fallback, theme might override */
+  border-color: var(--secondary-color);
+  /* Fallback, theme might override */
+  color: var(--primary-color);
+  /* Fallback, theme might override */
 }
 
 nav#controls button.active {
-  background-color: var(--primary-color); /* Fallback, theme might override */
-  color: var(--contrast-text); /* Fallback, theme might override */
-  border-color: var(--primary-color); /* Fallback, theme might override */
-  box-shadow: 0 0.125rem 0.25rem rgba(var(--primary-rgb), 0.25); /* Uses fallback or theme-defined */
+  background-color: var(--primary-color);
+  /* Fallback, theme might override */
+  color: var(--contrast-text);
+  /* Fallback, theme might override */
+  border-color: var(--primary-color);
+  /* Fallback, theme might override */
+  box-shadow: 0 0.125rem 0.25rem rgba(var(--primary-rgb), 0.25);
+  /* Uses fallback or theme-defined */
 }
 
 .btn-primary {
-  background-color: var(--primary-color); /* Fallback, theme will override */
-  color: var(--contrast-text); /* Fallback, theme will override */
-  border-color: var(--primary-color); /* Fallback, theme will override */
+  background-color: var(--primary-color);
+  /* Fallback, theme will override */
+  color: var(--contrast-text);
+  /* Fallback, theme will override */
+  border-color: var(--primary-color);
+  /* Fallback, theme will override */
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover); /* Fallback, theme will override */
-  border-color: var(--primary-hover); /* Fallback, theme will override */
+  background-color: var(--primary-hover);
+  /* Fallback, theme will override */
+  border-color: var(--primary-hover);
+  /* Fallback, theme will override */
   box-shadow: var(--box-shadow);
 }
+
 .btn-primary:focus-visible {
-  outline-color: var(--primary-hover); /* Uses fallback or theme-defined */
+  outline-color: var(--primary-hover);
+  /* Uses fallback or theme-defined */
 }
 
 .btn-secondary {
-  background-color: var(--secondary-color); /* Fallback, theme will override */
-  color: var(--contrast-text); /* Fallback, theme will override */
-  border-color: var(--secondary-color); /* Fallback, theme will override */
+  background-color: var(--secondary-color);
+  /* Fallback, theme will override */
+  color: var(--contrast-text);
+  /* Fallback, theme will override */
+  border-color: var(--secondary-color);
+  /* Fallback, theme will override */
 }
 
 .btn-secondary:hover {
-  background-color: var(--secondary-hover); /* Fallback, theme will override */
-  border-color: var(--secondary-hover); /* Fallback, theme will override */
+  background-color: var(--secondary-hover);
+  /* Fallback, theme will override */
+  border-color: var(--secondary-hover);
+  /* Fallback, theme will override */
   box-shadow: var(--box-shadow);
 }
+
 .btn-secondary:focus-visible {
-  outline-color: var(--secondary-hover); /* Uses fallback or theme-defined */
+  outline-color: var(--secondary-hover);
+  /* Uses fallback or theme-defined */
 }
 
 .btn-danger {
-  background-color: var(--danger-color); /* Fallback, theme will override */
-  color: var(--contrast-text); /* Fallback, theme will override */
-  border-color: var(--danger-color); /* Fallback, theme will override */
+  background-color: var(--danger-color);
+  /* Fallback, theme will override */
+  color: var(--contrast-text);
+  /* Fallback, theme will override */
+  border-color: var(--danger-color);
+  /* Fallback, theme will override */
 }
 
 .btn-danger:hover {
-  background-color: var(--danger-hover); /* Fallback, theme will override */
-  border-color: var(--danger-hover); /* Fallback, theme will override */
+  background-color: var(--danger-hover);
+  /* Fallback, theme will override */
+  border-color: var(--danger-hover);
+  /* Fallback, theme will override */
   box-shadow: var(--box-shadow);
 }
+
 .btn-danger:focus-visible {
-  outline-color: var(--danger-hover); /* Uses fallback or theme-defined */
+  outline-color: var(--danger-hover);
+  /* Uses fallback or theme-defined */
 }
 
 .admin-link {
   display: inline-block;
   padding: 10px var(--spacing-md);
-  background-color: var(--secondary-color); /* Fallback, theme will override */
-  color: var(--contrast-text); /* Fallback, theme will override */
-  border: 1px solid var(--secondary-color); /* Fallback, theme will override */
+  background-color: var(--secondary-color);
+  /* Fallback, theme will override */
+  color: var(--contrast-text);
+  /* Fallback, theme will override */
+  border: 1px solid var(--secondary-color);
+  /* Fallback, theme will override */
   border-radius: var(--border-radius);
   text-decoration: none;
   font-size: 0.95em;
@@ -687,21 +825,28 @@ nav#controls button.active {
 }
 
 .admin-link:hover {
-  background-color: var(--secondary-hover); /* Fallback, theme will override */
-  border-color: var(--secondary-hover); /* Fallback, theme will override */
+  background-color: var(--secondary-hover);
+  /* Fallback, theme will override */
+  border-color: var(--secondary-hover);
+  /* Fallback, theme will override */
   text-decoration: none;
-  color: var(--contrast-text); /* Fallback, theme will override */
+  color: var(--contrast-text);
+  /* Fallback, theme will override */
   box-shadow: var(--box-shadow);
 }
+
 .admin-link:focus-visible {
-  outline-color: var(--secondary-hover); /* Uses fallback or theme-defined */
+  outline-color: var(--secondary-hover);
+  /* Uses fallback or theme-defined */
 }
 
 /* Seções */
 main {
   width: 100%;
-  max-width: 1200px; /* Limita largura máxima do conteúdo principal */
-  margin-left: auto; /* Centraliza o main se content-wrapper for maior */
+  max-width: 1200px;
+  /* Limita largura máxima do conteúdo principal */
+  margin-left: auto;
+  /* Centraliza o main se content-wrapper for maior */
   margin-right: auto;
   /* margin-right: auto; */
 }
@@ -712,7 +857,8 @@ section {
 
 .active-section {
   display: flex;
-  flex-direction: column; /* Ensure children stack vertically */
+  flex-direction: column;
+  /* Ensure children stack vertically */
 }
 
 .hidden-section {
@@ -723,42 +869,55 @@ section {
 #bracket-section {
   flex-direction: column;
   align-items: center;
-  overflow-x: auto; /* Permite scroll horizontal se necessário */
+  overflow-x: auto;
+  /* Permite scroll horizontal se necessário */
   width: 100%;
 }
 
 #bracket {
-  display: block; /* Ensure block context for overflow */
-  overflow-x: auto; /* Enable horizontal scrolling */
-  white-space: nowrap; /* Prevent rounds from wrapping */
+  display: block;
+  /* Ensure block context for overflow */
+  overflow-x: auto;
+  /* Enable horizontal scrolling */
+  white-space: nowrap;
+  /* Prevent rounds from wrapping */
   padding: var(--spacing-md);
   margin-top: var(--spacing-md);
   min-height: 400px;
   width: 100%;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
-  background-color: var(--surface-color); /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
   border-radius: var(--border-radius);
-  box-shadow: var(--inner-shadow); /* Generic shadow */
+  box-shadow: var(--inner-shadow);
+  /* Generic shadow */
 }
 
 /* New container for WB/LB/GF sections */
 .bracket-display-container {
   display: flex;
-  gap: 30px; /* Space between WB, LB, GF sections */
-  overflow-x: auto; /* Allow horizontal scrolling for the whole container */
+  gap: 30px;
+  /* Space between WB, LB, GF sections */
+  overflow-x: auto;
+  /* Allow horizontal scrolling for the whole container */
   padding: 10px;
-  /* background-color: #e9ecef; */ /* Optional background for the container */
+  /* background-color: #e9ecef; */
+  /* Optional background for the container */
   border-radius: 5px;
   margin-top: 15px;
 }
 
 /* Style for WB, LB, GF sections */
 .bracket-section {
-  flex: 0 0 auto; /* Prevent sections from shrinking */
+  flex: 0 0 auto;
+  /* Prevent sections from shrinking */
   padding: 15px;
-  /* background-color: #f8f9fa; */ /* Optional background for sections */
-  /* border: 1px solid #dee2e6; */ /* Optional border for sections */
+  /* background-color: #f8f9fa; */
+  /* Optional background for sections */
+  /* border: 1px solid #dee2e6; */
+  /* Optional border for sections */
   border-radius: 4px;
 }
 
@@ -767,34 +926,49 @@ section {
   text-align: center;
   font-size: 1.1em;
   font-weight: bold;
-  color: var(--secondary-color); /* Fallback, theme might override */
+  color: var(--secondary-color);
+  /* Fallback, theme might override */
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--light-border); /* Fallback, theme might override */
+  border-bottom: 1px solid var(--light-border);
+  /* Fallback, theme might override */
 }
 
 /* Container for rounds WITHIN a section (WB/LB/GF) */
 .bracket-display {
   display: flex;
-  /* overflow-x: auto; */ /* Scroll handled by parent container now */
-  padding-bottom: 15px; /* Space for scrollbar if needed */
-  gap: 20px; /* Space between rounds */
-  white-space: nowrap; /* Keep rounds inline */
+  /* overflow-x: auto; */
+  /* Scroll handled by parent container now */
+  padding-bottom: 15px;
+  /* Space for scrollbar if needed */
+  gap: 20px;
+  /* Space between rounds */
+  white-space: nowrap;
+  /* Keep rounds inline */
 }
 
-#bracket > .round, /* Keep old selector for single elim */
-.bracket-display > .round {
+#bracket>.round,
+/* Keep old selector for single elim */
+.bracket-display>.round {
   /* Target rounds within sections */
-  display: inline-block; /* Lay out rounds horizontally */
-  vertical-align: top; /* Align rounds to the top */
-  width: 240px; /* Base width */
-  min-width: 200px; /* Minimum width */
-  margin-right: var(--spacing-lg); /* Space between rounds */
-  white-space: normal; /* Allow content within round to wrap */
+  display: inline-block;
+  /* Lay out rounds horizontally */
+  vertical-align: top;
+  /* Align rounds to the top */
+  width: 240px;
+  /* Base width */
+  min-width: 200px;
+  /* Minimum width */
+  margin-right: var(--spacing-lg);
+  /* Space between rounds */
+  white-space: normal;
+  /* Allow content within round to wrap */
 }
-#bracket > .round:last-child,
-.bracket-display > .round:last-child {
-  margin-right: 0; /* No margin on the last round */
+
+#bracket>.round:last-child,
+.bracket-display>.round:last-child {
+  margin-right: 0;
+  /* No margin on the last round */
 }
 
 .round {
@@ -803,17 +977,22 @@ section {
   flex-direction: column;
   align-items: center;
   /* justify-content: space-around; /* Let matches stack naturally */
-  gap: var(--spacing-lg); /* Increase gap between matches */
-  width: 250px; /* Slightly wider */
-  min-width: 220px; /* Adjust min-width */
-  padding-top: var(--spacing-md); /* Add padding above matches */
+  gap: var(--spacing-lg);
+  /* Increase gap between matches */
+  width: 250px;
+  /* Slightly wider */
+  min-width: 220px;
+  /* Adjust min-width */
+  padding-top: var(--spacing-md);
+  /* Add padding above matches */
 }
 
 .round h3,
 .round h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--secondary-color); /* Fallback, theme might override */
+  color: var(--secondary-color);
+  /* Fallback, theme might override */
   text-transform: uppercase;
   margin-bottom: var(--spacing-sm);
   white-space: nowrap;
@@ -823,29 +1002,35 @@ section {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm); /* Slightly smaller radius */
+  border-radius: var(--border-radius-sm);
+  /* Slightly smaller radius */
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Softer shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  /* Softer shadow */
   transition:
     box-shadow var(--transition-speed) ease-in-out,
     transform var(--transition-speed) ease-in-out,
     border-color var(--transition-speed) ease;
   cursor: pointer;
-  background-color: var(--surface-color); /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
 }
 
 .match:hover {
   box-shadow: var(--hover-shadow);
-  transform: translateY(-3px); /* Slightly lift the match on hover */
+  transform: translateY(-3px);
+  /* Slightly lift the match on hover */
 }
 
 /* Style for a selected/highlighted match */
 .match.selected {
-  border-color: var(--accent-color); /* Fallback, theme might override */
+  border-color: var(--accent-color);
+  /* Fallback, theme might override */
   box-shadow:
     0 0 0 3px rgba(var(--accent-color-rgb), 0.35),
-    /* Uses fallback or theme-defined */ var(--hover-shadow);
+    /* Uses fallback or theme-defined */
+    var(--hover-shadow);
 }
 
 .player {
@@ -853,94 +1038,114 @@ section {
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-sm) var(--spacing-sm);
-  border-bottom: 1px solid var(--light-border); /* Fallback, theme might override */
+  border-bottom: 1px solid var(--light-border);
+  /* Fallback, theme might override */
   font-size: 0.9rem;
   min-height: 38px;
-  color: var(--light-text); /* Fallback, theme might override */
+  color: var(--light-text);
+  /* Fallback, theme might override */
   transition: background-color 0.2s ease;
   line-height: 1.4;
   border-radius: var(--border-radius-sm);
 }
 
 .player:last-child {
-  border-bottom: none; /* Remove border only if datetime is NOT present */
+  border-bottom: none;
+  /* Remove border only if datetime is NOT present */
 }
-.match-datetime + .player:last-child {
+
+.match-datetime+.player:last-child {
   /* Keep border if datetime follows */
   border-bottom: 1px solid var(--light-border);
 }
 
 .player span.name {
-  flex-grow: 1; /* Allow name to take available space */
+  flex-grow: 1;
+  /* Allow name to take available space */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-right: var(--spacing-sm); /* Space before score */
+  padding-right: var(--spacing-sm);
+  /* Space before score */
 }
 
 .player span.score {
   font-size: 0.9em;
   font-weight: 600;
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   flex-shrink: 0;
-  background-color: var(--light-bg); /* Fallback, theme might override */
+  background-color: var(--light-bg);
+  /* Fallback, theme might override */
   padding: 2px 6px;
   border-radius: var(--border-radius-sm);
   margin-left: var(--spacing-sm);
   min-width: 25px;
   text-align: center;
 }
+
 .player span.score.not-played {
-  color: var(--light-text); /* Fallback, theme might override */
+  color: var(--light-text);
+  /* Fallback, theme might override */
   background-color: transparent;
 }
 
 .player.active-player {
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   font-weight: 500;
 }
 
 .player.winner {
   font-weight: 700;
-  color: var(--success-color); /* Fallback, theme will override */
-  background-color: var(--success-bg-light); /* Fallback, theme will override */
+  color: var(--success-color);
+  /* Fallback, theme will override */
+  background-color: var(--success-bg-light);
+  /* Fallback, theme will override */
 }
 
 .player.loser {
-  color: var(--light-text); /* Fallback, theme will override */
+  color: var(--light-text);
+  /* Fallback, theme will override */
   text-decoration: line-through;
-  background-color: var(--light-bg); /* Fallback, theme will override */
+  background-color: var(--light-bg);
+  /* Fallback, theme will override */
   opacity: 0.7;
 }
 
 .player.winner span.name,
 .player.winner span.score {
-  color: var(--success-color); /* Fallback, theme will override */
+  color: var(--success-color);
+  /* Fallback, theme will override */
 }
 
 .player.loser span.name,
 .player.loser span.score {
-  color: var(--light-text); /* Fallback, theme will override */
+  color: var(--light-text);
+  /* Fallback, theme will override */
 }
 
 .player.champion {
-  border: 2px solid var(--champion-border-color); /* Fallback, theme will override */
-  background-color: var(
-    --champion-bg-color
-  ); /* Fallback, theme will override */
-  color: var(--champion-text-color); /* Fallback, theme will override */
+  border: 2px solid var(--champion-border-color);
+  /* Fallback, theme will override */
+  background-color: var(--champion-bg-color);
+  /* Fallback, theme will override */
+  color: var(--champion-text-color);
+  /* Fallback, theme will override */
   font-weight: 700;
   opacity: 1;
 }
 
 .player.champion span.name,
 .player.champion span.score {
-  color: var(--champion-text-color); /* Fallback, theme will override */
+  color: var(--champion-text-color);
+  /* Fallback, theme will override */
 }
 
 /* Add a simple 'vs' separator style if needed */
 .vs {
-  display: none; /* Hide the text 'vs' by default */
+  display: none;
+  /* Hide the text 'vs' by default */
   /* Or style it subtly if preferred */
   /* text-align: center; */
   /* font-size: 0.8em; */
@@ -951,24 +1156,31 @@ section {
 /* Match Date/Time Style - Agora ficará abaixo dos jogadores */
 .match-datetime {
   font-size: 0.75em;
-  color: var(--secondary-color); /* Fallback, theme might override */
+  color: var(--secondary-color);
+  /* Fallback, theme might override */
   text-align: center;
   padding: 6px var(--spacing-sm);
-  border-top: 1px solid var(--light-border); /* Fallback, theme might override */
+  border-top: 1px solid var(--light-border);
+  /* Fallback, theme might override */
   margin-top: 0;
   width: 100%;
-  white-space: normal; /* Permite quebra de linha se necessário */
+  white-space: normal;
+  /* Permite quebra de linha se necessário */
 }
 
 /* Tables */
 .table-container {
   width: 100%;
-  overflow-x: auto; /* Garante scroll horizontal para tabelas */
+  overflow-x: auto;
+  /* Garante scroll horizontal para tabelas */
   margin-top: var(--spacing-md);
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
   border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow); /* Generic shadow */
-  background-color: var(--surface-color); /* Fallback, theme might override */
+  box-shadow: var(--box-shadow);
+  /* Generic shadow */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
 }
 
 .data-table {
@@ -982,9 +1194,11 @@ th,
 td {
   padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  border-bottom: 1px solid var(--light-border); /* Fallback, theme might override */
+  border-bottom: 1px solid var(--light-border);
+  /* Fallback, theme might override */
   white-space: nowrap;
 }
+
 td.wrap-text,
 th.wrap-text {
   /* Classe para permitir quebra de linha */
@@ -995,21 +1209,27 @@ td:last-child,
 th:last-child {
   border-right: none;
 }
+
 td:first-child,
 th:first-child {
   border-left: none;
 }
 
 th {
-  background-color: var(--light-bg); /* Fallback, theme might override */
+  background-color: var(--light-bg);
+  /* Fallback, theme might override */
   font-weight: 600;
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   font-size: 0.9em;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  position: relative; /* Needed for absolute positioning of sort indicators */
-  cursor: pointer; /* Indicate sortable headers */
-  white-space: nowrap; /* Evita quebra de linha nos cabeçalhos */
+  position: relative;
+  /* Needed for absolute positioning of sort indicators */
+  cursor: pointer;
+  /* Indicate sortable headers */
+  white-space: nowrap;
+  /* Evita quebra de linha nos cabeçalhos */
 }
 
 /* Add styles for sort indicators */
@@ -1024,21 +1244,25 @@ th[aria-sort]::after {
   vertical-align: middle;
   opacity: 0.6;
 }
+
 th[aria-sort='ascending']::after {
-  border-bottom: 5px solid var(--dark-text); /* Fallback, theme might override */
+  border-bottom: 5px solid var(--dark-text);
+  /* Fallback, theme might override */
 }
+
 th[aria-sort='descending']::after {
-  border-top: 5px solid var(--dark-text); /* Fallback, theme might override */
+  border-top: 5px solid var(--dark-text);
+  /* Fallback, theme might override */
 }
 
 tr:nth-child(even) td {
-  background-color: var(--light-bg); /* Fallback, theme might override */
+  background-color: var(--light-bg);
+  /* Fallback, theme might override */
 }
 
 tr:hover td {
-  background-color: var(
-    --surface-hover-color
-  ); /* Fallback, theme might override */
+  background-color: var(--surface-hover-color);
+  /* Fallback, theme might override */
 }
 
 /* Forms */
@@ -1068,19 +1292,23 @@ form {
 
 label {
   font-weight: bold;
-  color: var(--dark-text); /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
 }
 
 input,
 select,
 textarea {
   padding: 10px var(--spacing-sm);
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
   border-radius: var(--border-radius);
   font-size: 1rem;
   width: 100%;
-  background-color: var(--surface-color); /* Fallback, theme might override */
-  color: var(--dark-text); /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
+  color: var(--dark-text);
+  /* Fallback, theme might override */
   transition:
     border-color var(--transition-speed) ease,
     box-shadow var(--transition-speed) ease;
@@ -1090,7 +1318,8 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--primary-color); /* Fallback, theme might override */
+  border-color: var(--primary-color);
+  /* Fallback, theme might override */
 }
 
 button {
@@ -1098,11 +1327,14 @@ button {
 }
 
 .card {
-  background-color: var(--surface-color); /* Fallback, theme might override */
-  border: 1px solid var(--border-color); /* Fallback, theme might override */
+  background-color: var(--surface-color);
+  /* Fallback, theme might override */
+  border: 1px solid var(--border-color);
+  /* Fallback, theme might override */
   border-radius: var(--border-radius);
   padding: var(--spacing-lg);
-  box-shadow: var(--box-shadow); /* Generic shadow */
+  box-shadow: var(--box-shadow);
+  /* Generic shadow */
   width: 100%;
   transition: box-shadow var(--transition-speed) ease;
 }
@@ -1136,26 +1368,56 @@ button {
 }
 
 .message.success {
-  background-color: var(--success-bg-light); /* Fallback, theme will override */
-  color: var(--success-color); /* Fallback, theme will override */
-  border: 1px solid var(--success-color); /* Fallback, theme will override */
+  background-color: var(--success-bg-light);
+  /* Fallback, theme will override */
+  color: var(--success-color);
+  /* Fallback, theme will override */
+  border: 1px solid var(--success-color);
+  /* Fallback, theme will override */
 }
 
 .message.error {
-  background-color: var(--danger-bg-light); /* Fallback, theme will override */
-  color: var(--danger-color); /* Fallback, theme will override */
-  border: 1px solid var(--danger-color); /* Fallback, theme will override */
+  background-color: #f44336;
+  color: #fff;
+  border: 3px solid #b71c1c;
+  font-size: 1.08em;
+  font-weight: 900;
+  box-shadow: 0 4px 16px 0 rgba(220,53,69,0.18);
+  opacity: 1;
+  position: relative;
+  padding-left: 48px;
+  animation: shake 0.18s 2;
+}
+.message.error::before {
+  content: "⚠️";
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3em;
+}
+@keyframes shake {
+  0% { transform: translateX(0);}
+  25% { transform: translateX(-4px);}
+  50% { transform: translateX(4px);}
+  75% { transform: translateX(-2px);}
+  100% { transform: translateX(0);}
 }
 
 .message.info {
-  background-color: var(--info-bg-light); /* Fallback, theme will override */
-  color: var(--info-color); /* Fallback, theme will override */
-  border: 1px solid var(--info-color); /* Fallback, theme will override */
+  background-color: var(--info-bg-light);
+  /* Fallback, theme will override */
+  color: var(--info-color);
+  /* Fallback, theme will override */
+  border: 1px solid var(--info-color);
+  /* Fallback, theme will override */
 }
 
 .message-main {
-  font-weight: 600; /* Make main message slightly bolder */
-  display: block; /* Ensure it takes its own line if details follow */
+  font-weight: 600;
+  /* Make main message slightly bolder */
+  display: block;
+  /* Ensure it takes its own line if details follow */
 }
 
 .message-details {
@@ -1170,6 +1432,7 @@ button {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1188,8 +1451,10 @@ button {
   content: '';
   width: 24px;
   height: 24px;
-  border: 3px solid var(--light-border); /* Fallback, theme might override */
-  border-top: 3px solid var(--primary-color); /* Fallback, theme might override */
+  border: 3px solid var(--light-border);
+  /* Fallback, theme might override */
+  border-top: 3px solid var(--primary-color);
+  /* Fallback, theme might override */
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-left: 10px;
@@ -1199,6 +1464,7 @@ button {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -1210,9 +1476,11 @@ footer {
   text-align: center;
   margin-top: var(--spacing-lg);
   padding: var(--spacing-lg) 0;
-  color: var(--light-text); /* Fallback, theme might override */
+  color: var(--light-text);
+  /* Fallback, theme might override */
   font-size: 0.9em;
-  border-top: 1px solid var(--light-border); /* Fallback, theme might override */
+  border-top: 1px solid var(--light-border);
+  /* Fallback, theme might override */
 }
 
 /* Responsividade */
@@ -1242,11 +1510,13 @@ footer {
 
   .sidebar-header h1 {
     font-size: 1.3rem;
-    display: block !important; /* Força a exibição do título */
+    display: block !important;
+    /* Força a exibição do título */
   }
 
   .nav-item span {
-    display: block !important; /* Força a exibição dos textos */
+    display: block !important;
+    /* Força a exibição dos textos */
   }
 
   /* Content wrapper no modo móvel */
@@ -1273,15 +1543,19 @@ footer {
     font-size: 1.4em;
   }
 
-  #bracket > .round, /* Target direct children for responsive adjustments */
-  .bracket-display > .round {
+  #bracket>.round,
+  /* Target direct children for responsive adjustments */
+  .bracket-display>.round {
     width: 220px;
     min-width: 190px;
-    margin-right: var(--spacing-md); /* Reduce space between rounds */
+    margin-right: var(--spacing-md);
+    /* Reduce space between rounds */
   }
+
   .round {
     /* Styles for content within */
-    gap: var(--spacing-md); /* Reduce gap between matches slightly */
+    gap: var(--spacing-md);
+    /* Reduce gap between matches slightly */
   }
 
   /* Seletor de torneios */
@@ -1302,7 +1576,8 @@ footer {
 
   /* Ajustes adicionais para 768px */
   /* body { */
-  /* margin: 10px; */ /* Removed this, body margin 0 should be fine with content-wrapper padding */
+  /* margin: 10px; */
+  /* Removed this, body margin 0 should be fine with content-wrapper padding */
   /* } */
 
   nav#controls {
@@ -1322,15 +1597,19 @@ footer {
     padding: var(--spacing-sm);
   }
 
-  #bracket > .round, /* Target direct children */
-  .bracket-display > .round {
+  #bracket>.round,
+  /* Target direct children */
+  .bracket-display>.round {
     width: 200px;
     min-width: 180px;
-    margin-right: var(--spacing-sm); /* Further reduce space */
+    margin-right: var(--spacing-sm);
+    /* Further reduce space */
   }
+
   .round {
     /* Styles for content within */
-    gap: var(--spacing-sm); /* Further reduce gap */
+    gap: var(--spacing-sm);
+    /* Further reduce gap */
   }
 
   .player {
@@ -1363,12 +1642,14 @@ footer {
 
 .breadcrumbs {
   margin-bottom: var(--spacing-md);
-  color: var(--secondary-color); /* Fallback, theme might override */
+  color: var(--secondary-color);
+  /* Fallback, theme might override */
   font-size: 0.9em;
 }
 
 .breadcrumbs a {
-  color: var(--primary-color); /* Fallback, theme might override */
+  color: var(--primary-color);
+  /* Fallback, theme might override */
   text-decoration: none;
   font-weight: 500;
 }
@@ -1383,7 +1664,8 @@ footer {
 
 .csv-help summary {
   cursor: pointer;
-  color: var(--secondary-color); /* Fallback, theme might override */
+  color: var(--secondary-color);
+  /* Fallback, theme might override */
 }
 
 .csv-help small {
@@ -1394,15 +1676,53 @@ footer {
 }
 
 .csv-help pre {
-  background: var(--light-bg); /* Fallback, theme might override */
+  background: var(--light-bg);
+  /* Fallback, theme might override */
   padding: var(--spacing-sm);
   border-radius: var(--border-radius);
   margin-top: 5px;
   overflow-x: auto;
-  border: 1px solid var(--light-border); /* Fallback, theme might override */
+  border: 1px solid var(--light-border);
+  /* Fallback, theme might override */
+}
+
+/* Espaçamento extra entre o seletor de torneio e o componente abaixo */
+.tournament-selector-container {
+  margin-bottom: 20px;
 }
 
 .loading-cell {
   text-align: center;
-  color: var(--light-text); /* Fallback, theme might override */
+  color: var(--light-text);
+  /* Fallback, theme might override */
+}
+
+/* Esconde o badge de perfil em telas pequenas */
+@media (max-width: 768px) {
+  .profile-badge {
+    display: none !important;
+  }
+}
+
+/* ====== Ajuste de tamanho e layout da logo no aside ====== */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  max-height: 56px;
+  overflow: hidden;
+}
+
+.logo-mini {
+  max-width: 56px;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.07);
+  background: #fff;
+  padding: 2px;
+  object-fit: contain;
 }
