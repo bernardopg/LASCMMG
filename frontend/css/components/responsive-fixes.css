@@ -1,0 +1,118 @@
+/**
+ * Correções de responsividade e sobreposição
+ * Este arquivo contém ajustes para corrigir problemas de sobreposição e tamanho de imagens
+ */
+
+/* Limitar o tamanho das imagens para evitar que fiquem muito grandes */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ajuste específico para o logo na hero section */
+.hero-logo {
+  max-width: 120px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  background: var(--panel-bg);
+}
+
+/* Ajuste para o logo no sidebar */
+.sidebar-brand img {
+  max-width: 40px;
+  max-height: 40px;
+  width: auto;
+  height: auto;
+}
+
+/* Ajuste para o logo no footer */
+.footer-logo-img {
+  max-width: 40px;
+  max-height: 40px;
+  width: auto;
+  height: auto;
+}
+
+/* Corrigir sobreposição no cabeçalho */
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--panel-bg);
+  border-bottom: 1.5px solid var(--border-color);
+  min-height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Corrigir sobreposição no dropdown de perfil */
+.profile-dropdown {
+  position: relative;
+  z-index: 20;
+}
+
+/* Melhorar layout em dispositivos móveis */
+@media (max-width: 768px) {
+  /* Ajustar tamanho do logo na hero section em dispositivos móveis */
+  .hero-logo {
+    max-width: 80px;
+    max-height: 80px;
+  }
+
+  /* Melhorar layout da hero section em dispositivos móveis */
+  .hero-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-md) 0;
+  }
+
+  /* Ajustar cards na home para dispositivos móveis */
+  .home-cards {
+    flex-direction: column;
+  }
+
+  .card.home-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Melhorar visualização de tabelas em dispositivos móveis */
+  .table-responsive-cards {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Ajustar layout do footer em dispositivos móveis */
+  .footer-content {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+}
+
+/* Corrigir z-index para elementos sobrepostos */
+.sidebar {
+  z-index: 100;
+}
+
+.dropdown-menu {
+  z-index: 110;
+}
+
+.modal {
+  z-index: 200;
+}
+
+/* Corrigir layout do torneio atual */
+.tournament-selector-container {
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  z-index: 5;
+}

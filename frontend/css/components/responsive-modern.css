@@ -1,0 +1,403 @@
+/**
+ * Melhorias modernas de responsividade
+ * Este arquivo contém melhorias avançadas para responsividade e experiência mobile
+ */
+
+/* Variáveis responsivas */
+:root {
+  --header-height-mobile: 60px;
+  --sidebar-width-mobile: 280px;
+  --content-padding-mobile: 16px;
+}
+
+/* Melhorias gerais de responsividade */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Melhorias para dispositivos móveis */
+@media (max-width: 768px) {
+  /* Layout principal */
+  .content-wrapper {
+    padding-top: var(--header-height-mobile);
+  }
+
+  /* Ajustes para o header mobile */
+  .mobile-header {
+    height: var(--header-height-mobile);
+    padding: 0 var(--content-padding-mobile);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(var(--bg-color-rgb), 0.85);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-header.scrolled {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Melhorias na sidebar mobile */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width-mobile);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: none;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Overlay para quando o sidebar está aberto */
+  body.sidebar-open::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* Melhorias no perfil do usuário */
+  .profile-dropdown {
+    position: fixed;
+    top: 0;
+    right: var(--content-padding-mobile);
+    height: var(--header-height-mobile);
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+
+  .dropdown-toggle {
+    padding: 8px;
+  }
+
+  .profile-info {
+    display: none;
+  }
+
+  .avatar {
+    margin-right: 0;
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Melhorias nos cards */
+  .card {
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .home-card {
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* Melhorias na hero section */
+  .hero-section {
+    padding: var(--spacing-lg) var(--content-padding-mobile);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  /* Melhorias nas tabelas responsivas */
+  .table-responsive-cards {
+    border: none;
+    box-shadow: none;
+  }
+
+  .table-responsive-cards thead {
+    display: none;
+  }
+
+  .table-responsive-cards tbody tr {
+    display: block;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--panel-bg);
+  }
+
+  .table-responsive-cards tbody td {
+    display: flex;
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color-light);
+  }
+
+  .table-responsive-cards tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .table-responsive-cards tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: auto;
+    text-align: left;
+    color: var(--text-color-secondary);
+  }
+
+  /* Melhorias nos formulários */
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  /* Melhorias no seletor de torneio */
+  .tournament-selector-container {
+    padding: 0 var(--content-padding-mobile);
+    margin-top: var(--spacing-md);
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
+  /* Melhorias no bracket */
+  .bracket-container {
+    overflow-x: auto;
+    padding: var(--spacing-sm) 0;
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+  }
+
+  .bracket-round {
+    min-width: 200px;
+  }
+
+  /* Melhorias nos filtros */
+  .filters-container {
+    margin: 0 var(--content-padding-mobile) var(--spacing-md);
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  /* Melhorias no footer */
+  .footer {
+    margin-top: auto;
+    padding: var(--spacing-lg) var(--content-padding-mobile) var(--spacing-md);
+  }
+}
+
+/* Melhorias para tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .home-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bracket-container {
+    overflow-x: auto;
+  }
+}
+
+/* Melhorias para telas grandes */
+@media (min-width: 1025px) {
+  .content-wrapper {
+    margin-left: var(--sidebar-width);
+  }
+
+  .mobile-header {
+    display: none;
+  }
+
+  main {
+    padding: var(--spacing-lg);
+  }
+
+  .tournament-selector-container {
+    padding: 0 var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+  }
+
+  .select-wrapper {
+    max-width: 500px;
+  }
+}
+
+/* Animações para transições responsivas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Melhorias para orientação paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+  .sidebar {
+    padding-top: var(--spacing-sm);
+  }
+
+  .sidebar-nav {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-item {
+    margin-bottom: 2px;
+  }
+
+  .sidebar-link {
+    padding: 8px 16px;
+  }
+
+  .hero-section {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--spacing-md);
+  }
+
+  .hero-logo {
+    margin-right: var(--spacing-md);
+    margin-bottom: 0;
+  }
+}
+
+/* Melhorias para acessibilidade em dispositivos móveis */
+@media (max-width: 768px) {
+  /* Aumentar área de toque para elementos interativos */
+  .btn,
+  .sidebar-link,
+  .dropdown-item,
+  .form-control,
+  select,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+
+  .btn,
+  .sidebar-link,
+  .dropdown-item {
+    padding: 12px 16px;
+  }
+
+  /* Melhorar visibilidade do foco */
+  .btn:focus,
+  .sidebar-link:focus,
+  .form-control:focus,
+  select:focus,
+  input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.4);
+  }
+}
+
+/* Suporte para dark mode do sistema */
+@media (prefers-color-scheme: dark) {
+  .verde-escuro-theme-modern {
+    /* Variáveis já definidas no tema */
+  }
+}
+
+/* Suporte para preferência de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Melhorias para impressão */
+@media print {
+  .sidebar,
+  .mobile-header,
+  .profile-dropdown,
+  .footer,
+  .btn-filter,
+  .filters-toggle {
+    display: none !important;
+  }
+
+  .content-wrapper {
+    margin-left: 0;
+    padding: 0;
+  }
+
+  .bracket-container {
+    overflow: visible;
+    page-break-inside: avoid;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+}

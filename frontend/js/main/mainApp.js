@@ -131,14 +131,9 @@ function showSection(sectionId) {
 async function loadTournaments() {
   try {
     const tournaments = await api.getTournaments();
-    console.log('Valor de tournaments após api.getTournaments():', tournaments);
-    console.log('Valor de tournaments.tournaments:', tournaments.tournaments);
-    state.setTournamentsList(tournaments.tournaments);
-    console.log(
-      'Após state.setTournamentsList. Chamando addTournamentSelector...'
-    );
+    // O API retorna diretamente o array de torneios
+    state.setTournamentsList(tournaments);
     addTournamentSelector();
-    console.log('Após addTournamentSelector.');
   } catch (error) {
     console.error('Erro ao carregar lista de torneios:', error);
     ui.showMessage('Erro ao carregar lista de torneios.', 'error');

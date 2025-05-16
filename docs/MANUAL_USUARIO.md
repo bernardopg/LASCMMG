@@ -1,14 +1,17 @@
 # Manual do Usuário - Sistema de Gerenciamento de Torneios de Sinuca LASCMMG
 
-## 🆕 Atualizações Recentes
+## 🆕 Atualizações Recentes (Maio 2025)
 
 - Interface completamente renovada com design moderno e responsivo para todos os dispositivos.
 - Sistema de cores dinâmico que se adapta ao horário do dia e às preferências do sistema.
 - Melhorias significativas na acessibilidade e experiência do usuário.
 - Otimização de performance para carregamento mais rápido e operação fluida.
-- Navegação intuitiva com feedback visual aprimorado.
+- Navegação intuitiva com feedback visual aprimorado e animações suaves.
 - Favicon dinâmico que se adapta ao tema do sistema.
 - Estilos de impressão aprimorados para chaveamentos e tabelas.
+- Suporte avançado para dispositivos móveis com navegação otimizada.
+- Efeitos visuais modernos para interações com elementos da interface.
+- Melhor organização de filtros e tabelas para visualização em qualquer dispositivo.
 - Documentação atualizada para refletir todas as novas funcionalidades.
 
 [⬅ Voltar ao README](README.md)
@@ -74,6 +77,45 @@ O sistema agora conta com um design moderno que se adapta automaticamente às su
 * **Acessibilidade Aprimorada:** Contraste otimizado, tamanhos de fonte ajustáveis e suporte completo para navegação por teclado e leitores de tela.
 
 * **Favicon Dinâmico:** O ícone do site na aba do navegador é gerado dinamicamente para combinar com o tema do sistema, proporcionando uma experiência visual coesa.
+
+### 1.4.1. Novos Recursos de Interface (Maio 2025)
+
+A atualização de maio de 2025 trouxe diversas melhorias significativas na interface do usuário:
+
+* **Efeitos de Interação Modernos:**
+  * Botões e elementos clicáveis agora possuem efeitos de elevação e ondulação ao serem clicados
+  * Transições suaves entre estados de hover, foco e clique
+  * Feedback visual imediato para todas as interações do usuário
+
+* **Navegação Aprimorada em Dispositivos Móveis:**
+  * Menu lateral deslizante otimizado para toque
+  * Cabeçalho fixo com acesso rápido às funções principais
+  * Área de toque ampliada para todos os elementos interativos (mínimo de 44px)
+  * Gestos de deslize suportados para navegação entre seções
+
+* **Tabelas Responsivas:**
+  * Em dispositivos móveis, as tabelas se transformam em cards individuais
+  * Cada linha se torna um card com rótulos claros para cada campo
+  * Rolagem horizontal inteligente para tabelas complexas em tablets
+  * Ordenação e filtragem otimizadas para telas pequenas
+
+* **Formulários Inteligentes:**
+  * Layout adaptativo que se ajusta ao espaço disponível
+  * Validação em tempo real com feedback visual claro
+  * Campos de formulário com tamanho otimizado para entrada em dispositivos móveis
+  * Suporte para preenchimento automático e gerenciadores de senhas
+
+* **Filtros e Pesquisa:**
+  * Interface de filtros colapsável para economizar espaço
+  * Filtros ativos exibidos como badges para fácil visualização e remoção
+  * Pesquisa instantânea com resultados destacados
+  * Layout de grade adaptativa para opções de filtro
+
+* **Carregamento Otimizado:**
+  * Tela de carregamento inicial com animações suaves
+  * Carregamento progressivo de conteúdo para feedback imediato
+  * Indicadores de carregamento contextuais para ações específicas
+  * Transições suaves entre seções para uma experiência fluida
 
 ### 1.5. Imprimindo Chaveamentos e Tabelas
 
