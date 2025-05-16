@@ -24,6 +24,9 @@ async function showAdminDashboardUI() {
   elements.loginSection?.classList.add('hidden-section');
   elements.adminDashboard?.classList.remove('hidden-section');
 
+  // Inicializa o dashboard somente após a UI do admin ser exibida (e autenticação confirmada)
+  dashboardHandler.initDashboard();
+
   if (window.location.pathname.includes('admin-security.html')) {
     await nav.showSection('security-overview');
   } else {
@@ -65,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   nav.initializeNavigation(sectionLoadCallbacks);
 
-  dashboardHandler.initDashboard();
   tournamentHandler.initializeTournamentSection();
   playerHandler.initializePlayerSection();
   scoreHandler.initializeScoreSection();
