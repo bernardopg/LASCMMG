@@ -1,216 +1,103 @@
 # Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG)
 
-## 🆕 Atualizações Recentes
-
-- Todos os imports de módulos JavaScript no frontend e backend foram revisados e corrigidos para usar caminhos relativos corretos, eliminando erros de importação.
-- Estrutura de pastas padronizada e modularizada para facilitar manutenção e escalabilidade.
-- Garantia de boas práticas de UI/UX, acessibilidade (A11y) e responsividade em todas as telas.
-- Scripts, handlers e documentação revisados para refletir a estrutura real do projeto e facilitar onboarding de novos desenvolvedores.
-
-<!-- Badges -->
-
-![GitHub last commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO)
-![GitHub issues](https://img.shields.io/github/issues/SEU_USUARIO/SEU_REPOSITORIO)
-![GitHub license](https://img.shields.io/github/license/SEU_USUARIO/SEU_REPOSITORIO)
-
-## Índice
-
-- [Visão Geral](#visão-geral)
-- [Funcionalidades em Destaque](#funcionalidades-em-destaque)
-- [Configuração e Execução Rápida](#configuração-e-execução-rápida)
-- [Documentação](#documentação)
-- [Testes Automatizados](#🧪-testes-automatizados)
-- [Estrutura de Arquivos](#📂-estrutura-de-arquivos-principais)
-- [Segurança Detalhada](#🛡️-segurança-detalhada)
-- [Contribuição](#🤝-contribuição)
-- [Licença](#📄-licença)
-
 ## Visão Geral
 
-O LASCMMG é um sistema web completo e robusto, projetado para simplificar a organização e o acompanhamento de torneios de sinuca. Seja para um clube local ou uma competição maior, o LASCMMG oferece as ferramentas necessárias para gerenciar chaveamentos, registrar placares e administrar jogadores de forma intuitiva e segura.
+O LASCMMG é um sistema web completo para organização, acompanhamento e administração de torneios de sinuca, com foco em segurança, acessibilidade, performance e facilidade de uso. Desenvolvido em Node.js/Express (backend), JavaScript Vanilla (frontend) e SQLite, é ideal para clubes, ligas e competições de qualquer porte.
 
-Desenvolvido com Node.js, Express no backend e JavaScript Vanilla no frontend, utilizando SQLite para persistência de dados, o sistema é performático, fácil de implantar e focado na experiência do usuário e na segurança.
+## Funcionalidades Principais
 
-## ✨ Funcionalidades em Destaque
+- **Chaveamentos dinâmicos** (eliminação simples/dupla), geração automática e visualização interativa.
+- **Painel administrativo seguro** com autenticação JWT, blacklist de tokens, logs e honeypot.
+- **Gestão de jogadores**: cadastro, edição, exclusão, importação/exportação em massa (JSON).
+- **Registro e edição de placares** com histórico detalhado, filtros e ordenação.
+- **Agendamento de partidas** com datas e horários.
+- **Lixeira inteligente** para torneios cancelados, com restauração e exclusão permanente.
+- **Estatísticas avançadas**: dashboards, gráficos, histórico, desempenho de jogadores.
+- **Design responsivo** e temas claro/escuro personalizáveis.
+- **Acessibilidade (A11y)**: navegação por teclado, ARIA, contraste, responsividade.
+- **Segurança**: CSRF, XSS, rate limiting, cookies seguros, headers HTTP, logs, honeypot, hashing de senhas.
 
-* **Visualização Dinâmica de Torneios:** Navegue facilmente entre torneios passados e futuros com uma interface clara e responsiva.
-* **Chaveamentos Interativos:** Visualize a estrutura de partidas em formatos de eliminatória simples ou dupla, com atualização em tempo real dos resultados.
-* **Histórico Completo de Placares:** Acesse uma tabela detalhada com todos os placares registrados, com opções de ordenação e filtragem.
-* **Painel Administrativo Seguro:** Uma área restrita com autenticação robusta para controle total:
-    * **Dashboard:** Visão geral e estatísticas chave dos torneios ativos.
-    * **Gerenciamento de Torneios:** Crie, edite e controle o ciclo de vida dos torneios (Pendente, Em Andamento, Concluído, Cancelado), definindo todos os detalhes, desde nome e data até regras e premiação.
-    * **Gerenciamento de Jogadores:** Adicione, edite, exclua jogadores individualmente ou importe listas completas via JSON.
-    * **Geração Automática de Chaveamento:** Gere a estrutura de partidas com base nos jogadores inscritos com um clique.
-    * **Agendamento Flexível:** Defina ou ajuste datas e horários para as partidas.
-    * **Registro e Edição de Placares:** Insira e modifique os resultados das partidas de forma rápida.
-    * **Lixeira Inteligente:** Gerencie torneios cancelados, com opções de restauração ou exclusão permanente segura.
-* **Design Moderno e Responsivo:** Interface adaptável a qualquer dispositivo (desktops, tablets, celulares) com temas claro e escuro personalizáveis.
-* **Foco em Acessibilidade (A11y):** Melhorias contínuas para garantir que o sistema seja utilizável por todos, incluindo navegação por teclado e uso de atributos ARIA.
-* **Segurança de Nível Profissional:** Proteção integrada contra as ameaças web mais comuns:
-    * Prevenção contra XSS (Cross-Site Scripting).
-    * Proteção contra CSRF (Cross-Site Request Forgery) com tokens.
-    * Headers de segurança HTTP robustos via Helmet.
-    * Rate limiting para mitigar ataques de força bruta e DoS.
-    * Uso de cookies seguros (HttpOnly, Secure, SameSite).
-    * Mecanismo de Honeypot para detecção e bloqueio de bots maliciosos.
-    * Autenticação JWT com blacklist de tokens e proteção contra brute-force.
-    * Senhas armazenadas com hashing seguro (bcrypt).
-* **Persistência Confiável:** Dados armazenados em um banco de dados SQLite local, garantindo performance e facilidade de gerenciamento para a maioria dos casos de uso.
+## Instalação e Execução Rápida
 
-## 🛠️ Configuração e Execução Rápida
+### Pré-requisitos
 
-Para colocar o LASCMMG para rodar, siga estes passos simples:
+- Node.js 16+ e npm
+- Git
+- Ferramentas de build para better-sqlite3 (veja [TROUBLESHOOTING.md](TROUBLESHOOTING.md))
 
-### 1. Pré-requisitos
-
-Certifique-se de ter instalado em seu sistema:
-
-* **Node.js:** Versão 16.x ou superior (recomendado).
-* **npm:** Gerenciador de pacotes do Node.js (geralmente incluído na instalação do Node.js).
-* **Git:** Para clonar o repositório.
-* **Ferramentas de Compilação:** Em alguns sistemas, a biblioteca `better-sqlite3` pode precisar de ferramentas de compilação (como Python, Make, C/C++ compiler) durante a instalação das dependências.
-
-### 2. Instalação
-
-Clone o repositório do projeto e instale as dependências:
+### Instalação
 
 ```bash
-# Clone o repositório (substitua pela URL real do seu repositório)
 git clone <url-do-repositorio> lascmmg
 cd lascmmg
-
-# Instale as dependências do projeto
 npm install
-```
-
-### 3. Configuração do Ambiente
-
-Copie o arquivo de exemplo de variáveis de ambiente e configure-o:
-
-```bash
-# Copie o arquivo de configuração de exemplo
 cp .env.example .env
+# Edite .env e defina COOKIE_SECRET e JWT_SECRET fortes
 ```
 
-Edite o arquivo recém-criado `.env` e defina as variáveis essenciais. **Para ambientes de produção, é CRUCIAL definir valores fortes e únicos para `COOKIE_SECRET` e `JWT_SECRET`**.
-
-```ini
-# Exemplo de configuração no arquivo .env
-PORT=3000
-NODE_ENV=development # Use 'production' para ambiente de produção
-COOKIE_SECRET=sua_chave_secreta_longa_e_aleatoria_para_cookies
-JWT_SECRET=sua_chave_secreta_longa_e_aleatoria_para_jwt
-JWT_EXPIRATION=1h # Tempo de expiração do token JWT (ex: 1h, 7d)
-JWT_ISSUER=seu_dominio.com # Emissor do token JWT
-JWT_AUDIENCE=seu_dominio.com # Audiência do token JWT
-CORS_ORIGIN=* # Domínio permitido para requisições CORS em desenvolvimento. Use o domínio do seu frontend em produção (ex: https://seusite.com)
-RATE_LIMIT_WINDOW_MS=900000 # Janela de tempo para rate limiting (15 minutos)
-RATE_LIMIT_MAX=100 # Máximo de requisições por IP na janela
-# Outras variáveis podem ser adicionadas conforme .env.example
-```
-
-### 4. Inicialização do Banco de Dados e Primeiro Administrador
-
-O banco de dados SQLite (`data/data.db`) e suas tabelas são criados automaticamente na primeira vez que o servidor é iniciado.
-
-Para criar o primeiro usuário administrador, **recomendamos** usar o script dedicado:
+### Inicialização do Banco e Admin
 
 ```bash
-# Execute o script para criar o admin. Siga os prompts ou use argumentos:
-node scripts/initialize_admin.js --username seu_usuario_admin --password sua_senha_forte_aqui
+node scripts/initialize_admin.js --username admin --password suaSenhaForte
 ```
 
-**Nota:** Este script utiliza um arquivo `admin_credentials.json` (que você precisará criar ou atualizar com o nome de usuário e um hash bcrypt **pré-gerado** da senha) para adicionar o usuário ao banco de dados. Consulte `scripts/initialize_admin.js` para mais detalhes sobre a dependência do arquivo JSON.
+### Execução
 
-### 5. Execução do Servidor
+```bash
+npm run dev   # Desenvolvimento (hot reload)
+npm start     # Produção
+```
 
-Escolha o modo de execução:
-
-* **Modo de Desenvolvimento (com reinício automático via Nodemon):**
-
-    ```bash
-    npm run dev
-    ```
-
-* **Modo de Produção:**
-
-    ```bash
-    npm start
-    ```
-
-O servidor estará acessível em `http://localhost:[PORTA]` (onde `[PORTA]` é a porta configurada no `.env`, padrão 3000).
-
-* **Interface Pública:** `http://localhost:[PORTA]`
-* **Painel Administrativo:** `http://localhost:[PORTA]/admin.html`
+Acesse:
+- Interface pública: http://localhost:3000
+- Painel admin: http://localhost:3000/admin.html
 
 ## Documentação
 
 - [Manual do Usuário](MANUAL_USUARIO.md)
-- [Padrões de Codificação](CODING_STANDARDS.md)
+- [Padrões de Código](CODING_STANDARDS.md)
 - [Guia de Deploy](DEPLOYMENT.md)
 - [Escalabilidade](SCALING.md)
-- [Resolução de Problemas (Troubleshooting)](TROUBLESHOOTING.md)
-- [Lista de Tarefas (TODO)](TODO.md)
+- [Resolução de Problemas](TROUBLESHOOTING.md)
+- [Lista de Tarefas](TODO.md)
 
-## 🧪 Testes Automatizados
+## Testes
 
-O projeto utiliza [Vitest](https://vitest.dev/) para garantir a qualidade do código através de testes unitários.
+- Testes unitários com [Vitest](https://vitest.dev/)
+- Execute: `npm test` ou `npm run test:watch`
 
-* Execute todos os testes:
+## Estrutura de Pastas
 
-    ```bash
-    npm test
-    ```
-
-* Execute os testes em modo de observação (watch mode):
-
-    ```bash
-    npm run test:watch
-    ```
-
-## 📂 Estrutura de Arquivos (Principais)
-
-```text
+```
 /
-├── backend/              # Código do backend (rotas, controladores, modelos, middlewares e utilitários)
-├── frontend/             # Código do frontend (HTML, CSS, JS e assets)
-├── docs/                 # Documentação em Markdown
-├── data/                 # Arquivos de banco de dados SQLite
-│   └── database.sqlite   # Banco de dados principal
-├── scripts/              # Scripts utilitários (backup, migração, etc.)
-├── tests/                # Testes unitários e de integração
-│   └── unit/             # Testes unitários específicos
-├── .env.example          # Exemplo de variáveis de ambiente
-├── package.json          # Dependências e scripts de execução
-├── eslint.config.mjs     # Configuração do ESLint
-├── vitest.config.js      # Configuração do Vitest
-└── README.md             # Documentação principal do projeto
+├── backend/         # Backend Node.js/Express
+├── frontend/        # Frontend HTML, CSS, JS
+├── docs/            # Documentação
+├── data/            # Banco SQLite
+├── scripts/         # Scripts utilitários
+├── tests/           # Testes unitários
+├── .env.example     # Exemplo de variáveis de ambiente
+├── package.json     # Dependências e scripts
+└── README.md        # Este arquivo
 ```
 
-## 🛡️ Segurança Detalhada
+## Segurança
 
-O LASCMMG foi construído com a segurança em mente. Além das medidas já mencionadas, o sistema inclui:
+- Autenticação JWT, blacklist, brute-force protection
+- CSRF, XSS, cookies HttpOnly/Secure/SameSite
+- Rate limiting, headers HTTP, honeypot, logs estruturados
+- Senhas com bcrypt
 
-* **Middleware de Autenticação JWT:** Protege as rotas da API, garantindo que apenas usuários autenticados e autorizados possam acessá-las.
-* **Blacklist de Tokens JWT:** Permite invalidar tokens após logout ou em caso de comprometimento.
-* **Validação de Entrada:** Dados recebidos nas requisições são validados para prevenir injeções e outros ataques.
-* **Tratamento Centralizado de Erros:** Evita que informações sensíveis do servidor vazem para o cliente em caso de falhas.
+## Contribuição
 
-## 🤝 Contribuição
+1. Faça fork e branch (`feature/nome` ou `fix/nome`)
+2. Siga [CODING_STANDARDS.md](CODING_STANDARDS.md)
+3. Commits: Conventional Commits
+4. PRs pequenos, claros e com testes/lint passando
 
-Contribuições são bem-vindas! Consulte o arquivo [CODING_STANDARDS.md](CODING_STANDARDS.md) para seguir as diretrizes do projeto. Para sugerir melhorias, abra uma issue ou envie um pull request.
+## Licença
 
-1. Faça um fork do projeto.
-2. Crie uma branch para sua feature ou correção (`git checkout -b feature/minha-feature`).
-3. Faça commit de suas mudanças (`git commit -am 'feat: Adiciona minha feature'`).
-4. Envie para o seu fork (`git push origin feature/minha-feature`).
-5. Abra um Pull Request para o repositório original.
-
-Certifique-se de que seus commits sigam o padrão [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) e que os testes (`npm test`) e o lint (`npm run lint`) passem.
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para mais informações.
+MIT
 
 ---
 
