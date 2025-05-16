@@ -49,8 +49,9 @@ npm start     # Produção
 ```
 
 Acesse:
-- Interface pública: http://localhost:3000
-- Painel admin: http://localhost:3000/admin.html
+
+- Interface pública: <http://localhost:3000>
+- Painel admin: <http://localhost:3000/admin.html>
 
 ## Documentação
 
@@ -68,7 +69,7 @@ Acesse:
 
 ## Estrutura de Pastas
 
-```
+```text
 /
 ├── backend/         # Backend Node.js/Express
 ├── frontend/        # Frontend HTML, CSS, JS
