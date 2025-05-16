@@ -1,0 +1,594 @@
+/**
+ * Tema Verde Escuro Moderno para o Sistema de Gerenciamento de Torneios LASCMMG
+ * Versão 2.0 - Design System Atualizado
+ */
+
+.verde-escuro-theme {
+  /* Cores primárias e secundárias */
+  --primary-color: #217a2b;
+  --primary-hover: #17611f;
+  --primary-active: #0f4c16;
+  --primary-rgb: 33, 122, 43;
+  --primary-contrast: #ffffff;
+  --primary-focus: rgba(33, 122, 43, 0.25);
+
+  --secondary-color: #bfa14a;
+  --secondary-hover: #a88c36;
+  --secondary-active: #8f7628;
+  --secondary-rgb: 191, 161, 74;
+  --secondary-contrast: #ffffff;
+  --secondary-focus: rgba(191, 161, 74, 0.25);
+
+  /* Cores de acento e destaque */
+  --accent-color: #bfa14a;
+  --accent-hover: #a88c36;
+  --accent-active: #8f7628;
+  --accent-rgb: 191, 161, 74;
+  --accent-bg-light: rgba(191, 161, 74, 0.15);
+
+  /* Cores de fundo */
+  --bg-color: #1a2a1a;
+  --bg-color-secondary: #223322;
+  --bg-color-tertiary: #2c3e2c;
+  --surface-color: #223322;
+  --surface-rgb: 34, 51, 34;
+  --panel-bg: #223322;
+  --modal-bg: #253825;
+  --dropdown-bg: #2e422e;
+
+  /* Cores de texto */
+  --text-color: #ffffff;
+  --text-color-secondary: #bfa14a;
+  --text-color-muted: rgba(255, 255, 255, 0.7);
+  --text-color-disabled: rgba(255, 255, 255, 0.5);
+  --contrast-text: #ffffff;
+  --light-text: #bfa14a;
+
+  /* Cores de borda */
+  --border-color: rgba(191, 161, 74, 0.3);
+  --border-color-focus: rgba(191, 161, 74, 0.6);
+  --separator-color: rgba(191, 161, 74, 0.2);
+  --light-border: rgba(241, 243, 245, 0.1);
+
+  /* Cores de seleção e hover */
+  --selection-bg: rgba(33, 122, 43, 0.15);
+  --highlight-bg: rgba(191, 161, 74, 0.07);
+  --hover-highlight: rgba(191, 161, 74, 0.13);
+
+  /* Cores de status */
+  --success-color: #2e8b57;
+  --success-hover: #247347;
+  --success-bg-light: rgba(46, 139, 87, 0.15);
+
+  --warning-color: #ffe066;
+  --warning-hover: #ffd700;
+  --warning-bg-light: rgba(255, 224, 102, 0.15);
+
+  --error-color: #dc3545;
+  --error-hover: #c82333;
+  --error-bg-light: rgba(220, 53, 69, 0.15);
+
+  --info-color: #4da6ff;
+  --info-hover: #3a8ee6;
+  --info-bg-light: rgba(77, 166, 255, 0.15);
+
+  /* Cores específicas para elementos de torneio */
+  --champion-text-color: #ffe066;
+  --text-color-loser: rgba(255, 255, 255, 0.6);
+
+  /* Cores de tabela */
+  --table-header-bg: var(--bg-color-tertiary);
+  --table-row-bg: var(--bg-color-secondary);
+  --table-row-alt-bg: #273b27;
+  --table-row-hover: #304530;
+  --table-border: var(--border-color);
+
+  /* Cores de bracket */
+  --bracket-bg: var(--panel-bg);
+  --bracket-line: var(--primary-color);
+  --bracket-border: var(--border-color);
+  --match-bg: var(--bg-color-secondary);
+  --match-completed-bg: #2a4a3a;
+  --match-hover: #304530;
+
+  /* Cores de formulário */
+  --input-bg: rgba(34, 51, 34, 0.8);
+  --input-border: var(--border-color);
+  --input-focus-border: var(--primary-color);
+  --input-disabled-bg: rgba(21, 32, 21, 0.8);
+  --input-disabled-text: rgba(74, 106, 74, 0.8);
+  --placeholder-color: rgba(129, 199, 132, 0.6);
+
+  /* Cores de botão */
+  --button-secondary-bg: var(--secondary-color);
+  --button-secondary-hover: var(--secondary-hover);
+  --button-danger-bg: #c62828;
+  --button-danger-hover: #b71c1c;
+
+  /* Cores de scroll */
+  --scrollbar-thumb: #4a6a4a;
+  --scrollbar-thumb-hover: #5c7a5c;
+  --scrollbar-track: #101c10;
+
+  /* Cores de feedback (alertas) */
+  --success-bg: rgba(46, 139, 87, 0.2);
+  --warning-bg: rgba(255, 224, 102, 0.2);
+  --error-bg: rgba(220, 53, 69, 0.2);
+  --info-bg: rgba(77, 166, 255, 0.2);
+
+  /* Sombras específicas para o tema escuro */
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --dropdown-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  --modal-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --overlay-bg: rgba(10, 20, 10, 0.75);
+
+  /* Acessibilidade */
+  --focus-color: var(--primary-color);
+  --focus-ring: 0 0 0 2px var(--primary-focus);
+}
+
+/* Estilos específicos para o tema verde escuro */
+.verde-escuro-theme body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Cabeçalho e navegação */
+.verde-escuro-theme .navbar,
+.verde-escuro-theme .mobile-header {
+  background-color: var(--bg-color-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Sidebar */
+.verde-escuro-theme .sidebar {
+  background-color: var(--bg-color-secondary);
+  border-right: 1px solid var(--border-color);
+  color: var(--text-color);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.verde-escuro-theme .sidebar-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.verde-escuro-theme .sidebar-header h1 {
+  color: var(--primary-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Navegação */
+.verde-escuro-theme .nav-item {
+  color: var(--text-color);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal) var(--transition-timing);
+}
+
+.verde-escuro-theme .nav-item:hover {
+  background-color: var(--highlight-bg);
+  color: var(--text-color-secondary);
+}
+
+.verde-escuro-theme .nav-item.active {
+  background-color: rgba(var(--primary-rgb), 0.15);
+  color: var(--primary-color);
+  font-weight: var(--font-weight-medium);
+}
+
+.verde-escuro-theme .icon {
+  fill: var(--text-color-secondary);
+  transition: fill var(--transition-normal) var(--transition-timing);
+}
+
+.verde-escuro-theme .nav-item:hover .icon,
+.verde-escuro-theme .nav-item.active .icon {
+  fill: var(--primary-color);
+}
+
+/* Cards e painéis */
+.verde-escuro-theme .card,
+.verde-escuro-theme .panel,
+.verde-escuro-theme .admin-card {
+  background-color: var(--panel-bg);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
+  overflow: hidden;
+}
+
+.verde-escuro-theme .card h3,
+.verde-escuro-theme .panel h3,
+.verde-escuro-theme .admin-card h3 {
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--separator-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Textos em cards */
+.verde-escuro-theme .home-card p {
+  color: var(--text-color-muted);
+}
+
+.verde-escuro-theme .hero-subtitle {
+  color: var(--text-color-secondary);
+}
+
+.verde-escuro-theme .announcement-content p {
+  color: var(--text-color-muted);
+}
+
+.verde-escuro-theme .announcement-content h4 {
+  color: var(--text-color);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Modais */
+.verde-escuro-theme .modal {
+  background-color: var(--modal-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--modal-shadow);
+}
+
+.verde-escuro-theme .modal-header,
+.verde-escuro-theme .modal-footer {
+  border-color: var(--separator-color);
+}
+
+/* Tabelas */
+.verde-escuro-theme table {
+  color: var(--text-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.verde-escuro-theme table thead th {
+  background-color: var(--table-header-bg);
+  color: var(--text-color);
+  border-color: var(--table-border);
+  font-weight: var(--font-weight-semibold);
+}
+
+.verde-escuro-theme table tbody tr {
+  background-color: var(--table-row-bg);
+  border-color: var(--table-border);
+  transition: background-color var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme table tbody tr:nth-child(even) {
+  background-color: var(--table-row-alt-bg);
+}
+
+.verde-escuro-theme table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+/* Formulários */
+.verde-escuro-theme .form-control,
+.verde-escuro-theme .custom-select,
+.verde-escuro-theme input,
+.verde-escuro-theme select,
+.verde-escuro-theme textarea,
+.verde-escuro-theme .input-group-text {
+  background-color: var(--input-bg);
+  border: var(--border-width-thin) solid var(--input-border);
+  border-radius: var(--border-radius-md);
+  color: var(--text-color);
+  transition: all var(--transition-normal) var(--transition-timing);
+}
+
+.verde-escuro-theme .form-control:focus,
+.verde-escuro-theme .custom-select:focus,
+.verde-escuro-theme input:focus,
+.verde-escuro-theme select:focus,
+.verde-escuro-theme textarea:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.verde-escuro-theme .form-control::placeholder,
+.verde-escuro-theme input::placeholder,
+.verde-escuro-theme textarea::placeholder {
+  color: var(--placeholder-color);
+}
+
+/* Botões */
+.verde-escuro-theme .btn-primary,
+.verde-escuro-theme button[type="submit"] {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-contrast);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-normal) var(--transition-timing);
+}
+
+.verde-escuro-theme .btn-primary:hover,
+.verde-escuro-theme button[type="submit"]:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.verde-escuro-theme .btn-secondary {
+  background-color: var(--button-secondary-bg);
+  border-color: var(--button-secondary-bg);
+  color: var(--secondary-contrast);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.verde-escuro-theme .btn-secondary:hover {
+  background-color: var(--button-secondary-hover);
+  border-color: var(--button-secondary-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.verde-escuro-theme .btn-danger {
+  background-color: var(--button-danger-bg);
+  border-color: var(--button-danger-bg);
+  color: var(--contrast-text);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.verde-escuro-theme .btn-danger:hover {
+  background-color: var(--button-danger-hover);
+  border-color: var(--button-danger-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown */
+.verde-escuro-theme .dropdown-menu {
+  background-color: var(--dropdown-bg);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--dropdown-shadow);
+  padding: var(--spacing-2) 0;
+  overflow: hidden;
+}
+
+.verde-escuro-theme .dropdown-item {
+  color: var(--text-color);
+  padding: var(--spacing-2) var(--spacing-4);
+  transition: background-color var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .dropdown-item:hover {
+  background-color: var(--hover-highlight);
+  color: var(--text-color-secondary);
+}
+
+/* Chaveamento */
+.verde-escuro-theme #bracket,
+.verde-escuro-theme .bracket-container {
+  background-color: var(--bracket-bg);
+  border: var(--border-width-thin) solid var(--bracket-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4);
+}
+
+.verde-escuro-theme .match {
+  background-color: var(--match-bg);
+  border: var(--border-width-thin) solid var(--bracket-border);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .match.completed {
+  background-color: var(--match-completed-bg);
+}
+
+.verde-escuro-theme .match:hover {
+  background-color: var(--match-hover);
+}
+
+.verde-escuro-theme .match-connector {
+  background-color: var(--bracket-line);
+}
+
+/* Jogadores no chaveamento */
+.verde-escuro-theme .player {
+  color: var(--text-color-secondary);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .player span.score {
+  color: var(--text-color);
+  background-color: var(--bg-color-tertiary);
+  border-radius: var(--border-radius-sm);
+}
+
+.verde-escuro-theme .player span.score.not-played {
+  color: var(--text-color-secondary);
+  background-color: transparent;
+}
+
+.verde-escuro-theme .player.winner {
+  color: var(--success-color);
+  background-color: var(--success-bg-light);
+  font-weight: var(--font-weight-medium);
+}
+
+.verde-escuro-theme .player.winner span.name,
+.verde-escuro-theme .player.winner span.score {
+  color: var(--success-color);
+}
+
+.verde-escuro-theme .player.loser {
+  color: var(--text-color-loser);
+  opacity: 0.8;
+}
+
+.verde-escuro-theme .player.loser span.name,
+.verde-escuro-theme .player.loser span.score {
+  color: var(--text-color-loser);
+}
+
+.verde-escuro-theme .player.champion {
+  color: var(--champion-text-color);
+  background-color: var(--warning-bg-light);
+  border: var(--border-width-thin) solid var(--warning-color);
+  font-weight: var(--font-weight-bold);
+}
+
+.verde-escuro-theme .player.champion span.name,
+.verde-escuro-theme .player.champion span.score {
+  color: var(--champion-text-color);
+}
+
+.verde-escuro-theme .match-datetime {
+  color: var(--info-color);
+  font-size: var(--font-size-sm);
+}
+
+/* Mensagens e alertas */
+.verde-escuro-theme .alert-success,
+.verde-escuro-theme .message.success {
+  background-color: var(--success-bg);
+  color: var(--success-color);
+  border: var(--border-width-thin) solid var(--success-color);
+  border-radius: var(--border-radius-md);
+}
+
+.verde-escuro-theme .alert-warning,
+.verde-escuro-theme .message.warning {
+  background-color: var(--warning-bg);
+  color: var(--warning-color);
+  border: var(--border-width-thin) solid var(--warning-color);
+  border-radius: var(--border-radius-md);
+}
+
+.verde-escuro-theme .alert-danger,
+.verde-escuro-theme .message.error {
+  background-color: var(--error-bg);
+  color: var(--error-color);
+  border: var(--border-width-thin) solid var(--error-color);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.verde-escuro-theme .alert-info,
+.verde-escuro-theme .message.info {
+  background-color: var(--info-bg);
+  color: var(--info-color);
+  border: var(--border-width-thin) solid var(--info-color);
+  border-radius: var(--border-radius-md);
+}
+
+/* Personalização da barra de rolagem */
+.verde-escuro-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.verde-escuro-theme ::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+.verde-escuro-theme ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 5px;
+  transition: background var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Perfil e menu de usuário */
+.verde-escuro-theme .profile-badge {
+  background-color: var(--bg-color-secondary);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  transition: box-shadow var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .profile-badge:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.verde-escuro-theme .profile-btn {
+  background-color: var(--bg-color-tertiary);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-full);
+}
+
+.verde-escuro-theme .profile-info-text {
+  color: var(--primary-color);
+}
+
+.verde-escuro-theme .profile-info-text small {
+  color: var(--text-color-secondary);
+}
+
+.verde-escuro-theme .profile-menu {
+  background-color: var(--dropdown-bg);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--dropdown-shadow);
+}
+
+.verde-escuro-theme .profile-menu-item {
+  color: var(--text-color);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .profile-menu-item:hover {
+  background-color: var(--highlight-bg);
+  color: var(--text-color-secondary);
+}
+
+/* Filtros e pesquisa */
+.verde-escuro-theme .filters-container {
+  background-color: var(--panel-bg);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+}
+
+.verde-escuro-theme .filters-title {
+  color: var(--primary-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+.verde-escuro-theme .active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.verde-escuro-theme .filter-badge {
+  background-color: var(--bg-color-tertiary);
+  color: var(--text-color);
+  border-radius: var(--border-radius-full);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.verde-escuro-theme .filter-badge .filter-remove {
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast) var(--transition-timing);
+}
+
+.verde-escuro-theme .filter-badge .filter-remove:hover {
+  color: var(--error-color);
+}
+
+/* Footer */
+.verde-escuro-theme footer {
+  background-color: var(--bg-color-secondary);
+  color: var(--text-color-muted);
+  border-top: var(--border-width-thin) solid var(--border-color);
+  padding: var(--spacing-4) 0;
+  text-align: center;
+}

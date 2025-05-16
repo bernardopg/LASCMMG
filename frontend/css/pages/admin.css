@@ -1,245 +1,112 @@
-.admin-section {
-  padding: var(--spacing-lg);
-}
+/* Admin - Padrão institucional verde escuro, dourado e branco */
 
-.admin-section h1 {
-  text-align: center;
-  color: var(--primary-color);
-  margin-bottom: var(--spacing-lg);
-}
-
-.admin-section-content {
+body,
+.admin-section,
+.admin-card,
+.admin-header,
+.admin-table,
+.admin-form,
+.admin-sidebar {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .admin-card {
-  background-color: var(--surface-color);
+  background-color: var(--panel-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  border: 1px solid var(--border-color);
 }
-.admin-card h3 {
-  margin-top: 0;
+
+.admin-card h3,
+.admin-section h2 {
   color: var(--primary-color);
-  font-size: 1.2em;
-  border-bottom: 1px solid var(--light-border);
-  padding-bottom: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
 }
 
-.hidden-section,
-.hidden-content {
-  display: none;
+.admin-table th,
+.admin-table td {
+  border-color: var(--border-color);
+  color: var(--text-color);
 }
 
-.active-content {
-  display: block;
+.admin-table th {
+  background-color: var(--bg-color-tertiary);
+  color: var(--text-color-secondary);
 }
 
-.form-group input[readonly],
-.form-group select[disabled] {
-  background-color: var(--light-bg);
-  cursor: not-allowed;
-  opacity: 0.7;
+.admin-table tr {
+  background-color: var(--panel-bg);
 }
 
-.form-group small {
-  display: block;
-  margin-top: 5px;
-  font-size: 0.85em;
-  color: var(--light-text);
-}
-
-.form-actions {
-  margin-top: var(--spacing-md);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-}
-
-.btn-success-custom {
-  background-color: var(--success-color);
-  color: var(--contrast-text);
-  border-color: var(--success-color);
-}
-.btn-success-custom:hover:not(:disabled) {
-  background-color: var(--success-hover);
-  border-color: var(--success-hover);
-}
-.btn-success-custom:focus-visible {
-  outline-color: var(--success-hover);
-}
-
-.btn-small {
-  padding: 5px 10px;
-  font-size: 0.85rem;
-}
-
-.btn-action {
-  margin: 0 2px;
-}
-
-.btn-edit {
-  background-color: var(--warning-color);
-  color: var(--dark-text);
-  border-color: var(--warning-color);
-}
-.btn-edit:hover:not(:disabled) {
-  background-color: var(--warning-hover);
-  border-color: var(--warning-hover);
-}
-.btn-edit:focus-visible {
-  outline-color: var(--warning-hover);
-}
-
-.table-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-}
-
-.search-filter {
-  margin-bottom: 0;
-  flex-grow: 1;
-  max-width: 350px;
-}
-.search-filter input[type='search'] {
-  padding: 8px 10px;
-}
-
-.import-csv {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-.import-csv label.btn {
-  cursor: pointer;
-}
-.import-csv details summary {
-  cursor: pointer;
-  font-size: 0.85em;
-  color: var(--secondary-color);
-}
-.import-csv details pre {
-  background: var(--light-bg);
-  border: 1px solid var(--light-border);
-  padding: var(--spacing-sm);
-  font-size: 0.8em;
-  margin-top: 5px;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.action-cell {
-  text-align: center;
-  white-space: nowrap;
-}
-
-.loading-cell {
-  text-align: center;
-  font-style: italic;
-  color: var(--light-text);
-}
-
-#tournaments-body tr.selected-row td,
-.data-table tbody tr.selected-row td {
-  background-color: rgba(
-    var(--primary-rgb),
-    0.15
-  );
-  color: var(--primary-hover);
-  font-weight: 600;
-}
-.admin-card .data-table tbody tr.selected-row td {
+.admin-table tr.selected-row td {
   background-color: rgba(var(--primary-rgb), 0.15);
   color: var(--primary-hover);
-  font-weight: 600;
 }
 
-#admin-bracket-view {
-  margin-top: var(--spacing-md);
+.admin-form label {
+  color: var(--text-color-secondary);
 }
 
-.admin-match {
-  cursor: pointer;
-  position: relative;
-}
-.admin-match:focus-visible {
-  outline: var(--focus-outline-width) solid var(--focus-outline-color);
-  outline-offset: var(--focus-outline-offset);
-}
-
-.admin-player {
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
-.admin-match-datetime {
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.25);
 }
 
-.tournament-actions {
-  margin-top: var(--spacing-lg);
-  display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  border-top: 1px solid var(--light-border);
-  padding-top: var(--spacing-md);
-}
-
-.manual-winner-controls {
-  display: flex;
-  justify-content: space-around;
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px dashed var(--light-border);
-}
-
-.btn-wo {
-  background-color: var(--secondary-color);
-  color: var(--contrast-text);
-  border-color: var(--secondary-color);
-  line-height: 1;
-}
-.btn-wo:hover:not(:disabled) {
-  background-color: var(--secondary-hover);
-  border-color: var(--secondary-hover);
-}
-.btn-wo:focus-visible {
-  outline-color: var(--secondary-hover);
-}
-
-.hidden-field {
-  display: none;
-}
-
-.pagination-controls {
-  margin-top: var(--spacing-md);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-}
-
-.pagination-controls button {
-}
-
-.pagination-controls button.active {
+.btn-primary {
   background-color: var(--primary-color);
   color: var(--contrast-text);
   border-color: var(--primary-color);
-  cursor: default;
-  font-weight: 600;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-.pagination-controls button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
-.pagination-controls span {
-  font-size: 0.9em;
-  color: var(--light-text);
-  margin: 0 var(--spacing-sm);
+.btn-secondary {
+  background-color: var(--button-secondary-bg);
+  color: var(--text-color);
+  border-color: var(--button-secondary-bg);
+}
+
+.btn-secondary:hover {
+  background-color: var(--button-secondary-hover);
+  border-color: var(--button-secondary-hover);
+}
+
+.btn-danger {
+  background-color: var(--button-danger-bg);
+  color: var(--contrast-text);
+  border-color: var(--button-danger-bg);
+}
+
+.btn-danger:hover {
+  background-color: var(--button-danger-hover);
+  border-color: var(--button-danger-hover);
+}
+
+.separator,
+hr {
+  border-color: var(--border-color);
+  background: var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .admin-card {
+    padding: var(--spacing-md);
+  }
 }

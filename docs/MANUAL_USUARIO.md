@@ -2,10 +2,12 @@
 
 ## 🆕 Atualizações Recentes
 
-- Navegação, UI/UX e acessibilidade aprimoradas em todas as telas.
-- Imports de scripts e módulos revisados para garantir funcionamento consistente e sem erros.
-- Estrutura de menus, temas e feedback visual padronizados.
-- Documentação revisada para refletir a experiência real do usuário.
+- Interface completamente renovada com design moderno e responsivo para todos os dispositivos.
+- Sistema de cores dinâmico que se adapta ao horário do dia e às preferências do sistema.
+- Melhorias significativas na acessibilidade e experiência do usuário.
+- Otimização de performance para carregamento mais rápido e operação fluida.
+- Navegação intuitiva com feedback visual aprimorado.
+- Documentação atualizada para refletir todas as novas funcionalidades.
 
 [⬅ Voltar ao README](README.md)
 
@@ -53,11 +55,20 @@ A barra lateral oferece acesso rápido às diferentes seções do torneio seleci
 * Se não estiver logado, verá a opção "Área Admin" para ir para a página de login.
 * Se estiver logado como administrador, verá a opção "Sair (Admin)" para fazer logout.
 
-### 1.4. Personalizando Sua Experiência: Alternador de Tema
+### 1.4. Experiência Visual Moderna e Adaptativa
 
-* Encontre o botão de alternar tema (geralmente um ícone de sol/lua).
-* Clique nele para alternar entre o **Tema Claro** e o **Tema Escuro**.
-* Sua preferência de tema é salva automaticamente no seu navegador, então o sistema lembrará da sua escolha na próxima visita. O sistema também respeita a configuração de tema do seu sistema operacional na primeira vez que você acessa.
+O sistema agora conta com um design moderno que se adapta automaticamente às suas preferências:
+
+* **Cores Dinâmicas:** As cores do sistema se ajustam sutilmente de acordo com o horário do dia, proporcionando uma experiência visual mais confortável:
+  * **Manhã:** Cores mais vibrantes e energéticas
+  * **Tarde:** Esquema de cores padrão institucional
+  * **Noite:** Tons mais suaves para reduzir a fadiga visual
+
+* **Adaptação ao Sistema:** A interface respeita automaticamente as preferências do seu sistema operacional (modo claro/escuro) e se ajusta para proporcionar a melhor experiência visual.
+
+* **Alta Responsividade:** O layout se adapta perfeitamente a qualquer tamanho de tela, desde smartphones até monitores ultrawide, garantindo uma experiência consistente em todos os dispositivos.
+
+* **Acessibilidade Aprimorada:** Contraste otimizado, tamanhos de fonte ajustáveis e suporte completo para navegação por teclado e leitores de tela.
 
 ## 2. Gerenciando Torneios: O Painel Administrativo (`admin.html`)
 

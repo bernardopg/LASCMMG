@@ -59,7 +59,7 @@ export async function loadScoresHistory() {
     );
     state.setCurrentScores([]);
     if (elements.scoresTableBody) {
-      elements.scoresTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erro: ${error.message}</td></tr>`;
+      elements.scoresTableBody.innerHTML = `<tr><td colspan="6"><div class="message error" style="text-align: center;">Erro: ${error.message}</div></td></tr>`;
     }
   }
 }

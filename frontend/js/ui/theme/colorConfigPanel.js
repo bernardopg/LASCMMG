@@ -105,7 +105,7 @@ function updatePanelControls(panel) {
     } else if (el.type === 'color') {
       el.value = currentValue
         ? dynamicColorSystem.hslToHex(currentValue, 80, 50)
-        : '#0d6efd';
+        : '#217a2b';
       const useDefaultCheck = panel.querySelector('#use-default-color');
       if (useDefaultCheck) {
         useDefaultCheck.checked = !currentValue;
@@ -161,7 +161,7 @@ function addColorPicker(panel, label, prefKey, currentValue) {
   colorPicker.type = 'color';
   colorPicker.value = currentValue
     ? dynamicColorSystem.hslToHex(currentValue, 80, 50)
-    : '#0d6efd';
+    : '#217a2b';
   colorPicker.dataset.preference = prefKey;
   colorPicker.classList.add('control-input'); // Adiciona classe para estilização
 
@@ -187,7 +187,7 @@ function addColorPicker(panel, label, prefKey, currentValue) {
   useDefaultCheck.addEventListener('change', () => {
     if (useDefaultCheck.checked) {
       dynamicColorSystem.setUserPreference(prefKey, null);
-      colorPicker.value = '#0d6efd'; // Reset color picker visual
+      colorPicker.value = '#217a2b'; // Reset color picker visual
     } else {
       const hexValue = colorPicker.value;
       const hsl = dynamicColorSystem.hexToHsl(hexValue);

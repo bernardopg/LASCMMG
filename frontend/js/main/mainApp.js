@@ -49,7 +49,7 @@ function checkAuthenticationStatus() {
 
 function updateInterfaceBasedOnAuth() {
   if (elements.btnAddScore) {
-    elements.btnAddScore.style.display = isLoggedIn ? '' : 'none';
+    elements.btnAddScore.closest('.sidebar-item').style.display = isLoggedIn ? '' : 'none';
   }
   if (elements.loginAdminLi) {
     elements.loginAdminLi.style.display = isLoggedIn ? 'none' : '';
@@ -66,10 +66,31 @@ function updateProfileMenuAuth() {
   if (elements.profileAdminLink && elements.profileLogoutBtn) {
     if (isLoggedIn) {
       elements.profileAdminLink.style.display = 'none';
-      elements.profileLogoutBtn.style.display = 'flex';
+      elements.profileLogoutBtn.style.display = 'block';
+
+      // Atualizar informações do perfil se disponíveis
+      try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (userData && userData.name) {
+          const profileName = document.querySelector('.profile-name');
+          const profileRole = document.querySelector('.profile-role');
+
+          if (profileName) profileName.textContent = userData.name;
+          if (profileRole) profileRole.textContent = 'Administrador';
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados do usuário:', e);
+      }
     } else {
-      elements.profileAdminLink.style.display = 'flex';
+      elements.profileAdminLink.style.display = 'block';
       elements.profileLogoutBtn.style.display = 'none';
+
+      // Resetar informações do perfil
+      const profileName = document.querySelector('.profile-name');
+      const profileRole = document.querySelector('.profile-role');
+
+      if (profileName) profileName.textContent = 'Usuário';
+      if (profileRole) profileRole.textContent = 'Visitante';
     }
   }
 }
@@ -83,10 +104,27 @@ function showSection(sectionId) {
   if (targetSection) {
     targetSection.classList.remove('hidden-section');
     targetSection.classList.add('active-section');
+
+    // Animar a entrada da seção
+    targetSection.style.opacity = '0';
+    targetSection.style.transform = 'translateY(10px)';
+
+    setTimeout(() => {
+      targetSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      targetSection.style.opacity = '1';
+      targetSection.style.transform = 'translateY(0)';
+    }, 50);
+
+    // Resetar a transição após a animação
+    setTimeout(() => {
+      targetSection.style.transition = '';
+    }, 350);
   }
+
   if (window.innerWidth <= 768) {
     const sidebar = document.querySelector('.sidebar');
-    sidebar?.classList.remove('mobile-open');
+    sidebar?.classList.remove('open');
+    document.body.classList.remove('sidebar-open');
   }
 }
 
@@ -115,8 +153,20 @@ function addTournamentSelector() {
   }
   elements.tournamentSelectorContainer.innerHTML = '';
 
+  // Criar o wrapper do seletor com estilo moderno
+  const selectorWrapper = document.createElement('div');
+  selectorWrapper.className = 'select-wrapper';
+
+  // Criar o label
+  const label = document.createElement('label');
+  label.setAttribute('for', 'tournament-select');
+  label.textContent = 'Torneio Atual:';
+  label.className = 'select-label';
+
+  // Criar o select com estilo moderno
   const select = document.createElement('select');
   select.id = 'tournament-select';
+  select.className = 'form-select';
   select.setAttribute('aria-label', 'Selecione um torneio');
 
   const tournaments = state.getTournamentsList();
@@ -173,6 +223,18 @@ function addTournamentSelector() {
   }
 
   select.addEventListener('change', async function () {
+    // Mostrar indicador de carregamento
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'spinner-with-text';
+    loadingIndicator.innerHTML = `
+      <div class="spinner spinner-sm spinner-primary"></div>
+      <span class="spinner-text">Carregando torneio...</span>
+    `;
+    elements.tournamentSelectorContainer.appendChild(loadingIndicator);
+
+    // Desabilitar o select durante o carregamento
+    select.disabled = true;
+
     const newTournamentId = this.value;
     state.setCurrentTournamentId(newTournamentId);
 
@@ -180,13 +242,38 @@ function addTournamentSelector() {
     url.searchParams.set('tournament', newTournamentId);
     window.history.pushState({}, '', url);
 
-    await loadTournamentData();
+    try {
+      await loadTournamentData();
 
-    showSection('bracket-section');
-    if (elements.btnBracket) ui.setActiveNavItem(elements.btnBracket);
+      showSection('bracket-section');
+      if (elements.btnBracket) ui.setActiveNavItem(elements.btnBracket);
+
+      // Mostrar mensagem de sucesso
+      ui.showMessage(`Torneio carregado com sucesso!`, 'success');
+    } catch (error) {
+      ui.showMessage(`Erro ao carregar o torneio: ${error.message}`, 'error');
+    } finally {
+      // Remover indicador de carregamento e reabilitar o select
+      elements.tournamentSelectorContainer.removeChild(loadingIndicator);
+      select.disabled = false;
+    }
   });
 
-  elements.tournamentSelectorContainer.appendChild(select);
+  // Montar a estrutura do seletor
+  selectorWrapper.appendChild(label);
+  selectorWrapper.appendChild(select);
+
+  // Adicionar ícone de seta para o select
+  const selectIcon = document.createElement('div');
+  selectIcon.className = 'select-icon';
+  selectIcon.innerHTML = `
+    <svg viewBox="0 0 24 24">
+      <path d="M7,10L12,15L17,10H7Z"></path>
+    </svg>
+  `;
+  selectorWrapper.appendChild(selectIcon);
+
+  elements.tournamentSelectorContainer.appendChild(selectorWrapper);
 }
 
 async function loadTournamentData() {
@@ -312,5 +399,80 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('sectionChanged', () => {
     const event = new CustomEvent('a11y-section-changed');
     document.dispatchEvent(event);
+  });
+
+  // Sidebar responsiva moderna
+  const sidebar = document.querySelector('.sidebar');
+  const mobileToggleBtn = document.getElementById('mobile-sidebar-toggle');
+  const sidebarCloseBtn = document.getElementById('toggle-sidebar-btn');
+
+  if (sidebar && mobileToggleBtn) {
+    mobileToggleBtn.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      document.body.classList.add('sidebar-open');
+    });
+
+    if (sidebarCloseBtn) {
+      sidebarCloseBtn.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('sidebar-open');
+      });
+    }
+
+    // Fecha ao clicar fora do sidebar
+    document.addEventListener('click', (e) => {
+      if (
+        sidebar.classList.contains('open') &&
+        !sidebar.contains(e.target) &&
+        e.target !== mobileToggleBtn
+      ) {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('sidebar-open');
+      }
+    });
+
+    // Fecha ao pressionar Esc
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'Escape' &&
+        sidebar.classList.contains('open')
+      ) {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('sidebar-open');
+      }
+    });
+  }
+
+  // Inicializar dropdowns
+  document.querySelectorAll('.dropdown-toggle').forEach(dropdownToggle => {
+    dropdownToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropdown = this.closest('.dropdown');
+      const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+
+      // Fechar outros dropdowns
+      document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        if (menu !== dropdownMenu) {
+          menu.classList.remove('show');
+          menu.closest('.dropdown').querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Alternar o dropdown atual
+      dropdownMenu.classList.toggle('show');
+      this.setAttribute('aria-expanded', dropdownMenu.classList.contains('show') ? 'true' : 'false');
+    });
+  });
+
+  // Fechar dropdowns ao clicar fora
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        menu.classList.remove('show');
+        menu.closest('.dropdown').querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+      });
+    }
   });
 });

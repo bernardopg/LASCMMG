@@ -1,562 +1,529 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Torneio de Sinuca - LASCMMG</title>
-    <link rel="stylesheet" href="css/base/style.css" />
-    <link rel="stylesheet" href="css/pages/stats.css" />
-    <link rel="stylesheet" href="css/themes/faculdade-theme.css" />
-    <!-- Tema Faculdade (Verdes e Dourados) -->
-    <link rel="stylesheet" href="css/themes/verde-escuro-theme.css" />
-    <!-- Tema Verde Escuro (Verde e Preto) -->
-    <link rel="stylesheet" href="css/pages/home.css" />
-    <link rel="stylesheet" href="css/components/theme-switcher.css" />
-    <link rel="stylesheet" href="css/components/filters.css" />
-    <link rel="stylesheet" href="css/components/visual-improvements.css" />
-    <meta
-      name="description"
-      content="Sistema de gerenciamento de torneios de sinuca da faculdade"
-    />
-  </head>
-  <body>
-    <!-- Sidebar com o mesmo padrão do admin.html -->
-    <aside class="sidebar">
-      <!-- Mudado de div para aside -->
-      <div class="sidebar-header">
-        <div class="logo-container">
-          <img src="assets/logo.jpeg" alt="Logo LASCMMG" class="logo-mini" />
-          <h1>Torneio de Sinuca</h1>
-        </div>
-        <button
-          id="toggle-sidebar-btn"
-          class="toggle-sidebar-btn"
-          aria-label="Alternar menu"
-        >
-          ☰
-        </button>
-      </div>
-      <div class="sidebar-content">
-        <!-- Container flex column -->
-        <nav class="sidebar-nav">
-          <!-- Nav principal -->
-          <ul class="sidebar-nav-main">
-            <!-- Lista principal -->
-            <li>
-              <button id="btn-home" class="nav-item active" aria-pressed="true">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"></path>
-                </svg>
-                <span>Início</span>
-              </button>
-            </li>
-            <li>
-              <button id="btn-bracket" class="nav-item" aria-pressed="false">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M3,13H11V3H3V13M3,21H11V15H3V21M13,21H21V11H13V21M13,3V9H21V3H13Z"
-                  ></path>
-                </svg>
-                <span>Chaveamento</span>
-              </button>
-            </li>
-            <li>
-              <button id="btn-scores" class="nav-item" aria-pressed="false">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M3,3H21V8H3V3M3,10H21V15H3V10M3,17H21V22H3V17Z"
-                  ></path>
-                </svg>
-                <span>Histórico de Placares</span>
-              </button>
-            </li>
-            <li>
-              <button id="btn-add-score" class="nav-item" aria-pressed="false">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M7,13H21V11H7M7,19H21V17H7M7,7H21V5H7M3,8V5H5V8H8V10H5V13H3V10H0V8H3Z"
-                  ></path>
-                </svg>
-                <span>Adicionar Placar</span>
-              </button>
-            </li>
-            <li>
-              <button id="btn-stats" class="nav-item" aria-pressed="false">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M3,13H5V11H3V13M11,13H13V11H11V13M19,13H21V11H19V13M13,21H11V19H13V21M7,21H5V19H7V21M3,17H5V15H3V17M11,17H13V15H11V17M19,17H21V15H19V17M13,9H11V7H13V9M7,9H5V7H7V9M3,5V3H5V5H3M11,5V3H13V5H11M19,5V3H21V5H19Z"
-                  ></path>
-                </svg>
-                <span>Estatísticas</span>
-              </button>
-            </li>
-            <!-- Itens principais terminam aqui -->
-          </ul>
-        </nav>
-        <div class="sidebar-nav-bottom">
-          <!-- Container para itens inferiores -->
-          <nav class="sidebar-nav">
-            <ul>
-              <!-- Botão Login Admin (Visível quando não logado) -->
-              <li id="login-admin-li" style="display: none">
-                <a href="admin.html" class="nav-item">
-                  <svg class="icon" viewBox="0 0 24 24">
-                    <path
-                      d="M10,17V14H3V10H10V7L15,12L10,17M18,19H6V5H18V19Z"
-                    ></path>
-                    <!-- Ícone de Login -->
-                  </svg>
-                  <span>Login Admin</span>
-                </a>
-              </li>
-              <!-- Botão Voltar para Admin (Visível quando logado) -->
-              <li id="back-to-admin-li" style="display: none">
-                <a href="admin.html" class="nav-item">
-                  <svg class="icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-                    ></path>
-                    <!-- Ícone de Admin/Perfil -->
-                  </svg>
-                  <span>Voltar para Admin</span>
-                </a>
-              </li>
-              <!-- Botão Sair (Visível quando logado) -->
-              <li id="logout-li" style="display: none">
-                <button id="index-logout-btn" class="nav-item">
-                  <svg class="icon" viewBox="0 0 24 24">
-                    <path
-                      d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"
-                    ></path>
-                  </svg>
-                  <span>Sair (Admin)</span>
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </aside>
-    <!-- Fim do aside -->
 
-    <div class="content-wrapper">
-      <header class="mobile-header">
-        <button
-          id="mobile-sidebar-toggle"
-          class="toggle-sidebar-btn"
-          aria-label="Abrir menu"
-        >
-          ☰
-        </button>
-        <h1>Torneio de Sinuca</h1>
-        <!-- Profile container moved outside header -->
-      </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#217a2b" />
+  <meta name="description" content="Sistema oficial de gerenciamento de torneios de sinuca da Liga Acadêmica de Ciências Médicas de Minas Gerais" />
+  <meta name="keywords" content="torneio, sinuca, LASCMMG, liga acadêmica, ciências médicas, minas gerais" />
+  <meta name="author" content="LASCMMG" />
+  <title>Torneio de Sinuca - LASCMMG</title>
 
-      <!-- Profile Icon and Menu Container (Moved Here) -->
-      <div class="profile-container">
-        <button
-          id="profile-btn-index"
-          class="profile-btn"
-          aria-label="Abrir menu do perfil"
-          aria-haspopup="true"
-          aria-expanded="false"
-        >
-          <svg class="icon" viewBox="0 0 24 24">
-            <path
-              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-            ></path>
-          </svg>
-        </button>
-        <div id="profile-menu-index" class="profile-menu" role="menu">
-          <!-- Conteúdo do menu será adicionado via JS se logado -->
-          <a
-            href="admin.html"
-            id="profile-menu-admin-link"
-            class="profile-menu-item"
-            role="menuitem"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path
-                d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"
-              ></path>
+  <!-- Favicon -->
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+  <!-- Arquivos base -->
+  <link rel="stylesheet" href="css/base/reset.css" />
+  <link rel="stylesheet" href="css/base/variables.css" />
+  <link rel="stylesheet" href="css/base/main.css" />
+  <link rel="stylesheet" href="css/base/utilities.css" />
+
+  <!-- Tema moderno -->
+  <link rel="stylesheet" href="css/themes/verde-escuro-theme-modern.css" />
+
+  <!-- Componentes -->
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/cards.css" />
+  <link rel="stylesheet" href="css/components/forms.css" />
+  <link rel="stylesheet" href="css/components/tables.css" />
+  <link rel="stylesheet" href="css/components/navigation.css" />
+  <link rel="stylesheet" href="css/components/modals.css" />
+  <link rel="stylesheet" href="css/components/alerts.css" />
+  <link rel="stylesheet" href="css/components/loaders.css" />
+  <link rel="stylesheet" href="css/components/brackets.css" />
+  <link rel="stylesheet" href="css/components/filters.css" />
+  <link rel="stylesheet" href="css/components/visual-improvements.css" />
+
+  <!-- Páginas -->
+  <link rel="stylesheet" href="css/pages/home.css" />
+  <link rel="stylesheet" href="css/pages/stats.css" />
+
+  <!-- Preconnect para melhorar performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+
+<body class="verde-escuro-theme-modern loading">
+  <!-- Tela de carregamento inicial -->
+  <div id="initial-loader" class="initial-loader">
+    <div class="loader-content">
+      <img src="assets/logo.png" alt="Logo LASCMMG" class="loader-logo pulse" />
+      <div class="spinner spinner-lg spinner-primary"></div>
+      <p class="loader-text">Carregando sistema...</p>
+    </div>
+  </div>
+  <!-- Sidebar moderna -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-brand">
+        <img src="assets/logo.png" alt="Logo LASCMMG" />
+        <span>Torneio de Sinuca</span>
+      </a>
+      <button id="toggle-sidebar-btn" class="sidebar-close" aria-label="Fechar menu">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-item">
+        <button id="btn-home" class="sidebar-link active" aria-pressed="true">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"></path>
             </svg>
-            Área Admin
+          </div>
+          <span class="sidebar-text">Início</span>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button id="btn-bracket" class="sidebar-link" aria-pressed="false">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3,13H11V3H3V13M3,21H11V15H3V21M13,21H21V11H13V21M13,3V9H21V3H13Z"></path>
+            </svg>
+          </div>
+          <span class="sidebar-text">Chaveamento</span>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button id="btn-scores" class="sidebar-link" aria-pressed="false">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3,3H21V8H3V3M3,10H21V15H3V10M3,17H21V22H3V17Z"></path>
+            </svg>
+          </div>
+          <span class="sidebar-text">Histórico de Placares</span>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button id="btn-add-score" class="sidebar-link" aria-pressed="false">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M7,13H21V11H7M7,19H21V17H7M7,7H21V5H7M3,8V5H5V8H8V10H5V13H3V10H0V8H3Z"></path>
+            </svg>
+          </div>
+          <span class="sidebar-text">Adicionar Placar</span>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button id="btn-stats" class="sidebar-link" aria-pressed="false">
+          <div class="sidebar-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3,13H5V11H3V13M11,13H13V11H11V13M19,13H21V11H19V13M13,21H11V19H13V21M7,21H5V19H7V21M3,17H5V15H3V17M11,17H13V15H11V17M19,17H21V15H19V17M13,9H11V7H13V9M7,9H5V7H7V9M3,5V3H5V5H3M11,5V3H13V5H11M19,5V3H21V5H19Z"></path>
+            </svg>
+          </div>
+          <span class="sidebar-text">Estatísticas</span>
+        </button>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <ul class="sidebar-nav">
+        <li class="sidebar-item" id="login-admin-li">
+          <a href="admin.html" class="sidebar-link">
+            <div class="sidebar-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M10,17V14H3V10H10V7L15,12L10,17M18,19H6V5H18V19Z"></path>
+              </svg>
+            </div>
+            <span class="sidebar-text">Login Admin</span>
           </a>
-          <button
-            id="profile-menu-logout-btn"
-            class="profile-menu-item"
-            role="menuitem"
-            style="display: none"
-          >
-            <svg class="icon" viewBox="0 0 24 24">
-              <path
-                d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"
-              ></path>
-            </svg>
-            Sair (Admin)
+        </li>
+        <li class="sidebar-item" id="back-to-admin-li">
+          <a href="admin.html" class="sidebar-link">
+            <div class="sidebar-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path>
+              </svg>
+            </div>
+            <span class="sidebar-text">Voltar para Admin</span>
+          </a>
+        </li>
+        <li class="sidebar-item" id="logout-li">
+          <button id="index-logout-btn" class="sidebar-link">
+            <div class="sidebar-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"></path>
+              </svg>
+            </div>
+            <span class="sidebar-text">Sair (Admin)</span>
           </button>
+        </li>
+      </ul>
+    </div>
+  </aside>
+  <!-- Fim do aside -->
+
+  <div class="content-wrapper">
+    <header class="mobile-header">
+      <button id="mobile-sidebar-toggle" class="navbar-toggler" aria-label="Abrir menu">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
+        </svg>
+      </button>
+      <h1>Torneio de Sinuca</h1>
+    </header>
+
+    <!-- Perfil do usuário -->
+    <div class="dropdown profile-dropdown">
+      <button id="profile-btn-index" class="dropdown-toggle" aria-label="Abrir menu do perfil" aria-haspopup="true" aria-expanded="false">
+        <div class="avatar">
+          <svg viewBox="0 0 24 24">
+            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path>
+          </svg>
         </div>
-      </div>
-
-      <div id="message-container" role="alert" aria-live="assertive"></div>
-
-      <!-- Tournament Selector Dropdown -->
-      <div
-        id="tournament-selector-container"
-        class="tournament-selector-container"
-      >
-        <!-- Dropdown will be added here by js/main.js -->
-      </div>
-
-      <main>
-        <section
-          id="home-section"
-          class="active-section"
-          aria-live="polite"
-          role="region"
-          aria-labelledby="home-heading"
-        >
-          <!-- Seção de página inicial -->
-          <div class="hero-section">
-            <img src="assets/logo.jpeg" alt="Logo LASCMMG" class="hero-logo" />
-            <div class="hero-content">
-              <h2 id="home-heading">
-                Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
-              </h2>
-              <p class="hero-subtitle">
-                Sistema Oficial de Gerenciamento de Torneios
-              </p>
-            </div>
-          </div>
-
-          <div class="home-cards">
-            <div class="card home-card">
-              <div class="card-icon">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M21,6H3V20H21V6M21,4A2,2 0 0,1 23,6V20A2,2 0 0,1 21,22H3A2,2 0 0,1 1,20V6A2,2 0 0,1 3,4H21M6,13H14V11H6V13M6,9H18V7H6V9M6,17H11V15H6V17Z"
-                  ></path>
-                </svg>
-              </div>
-              <h3>Sobre a LASCMMG</h3>
-              <p>
-                A Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
-                (LASCMMG) foi fundada em 2023 com o objetivo de promover a
-                integração, o desenvolvimento esportivo e o bem-estar dos
-                estudantes por meio da prática de sinuca.
-              </p>
-            </div>
-
-            <div class="card home-card">
-              <div class="card-icon">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M12,15A2,2 0 0,1 10,13C10,11.89 10.9,11 12,11A2,2 0 0,1 14,13A2,2 0 0,1 12,15M6,22V21.5C6,19.57 9.15,18 13,18C16.85,18 20,19.57 20,21.5V22H6M8.93,2.79C9.86,2.13 11.15,2 12,2C15.33,2 18,4.67 18,8C18,9.08 17.74,10.19 17.24,11.26C16.11,10.46 14.62,10 13,10C11.6,10 10.27,10.34 9.23,10.95C9.09,10 9,9 9,8C9,5.97 8.5,3.86 8.93,2.79Z"
-                  ></path>
-                </svg>
-              </div>
-              <h3>Participe dos Torneios</h3>
-              <p>
-                Os torneios da LASCMMG são abertos a todos os estudantes da
-                faculdade! Para participar, entre em contato com a administração
-                da liga ou inscreva-se diretamente nos eventos anunciados.
-              </p>
-            </div>
-
-            <div class="card home-card">
-              <div class="card-icon">
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M19,20H5V4H7V7H17V4H19M12,2A1,1 0 0,1 13,3A1,1 0 0,1 12,4A1,1 0 0,1 11,3A1,1 0 0,1 12,2M19,2H14.82C14.4,0.84 13.3,0 12,0C10.7,0 9.6,0.84 9.18,2H5A2,2 0 0,0 3,4V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V4A2,2 0 0,0 19,2Z"
-                  ></path>
-                </svg>
-              </div>
-              <h3>Eventos e Calendário</h3>
-              <p>
-                Acompanhe nosso calendário de eventos, incluindo torneios
-                regulares, workshops técnicos e eventos especiais organizados
-                pela LASCMMG ao longo do ano acadêmico.
-              </p>
-            </div>
-          </div>
-
-          <div class="card home-announcements">
-            <h3>Próximos Eventos</h3>
-            <ul class="announcement-list">
-              <li class="announcement-item">
-                <div class="announcement-date">15/05/2025</div>
-                <div class="announcement-content">
-                  <h4>Torneio de Integração - Calouros 2025</h4>
-                  <p>
-                    Torneio especial para receber os novos alunos! Inscrições
-                    abertas.
-                  </p>
-                </div>
-              </li>
-              <li class="announcement-item">
-                <div class="announcement-date">22/06/2025</div>
-                <div class="announcement-content">
-                  <h4>Workshop: Técnicas Avançadas de Sinuca</h4>
-                  <p>
-                    Aprenda com especialistas as melhores técnicas e
-                    estratégias.
-                  </p>
-                </div>
-              </li>
-              <li class="announcement-item">
-                <div class="announcement-date">10/07/2025</div>
-                <div class="announcement-content">
-                  <h4>Torneio Interfaculdades</h4>
-                  <p>
-                    Competição entre as principais faculdades de Minas Gerais.
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <section
-          id="bracket-section"
-          class="hidden-section"
-          aria-live="polite"
-          role="region"
-          aria-labelledby="bracket-heading"
-        >
-          <!-- Adicionado role e aria-labelledby -->
-          <h2 id="bracket-heading">Chaveamento do Torneio</h2>
-          <!-- Adicionado ID -->
-          <div id="bracket" class="bracket-container">
-            <div class="loading-indicator">Carregando chaveamento...</div>
-            <!-- O chaveamento será inserido aqui dinamicamente -->
-          </div>
-        </section>
-
-        <section
-          id="scores-section"
-          class="hidden-section"
-          aria-live="polite"
-          role="region"
-          aria-labelledby="scores-heading"
-        >
-          <!-- Adicionado role e aria-labelledby -->
-          <h2 id="scores-heading">Histórico de Placares</h2>
-
-          <!-- Componente de Filtro e Pesquisa -->
-          <div class="filters-container" id="scores-filters">
-            <div class="filters-header">
-              <h3 class="filters-title">Filtros e Pesquisa</h3>
-              <button
-                class="filters-toggle"
-                id="scores-filters-toggle"
-                aria-expanded="false"
-                aria-controls="scores-filters-body"
-              >
-                <svg class="icon" viewBox="0 0 24 24">
-                  <path
-                    d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <div class="filters-body" id="scores-filters-body">
-              <div class="filters-grid">
-                <div class="filter-group">
-                  <label for="filter-player">Jogador:</label>
-                  <select id="filter-player" class="filter-select">
-                    <option value="">Todos os jogadores</option>
-                    <!-- Opções carregadas por JS -->
-                  </select>
-                </div>
-                <div class="filter-group">
-                  <label for="filter-round">Rodada:</label>
-                  <select id="filter-round" class="filter-select">
-                    <option value="">Todas as rodadas</option>
-                    <option value="Round 1">Round 1</option>
-                    <option value="Round 2">Round 2</option>
-                    <option value="Quartas de Final">Quartas de Final</option>
-                    <option value="Semifinais">Semifinais</option>
-                    <option value="Final">Final</option>
-                  </select>
-                </div>
-                <div class="filter-group">
-                  <label for="filter-winner">Resultado:</label>
-                  <select id="filter-winner" class="filter-select">
-                    <option value="">Todos os resultados</option>
-                    <option value="vitoria">Apenas vitórias</option>
-                    <option value="derrota">Apenas derrotas</option>
-                  </select>
-                </div>
-                <div class="filter-group">
-                  <label for="filter-date">Data (após):</label>
-                  <input type="date" id="filter-date" class="filter-input" />
-                </div>
-              </div>
-              <div class="filter-actions">
-                <button
-                  id="btn-filter-reset"
-                  class="btn-filter btn-filter-reset"
-                >
-                  Limpar Filtros
-                </button>
-                <button
-                  id="btn-filter-apply"
-                  class="btn-filter btn-filter-apply"
-                >
-                  Aplicar Filtros
-                </button>
-              </div>
-            </div>
-            <div class="active-filters" id="active-filters">
-              <!-- Filtros ativos são mostrados aqui como badges -->
-            </div>
-          </div>
-
-          <div class="table-container">
-            <table
-              id="scores-table"
-              aria-label="Histórico de placares"
-              class="data-table"
-            >
-              <thead>
-                <tr>
-                  <th scope="col">Data</th>
-                  <th scope="col">Jogador 1</th>
-                  <th scope="col">Jogador 2</th>
-                  <th scope="col">Placar</th>
-                  <th scope="col">Vencedor</th>
-                  <th scope="col">Rodada</th>
-                </tr>
-              </thead>
-              <tbody id="scores-body">
-                <tr>
-                  <td colspan="6" class="loading-cell">
-                    <div class="loading-indicator">Carregando placares...</div>
-                  </td>
-                </tr>
-                <!-- Os placares serão inseridos aqui dinamicamente -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section
-          id="add-score-section"
-          class="hidden-section"
-          aria-live="polite"
-          role="region"
-          aria-labelledby="add-score-heading"
-        >
-          <!-- Adicionado role e aria-labelledby -->
-          <h2 id="add-score-heading">Adicionar Novo Placar</h2>
-          <!-- Adicionado ID -->
-          <div class="card">
-            <form id="score-form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="player1">Jogador 1:</label>
-                  <select id="player1" name="player1" required>
-                    <option value="">Selecione um jogador</option>
-                    <!-- Opções carregadas por JS -->
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="score1">Placar Jogador 1:</label>
-                  <input
-                    type="number"
-                    id="score1"
-                    name="score1"
-                    required
-                    min="0"
-                    max="2"
-                    aria-label="Placar do jogador 1"
-                  />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="player2">Jogador 2:</label>
-                  <select id="player2" name="player2" required>
-                    <option value="">Selecione um jogador</option>
-                    <!-- Opções carregadas por JS -->
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="score2">Placar Jogador 2:</label>
-                  <input
-                    type="number"
-                    id="score2"
-                    name="score2"
-                    required
-                    min="0"
-                    max="2"
-                    aria-label="Placar do jogador 2"
-                  />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="round">Rodada:</label>
-                  <select id="round" name="round" required>
-                    <option value="">Selecione a rodada</option>
-                    <option value="Round 1">Round 1</option>
-                    <option value="Round 2">Round 2</option>
-                    <option value="Quartas de Final">Quartas de Final</option>
-                    <option value="Semifinais">Semifinais</option>
-                    <option value="Final">Final</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">Salvar Placar</button>
-                <button type="reset" class="btn-secondary">Limpar</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <section
-          id="stats-section"
-          class="hidden-section"
-          aria-live="polite"
-          role="region"
-          aria-labelledby="stats-heading"
-        >
-          <h2 id="stats-heading">Estatísticas do Torneio</h2>
-          <!-- O conteúdo será carregado dinamicamente pelo statsHandler.js -->
-          <div id="statistics-container">
-            <div class="loading-indicator">Carregando estatísticas...</div>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <p>&copy; 2025 Torneio de Sinuca da Faculdade</p>
-      </footer>
-
-      <!-- Botão de alternância de tema -->
-      <div class="theme-toggle-wrapper">
-        <button
-          class="theme-toggle-btn"
-          aria-label="Alternar tema claro/escuro"
-          title="Alternar tema claro/escuro"
-        >
-          <svg class="icon-sun" viewBox="0 0 24 24">
-            <path
-              d="M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L14.39,5.42C13.65,5.15 12.84,5 12,5C11.16,5 10.35,5.15 9.61,5.42L12,2M3.34,7L7.5,6.65C6.9,7.16 6.36,7.78 5.94,8.5C5.5,9.24 5.25,10 5.11,10.79L3.34,7M3.36,17L5.12,13.23C5.26,14 5.53,14.78 5.95,15.5C6.37,16.24 6.91,16.86 7.5,17.37L3.36,17M20.65,7L18.88,10.79C18.74,10 18.47,9.23 18.05,8.5C17.63,7.78 17.1,7.15 16.5,6.64L20.65,7M20.64,17L16.5,17.36C17.09,16.85 17.62,16.22 18.04,15.5C18.46,14.77 18.73,14 18.87,13.21L20.64,17M12,22L9.59,18.56C10.33,18.83 11.14,19 12,19C12.82,19 13.63,18.83 14.37,18.56L12,22Z"
-            ></path>
+        <div class="profile-info">
+          <span class="profile-name">Usuário</span>
+          <span class="profile-role">Função</span>
+        </div>
+      </button>
+      <div id="profile-menu-index" class="dropdown-menu" role="menu">
+        <a href="admin.html" id="profile-menu-admin-link" class="dropdown-item" role="menuitem">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"></path>
           </svg>
-          <svg class="icon-moon" viewBox="0 0 24 24">
-            <path
-              d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.64 6.35,17.66C9.37,20.67 14.19,20.78 17.33,17.97Z"
-            ></path>
+          Área Admin
+        </a>
+        <div class="dropdown-divider"></div>
+        <button id="profile-menu-logout-btn" class="dropdown-item" role="menuitem">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"></path>
           </svg>
+          Sair (Admin)
         </button>
       </div>
     </div>
 
-    <!-- Load the main application module -->
-    <script type="module" src="js/main/mainApp.js"></script>
-    <!-- Old scripts (utils.js, main.js) are no longer needed -->
-  </body>
+    <!-- Container de mensagens -->
+    <div id="message-container" class="alert-group" role="alert" aria-live="assertive"></div>
+
+    <!-- Seletor de torneio -->
+    <div id="tournament-selector-container" class="tournament-selector-container">
+      <!-- Dropdown será adicionado aqui pelo JavaScript -->
+    </div>
+
+    <main>
+      <section id="home-section" class="active-section" aria-live="polite" role="region" aria-labelledby="home-heading">
+        <!-- Seção de página inicial -->
+        <div class="hero-section">
+          <img src="assets/logo.png" alt="Logo LASCMMG" class="hero-logo" />
+          <div class="hero-content">
+            <h2 id="home-heading">
+              Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
+            </h2>
+            <p class="hero-subtitle">
+              Sistema Oficial de Gerenciamento de Torneios
+            </p>
+          </div>
+        </div>
+
+        <div class="home-cards">
+          <div class="card home-card">
+            <div class="card-icon">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path
+                  d="M21,6H3V20H21V6M21,4A2,2 0 0,1 23,6V20A2,2 0 0,1 21,22H3A2,2 0 0,1 1,20V6A2,2 0 0,1 3,4H21M6,13H14V11H6V13M6,9H18V7H6V9M6,17H11V15H6V17Z">
+                </path>
+              </svg>
+            </div>
+            <h3>Sobre a LASCMMG</h3>
+            <p>
+              A Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
+              (LASCMMG) foi fundada em 2023 com o objetivo de promover a
+              integração, o desenvolvimento esportivo e o bem-estar dos
+              estudantes por meio da prática de sinuca.
+            </p>
+          </div>
+
+          <div class="card home-card">
+            <div class="card-icon">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path
+                  d="M12,15A2,2 0 0,1 10,13C10,11.89 10.9,11 12,11A2,2 0 0,1 14,13A2,2 0 0,1 12,15M6,22V21.5C6,19.57 9.15,18 13,18C16.85,18 20,19.57 20,21.5V22H6M8.93,2.79C9.86,2.13 11.15,2 12,2C15.33,2 18,4.67 18,8C18,9.08 17.74,10.19 17.24,11.26C16.11,10.46 14.62,10 13,10C11.6,10 10.27,10.34 9.23,10.95C9.09,10 9,9 9,8C9,5.97 8.5,3.86 8.93,2.79Z">
+                </path>
+              </svg>
+            </div>
+            <h3>Participe dos Torneios</h3>
+            <p>
+              Os torneios da LASCMMG são abertos a todos os estudantes da
+              faculdade! Para participar, entre em contato com a administração
+              da liga ou inscreva-se diretamente nos eventos anunciados.
+            </p>
+          </div>
+
+          <div class="card home-card">
+            <div class="card-icon">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path
+                  d="M19,20H5V4H7V7H17V4H19M12,2A1,1 0 0,1 13,3A1,1 0 0,1 12,4A1,1 0 0,1 11,3A1,1 0 0,1 12,2M19,2H14.82C14.4,0.84 13.3,0 12,0C10.7,0 9.6,0.84 9.18,2H5A2,2 0 0,0 3,4V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V4A2,2 0 0,0 19,2Z">
+                </path>
+              </svg>
+            </div>
+            <h3>Eventos e Calendário</h3>
+            <p>
+              Acompanhe nosso calendário de eventos, incluindo torneios
+              regulares, workshops técnicos e eventos especiais organizados
+              pela LASCMMG ao longo do ano acadêmico.
+            </p>
+          </div>
+        </div>
+
+        <div class="card home-announcements">
+          <h3>Próximos Eventos</h3>
+          <ul class="announcement-list">
+            <li class="announcement-item">
+              <div class="announcement-date">15/05/2025</div>
+              <div class="announcement-content">
+                <h4>Torneio de Integração - Calouros 2025</h4>
+                <p>
+                  Torneio especial para receber os novos alunos! Inscrições
+                  abertas.
+                </p>
+              </div>
+            </li>
+            <li class="announcement-item">
+              <div class="announcement-date">22/06/2025</div>
+              <div class="announcement-content">
+                <h4>Workshop: Técnicas Avançadas de Sinuca</h4>
+                <p>
+                  Aprenda com especialistas as melhores técnicas e
+                  estratégias.
+                </p>
+              </div>
+            </li>
+            <li class="announcement-item">
+              <div class="announcement-date">10/07/2025</div>
+              <div class="announcement-content">
+                <h4>Torneio Interfaculdades</h4>
+                <p>
+                  Competição entre as principais faculdades de Minas Gerais.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="bracket-section" class="hidden-section" aria-live="polite" role="region"
+        aria-labelledby="bracket-heading">
+        <h2 id="bracket-heading">Chaveamento do Torneio</h2>
+        <div id="bracket" class="bracket-container">
+          <div class="spinner-with-text">
+            <div class="spinner spinner-primary"></div>
+            <span class="spinner-text">Carregando chaveamento...</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="scores-section" class="hidden-section" aria-live="polite" role="region"
+        aria-labelledby="scores-heading">
+        <!-- Adicionado role e aria-labelledby -->
+        <h2 id="scores-heading">Histórico de Placares</h2>
+
+        <!-- Componente de Filtro e Pesquisa -->
+        <div class="filters-container" id="scores-filters">
+          <div class="filters-header">
+            <h3 class="filters-title">Filtros e Pesquisa</h3>
+            <button class="filters-toggle" id="scores-filters-toggle" aria-expanded="false"
+              aria-controls="scores-filters-body">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="filters-body" id="scores-filters-body">
+            <div class="filters-grid">
+              <div class="filter-group">
+                <label for="filter-player">Jogador:</label>
+                <select id="filter-player" class="filter-select">
+                  <option value="">Todos os jogadores</option>
+                  <!-- Opções carregadas por JS -->
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filter-round">Rodada:</label>
+                <select id="filter-round" class="filter-select">
+                  <option value="">Todas as rodadas</option>
+                  <option value="Round 1">Round 1</option>
+                  <option value="Round 2">Round 2</option>
+                  <option value="Quartas de Final">Quartas de Final</option>
+                  <option value="Semifinais">Semifinais</option>
+                  <option value="Final">Final</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filter-winner">Resultado:</label>
+                <select id="filter-winner" class="filter-select">
+                  <option value="">Todos os resultados</option>
+                  <option value="vitoria">Apenas vitórias</option>
+                  <option value="derrota">Apenas derrotas</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filter-date">Data (após):</label>
+                <input type="date" id="filter-date" class="filter-input" />
+              </div>
+            </div>
+            <div class="filter-actions">
+              <button id="btn-filter-reset" class="btn-filter btn-filter-reset">
+                Limpar Filtros
+              </button>
+              <button id="btn-filter-apply" class="btn-filter btn-filter-apply">
+                Aplicar Filtros
+              </button>
+            </div>
+          </div>
+          <div class="active-filters" id="active-filters">
+            <!-- Filtros ativos são mostrados aqui como badges -->
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="scores-table" aria-label="Histórico de placares" class="table table-striped table-hover table-responsive-cards">
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Jogador 1</th>
+                <th scope="col">Jogador 2</th>
+                <th scope="col">Placar</th>
+                <th scope="col">Vencedor</th>
+                <th scope="col">Rodada</th>
+              </tr>
+            </thead>
+            <tbody id="scores-body">
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <div class="spinner-with-text">
+                    <div class="spinner spinner-primary"></div>
+                    <span class="spinner-text">Carregando placares...</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Os placares serão inseridos aqui dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="add-score-section" class="hidden-section" aria-live="polite" role="region"
+        aria-labelledby="add-score-heading">
+        <!-- Adicionado role e aria-labelledby -->
+        <h2 id="add-score-heading">Adicionar Novo Placar</h2>
+        <!-- Adicionado ID -->
+        <div class="card card-form">
+          <form id="score-form" class="form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="player1">Jogador 1:</label>
+                <select id="player1" name="player1" required>
+                  <option value="">Selecione um jogador</option>
+                  <!-- Opções carregadas por JS -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="score1">Placar Jogador 1:</label>
+                <input type="number" id="score1" name="score1" required min="0" max="2"
+                  aria-label="Placar do jogador 1" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="player2">Jogador 2:</label>
+                <select id="player2" name="player2" required>
+                  <option value="">Selecione um jogador</option>
+                  <!-- Opções carregadas por JS -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="score2">Placar Jogador 2:</label>
+                <input type="number" id="score2" name="score2" required min="0" max="2"
+                  aria-label="Placar do jogador 2" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="round">Rodada:</label>
+                <select id="round" name="round" required>
+                  <option value="">Selecione a rodada</option>
+                  <option value="Round 1">Round 1</option>
+                  <option value="Round 2">Round 2</option>
+                  <option value="Quartas de Final">Quartas de Final</option>
+                  <option value="Semifinais">Semifinais</option>
+                  <option value="Final">Final</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Salvar Placar</button>
+              <button type="reset" class="btn btn-secondary">Limpar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="stats-section" class="hidden-section" aria-live="polite" role="region"
+        aria-labelledby="stats-heading">
+        <h2 id="stats-heading">Estatísticas do Torneio</h2>
+        <!-- O conteúdo será carregado dinamicamente pelo statsHandler.js -->
+        <div id="statistics-container">
+          <div class="spinner-with-text">
+            <div class="spinner spinner-primary"></div>
+            <span class="spinner-text">Carregando estatísticas...</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <img src="assets/logo.png" alt="Logo LASCMMG" class="footer-logo-img" />
+            <span>LASCMMG</span>
+          </div>
+          <div class="footer-links">
+            <a href="#" class="footer-link">Sobre</a>
+            <a href="#" class="footer-link">Contato</a>
+            <a href="#" class="footer-link">Política de Privacidade</a>
+          </div>
+          <div class="footer-social">
+            <a href="#" class="social-link" aria-label="Facebook">
+              <svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"></path></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"></path></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="Twitter">
+              <svg viewBox="0 0 24 24"><path d="M22.46,6C21.69,6.35 20.86,6.58 20,6.69C20.88,6.16 21.56,5.32 21.88,4.31C21.05,4.81 20.13,5.16 19.16,5.36C18.37,4.5 17.26,4 16,4C13.65,4 11.73,5.92 11.73,8.29C11.73,8.63 11.77,8.96 11.84,9.27C8.28,9.09 5.11,7.38 3,4.79C2.63,5.42 2.42,6.16 2.42,6.94C2.42,8.43 3.17,9.75 4.33,10.5C3.62,10.5 2.96,10.3 2.38,10C2.38,10 2.38,10 2.38,10.03C2.38,12.11 3.86,13.85 5.82,14.24C5.46,14.34 5.08,14.39 4.69,14.39C4.42,14.39 4.15,14.36 3.89,14.31C4.43,16 6,17.26 7.89,17.29C6.43,18.45 4.58,19.13 2.56,19.13C2.22,19.13 1.88,19.11 1.54,19.07C3.44,20.29 5.7,21 8.12,21C16,21 20.33,14.46 20.33,8.79C20.33,8.6 20.33,8.42 20.32,8.23C21.16,7.63 21.88,6.87 22.46,6Z"></path></svg>
+            </a>
+          </div>
+        </div>
+        <p class="copyright">&copy; 2025 Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/main/mainApp.js"></script>
+
+  <!-- Script para remover a tela de carregamento -->
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.body.classList.remove('loading');
+        document.getElementById('initial-loader').classList.add('fade-out');
+
+        setTimeout(function() {
+          document.getElementById('initial-loader').style.display = 'none';
+        }, 500);
+      }, 800);
+    });
+  </script>
+</body>
+
 </html>

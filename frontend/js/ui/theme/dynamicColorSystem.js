@@ -1,349 +1,241 @@
-import {
-  hslToHex,
-  hexToRgb,
-  hexToHsl,
-  generateAccessiblePalette,
-} from '../../utils/colorUtils.js';
-import {
-  detectSystemA11yPreferences,
-  watchA11yPreferences,
-} from '../accessibility/a11yDetector.js';
+/**
+ * Sistema de Cores Dinâmicas - LASCMMG
+ * Versão 2.0 - Design System Moderno
+ *
+ * Este módulo implementa um sistema de cores dinâmicas que se adapta ao horário do dia
+ * e às preferências do sistema do usuário para proporcionar uma experiência visual otimizada.
+ */
 
-class DynamicColorSystem {
+export class DynamicColorSystem {
   constructor() {
-    this.currentScheme = {};
+    this.currentTimeOfDay = null;
+    this.systemPrefersDark = false;
+    this.root = document.documentElement;
 
-    this.userPreferences = {
-      contrastLevel: 'normal',
-      colorIntensity: 'medium',
-      preferredHue: null,
-      reduceMotion: false,
-    };
-
-    this.loadUserPreferences();
-
+    // Inicializa o sistema
     this.init();
   }
 
+  /**
+   * Inicializa o sistema de cores dinâmicas
+   */
   init() {
-    this.detectSystemPreferences();
+    // Detecta preferência do sistema (claro/escuro)
+    this.detectSystemPreference();
 
-    this.updateColorsByTimeOfDay();
+    // Aplica cores baseadas no horário atual
+    this.updateTimeBasedColors();
 
-    this.setupContextObservers();
+    // Configura os observadores para mudanças
+    this.setupObservers();
 
-    setInterval(() => this.updateColorsByTimeOfDay(), 1000 * 60 * 15);
+    // Agenda atualizações periódicas
+    this.scheduleUpdates();
   }
 
-  detectSystemPreferences() {
-    const preferences = detectSystemA11yPreferences();
+  /**
+   * Detecta se o sistema do usuário prefere tema escuro
+   */
+  detectSystemPreference() {
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.systemPrefersDark = darkModeMediaQuery.matches;
 
-    this.userPreferences.contrastLevel = preferences.contrastLevel;
-    this.userPreferences.reduceMotion = preferences.reduceMotion;
-    this.isDarkMode = preferences.isDarkMode;
+    // Adiciona classe ao body para indicar preferência do sistema
+    document.body.classList.toggle('system-prefers-dark', this.systemPrefersDark);
+  }
 
-    this.cleanupA11yWatcher = watchA11yPreferences((changes) => {
-      if ('isDarkMode' in changes) {
-        this.isDarkMode = changes.isDarkMode;
-        this.updateColorsByTimeOfDay();
-      }
-
-      if ('contrastLevel' in changes) {
-        this.userPreferences.contrastLevel = changes.contrastLevel;
-        this.updateColorsByTimeOfDay();
-      }
-
-      if ('reduceMotion' in changes) {
-        this.userPreferences.reduceMotion = changes.reduceMotion;
-        this.updateColorsByTimeOfDay();
-      }
+  /**
+   * Configura observadores para mudanças nas preferências do sistema
+   */
+  setupObservers() {
+    // Observa mudanças na preferência de tema do sistema
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeMediaQuery.addEventListener('change', (e) => {
+      this.systemPrefersDark = e.matches;
+      document.body.classList.toggle('system-prefers-dark', this.systemPrefersDark);
+      this.updateTimeBasedColors();
     });
   }
 
-  updateColorsByTimeOfDay() {
-    const hour = new Date().getHours();
-    let colorTemperature, primaryHue, accentHue;
+  /**
+   * Agenda atualizações periódicas das cores
+   */
+  scheduleUpdates() {
+    // Atualiza a cada hora
+    setInterval(() => {
+      this.updateTimeBasedColors();
+    }, 60 * 60 * 1000); // 1 hora
 
-    if (hour >= 6 && hour < 12) {
-      colorTemperature = 'warm';
-      primaryHue = this.userPreferences.preferredHue || 30;
-      accentHue = (primaryHue + 210) % 360;
-    } else if (hour >= 12 && hour < 18) {
-      colorTemperature = 'neutral';
-      primaryHue = this.userPreferences.preferredHue || 210;
-      accentHue = (primaryHue + 180) % 360;
-    } else if (hour >= 18 && hour < 22) {
-      colorTemperature = 'cool';
-      primaryHue = this.userPreferences.preferredHue || 260;
-      accentHue = (primaryHue + 150) % 360;
-    } else {
-      colorTemperature = 'dark';
-      primaryHue = this.userPreferences.preferredHue || 240;
-      accentHue = (primaryHue + 120) % 360;
-    }
+    // Também atualiza à meia-noite para garantir transição entre dias
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
 
-    this.applyColorScheme(primaryHue, accentHue, colorTemperature);
-  }
-
-  applyColorScheme(primaryHue, accentHue, temperature) {
-    const root = document.documentElement;
-
-    const saturationLevels = {
-      low: 65,
-      medium: 80,
-      high: 90,
-    };
-
-    const saturation = saturationLevels[this.userPreferences.colorIntensity];
-
-    let baseLightness = this.isDarkMode ? 45 : 55;
-
-    const tempAdjustment = {
-      warm: 5,
-      neutral: 0,
-      cool: -3,
-      dark: -8,
-    };
-
-    baseLightness += tempAdjustment[temperature];
-
-    const contrastAdjustment = {
-      normal: 0,
-      high: 5,
-      'very-high': 10,
-    };
-
-    const contrastBoost =
-      contrastAdjustment[this.userPreferences.contrastLevel];
-
-    const primaryColor = hslToHex(primaryHue, saturation, baseLightness);
-    const primaryHover = hslToHex(primaryHue, saturation, baseLightness - 10);
-
-    const accentColor = hslToHex(accentHue, saturation - 5, baseLightness + 5);
-    const accentHover = hslToHex(accentHue, saturation, baseLightness - 5);
-
-    const successColor = hslToHex(
-      120,
-      saturation - 10,
-      35 + tempAdjustment[temperature] / 2
-    );
-    const dangerColor = hslToHex(
-      0,
-      saturation,
-      45 + tempAdjustment[temperature] / 2
-    );
-    const warningColor = hslToHex(
-      45,
-      saturation,
-      55 + tempAdjustment[temperature] / 2
-    );
-
-    const primaryRGB = hexToRgb(primaryColor);
-    const accentRGB = hexToRgb(accentColor);
-
-    root.style.setProperty('--primary-color', primaryColor);
-    root.style.setProperty('--primary-hover', primaryHover);
-    root.style.setProperty('--primary-rgb', primaryRGB);
-
-    root.style.setProperty('--accent-color', accentColor);
-    root.style.setProperty('--accent-hover', accentHover);
-    root.style.setProperty('--accent-color-rgb', accentRGB);
-
-    root.style.setProperty('--success-color', successColor);
-    root.style.setProperty('--danger-color', dangerColor);
-    root.style.setProperty('--warning-color', warningColor);
-
-    if (this.userPreferences.contrastLevel !== 'normal') {
-      const darkText = this.isDarkMode
-        ? hslToHex(0, 0, 95 + contrastBoost)
-        : hslToHex(0, 0, 15 - contrastBoost);
-
-      const lightText = this.isDarkMode
-        ? hslToHex(0, 0, 75 + contrastBoost)
-        : hslToHex(0, 0, 35 - contrastBoost);
-
-      root.style.setProperty('--dark-text', darkText);
-      root.style.setProperty('--light-text', lightText);
-
-      if (this.isDarkMode) {
-        root.style.setProperty(
-          '--surface-color',
-          hslToHex(0, 0, 15 - contrastBoost)
-        );
-        root.style.setProperty(
-          '--light-bg',
-          hslToHex(0, 0, 10 - contrastBoost)
-        );
-        root.style.setProperty('--dark-bg', hslToHex(0, 0, 5));
-      } else {
-        root.style.setProperty('--surface-color', hslToHex(0, 0, 100));
-        root.style.setProperty(
-          '--light-bg',
-          hslToHex(0, 0, 95 + contrastBoost)
-        );
-        root.style.setProperty('--dark-bg', hslToHex(0, 0, 15 - contrastBoost));
-      }
-    }
-
-    if (this.userPreferences.reduceMotion) {
-      root.style.setProperty('--transition-speed', '0s');
-    } else {
-      root.style.setProperty('--transition-speed', '0.2s');
-    }
-
-    this.currentScheme = {
-      primaryHue,
-      accentHue,
-      temperature,
-      timestamp: new Date().getTime(),
-    };
-  }
-
-  setupContextObservers() {
-    document.addEventListener('DOMContentLoaded', () => {
-      this.observeTournamentResults();
-
-      this.observePageChanges();
-    });
-  }
-
-  observeTournamentResults() {
-    document.addEventListener('click', (e) => {
-      const match = e.target.closest('.match');
-      if (match) {
-        const winner = match.querySelector('.player.winner');
-        if (winner) {
-          this.applyEmotionalColorScheme('celebration', match);
-        }
-      }
-    });
-  }
-
-  observePageChanges() {
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.target.classList.contains('active-section')) {
-          const sectionId = mutation.target.id;
-
-          if (sectionId === 'bracket-section') {
-            this.applyContextualScheme('focused');
-          } else if (sectionId === 'scores-section') {
-            this.applyContextualScheme('informative');
-          }
-        }
-      }
-    });
-
-    observer.observe(document.body, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-  }
-
-  applyEmotionalColorScheme(emotion, targetElement) {
-    const emotionSchemes = {
-      celebration: {
-        background: hslToHex(45, 80, 90),
-        border: hslToHex(45, 80, 50),
-        glow: hexToRgb(hslToHex(45, 90, 50)),
-      },
-      warning: {
-        background: hslToHex(0, 80, 95),
-        border: hslToHex(0, 70, 50),
-        glow: hexToRgb(hslToHex(0, 70, 50)),
-      },
-    };
-
-    if (!targetElement || !emotionSchemes[emotion]) return;
-
-    const scheme = emotionSchemes[emotion];
-
-    const originalStyle = {
-      background: targetElement.style.backgroundColor,
-      border: targetElement.style.borderColor,
-      boxShadow: targetElement.style.boxShadow,
-    };
-
-    targetElement.style.backgroundColor = scheme.background;
-    targetElement.style.borderColor = scheme.border;
-    targetElement.style.boxShadow = `0 0 15px rgba(${scheme.glow}, 0.5)`;
-
-    targetElement.classList.add(`emotion-${emotion}`);
-
+    const timeToMidnight = tomorrow - now;
     setTimeout(() => {
-      targetElement.style.backgroundColor = originalStyle.background;
-      targetElement.style.borderColor = originalStyle.border;
-      targetElement.style.boxShadow = originalStyle.boxShadow;
-
-      targetElement.classList.remove(`emotion-${emotion}`);
-
-      targetElement.style.transition = 'all 1s ease-out';
-    }, 3000);
+      this.updateTimeBasedColors();
+      // Reinicia o agendamento diário
+      setInterval(() => {
+        this.updateTimeBasedColors();
+      }, 24 * 60 * 60 * 1000); // 24 horas
+    }, timeToMidnight);
   }
 
-  applyContextualScheme(context) {
-    const root = document.documentElement;
+  /**
+   * Atualiza as cores com base no horário do dia
+   */
+  updateTimeBasedColors() {
+    const hour = new Date().getHours();
+    let timeOfDay;
 
-    switch (context) {
-      case 'focused':
-        root.style.setProperty('--sidebar-bg', hslToHex(210, 30, 25));
+    // Determina o período do dia
+    if (hour >= 5 && hour < 12) {
+      timeOfDay = 'morning';
+    } else if (hour >= 12 && hour < 18) {
+      timeOfDay = 'afternoon';
+    } else {
+      timeOfDay = 'evening';
+    }
+
+    // Só atualiza se o período mudou
+    if (timeOfDay !== this.currentTimeOfDay) {
+      this.currentTimeOfDay = timeOfDay;
+      this.applyTimeBasedColors(timeOfDay);
+    }
+  }
+
+  /**
+   * Aplica as cores específicas para cada período do dia
+   * @param {string} timeOfDay - Período do dia ('morning', 'afternoon', 'evening')
+   */
+  applyTimeBasedColors(timeOfDay) {
+    // Remove classes anteriores
+    document.body.classList.remove('time-morning', 'time-afternoon', 'time-evening');
+    // Adiciona a classe atual
+    document.body.classList.add(`time-${timeOfDay}`);
+
+    // Aplica ajustes de cores específicos para cada período
+    switch (timeOfDay) {
+      case 'morning':
+        this.applyMorningColors();
         break;
-
-      case 'informative': {
-        const tableHeadingColor = this.isDarkMode
-          ? hslToHex(210, 15, 30)
-          : hslToHex(210, 15, 95);
-
-        root.style.setProperty('--light-bg', tableHeadingColor);
+      case 'afternoon':
+        this.applyAfternoonColors();
         break;
-      }
+      case 'evening':
+        this.applyEveningColors();
+        break;
+    }
 
-      default:
-        this.updateColorsByTimeOfDay();
+    // Dispara evento para outros componentes poderem reagir
+    document.dispatchEvent(new CustomEvent('timeOfDayChanged', {
+      detail: { timeOfDay }
+    }));
+  }
+
+  /**
+   * Aplica cores para o período da manhã (mais vibrantes e energéticas)
+   */
+  applyMorningColors() {
+    // Ajusta variáveis CSS para cores mais vibrantes
+    this.root.style.setProperty('--primary-color', '#217a2b');
+    this.root.style.setProperty('--primary-hover', '#17611f');
+    this.root.style.setProperty('--primary-active', '#0f4c16');
+    this.root.style.setProperty('--primary-rgb', '33, 122, 43');
+    
+    this.root.style.setProperty('--secondary-color', '#bfa14a');
+    this.root.style.setProperty('--secondary-hover', '#a88c36');
+    this.root.style.setProperty('--secondary-rgb', '191, 161, 74');
+
+    // Ajusta o contraste e brilho para a manhã
+    if (!this.systemPrefersDark) {
+      // Versão clara - fundo mais claro e refrescante
+      this.root.style.setProperty('--bg-color', '#f8faf8');
+      this.root.style.setProperty('--bg-color-secondary', '#edf3ed');
+      this.root.style.setProperty('--bg-color-tertiary', '#e2ebe2');
+      this.root.style.setProperty('--text-color', '#1a2a1a');
+      this.root.style.setProperty('--text-color-muted', '#3a4a3a');
+    } else {
+      // Versão escura - tons mais vibrantes
+      this.root.style.setProperty('--bg-color', '#1a2a1a');
+      this.root.style.setProperty('--bg-color-secondary', '#223322');
+      this.root.style.setProperty('--bg-color-tertiary', '#2c3e2c');
+      this.root.style.setProperty('--text-color', '#ffffff');
+      this.root.style.setProperty('--text-color-muted', 'rgba(255, 255, 255, 0.8)');
     }
   }
 
-  loadUserPreferences() {
-    try {
-      const savedPrefs = localStorage.getItem('dynamicColorPreferences');
-      if (savedPrefs) {
-        const prefs = JSON.parse(savedPrefs);
-        this.userPreferences = { ...this.userPreferences, ...prefs };
-      }
-    } catch (e) {
-      console.warn('Erro ao carregar preferências de cor:', e);
+  /**
+   * Aplica cores para o período da tarde (esquema padrão institucional)
+   */
+  applyAfternoonColors() {
+    // Cores institucionais padrão
+    this.root.style.setProperty('--primary-color', '#217a2b');
+    this.root.style.setProperty('--primary-hover', '#17611f');
+    this.root.style.setProperty('--primary-active', '#0f4c16');
+    this.root.style.setProperty('--primary-rgb', '33, 122, 43');
+
+    this.root.style.setProperty('--secondary-color', '#bfa14a');
+    this.root.style.setProperty('--secondary-hover', '#a88c36');
+    this.root.style.setProperty('--secondary-rgb', '191, 161, 74');
+
+    // Ajusta o contraste para a tarde
+    if (!this.systemPrefersDark) {
+      // Versão clara - padrão institucional
+      this.root.style.setProperty('--bg-color', '#ffffff');
+      this.root.style.setProperty('--bg-color-secondary', '#f5f5f5');
+      this.root.style.setProperty('--bg-color-tertiary', '#ebebeb');
+      this.root.style.setProperty('--text-color', '#1a2a1a');
+      this.root.style.setProperty('--text-color-muted', '#3a4a3a');
+    } else {
+      // Versão escura - padrão institucional
+      this.root.style.setProperty('--bg-color', '#1a2a1a');
+      this.root.style.setProperty('--bg-color-secondary', '#223322');
+      this.root.style.setProperty('--bg-color-tertiary', '#2c3e2c');
+      this.root.style.setProperty('--text-color', '#ffffff');
+      this.root.style.setProperty('--text-color-muted', 'rgba(255, 255, 255, 0.7)');
     }
   }
 
-  saveUserPreferences() {
-    try {
-      localStorage.setItem(
-        'dynamicColorPreferences',
-        JSON.stringify(this.userPreferences)
-      );
-    } catch (e) {
-      console.warn('Erro ao salvar preferências de cor:', e);
+  /**
+   * Aplica cores para o período da noite (tons mais suaves para reduzir fadiga visual)
+   */
+  applyEveningColors() {
+    // Cores mais suaves para a noite
+    this.root.style.setProperty('--primary-color', '#1b6824');
+    this.root.style.setProperty('--primary-hover', '#14541c');
+    this.root.style.setProperty('--primary-active', '#0d4014');
+    this.root.style.setProperty('--primary-rgb', '27, 104, 36');
+
+    this.root.style.setProperty('--secondary-color', '#a89042');
+    this.root.style.setProperty('--secondary-hover', '#8f7a38');
+    this.root.style.setProperty('--secondary-rgb', '168, 144, 66');
+
+    // Ajusta o contraste para a noite
+    if (!this.systemPrefersDark) {
+      // Versão clara - tons mais suaves
+      this.root.style.setProperty('--bg-color', '#f5f7f5');
+      this.root.style.setProperty('--bg-color-secondary', '#eaefea');
+      this.root.style.setProperty('--bg-color-tertiary', '#dfe7df');
+      this.root.style.setProperty('--text-color', '#1a2a1a');
+      this.root.style.setProperty('--text-color-muted', '#3a4a3a');
+    } else {
+      // Versão escura - tons mais escuros e suaves
+      this.root.style.setProperty('--bg-color', '#162216');
+      this.root.style.setProperty('--bg-color-secondary', '#1e2e1e');
+      this.root.style.setProperty('--bg-color-tertiary', '#263826');
+      this.root.style.setProperty('--text-color', '#f0f0f0');
+      this.root.style.setProperty('--text-color-muted', 'rgba(240, 240, 240, 0.7)');
     }
+
+    // Reduz a intensidade das cores para diminuir a fadiga visual
+    this.root.style.setProperty('--success-color', '#267a4b');
+    this.root.style.setProperty('--warning-color', '#e6cc5c');
+    this.root.style.setProperty('--error-color', '#c82333');
   }
-
-  setUserPreference(key, value) {
-    if (key in this.userPreferences) {
-      this.userPreferences[key] = value;
-      this.saveUserPreferences();
-
-      this.updateColorsByTimeOfDay();
-
-      return true;
-    }
-    return false;
-  }
-
-  hslToHex = hslToHex;
-  hexToRgb = hexToRgb;
-  hexToHsl = hexToHsl;
-  generateAccessiblePalette = (baseColor) =>
-    generateAccessiblePalette(baseColor, hslToHex, hexToHsl);
 }
 
-export const dynamicColorSystem = new DynamicColorSystem();
+// Inicializa o sistema de cores dinâmicas
+const dynamicColorSystem = new DynamicColorSystem();
+export default dynamicColorSystem;

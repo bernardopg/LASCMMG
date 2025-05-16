@@ -1,0 +1,410 @@
+/*
+ * Componentes de tabelas para o Sistema de Gerenciamento de Torneios LASCMMG
+ * Versão 2.0 - Design System Moderno
+ */
+
+/* Estilos base para tabelas */
+.table {
+  width: 100%;
+  margin-bottom: var(--spacing-4);
+  color: var(--text-color);
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  vertical-align: middle;
+  border-top: var(--border-width-thin) solid var(--table-border);
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: calc(var(--border-width-thin) * 2) solid var(--table-border);
+  background-color: var(--table-header-bg);
+  color: var(--text-color);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table tbody + tbody {
+  border-top: calc(var(--border-width-thin) * 2) solid var(--table-border);
+}
+
+/* Variantes de tabelas */
+.table-sm th,
+.table-sm td {
+  padding: var(--spacing-2);
+}
+
+.table-bordered {
+  border: var(--border-width-thin) solid var(--table-border);
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: var(--border-width-thin) solid var(--table-border);
+}
+
+.table-borderless th,
+.table-borderless td,
+.table-borderless thead th,
+.table-borderless tbody + tbody {
+  border: 0;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--table-row-alt-bg);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+/* Cores de tabela */
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+  background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.table-secondary,
+.table-secondary > th,
+.table-secondary > td {
+  background-color: rgba(var(--secondary-rgb), 0.1);
+}
+
+.table-success,
+.table-success > th,
+.table-success > td {
+  background-color: var(--success-bg-light);
+}
+
+.table-warning,
+.table-warning > th,
+.table-warning > td {
+  background-color: var(--warning-bg-light);
+}
+
+.table-danger,
+.table-danger > th,
+.table-danger > td {
+  background-color: var(--error-bg-light);
+}
+
+.table-info,
+.table-info > th,
+.table-info > td {
+  background-color: var(--info-bg-light);
+}
+
+/* Tabela responsiva */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tabela com cabeçalho fixo */
+.table-fixed-header {
+  position: relative;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.table-fixed-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--table-header-bg);
+}
+
+/* Tabela com colunas fixas */
+.table-fixed-column {
+  table-layout: fixed;
+}
+
+.table-fixed-column th,
+.table-fixed-column td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tabela com ações */
+.table-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.table-actions .btn {
+  margin-left: var(--spacing-1);
+}
+
+/* Tabela com seleção de linhas */
+.table-selectable tbody tr {
+  cursor: pointer;
+}
+
+.table-selectable tbody tr.selected {
+  background-color: var(--selection-bg);
+}
+
+/* Tabela com ordenação */
+.table-sortable th {
+  cursor: pointer;
+  position: relative;
+  padding-right: var(--spacing-5);
+}
+
+.table-sortable th::after {
+  content: "↕";
+  position: absolute;
+  right: var(--spacing-2);
+  color: var(--text-color-muted);
+  opacity: 0.5;
+}
+
+.table-sortable th.sort-asc::after {
+  content: "↑";
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.table-sortable th.sort-desc::after {
+  content: "↓";
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+/* Tabela com paginação */
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-4);
+}
+
+.table-pagination-info {
+  color: var(--text-color-muted);
+  font-size: var(--font-size-sm);
+}
+
+.table-pagination-controls {
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.table-pagination-controls .btn {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tabela com filtros */
+.table-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-3);
+  background-color: var(--bg-color-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.table-filter {
+  flex: 1;
+  min-width: 200px;
+}
+
+.table-filter-label {
+  display: block;
+  margin-bottom: var(--spacing-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Tabela com status */
+.table-status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.table-status::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: var(--spacing-2);
+  border-radius: 50%;
+}
+
+.table-status-success {
+  background-color: var(--success-bg-light);
+  color: var(--success-color);
+}
+
+.table-status-success::before {
+  background-color: var(--success-color);
+}
+
+.table-status-warning {
+  background-color: var(--warning-bg-light);
+  color: var(--warning-color);
+}
+
+.table-status-warning::before {
+  background-color: var(--warning-color);
+}
+
+.table-status-danger {
+  background-color: var(--error-bg-light);
+  color: var(--error-color);
+}
+
+.table-status-danger::before {
+  background-color: var(--error-color);
+}
+
+.table-status-info {
+  background-color: var(--info-bg-light);
+  color: var(--info-color);
+}
+
+.table-status-info::before {
+  background-color: var(--info-color);
+}
+
+/* Tabela com expansão de linhas */
+.table-expandable .expandable-row {
+  cursor: pointer;
+}
+
+.table-expandable .expandable-row-content {
+  display: none;
+  background-color: var(--bg-color-secondary);
+  padding: var(--spacing-4);
+  border-top: none;
+}
+
+.table-expandable .expandable-row.expanded + .expandable-row-content {
+  display: table-row;
+}
+
+.table-expandable .expand-icon {
+  transition: transform var(--transition-normal) var(--transition-timing);
+}
+
+.table-expandable .expandable-row.expanded .expand-icon {
+  transform: rotate(90deg);
+}
+
+/* Tabela com células editáveis */
+.table-editable .editable-cell {
+  position: relative;
+  cursor: pointer;
+}
+
+.table-editable .editable-cell:hover::after {
+  content: "✎";
+  position: absolute;
+  right: var(--spacing-2);
+  color: var(--primary-color);
+  opacity: 0.5;
+}
+
+.table-editable .editable-cell.editing {
+  padding: 0;
+}
+
+.table-editable .editable-cell.editing input {
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: none;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* Tabela com cabeçalho em grupo */
+.table-group-header th {
+  text-align: center;
+}
+
+/* Tabela com linhas destacadas */
+.table-highlight-row {
+  background-color: var(--highlight-bg) !important;
+}
+
+/* Tabela com células destacadas */
+.table-highlight-cell {
+  background-color: var(--highlight-bg) !important;
+}
+
+/* Tabela com totais */
+.table-totals {
+  font-weight: var(--font-weight-bold);
+  background-color: var(--bg-color-tertiary);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .table-responsive-cards {
+    border: 0;
+  }
+
+  .table-responsive-cards thead {
+    display: none;
+  }
+
+  .table-responsive-cards tr {
+    display: block;
+    margin-bottom: var(--spacing-4);
+    border: var(--border-width-thin) solid var(--table-border);
+    border-radius: var(--border-radius-md);
+    background-color: var(--table-row-bg);
+  }
+
+  .table-responsive-cards td {
+    display: block;
+    text-align: right;
+    border-top: 0;
+    border-bottom: var(--border-width-thin) solid var(--table-border);
+  }
+
+  .table-responsive-cards td:last-child {
+    border-bottom: 0;
+  }
+
+  .table-responsive-cards td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    font-size: var(--font-size-sm);
+  }
+
+  .table-filters {
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .table-filter {
+    width: 100%;
+  }
+
+  .table-pagination {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+}

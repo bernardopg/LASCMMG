@@ -1,4 +1,4 @@
-(function () {
+a(function () {
   'use strict';
 
   const DEFAULT_CONFIG = {
@@ -309,9 +309,9 @@
         .page-size-select {
           padding: 0.25rem 0.5rem;
           border-radius: 4px;
-          border: 1px solid var(--border-color, #ccc);
-          background-color: var(--bg-color-secondary, #f5f5f5);
-          color: var(--text-color, #333);
+          border: 1px solid var(--border-color, #bfa14a);
+          background-color: var(--bg-color-secondary, #223322);
+          color: var(--text-color, #217a2b);
         }
 
         .table-search-container {
@@ -323,17 +323,17 @@
         .table-search-container i {
           position: absolute;
           left: 0.75rem;
-          color: var(--text-color-muted, #777);
+          color: var(--text-color-muted, #bfa14a);
         }
 
         .table-search-input {
           padding: 0.5rem;
           padding-left: ${document.querySelector('link[href*="font-awesome"]') ? '2rem' : '0.75rem'};
           border-radius: 4px;
-          border: 1px solid var(--border-color, #ccc);
+          border: 1px solid var(--border-color, #bfa14a);
           width: 200px;
-          background-color: var(--bg-color-secondary, #f5f5f5);
-          color: var(--text-color, #333);
+          background-color: var(--bg-color-secondary, #223322);
+          color: var(--text-color, #217a2b);
         }
 
         .table-pagination-controls {
@@ -351,9 +351,9 @@
 
         .pagination-btn {
           padding: 0.5rem 0.75rem;
-          border: 1px solid var(--border-color, #ccc);
-          background-color: var(--bg-color-secondary, #f5f5f5);
-          color: var(--text-color, #333);
+          border: 1px solid var(--border-color, #bfa14a);
+          background-color: var(--bg-color-secondary, #223322);
+          color: var(--text-color, #217a2b);
           border-radius: 4px;
           cursor: pointer;
           display: inline-flex;
@@ -364,7 +364,7 @@
         }
 
         .pagination-btn:hover:not(:disabled) {
-          background-color: var(--primary-color, #007bff);
+          background-color: var(--primary-color, #217a2b);
           color: white;
         }
 
@@ -387,11 +387,11 @@
 
         .pagination-info {
           font-size: 0.9rem;
-          color: var(--text-color-secondary, #666);
+          color: var(--text-color-secondary, #bfa14a);
         }
 
         @keyframes highlightRow {
-          0% { background-color: var(--highlight-bg, rgba(0, 123, 255, 0.1)); }
+          0% { background-color: var(--highlight-bg, rgba(33, 122, 43, 0.1)); }
           100% { background-color: transparent; }
         }
 

@@ -1,275 +1,52 @@
-/**
- * Estilos para Impressão de Chaveamentos
- *
- * Este arquivo contém regras CSS específicas para impressão de chaveamentos (brackets),
- * otimizando o layout para mídia impressa e proporcionando uma versão de alta qualidade
- * para documentação, divulgação e arquivo.
- */
+/* Print Brackets - Padrão institucional verde escuro, dourado e branco para impressão */
 
-/* Estilos aplicados apenas quando a página está sendo impressa */
 @media print {
-  /* Ocultar elementos desnecessários para impressão */
-  header,
-  footer,
-  .sidebar,
-  nav,
-  .mobile-header,
-  button:not(.btn-print),
-  .no-print,
-  .toggle-sidebar-btn,
-  #message-container,
-  .profile-container,
-  .pagination-controls,
-  .btn-action:not(.btn-print),
-  .search-filter,
-  .table-actions {
-    display: none !important;
-  }
-
-  /* Ajustes gerais da página */
-  @page {
-    size: A4 landscape; /* A4 em paisagem funciona melhor para chaveamentos */
-    margin: 0.5cm;
-  }
-
-  html,
-  body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: white;
-    font-size: 10pt;
-    line-height: 1.3;
-  }
-
-  .content-wrapper,
-  .admin-section,
-  main,
-  .admin-section-content {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    left: 0 !important;
-    position: relative !important;
-    background-color: white !important;
-    overflow: visible !important;
-  }
-
-  /* Chaveamento (Tournament Bracket) */
-  .bracket {
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    page-break-inside: avoid;
-    display: block !important;
-    zoom: 0.9 !important; /* Pequena redução para caber nas páginas */
-    transform-origin: left top;
-    transform: scale(0.9);
-    margin-top: -5% !important;
-  }
-
-  /* Container para chaveamento */
-  #admin-bracket-view,
-  #tournament-bracket {
-    overflow: visible !important;
-    height: auto !important;
-    min-height: auto !important;
-    width: 100% !important;
-    page-break-inside: avoid;
-  }
-
-  /* Estilos específicos para partidas no chaveamento */
-  .bracket-match {
-    page-break-inside: avoid;
-    border: 1px solid #000 !important;
-    background-color: white !important;
-    padding: 5px !important;
-    margin: 5px !important;
-    display: block !important;
-  }
-
-  .bracket-player {
-    page-break-inside: avoid;
-    border: 1px solid #000 !important;
-    padding: 3px 8px !important;
-    margin: 2px 0 !important;
-    background-color: white !important;
-    color: black !important;
-    font-weight: normal !important;
-  }
-
-  .bracket-player.winner {
-    font-weight: bold !important;
-    background-color: #f0f0f0 !important;
-    border-left: 4px solid #000 !important;
-  }
-
-  .bracket-score {
-    font-weight: bold !important;
-  }
-
-  /* Conectores de linhas no chaveamento */
-  .bracket-connector-horizontal,
-  .bracket-connector-vertical,
-  .bracket-connector {
-    border-color: #000 !important;
-    border-width: 1px !important;
-  }
-
-  /* Cabeçalho para a página impressa */
-  .print-header {
-    display: block !important; /* Normalmente oculto, exibido apenas para impressão */
-    text-align: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #000;
-    padding-bottom: 10px;
-  }
-
-  .print-header h1 {
-    font-size: 18pt;
-    margin: 0 0 5px 0;
-  }
-
-  .print-header p {
-    font-size: 10pt;
-    margin: 0;
-  }
-
-  /* Rodapé da página */
-  .print-footer {
-    display: block !important; /* Normalmente oculto, exibido apenas para impressão */
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    border-top: 1px solid #000;
-    padding-top: 5px;
-    font-size: 8pt;
-    text-align: center;
-  }
-
-  /* Quebras de página específicas */
-  h1,
-  h2,
-  h3 {
-    page-break-after: avoid;
-    page-break-inside: avoid;
-  }
-
-  /* Evitar quebra de página em tabelas */
-  table {
-    page-break-inside: avoid;
-  }
-
-  /* Forçar quebra de página onde necessário */
-  .page-break {
-    page-break-before: always;
-  }
-
-  /* Informações do torneio */
-  .tournament-info {
-    page-break-inside: avoid;
-    margin-bottom: 20px;
-    margin-top: 10px;
-    display: block !important;
-  }
-
-  .tournament-info table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 10px;
-  }
-
+  body,
+  .bracket-container,
+  .bracket,
+  .match,
+  .player,
+  .bracket-legend,
   .tournament-info th,
   .tournament-info td {
-    border: 1px solid #000;
-    padding: 5px;
-    text-align: left;
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
   }
 
-  .tournament-info th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-  }
-
-  /* Título do torneio */
-  .tournament-title {
-    font-size: 16pt;
-    font-weight: bold;
-    text-align: center;
-    margin: 15px 0;
-    display: block !important;
-  }
-
-  /* Informações do chaveamento */
+  .bracket-connector,
   .bracket-legend {
-    border: 1px solid #000;
-    padding: 5px;
-    margin: 10px 0;
-    font-size: 8pt;
-    display: block !important;
+    border-color: var(--border-color) !important;
+    background: var(--border-color) !important;
   }
 
-  .bracket-legend p {
-    margin: 2px 0;
+  .match.selected,
+  .match.winner {
+    border-color: var(--accent-color) !important;
+    background-color: var(--panel-bg) !important;
+    color: var(--text-color-secondary) !important;
   }
 
-  /* Marca d'água (opcional) */
-  .print-watermark {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
-    font-size: 60pt;
-    color: rgba(0, 0, 0, 0.05);
-    z-index: -1;
-    pointer-events: none;
-    display: block !important;
-  }
-}
-
-/* Botão para impressão - visível apenas na tela, não na impressão */
-@media screen {
-  .btn-print {
-    display: inline-flex;
-    align-items: center;
-    background-color: var(--primary-color);
-    color: var(--contrast-text);
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    margin: 10px 0;
-    font-weight: bold;
+  .player.winner {
+    color: var(--success-color) !important;
+    font-weight: bold !important;
   }
 
-  .btn-print:hover {
-    background-color: var(--primary-hover);
+  .player.loser {
+    color: var(--text-color-muted) !important;
+    text-decoration: line-through !important;
+    opacity: 0.7 !important;
   }
 
-  .btn-print svg {
-    margin-right: 8px;
-    width: 18px;
-    height: 18px;
+  .announcement-date,
+  .card-icon {
+    background-color: var(--primary-color) !important;
+    color: var(--contrast-text) !important;
   }
 
-  /* Elementos visíveis apenas na impressão são escondidos na tela */
-  .print-header,
-  .print-footer,
-  .print-watermark,
-  .print-only {
-    display: none;
+  .separator,
+  hr {
+    border-color: var(--border-color) !important;
+    background: var(--border-color) !important;
   }
-}
-
-/* Utilitário para forçar impressão em escala de cinza */
-.print-grayscale {
-  filter: grayscale(100%);
-}
-
-/* Utilitário para forçar impressão colorida */
-.print-color {
-  -webkit-print-color-adjust: exact !important;
-  color-adjust: exact !important;
-  print-color-adjust: exact !important;
 }

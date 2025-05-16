@@ -69,7 +69,7 @@ export async function loadPlayersList() {
     state.setPlayersList([]);
     renderAdminPlayersTable();
     if (elements.playersTableBody) {
-      elements.playersTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Erro: ${error.message}</td></tr>`; // Colspan atualizado para 5
+      elements.playersTableBody.innerHTML = `<tr><td colspan="5"><div class="message error" style="text-align: center;">Erro: ${error.message}</div></td></tr>`; // Colspan atualizado para 5
     }
   }
 }

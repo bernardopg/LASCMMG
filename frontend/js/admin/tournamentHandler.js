@@ -97,7 +97,6 @@ function renderTournamentsTable(tournamentsToRender = null) {
       ? tournamentsToRender
       : state.getTournamentsList().filter((t) => t.status !== 'Cancelado'); // Ensure 'Cancelado' are not rendered
 
-
   if (!Array.isArray(tournaments) || tournaments.length === 0) {
     elements.tournamentsTableBody.innerHTML =
       '<tr><td colspan="4" style="text-align: center;">Nenhum torneio encontrado.</td></tr>';

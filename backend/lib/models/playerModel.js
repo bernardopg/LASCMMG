@@ -99,13 +99,7 @@ async function getPlayerByNameInTournament(tournamentId, playerName) {
 }
 
 async function addPlayer(playerData) {
-  const {
-    tournament_id,
-    name,
-    nickname,
-    gender,
-    skill_level,
-  } = playerData;
+  const { tournament_id, name, nickname, gender, skill_level } = playerData;
   if (!tournament_id || !name) {
     throw new Error('ID do torneio e nome do jogador são obrigatórios.');
   }
@@ -154,15 +148,8 @@ async function updatePlayer(playerId, playerData) {
   if (!playerId) {
     throw new Error('ID do jogador não fornecido');
   }
-  const {
-    name,
-    nickname,
-    games_played,
-    wins,
-    losses,
-    gender,
-    skill_level,
-  } = playerData;
+  const { name, nickname, games_played, wins, losses, gender, skill_level } =
+    playerData;
   const fieldsToUpdate = [];
   const values = [];
 

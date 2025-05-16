@@ -73,7 +73,7 @@
       }
 
       .fullscreen-toggle {
-        background-color: var(--primary-color, #4b8fff);
+        background-color: var(--primary-color, #217a2b);
         color: white;
         border: none;
         border-radius: 4px;
@@ -88,7 +88,7 @@
       }
 
       .fullscreen-toggle:hover {
-        background-color: var(--primary-hover, #2e70df);
+        background-color: var(--primary-hover, #17611f);
         transform: scale(1.05);
       }
 
@@ -167,7 +167,7 @@
         height: 40px;
         border-radius: 20px;
         border: none;
-        background-color: var(--primary-color, #4b8fff);
+        background-color: var(--primary-color, #217a2b);
         color: white;
         font-size: 20px;
         cursor: pointer;
@@ -177,7 +177,7 @@
       }
 
       .zoom-controls button:hover {
-        background-color: var(--primary-hover, #2e70df);
+        background-color: var(--primary-hover, #17611f);
       }
     `;
 

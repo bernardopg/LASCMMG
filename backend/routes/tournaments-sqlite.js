@@ -1299,12 +1299,10 @@ router.patch('/:tournamentId/status', authMiddleware, async (req, res) => {
     );
 
     if (!updatedTournament) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: 'Torneio não encontrado ou status não alterado.',
-        });
+      return res.status(404).json({
+        success: false,
+        message: 'Torneio não encontrado ou status não alterado.',
+      });
     }
 
     logger.info(

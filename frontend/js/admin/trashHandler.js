@@ -29,7 +29,7 @@ export async function loadTrash() {
     ui.showMessage('Erro ao carregar lixeira.', 'error', error.message);
     state.setTrashedTournamentsList([]);
     renderTrashTable();
-    elements.trashTableBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red;">Erro ao carregar lixeira.</td></tr>`;
+    elements.trashTableBody.innerHTML = `<tr><td colspan="3"><div class="message error" style="text-align: center;">Erro ao carregar lixeira.</div></td></tr>`;
   }
 }
 

@@ -14,6 +14,9 @@ O LASCMMG é um sistema web completo para organização, acompanhamento e admini
 - **Lixeira inteligente** para torneios cancelados, com restauração e exclusão permanente.
 - **Estatísticas avançadas**: dashboards, gráficos, histórico, desempenho de jogadores.
 - **Design responsivo** e temas claro/escuro personalizáveis.
+    - Alternância de tema centralizada via ThemeManager.
+    - Sistema de cores dinâmico e acessível via DynamicColorSystem.
+    - Painel de personalização de cores pode ser ativado via `createColorPanel()` em páginas desejadas.
 - **Acessibilidade (A11y)**: navegação por teclado, ARIA, contraste, responsividade.
 - **Segurança**: CSRF, XSS, rate limiting, cookies seguros, headers HTTP, logs, honeypot, hashing de senhas.
 
@@ -56,7 +59,7 @@ Acesse:
 ## Documentação
 
 - [Manual do Usuário](MANUAL_USUARIO.md)
-- [Padrões de Código](CODING_STANDARDS.md)
+- [Padrões de Código](CODING_STANDARDS.md) _(inclui diretrizes para temas e sistema de cores)_
 - [Guia de Deploy](DEPLOYMENT.md)
 - [Escalabilidade](SCALING.md)
 - [Resolução de Problemas](TROUBLESHOOTING.md)

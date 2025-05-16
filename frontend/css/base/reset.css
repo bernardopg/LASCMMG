@@ -1,0 +1,93 @@
+/*
+ * Reset moderno para o Sistema de Gerenciamento de Torneios LASCMMG
+ * Baseado em normalize.css e práticas modernas de CSS
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* Remover estilos padrão de listas quando usadas para navegação */
+nav ul, nav ol {
+  list-style: none;
+}
+
+/* Links sem decoração por padrão */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Tabelas com layout mais previsível */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* Formulários e botões com aparência consistente */
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Melhorar acessibilidade de foco */
+:focus {
+  outline: 0;
+}
+:focus-visible {
+  outline: 2px solid var(--focus-color, #217a2b);
+  outline-offset: 2px;
+}
+
+/* Esconder elementos visualmente mas manter para leitores de tela */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
