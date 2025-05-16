@@ -1,5 +1,12 @@
 # Guia Abrangente de Implantação - LASCMMG
 
+## 🆕 Atualizações Recentes
+
+- Todos os imports de módulos JavaScript no frontend e backend foram revisados e corrigidos para usar caminhos relativos corretos, eliminando erros de importação.
+- Estrutura de pastas padronizada e modularizada para facilitar manutenção e escalabilidade.
+- Scripts, handlers e documentação revisados para refletir a estrutura real do projeto e facilitar onboarding de novos desenvolvedores.
+- Recomendações de deploy e manutenção revisadas para refletir as melhores práticas atuais.
+
 [⬅ Voltar ao README](README.md)
 
 ## Índice

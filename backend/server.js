@@ -156,7 +156,7 @@ const oneDay = 86400000;
 
 app.use(
   '/css',
-  serveStatic(path.join(__dirname, 'css'), {
+  serveStatic(path.join(__dirname, '../frontend/css'), {
     maxAge: oneDay,
     setHeaders: (res, _filePath) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -166,7 +166,7 @@ app.use(
 
 app.use(
   '/js',
-  serveStatic(path.join(__dirname, 'js'), {
+  serveStatic(path.join(__dirname, '../frontend/js'), {
     maxAge: oneDay,
     setHeaders: (res, filePath) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -182,7 +182,7 @@ app.use(
 
 app.use(
   '/assets',
-  serveStatic(path.join(__dirname, 'assets'), {
+  serveStatic(path.join(__dirname, '../frontend/assets'), {
     maxAge: oneDay,
     setHeaders: (res, _filePath) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -231,7 +231,7 @@ app.use('/api/*', (req, res) => {
 
 app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
   try {
-    const filePath = path.join(__dirname, 'admin.html');
+    const filePath = path.join(__dirname, '../frontend/admin.html');
     const htmlContent = await fs.readFile(filePath, 'utf-8');
     const injectedHtml = honeypot.injectFields(htmlContent);
     res.send(injectedHtml);
@@ -246,7 +246,7 @@ app.get(
   csrfMiddleware.csrfProvider,
   async (req, res, next) => {
     try {
-      const filePath = path.join(__dirname, 'admin-security.html');
+      const filePath = path.join(__dirname, '../frontend/admin-security.html');
       const htmlContent = await fs.readFile(filePath, 'utf-8');
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
@@ -261,7 +261,7 @@ app.get(
   csrfMiddleware.csrfProvider,
   async (req, res, next) => {
     try {
-      const filePath = path.join(__dirname, 'index.html');
+      const filePath = path.join(__dirname, '../frontend/index.html');
       const htmlContent = await fs.readFile(filePath, 'utf-8');
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
@@ -283,7 +283,7 @@ app.get('*', (req, res, next) => {
     return next();
   }
 
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 async function startServer() {

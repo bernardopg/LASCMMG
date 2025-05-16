@@ -8,7 +8,7 @@ const {
   runAsync,
   getOneAsync,
   transactionAsync,
-} = require('../database'); // Atualizado para database
+} = require('../db/database'); // Atualizado para database
 const playerModel = require('./playerModel');
 
 /**

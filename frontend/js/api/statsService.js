@@ -1,4 +1,4 @@
-import { showMessage } from './uiUtils.js';
+import { showMessage } from '../ui/utils/uiUtils.js';
 
 const STATS_API_BASE_URL = '/api/stats';
 

@@ -1,5 +1,12 @@
 # 📝 Lista de Tarefas e Melhorias - LASCMMG
 
+## 🆕 Atualizações Recentes
+
+- Imports relativos padronizados e corrigidos em todo o projeto (frontend e backend).
+- Estrutura de pastas modularizada e documentação revisada.
+- Boas práticas de UI/UX, acessibilidade e responsividade implementadas.
+- Scripts, handlers e documentação atualizados para refletir a arquitetura real do sistema.
+
 [⬅ Voltar ao README](README.md)
 
 ---

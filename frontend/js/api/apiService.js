@@ -1,9 +1,9 @@
-import { API_CONSTANTS, LOGIN_TOKEN_KEY } from './constants.js';
+import { API_CONSTANTS, LOGIN_TOKEN_KEY } from '../shared/constants.js';
 import {
   sanitizeData,
   sanitizeURLParams,
   getCSRFToken,
-} from './securityUtils.js';
+} from '../utils/securityUtils.js';
 
 const API_BASE_URL = API_CONSTANTS.BASE_URL;
 

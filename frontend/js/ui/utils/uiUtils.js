@@ -1,5 +1,5 @@
-import { handleLogout as authHandleLogout } from './auth.js';
-import { sanitizeHTML, createSafeElement } from './securityUtils.js';
+import { handleLogout as authHandleLogout } from '../../auth/auth.js';
+import { sanitizeHTML, createSafeElement } from '../../utils/securityUtils.js';
 
 export function showMessage(message, type = 'info', details = '') {
   const messageContainer = document.getElementById('message-container');

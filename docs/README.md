@@ -1,5 +1,12 @@
 # Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG)
 
+## 🆕 Atualizações Recentes
+
+- Todos os imports de módulos JavaScript no frontend e backend foram revisados e corrigidos para usar caminhos relativos corretos, eliminando erros de importação.
+- Estrutura de pastas padronizada e modularizada para facilitar manutenção e escalabilidade.
+- Garantia de boas práticas de UI/UX, acessibilidade (A11y) e responsividade em todas as telas.
+- Scripts, handlers e documentação revisados para refletir a estrutura real do projeto e facilitar onboarding de novos desenvolvedores.
+
 <!-- Badges -->
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO)

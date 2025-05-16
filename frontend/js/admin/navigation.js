@@ -1,5 +1,5 @@
-import { setActiveNavItem, showMessage } from '../uiUtils.js';
-import { getCurrentTournamentId } from '../state.js';
+import { setActiveNavItem, showMessage } from '../ui/utils/uiUtils.js';
+import { getCurrentTournamentId } from '../state/state.js';
 
 const sectionElements = {
   dashboard: document.getElementById('section-dashboard'),

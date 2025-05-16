@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
 const { JWT_SECRET, JWT_ISSUER, JWT_AUDIENCE } = config;
-const { logAction } = require('./auditLogger'); // Importar diretamente a função
+const { logAction } = require('../logger/auditLogger'); // Importar diretamente a função
 
 const failedAttempts = new Map();
 const blacklistedTokens = new Map();

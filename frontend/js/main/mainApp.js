@@ -8,9 +8,9 @@ import {
   auditImagesAccessibility,
   initImageUtils,
 } from '../utils/imageUtils.js';
-import * as bracketRenderer from './main/bracketRenderer.js';
-import * as scoreHandler from './main/scoreHandler.js';
-import * as statsHandler from './main/statsHandler.js';
+import * as bracketRenderer from './bracketRenderer.js';
+import * as scoreHandler from './scoreHandler.js';
+import * as statsHandler from './statsHandler.js';
 import * as state from '../state/state.js';
 import { themeManager } from '../ui/theme/theme.js';
 import * as ui from '../ui/utils/uiUtils.js';

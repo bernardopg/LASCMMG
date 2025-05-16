@@ -1,5 +1,5 @@
-import { getTournamentStats, getPlayerStats } from '../statsService.js';
-import { getCurrentTournamentId } from '../state.js';
+import { getTournamentStats, getPlayerStats } from '../api/statsService.js';
+import { getCurrentTournamentId } from '../state/state.js';
 import * as ui from '../ui/utils/uiUtils.js';
 
 let statsContainer;

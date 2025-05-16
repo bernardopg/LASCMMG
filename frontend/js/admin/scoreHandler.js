@@ -1,6 +1,6 @@
-import * as api from '../apiService.js';
-import * as ui from '../uiUtils.js';
-import * as state from '../state.js';
+import * as api from '../api/apiService.js';
+import * as ui from '../ui/utils/uiUtils.js';
+import * as state from '../state/state.js';
 import { loadTournamentState } from './bracketHandler.js';
 
 const elements = {

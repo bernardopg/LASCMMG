@@ -4,14 +4,14 @@ const tournamentModel = require('../lib/models/tournamentModel');
 const playerModel = require('../lib/models/playerModel');
 const scoreModel = require('../lib/models/scoreModel');
 const matchModel = require('../lib/models/matchModel');
-const { authMiddleware } = require('../lib/authMiddleware');
-const logger = require('../lib/logger').logger; // Adicionado logger
+const { authMiddleware } = require('../lib/middleware/authMiddleware');
+const logger = require('../lib/logger/logger').logger; // Adicionado logger
 const {
   calculateTopPlayersDb,
   calculateCommonScoresDb,
   calculatePlayerPerformanceDb,
   calculatePlayerStatsDb,
-} = require('../lib/statsService'); // Importar funções de cálculo de estatísticas
+} = require('../lib/services/statsService'); // Importar funções de cálculo de estatísticas
 
 router.get('/tournaments/:tournamentId', authMiddleware, async (req, res) => {
   const { tournamentId } = req.params;

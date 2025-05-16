@@ -1,14 +1,14 @@
 import * as auth from '../auth/auth.js';
 import * as ui from '../ui/utils/uiUtils.js';
-import * as nav from './admin/navigation.js';
-import * as tournamentHandler from './admin/tournamentHandler.js';
-import * as playerHandler from './admin/playerHandler.js';
-import * as scoreHandler from './admin/scoreHandler.js';
-import * as bracketHandler from './admin/bracketHandler.js';
-import * as scheduleHandler from './admin/scheduleHandler.js';
-import * as trashHandler from './admin/trashHandler.js';
-import * as dashboardHandler from './admin/dashboardHandler.js';
-import * as securityStatsHandler from './admin/securityStatsHandler.js';
+import * as nav from './navigation.js';
+import * as tournamentHandler from './tournamentHandler.js';
+import * as playerHandler from './playerHandler.js';
+import * as scoreHandler from './scoreHandler.js';
+import * as bracketHandler from './bracketHandler.js';
+import * as scheduleHandler from './scheduleHandler.js';
+import * as trashHandler from './trashHandler.js';
+import * as dashboardHandler from './dashboardHandler.js';
+import * as securityStatsHandler from './securityStatsHandler.js';
 import { themeManager } from '../ui/theme/theme.js';
 
 const elements = {

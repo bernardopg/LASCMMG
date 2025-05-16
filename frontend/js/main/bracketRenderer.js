@@ -1,5 +1,5 @@
-import * as ui from '../uiUtils.js';
-import * as state from '../state.js';
+import * as ui from '../ui/utils/uiUtils.js';
+import * as state from '../state/state.js';
 
 const elements = {
   bracketContainer: document.getElementById('bracket'),

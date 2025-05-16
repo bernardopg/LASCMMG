@@ -1,6 +1,6 @@
-import * as api from '../apiService.js';
-import * as ui from '../uiUtils.js';
-import { safeDOM, sanitizeData } from '../securityUtils.js';
+import * as api from '../api/apiService.js';
+import * as ui from '../ui/utils/uiUtils.js';
+import { safeDOM, sanitizeData } from '../utils/securityUtils.js';
 
 const elements = {
   dashboardSection: document.getElementById('section-dashboard'),

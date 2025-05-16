@@ -1,6 +1,6 @@
-import { showMessage, setButtonLoading } from './uiUtils.js';
-import { fetchApi, isAuthenticated } from './apiService.js';
-import { LOGIN_TOKEN_KEY } from './constants.js';
+import { showMessage, setButtonLoading } from '../ui/utils/uiUtils.js';
+import { fetchApi, isAuthenticated } from '../api/apiService.js';
+import { LOGIN_TOKEN_KEY } from '../shared/constants.js';
 
 export function checkAuthentication(showAdminCallback, showLoginCallback) {
   if (isAuthenticated()) {

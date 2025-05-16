@@ -3,15 +3,15 @@ const router = express.Router();
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
-const { DB_CONFIG } = require('../lib/config');
-const { checkDbConnection } = require('../lib/database'); // Importar checkDbConnection
+const { DB_CONFIG } = require('../lib/config/config');
+const { checkDbConnection } = require('../lib/db/database'); // Importar checkDbConnection
 const tournamentModel = require('../lib/models/tournamentModel'); // Importar modelos individualmente
 const playerModel = require('../lib/models/playerModel');
 const matchModel = require('../lib/models/matchModel');
 const scoreModel = require('../lib/models/scoreModel');
 
-const { authMiddleware } = require('../lib/authMiddleware');
-const { readJsonFile } = require('../lib/fileUtils'); // Para ler o log do honeypot
+const { authMiddleware } = require('../lib/middleware/authMiddleware');
+const { readJsonFile } = require('../lib/utils/fileUtils'); // Para ler o log do honeypot
 const HONEYPOT_LOG_PATH = path.join(
   __dirname,
   '..',

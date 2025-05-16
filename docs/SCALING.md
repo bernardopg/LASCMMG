@@ -1,5 +1,11 @@
 # Estratégia de Escalabilidade - LASCMMG
 
+## 🆕 Atualizações Recentes
+
+- Imports relativos padronizados e corrigidos em todo o projeto para garantir escalabilidade e modularidade.
+- Estrutura de pastas e modularização revisadas para facilitar manutenção e crescimento.
+- Documentação e scripts atualizados para refletir a arquitetura real e as melhores práticas de escalabilidade.
+
 [⬅ Voltar ao README](README.md)
 
 ## Índice

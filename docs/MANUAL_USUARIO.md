@@ -1,5 +1,12 @@
 # Manual do Usuário - Sistema de Gerenciamento de Torneios de Sinuca LASCMMG
 
+## 🆕 Atualizações Recentes
+
+- Navegação, UI/UX e acessibilidade aprimoradas em todas as telas.
+- Imports de scripts e módulos revisados para garantir funcionamento consistente e sem erros.
+- Estrutura de menus, temas e feedback visual padronizados.
+- Documentação revisada para refletir a experiência real do usuário.
+
 [⬅ Voltar ao README](README.md)
 
 ## Índice

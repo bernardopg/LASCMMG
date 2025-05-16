@@ -1,8 +1,8 @@
-import * as api from '../apiService.js';
-import * as ui from '../uiUtils.js';
-import * as state from '../state.js';
+import * as api from '../api/apiService.js';
+import * as ui from '../ui/utils/uiUtils.js';
+import * as state from '../state/state.js';
 import { renderBracket } from './bracketRenderer.js';
-import { createScoresFilterManager } from '../filterManager.js';
+import { createScoresFilterManager } from '../shared/filterManager.js';
 
 const elements = {
   scoresTableBody: document.getElementById('scores-body'),

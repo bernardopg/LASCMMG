@@ -7,12 +7,12 @@
  * e outras vulnerabilidades de segurança.
  */
 
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import {
-  sanitizeHTML,
   createSafeElement,
+  sanitizeHTML,
   setElementTextSafely,
-} from '../../js/securityUtils.js';
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+} from '../../frontend/js/utils/securityUtils.js';
 
 describe('Prevenção XSS - sanitizeHTML', () => {
   test('deve remover scripts injetados', () => {

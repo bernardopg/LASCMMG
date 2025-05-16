@@ -1,5 +1,12 @@
 # Guia de Resolução de Problemas - LASCMMG
 
+## 🆕 Atualizações Recentes
+
+- Imports relativos padronizados e corrigidos em todo o projeto (frontend e backend).
+- Estrutura de pastas modularizada e documentação revisada.
+- Scripts, handlers e documentação atualizados para refletir a arquitetura real do sistema.
+- Novas dicas para resolução de problemas de importação, estrutura e deploy.
+
 [⬅ Voltar ao README](README.md)
 
 ## Índice

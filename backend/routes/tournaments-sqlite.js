@@ -10,7 +10,7 @@ const {
   generateSingleEliminationBracket,
   generateDoubleEliminationBracket,
   advancePlayersInBracket,
-} = require('../lib/bracketUtils'); // Importar funções de lógica de chaveamento
+} = require('../lib/utils/bracketUtils'); // Importar funções de lógica de chaveamento
 
 function isValidTournamentId(id) {
   return (
