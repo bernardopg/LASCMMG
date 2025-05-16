@@ -28,17 +28,10 @@ const elements = {
 
 async function fetchAndUpdateTournaments() {
   try {
-    console.log('[tournamentHandler] Fetching tournaments...');
     const response = await api.getTournaments();
-    console.log(
-      '[tournamentHandler] Tournaments fetched:',
-      response.tournaments
-    );
-    // Filter out tournaments with status 'Cancelado'
-    const activeTournaments = Array.isArray(response.tournaments)
-      ? response.tournaments.filter((t) => t.status !== 'Cancelado')
+    const activeTournaments = Array.isArray(response)
+      ? response.filter((t) => t.status !== 'Cancelado')
       : [];
-    console.log('[tournamentHandler] Active tournaments:', activeTournaments);
     state.setTournamentsList(activeTournaments);
   } catch (error) {
     console.error('Erro ao carregar lista de torneios:', error);
@@ -104,10 +97,6 @@ function renderTournamentsTable(tournamentsToRender = null) {
       ? tournamentsToRender
       : state.getTournamentsList().filter((t) => t.status !== 'Cancelado'); // Ensure 'Cancelado' are not rendered
 
-  console.log(
-    '[tournamentHandler] Rendering table with tournaments:',
-    tournaments
-  );
 
   if (!Array.isArray(tournaments) || tournaments.length === 0) {
     elements.tournamentsTableBody.innerHTML =
@@ -157,41 +146,22 @@ function renderTournamentsTable(tournamentsToRender = null) {
       async (e) => {
         const tournamentId = tournament.id;
         const tournamentName = tournament.name || tournament.id;
-        console.log(
-          `[tournamentHandler] Attempting to trash tournament: ${tournamentName} (ID: ${tournamentId})`
-        );
         if (
           !confirm(
             `Tem certeza que deseja mover o torneio "${tournamentName}" para a lixeira?`
           )
         ) {
-          console.log(
-            `[tournamentHandler] Trashing cancelled by user for tournament: ${tournamentName}`
-          );
           return;
         }
         const buttonElement = e.target;
         ui.setButtonLoading(buttonElement, true);
         try {
-          console.log(
-            `[tournamentHandler] Calling api.trashTournament for ID: ${tournamentId}`
-          );
           const result = await api.trashTournament(tournamentId);
-          console.log(
-            '[tournamentHandler] trashTournament API result:',
-            result
-          );
           ui.showMessage(
             result.message,
             result.success ? 'success' : 'warning'
           );
-          console.log(
-            '[tournamentHandler] Calling loadTournamentsList after trashing.'
-          );
-          await loadTournamentsList(); // This line was reported as slow
-          console.log(
-            '[tournamentHandler] loadTournamentsList completed after trashing.'
-          );
+          await loadTournamentsList();
         } catch (error) {
           ui.showMessage(
             'Erro ao mover torneio para a lixeira.',
