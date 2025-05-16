@@ -17,6 +17,8 @@ O LASCMMG é um sistema web completo para organização, acompanhamento e admini
     - Alternância de tema centralizada via ThemeManager.
     - Sistema de cores dinâmico e acessível via DynamicColorSystem.
     - Painel de personalização de cores pode ser ativado via `createColorPanel()` em páginas desejadas.
+    - Favicon dinâmico que se adapta ao tema do sistema.
+    - Estilos de impressão otimizados para chaveamentos e tabelas.
 - **Acessibilidade (A11y)**: navegação por teclado, ARIA, contraste, responsividade.
 - **Segurança**: CSRF, XSS, rate limiting, cookies seguros, headers HTTP, logs, honeypot, hashing de senhas.
 

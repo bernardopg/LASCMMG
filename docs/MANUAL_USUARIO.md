@@ -7,6 +7,8 @@
 - Melhorias significativas na acessibilidade e experiência do usuário.
 - Otimização de performance para carregamento mais rápido e operação fluida.
 - Navegação intuitiva com feedback visual aprimorado.
+- Favicon dinâmico que se adapta ao tema do sistema.
+- Estilos de impressão aprimorados para chaveamentos e tabelas.
 - Documentação atualizada para refletir todas as novas funcionalidades.
 
 [⬅ Voltar ao README](README.md)
@@ -18,6 +20,7 @@
 - [Painel Administrativo](#2-gerenciando-torneios-o-painel-administrativo-adminhtml)
 - [Navegação e Dicas](#13-menu-de-perfil-e-acesso-rápido-canto-superior-direito)
 - [Personalização](#14-personalizando-sua-experiência-alternador-de-tema)
+- [Impressão](#15-imprimindo-chaveamentos-e-tabelas)
 
 ---
 
@@ -69,6 +72,26 @@ O sistema agora conta com um design moderno que se adapta automaticamente às su
 * **Alta Responsividade:** O layout se adapta perfeitamente a qualquer tamanho de tela, desde smartphones até monitores ultrawide, garantindo uma experiência consistente em todos os dispositivos.
 
 * **Acessibilidade Aprimorada:** Contraste otimizado, tamanhos de fonte ajustáveis e suporte completo para navegação por teclado e leitores de tela.
+
+* **Favicon Dinâmico:** O ícone do site na aba do navegador é gerado dinamicamente para combinar com o tema do sistema, proporcionando uma experiência visual coesa.
+
+### 1.5. Imprimindo Chaveamentos e Tabelas
+
+O sistema agora oferece suporte aprimorado para impressão de chaveamentos e tabelas:
+
+* **Impressão Otimizada:** Ao imprimir uma página contendo chaveamentos ou tabelas, o sistema automaticamente ajusta o layout para garantir a melhor qualidade de impressão.
+
+* **Como Imprimir:**
+  * Navegue até a seção que deseja imprimir (Chaveamento, Histórico de Placares, Estatísticas).
+  * Utilize a função de impressão do seu navegador (geralmente Ctrl+P ou Cmd+P).
+  * O sistema automaticamente removerá elementos desnecessários como menus, botões e elementos de navegação.
+  * Os chaveamentos serão ajustados para caber adequadamente no papel.
+  * As tabelas serão formatadas para melhor legibilidade em formato impresso.
+
+* **Dicas para Impressão:**
+  * Para chaveamentos grandes, considere utilizar orientação paisagem nas configurações de impressão.
+  * Você pode salvar como PDF em vez de imprimir fisicamente, criando assim um documento digital que pode ser facilmente compartilhado.
+  * Para torneios com muitos jogadores, o chaveamento pode ser dividido em múltiplas páginas automaticamente.
 
 ## 2. Gerenciando Torneios: O Painel Administrativo (`admin.html`)
 
