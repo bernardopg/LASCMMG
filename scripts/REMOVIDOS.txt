@@ -1,4 +1,0 @@
-test-autenticado.js
- test-torneios.js
- test-system.js
-Motivo: Redundantes, fluxos já cobertos por test-avancado.js.

@@ -21,13 +21,7 @@ export default tseslint.config(
 
   // Configuration for Node.js files (CommonJS)
   {
-    files: [
-      'server.js',
-      'server-sqlite.js',
-      'routes/**/*.js',
-      'lib/**/*.js',
-      'scripts/**/*.js',
-    ], // Added server-sqlite.js
+    files: ['backend/**/*.js', 'scripts/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.node, // Use Node.js global variables
@@ -43,7 +37,7 @@ export default tseslint.config(
 
   // Configuration for Frontend JS files (ES Modules)
   {
-    files: ['js/**/*.js'],
+    files: ['frontend/js/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.browser, // Use Browser global variables
