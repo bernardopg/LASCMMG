@@ -1,20 +1,11 @@
-/**
- * Modelo de Torneio
- * Implementa operações no banco de dados relacionadas a torneios
- */
-
 const {
   queryAsync,
   runAsync,
   getOneAsync,
   transactionAsync,
 } = require('../db/database'); // Atualizado para database
+const { logger } = require('../logger/logger'); // Importar logger
 
-/**
- * Busca todos os torneios no banco de dados
- * @param {object} options Opções de filtro e ordenação
- * @returns {Promise<Array>} Lista de torneios
- */
 async function getAllTournaments(options = {}) {
   const allowedOrderFields = [
     'id',
@@ -56,16 +47,11 @@ async function getAllTournaments(options = {}) {
     const totalResult = await getOneAsync(countSql);
     return { tournaments, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    console.error('Erro ao buscar torneios:', err.message);
+    logger.error('TournamentModel', 'Erro ao buscar torneios:', { error: err });
     throw err;
   }
 }
 
-/**
- * Busca um torneio pelo ID
- * @param {string} id ID do torneio
- * @returns {Promise<object|null>} Dados do torneio ou null se não encontrado
- */
 async function getTournamentById(id) {
   if (!id) {
     throw new Error('ID do torneio não fornecido');
@@ -76,16 +62,15 @@ async function getTournamentById(id) {
   try {
     return await getOneAsync(sql, [id]);
   } catch (err) {
-    console.error(`Erro ao buscar torneio com ID ${id}:`, err.message);
+    logger.error(
+      'TournamentModel',
+      `Erro ao buscar torneio com ID ${id}: ${err.message}`,
+      { id, error: err }
+    );
     throw err;
   }
 }
 
-/**
- * Cria um novo torneio
- * @param {object} tournament Dados do torneio a ser criado
- * @returns {Promise<object>} Torneio criado com ID
- */
 async function createTournament(tournament) {
   if (!tournament || !tournament.id || !tournament.name) {
     throw new Error('Dados do torneio incompletos');
@@ -106,37 +91,51 @@ async function createTournament(tournament) {
   } = tournament;
 
   const sql = `
-    INSERT INTO tournaments (id, name, date, description, num_players_expected, bracket_type, status, state_json, entry_fee, prize_pool, rules)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `; // created_at e updated_at terão DEFAULT CURRENT_TIMESTAMP
+    INSERT INTO tournaments (id, name, date, description, num_players_expected, bracket_type, status, entry_fee, prize_pool, rules)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `; // state_json é tratado separadamente
+
+  const sqlInsertState = `
+    INSERT INTO tournament_state (tournament_id, state_json)
+    VALUES (?, ?)
+  `;
 
   try {
-    await runAsync(sql, [
-      id,
-      name,
-      date,
-      description,
-      num_players_expected,
-      bracket_type,
-      status,
-      state_json,
-      entry_fee,
-      prize_pool,
-      rules,
-    ]);
+    // Usar uma transação para garantir atomicidade
+    // A callback para transactionAsync deve ser síncrona, pois db.transaction() do better-sqlite3 é síncrono.
+    await transactionAsync((db) => {
+      // Removido async da callback
+      // Inserir na tabela tournaments
+      db.prepare(sql).run(
+        id,
+        name,
+        date,
+        description,
+        num_players_expected,
+        bracket_type,
+        status,
+        entry_fee,
+        prize_pool,
+        rules
+      );
+
+      // Inserir na tabela tournament_state
+      if (state_json) {
+        // Apenas insere se state_json for fornecido
+        db.prepare(sqlInsertState).run(id, state_json);
+      }
+    });
+
     return await getTournamentById(id);
   } catch (err) {
-    console.error('Erro ao criar torneio:', err.message);
+    logger.error('TournamentModel', 'Erro ao criar torneio e estado inicial:', {
+      error: err,
+      tournamentData: tournament,
+    });
     throw err;
   }
 }
 
-/**
- * Atualiza um torneio existente
- * @param {string} id ID do torneio a ser atualizado
- * @param {object} data Dados a serem atualizados
- * @returns {Promise<object|null>} Torneio atualizado ou null se não encontrado
- */
 async function updateTournament(id, data) {
   if (!id) {
     throw new Error('ID do torneio não fornecido');
@@ -176,7 +175,7 @@ async function updateTournament(id, data) {
     UPDATE tournaments
     SET ${setClause}, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `;
+  `; // A atualização de state_json é feita por updateTournamentState
 
   const params = [...updates.map((update) => update.value), id];
 
@@ -184,12 +183,16 @@ async function updateTournament(id, data) {
     const result = await runAsync(sql, params);
 
     if (result.changes === 0) {
-      return null;
+      return null; // Torneio não encontrado ou nenhum dado alterado
     }
 
-    return await getTournamentById(id);
+    return await getTournamentById(id); // Retorna o torneio atualizado
   } catch (err) {
-    console.error(`Erro ao atualizar torneio com ID ${id}:`, err.message);
+    logger.error(
+      'TournamentModel',
+      `Erro ao atualizar torneio com ID ${id}: ${err.message}`,
+      { id, data, error: err }
+    );
     throw err;
   }
 }
@@ -210,7 +213,11 @@ async function deleteTournament(id) {
     const result = await runAsync(sql, [id]);
     return result.changes > 0;
   } catch (err) {
-    console.error(`Erro ao excluir torneio com ID ${id}:`, err.message);
+    logger.error(
+      'TournamentModel',
+      `Erro ao excluir torneio com ID ${id}: ${err.message}`,
+      { id, error: err }
+    );
     throw err;
   }
 }
@@ -231,9 +238,10 @@ async function tournamentExists(id) {
     const tournament = await getOneAsync(sql, [id]);
     return !!tournament;
   } catch (err) {
-    console.error(
-      `Erro ao verificar existência do torneio ${id}:`,
-      err.message
+    logger.error(
+      'TournamentModel',
+      `Erro ao verificar existência do torneio ${id}: ${err.message}`,
+      { id, error: err }
     );
     throw err;
   }
@@ -250,7 +258,7 @@ async function countTournaments() {
     const result = await getOneAsync(sql);
     return result ? result.count : 0;
   } catch (err) {
-    console.error('Erro ao contar torneios:', err.message);
+    logger.error('TournamentModel', 'Erro ao contar torneios:', { error: err });
     throw err;
   }
 }
@@ -269,10 +277,11 @@ async function importTournaments(tournaments) {
 
   try {
     // A callback para transactionAsync agora é síncrona e recebe 'db'
+    // A callback para transactionAsync agora é síncrona e recebe 'db'
     await transactionAsync((db) => {
-      const stmt = db.prepare(`
-        INSERT INTO tournaments (id, name, date, description, num_players_expected, bracket_type, status, state_json, entry_fee, prize_pool, rules)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      const stmtTournament = db.prepare(`
+        INSERT INTO tournaments (id, name, date, description, num_players_expected, bracket_type, status, entry_fee, prize_pool, rules, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(id) DO UPDATE SET
           name = excluded.name,
           date = excluded.date,
@@ -280,16 +289,26 @@ async function importTournaments(tournaments) {
           num_players_expected = excluded.num_players_expected,
           bracket_type = excluded.bracket_type,
           status = excluded.status,
-          state_json = excluded.state_json,
           entry_fee = excluded.entry_fee,
           prize_pool = excluded.prize_pool,
           rules = excluded.rules,
           updated_at = CURRENT_TIMESTAMP
       `);
+      // state_json é tratado separadamente
+      const stmtState = db.prepare(`
+        INSERT INTO tournament_state (tournament_id, state_json)
+        VALUES (?, ?)
+        ON CONFLICT(tournament_id) DO UPDATE SET
+          state_json = excluded.state_json
+      `);
 
       for (const tournament of tournaments) {
         if (!tournament.id || !tournament.name) {
-          console.warn('Ignorando torneio com dados incompletos:', tournament);
+          logger.warn(
+            'TournamentModel',
+            'Ignorando torneio com dados incompletos durante importação.',
+            { tournamentData: tournament }
+          );
           continue;
         }
 
@@ -301,19 +320,13 @@ async function importTournaments(tournaments) {
           num_players_expected,
           bracket_type = 'single-elimination',
           status = 'Pendente',
-          state_json,
-          entry_fee = 0.0, // Novo campo
-          prize_pool = '', // Novo campo
-          rules = '', // Novo campo
+          state_json, // Este é o objeto ou string JSON
+          entry_fee = 0.0,
+          prize_pool = '',
+          rules = '',
         } = tournament;
 
-        const stateJsonString =
-          typeof state_json === 'object' && state_json !== null
-            ? JSON.stringify(state_json)
-            : state_json || null;
-
-        // Usar a statement preparada
-        const info = stmt.run(
+        stmtTournament.run(
           id,
           name,
           date,
@@ -321,20 +334,33 @@ async function importTournaments(tournaments) {
           num_players_expected,
           bracket_type,
           status,
-          stateJsonString,
           entry_fee,
           prize_pool,
           rules
         );
-        if (info.changes > 0) {
-          imported++;
+
+        const stateJsonString =
+          typeof state_json === 'object' && state_json !== null
+            ? JSON.stringify(state_json)
+            : typeof state_json === 'string'
+              ? state_json
+              : null;
+
+        if (stateJsonString) {
+          stmtState.run(id, stateJsonString);
         }
+
+        // info.changes pode ser 0 em ON CONFLICT DO UPDATE se os valores forem os mesmos.
+        // Consideramos importado se não houver erro.
+        imported++;
       }
-    }); // Esta é a chave de fechamento para a callback de transactionAsync
+    });
 
     return imported;
   } catch (err) {
-    console.error('Erro ao importar torneios:', err.message);
+    logger.error('TournamentModel', 'Erro ao importar torneios:', {
+      error: err,
+    });
     throw err;
   }
 }
@@ -382,11 +408,10 @@ async function getTournamentStats() {
           break;
         default:
           stats.other += row.count;
-          console.warn(
-            'Status de torneio não mapeado detectado:',
-            row.status,
-            'Contagem:',
-            row.count
+          logger.warn(
+            'TournamentModel',
+            'Status de torneio não mapeado detectado em getTournamentStats.',
+            { status: row.status, count: row.count }
           );
           break;
       }
@@ -394,33 +419,39 @@ async function getTournamentStats() {
 
     return stats;
   } catch (err) {
-    console.error('Erro ao obter estatísticas de torneios:', err.message);
+    logger.error('TournamentModel', 'Erro ao obter estatísticas de torneios:', {
+      error: err,
+    });
     throw err;
   }
 }
 
 /**
- * Atualiza o estado JSON de um torneio específico.
+ * Atualiza o estado JSON de um torneio específico na tabela tournament_state.
  * @param {string} id ID do torneio
  * @param {string} stateJson String JSON do estado do torneio
- * @returns {Promise<boolean>} True se atualizado, false caso contrário
+ * @returns {Promise<boolean>} True se atualizado/inserido, false caso contrário
  */
 async function updateTournamentState(id, stateJson) {
   if (!id || typeof stateJson !== 'string') {
     throw new Error('ID do torneio e stateJson (string) são obrigatórios.');
   }
+  // Usar INSERT OR REPLACE para lidar com casos onde o estado pode não existir ainda
   const sql = `
-    UPDATE tournaments
-    SET state_json = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
+    INSERT OR REPLACE INTO tournament_state (tournament_id, state_json)
+    VALUES (?, ?)
   `;
   try {
-    const result = await runAsync(sql, [stateJson, id]);
+    const result = await runAsync(sql, [id, stateJson]);
+    // Para INSERT OR REPLACE, changes pode ser 1 para insert ou replace.
+    // Se o objetivo é saber se algo mudou, pode ser necessário verificar o estado anterior.
+    // Para simplificar, consideramos sucesso se a operação não lançar erro.
     return result.changes > 0;
   } catch (err) {
-    console.error(
-      `Erro ao atualizar state_json para torneio ${id}:`,
-      err.message
+    logger.error(
+      'TournamentModel',
+      `Erro ao atualizar/inserir state_json para torneio ${id}: ${err.message}`,
+      { id, error: err }
     );
     throw err;
   }
@@ -445,7 +476,11 @@ async function updateTournamentStatus(id, newStatus) {
     const result = await runAsync(sql, [newStatus, id]);
     return result.changes > 0;
   } catch (err) {
-    console.error(`Erro ao atualizar status para torneio ${id}:`, err.message);
+    logger.error(
+      'TournamentModel',
+      `Erro ao atualizar status para torneio ${id}: ${err.message}`,
+      { id, newStatus, error: err }
+    );
     throw err;
   }
 }
@@ -505,7 +540,10 @@ async function getTournamentsByStatus(statuses = [], options = {}) {
     const totalResult = await getOneAsync(countSql, countParams);
     return { tournaments, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    console.error('Erro ao buscar torneios por status:', err.message);
+    logger.error('TournamentModel', 'Erro ao buscar torneios por status:', {
+      statuses,
+      error: err,
+    });
     throw err;
   }
 }
