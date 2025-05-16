@@ -1,30 +1,19 @@
-/* ========================================================================== */
-/* Admin Panel Specific Styles - Refactored for Consistency & Variables     */
-/* ========================================================================== */
-
-/* Layout & Sections */
 .admin-section {
-  /* Container for login or dashboard */
   padding: var(--spacing-lg);
-  /* background-color: var(--light-bg); /* Inherited from body */
-  /* No extra border/shadow needed here */
 }
 
 .admin-section h1 {
-  /* Login title */
   text-align: center;
   color: var(--primary-color);
   margin-bottom: var(--spacing-lg);
 }
 
 .admin-section-content {
-  /* Container for content within a specific admin view (e.g., #section-torneios) */
-  /* No specific styles needed here, layout managed by children (cards) */
 }
 
 .admin-card {
   background-color: var(--surface-color);
-  border-radius: var(--border-radius-lg); /* Slightly larger radius for cards */
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow);
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
@@ -41,21 +30,15 @@
 
 .hidden-section,
 .hidden-content {
-  /* Combined selectors */
   display: none;
 }
 
 .active-content {
-  display: block; /* Or flex/grid as needed by the specific section */
+  display: block;
 }
-
-/* Forms */
-/* Assuming base styles for form-group, label, input, select, textarea exist in style.css */
-/* Add only admin-specific overrides or additions */
 
 .form-group input[readonly],
 .form-group select[disabled] {
-  /* Style for readonly/disabled inputs/selects */
   background-color: var(--light-bg);
   cursor: not-allowed;
   opacity: 0.7;
@@ -68,25 +51,14 @@
   color: var(--light-text);
 }
 
-/* .form-row is likely defined in style.css, no need to repeat */
-
 .form-actions {
   margin-top: var(--spacing-md);
   display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
+  justify-content: flex-end;
   gap: var(--spacing-sm);
 }
 
-/* Buttons */
-/* Assuming base .btn styles exist in style.css */
-/* Override only necessary properties, primarily colors using variables */
-
-/* .btn-primary already styled in style.css */
-/* .btn-secondary already styled in style.css */
-/* .btn-danger already styled in style.css */
-
 .btn-success-custom {
-  /* Custom success color if needed */
   background-color: var(--success-color);
   color: var(--contrast-text);
   border-color: var(--success-color);
@@ -105,13 +77,12 @@
 }
 
 .btn-action {
-  margin: 0 2px; /* Small spacing between action buttons */
+  margin: 0 2px;
 }
 
 .btn-edit {
-  /* Often uses warning/accent color */
   background-color: var(--warning-color);
-  color: var(--dark-text); /* Text needs to be dark on yellow */
+  color: var(--dark-text);
   border-color: var(--warning-color);
 }
 .btn-edit:hover:not(:disabled) {
@@ -122,30 +93,22 @@
   outline-color: var(--warning-hover);
 }
 
-/* .btn-delete uses .btn-danger styles from style.css */
-
-/* Table Styles */
-/* Assuming base .table-container, .data-table, th, td styles exist in style.css */
-/* Add only admin-specific overrides or additions */
-
 .table-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md); /* Space below actions */
-  flex-wrap: wrap; /* Allow wrapping */
-  gap: var(--spacing-md); /* Add gap for spacing */
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .search-filter {
-  margin-bottom: 0; /* Remove default form-group margin */
-  flex-grow: 1; /* Allow search to take available space */
-  max-width: 350px; /* Optional: limit max width */
+  margin-bottom: 0;
+  flex-grow: 1;
+  max-width: 350px;
 }
 .search-filter input[type='search'] {
-  /* Use default input styles from style.css */
-  /* Add specific adjustments if needed */
-  padding: 8px 10px; /* Example adjustment */
+  padding: 8px 10px;
 }
 
 .import-csv {
@@ -154,9 +117,7 @@
   gap: var(--spacing-sm);
 }
 .import-csv label.btn {
-  /* Style the label like a button */
   cursor: pointer;
-  /* Inherit .btn styles */
 }
 .import-csv details summary {
   cursor: pointer;
@@ -169,13 +130,13 @@
   padding: var(--spacing-sm);
   font-size: 0.8em;
   margin-top: 5px;
-  white-space: pre-wrap; /* Wrap long lines */
+  white-space: pre-wrap;
   word-break: break-all;
 }
 
 .action-cell {
   text-align: center;
-  white-space: nowrap; /* Prevent buttons from wrapping */
+  white-space: nowrap;
 }
 
 .loading-cell {
@@ -184,80 +145,62 @@
   color: var(--light-text);
 }
 
-/* Selected Row Highlight */
 #tournaments-body tr.selected-row td,
-.data-table tbody tr.selected-row td /* Add generic selected row for other tables */ {
+.data-table tbody tr.selected-row td {
   background-color: rgba(
     var(--primary-rgb),
     0.15
-  ); /* Slightly darker or more noticeable */
+  );
   color: var(--primary-hover);
-  font-weight: 600; /* Bolder */
+  font-weight: 600;
 }
-/* Ensure higher specificity if needed, without !important if possible */
 .admin-card .data-table tbody tr.selected-row td {
   background-color: rgba(var(--primary-rgb), 0.15);
   color: var(--primary-hover);
   font-weight: 600;
 }
 
-/* Specific Admin Bracket Styles */
-/* Remove duplicated layout styles (.bracket-display-container, .bracket-section, etc.) */
-/* Keep only admin-specific overrides or additions */
-
 #admin-bracket-view {
-  /* Container within the admin section */
   margin-top: var(--spacing-md);
-  /* Use base #bracket styles from style.css for scrolling, border etc. */
 }
 
-/* Override match style slightly for admin if needed */
 .admin-match {
-  /* Inherit base .match styles */
-  cursor: pointer; /* Ensure cursor indicates clickability */
-  position: relative; /* For absolute positioning of controls */
+  cursor: pointer;
+  position: relative;
 }
 .admin-match:focus-visible {
-  /* Ensure focus style */
   outline: var(--focus-outline-width) solid var(--focus-outline-color);
   outline-offset: var(--focus-outline-offset);
 }
 
-/* Override player style slightly for admin if needed */
 .admin-player {
-  /* Inherit base .player styles */
 }
 
-/* Override datetime style slightly for admin if needed */
 .admin-match-datetime {
-  /* Inherit base .match-datetime styles */
 }
 
 .tournament-actions {
   margin-top: var(--spacing-lg);
   display: flex;
   gap: var(--spacing-sm);
-  flex-wrap: wrap; /* Allow buttons to wrap */
+  flex-wrap: wrap;
   border-top: 1px solid var(--light-border);
   padding-top: var(--spacing-md);
 }
 
-/* Manual Winner Controls */
 .manual-winner-controls {
   display: flex;
   justify-content: space-around;
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-sm);
-  border-top: 1px dashed var(--light-border); /* Dashed separator */
+  border-top: 1px dashed var(--light-border);
 }
 
 .btn-wo {
-  /* Style for W.O. buttons */
-  /* Inherit .btn and .btn-small */
   background-color: var(--secondary-color);
   color: var(--contrast-text);
   border-color: var(--secondary-color);
-  line-height: 1; /* Adjust line height for small button */
+  line-height: 1;
 }
 .btn-wo:hover:not(:disabled) {
   background-color: var(--secondary-hover);
@@ -267,12 +210,10 @@
   outline-color: var(--secondary-hover);
 }
 
-/* Hidden field utility */
 .hidden-field {
   display: none;
 }
 
-/* Pagination Controls */
 .pagination-controls {
   margin-top: var(--spacing-md);
   display: flex;
@@ -282,7 +223,6 @@
 }
 
 .pagination-controls button {
-  /* Inherits .btn, .btn-secondary, .btn-small styles */
 }
 
 .pagination-controls button.active {
@@ -301,5 +241,5 @@
 .pagination-controls span {
   font-size: 0.9em;
   color: var(--light-text);
-  margin: 0 var(--spacing-sm); /* Add horizontal margin */
+  margin: 0 var(--spacing-sm);
 }
