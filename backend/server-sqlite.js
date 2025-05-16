@@ -4,11 +4,20 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const { PORT, NODE_ENV, CORS_ORIGIN, RATE_LIMIT } = require('./lib/config');
-const { globalErrorHandler } = require('./lib/errorHandler');
-const { initializeDatabase, testDatabaseConnection } = require('./lib/db-init');
-const honeypot = require('./lib/honeypot');
-const logger = require('./lib/logger');
+const {
+  PORT,
+  NODE_ENV,
+  CORS_ORIGIN,
+  RATE_LIMIT,
+} = require('./lib/config/config'); // Ajustado para caminho completo
+const { globalErrorHandler } = require('./lib/middleware/errorHandler'); // Ajustado para caminho completo
+const {
+  initializeDatabase,
+  testDatabaseConnection,
+} = require('./lib/db/db-init'); // Ajustado para caminho completo
+const honeypot = require('./lib/middleware/honeypot'); // Ajustado para caminho completo
+const logger = require('./lib/logger/logger'); // Ajustado para caminho completo
+const authMiddleware = require('./lib/middleware/authMiddleware'); // Movido para o topo
 
 const app = express();
 const port = PORT || 3001;
@@ -19,15 +28,19 @@ async function setupDatabase() {
 
     const testResult = await testDatabaseConnection();
     if (!testResult) {
-      console.error('Teste de conexão com banco de dados SQLite falhou!');
-      console.error(
+      logger.error('Teste de conexão com banco de dados SQLite falhou!');
+      logger.warn(
         'O servidor será iniciado, mas poderá haver problemas de persistência.'
+      );
+    } else {
+      logger.info(
+        'Conexão com banco de dados SQLite estabelecida com sucesso.'
       );
     }
   } catch (error) {
-    console.error('Erro ao inicializar banco de dados SQLite:', error);
-    console.error(
-      'O servidor será iniciado usando o modo de arquivo JSON como fallback.'
+    logger.error('Erro ao inicializar banco de dados SQLite:', error);
+    logger.warn(
+      'O servidor será iniciado, mas pode não funcionar como esperado sem o banco de dados.'
     );
   }
 }
@@ -85,7 +98,7 @@ const blockMaliciousIps = honeypot.createBlockMiddleware({
 app.use(blockMaliciousIps);
 
 logger.initialize().catch((err) => {
-  console.error('Erro ao inicializar sistema de logs:', err);
+  logger.error('Erro ao inicializar sistema de logs:', err);
 });
 
 app.use(logger.middleware);
@@ -93,9 +106,13 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/css', express.static(path.join(__dirname, '../frontend/css')));
+app.use('/js', express.static(path.join(__dirname, '../frontend/js')));
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+app.use(
+  '/favicon.ico',
+  express.static(path.join(__dirname, '../frontend/favicon.ico'))
+);
 
 const authRoutes = require('./routes/auth');
 const tournamentRoutes = require('./routes/tournaments-sqlite');
@@ -107,22 +124,19 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/system', systemStatsRoutes);
 
-const authMiddleware = require('./lib/authMiddleware');
 app.get(
   '/api/system/security/honeypot-stats',
   authMiddleware.requireAdmin,
   (req, res) => {
     try {
       const stats = honeypot.getThreatStats();
-
       stats.activeHoneypots = activeHoneypots;
-
       res.json({
         success: true,
         data: stats,
       });
     } catch (error) {
-      console.error('Erro ao obter estatísticas de honeypot:', error);
+      logger.error('Erro ao obter estatísticas de honeypot:', error);
       res.status(500).json({
         success: false,
         message: 'Erro ao obter estatísticas de segurança',
@@ -140,24 +154,39 @@ app.use('/api/*', (req, res) => {
 });
 
 app.get('/admin.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin.html'));
+  res.sendFile(path.join(__dirname, '../frontend/admin.html'));
 });
+
+app.get('/admin-security.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/admin-security.html'));
+});
+
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    return res.status(404).send('Not Found');
-  }
-  if (path.extname(req.path).length > 0) {
     return next();
   }
-  res.sendFile(path.join(__dirname, 'index.html'));
+  if (path.extname(req.path).length > 0 && !req.path.endsWith('.html')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-setupDatabase()
-  .then(() => {
-    /* Inicialização do banco de dados concluída com sucesso */ void 0;
-  })
-  .catch((err) => {
-    console.error('Erro crítico na inicialização do banco de dados:', err);
-
-    app.listen(port, () => {});
+async function startServer() {
+  await setupDatabase();
+  app.listen(port, () => {
+    logger.info(`Servidor rodando na porta ${port} em modo ${NODE_ENV}`);
+    logger.info(
+      `CORS habilitado para: ${NODE_ENV === 'production' ? CORS_ORIGIN : '*'}`
+    );
+    activeHoneypots.forEach((hp) =>
+      logger.info(
+        `Honeypot ativo em: ${hp.path} para o método ${hp.method.toUpperCase()}`
+      )
+    );
   });
+}
+
+startServer().catch((err) => {
+  logger.fatal('Erro crítico ao iniciar o servidor:', err);
+  process.exit(1); // Encerra o processo se houver erro crítico na inicialização
+});
