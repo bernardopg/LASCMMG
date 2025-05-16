@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
+const { logger } = require('../logger/logger'); // Adicionar logger principal
 
-const { JWT_SECRET, JWT_ISSUER, JWT_AUDIENCE } = config;
+const { JWT_SECRET } = config; // JWT_ISSUER e JWT_AUDIENCE não estão em config.js
 const { logAction } = require('../logger/auditLogger'); // Importar diretamente a função
 
 const failedAttempts = new Map();
@@ -50,7 +51,10 @@ function revokeToken(token, payload = null) {
 
     return true;
   } catch (err) {
-    console.error('Erro ao revogar token:', err);
+    logger.error('AuthMiddleware', 'Erro ao revogar token:', {
+      error: err.message,
+      stack: err.stack,
+    });
     return false;
   }
 }
@@ -129,9 +133,9 @@ const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-      complete: true,
+      // issuer: JWT_ISSUER, // Removido pois não está em config
+      // audience: JWT_AUDIENCE, // Removido pois não está em config
+      complete: true, // Retorna o payload e o header
     });
 
     const payload = decoded.payload;
@@ -199,7 +203,10 @@ const authMiddleware = (req, res, next) => {
         }
       );
 
-      return res.status(500).json({});
+      return res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor durante a autenticação.',
+      });
     }
   }
 };
@@ -280,21 +287,28 @@ const bruteForceProtection = (req, res, next) => {
 
   if (attempt.delayUntil > Date.now()) {
     const delay = attempt.delayUntil - Date.now();
+    const retryAfterSeconds = Math.ceil(delay / 1000);
 
-    if (delay > 10000) {
-      return res.status(429).json({
-        success: false,
-        message: 'Muitas tentativas inválidas. Tente novamente mais tarde.',
-        retryAfter: Math.ceil(delay / 1000),
-      });
-    }
-
-    setTimeout(
-      () => {
-        next();
-      },
-      Math.min(delay, 10000)
+    // Log da tentativa bloqueada por brute force
+    logAction(
+      'system_security',
+      'brute_force_attempt_blocked',
+      'security_event',
+      clientIP,
+      {
+        ipAddress: clientIP,
+        message: `Tentativa bloqueada devido a brute force. Tentar novamente após ${retryAfterSeconds}s.`,
+        currentFailedAttempts: attempt.count,
+        delayImposedUntil: new Date(attempt.delayUntil).toISOString(),
+      }
     );
+
+    res.setHeader('Retry-After', retryAfterSeconds);
+    return res.status(429).json({
+      success: false,
+      message: `Muitas tentativas inválidas. Tente novamente após ${retryAfterSeconds} segundos.`,
+      retryAfter: retryAfterSeconds,
+    });
   } else {
     next();
   }

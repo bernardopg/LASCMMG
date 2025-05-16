@@ -2,6 +2,56 @@ import { handleLogout as authHandleLogout } from '../../auth/auth.js';
 import { sanitizeHTML, createSafeElement } from '../../utils/securityUtils.js';
 
 export function showMessage(message, type = 'info', details = '') {
+  // Se o formulário de login está visível, exibe a mensagem no login-message
+  const loginSection = document.getElementById('login-section');
+  const loginMessage = document.getElementById('login-message');
+  const isLoginVisible =
+    loginSection &&
+    !loginSection.classList.contains('hidden-section') &&
+    loginMessage;
+
+  const validTypes = ['info', 'success', 'error', 'warning'];
+
+  if (isLoginVisible) {
+    // Limpa mensagem anterior
+    loginMessage.innerHTML = '';
+    const messageElement = createSafeElement('div', {
+      class: `message message-${validTypes.includes(type) ? type : 'info'}`,
+      role: 'alert',
+      'aria-live': 'assertive',
+    });
+
+    const mainMessageSpan = createSafeElement(
+      'span',
+      { class: 'message-main' },
+      message
+    );
+    messageElement.appendChild(mainMessageSpan);
+
+    if (details) {
+      const detailsParagraph = createSafeElement(
+        'p',
+        { class: 'message-details' },
+        details
+      );
+      messageElement.appendChild(detailsParagraph);
+    }
+
+    loginMessage.appendChild(messageElement);
+
+    setTimeout(() => {
+      messageElement.style.transition = 'opacity 0.3s ease-out';
+      messageElement.style.opacity = '0';
+      setTimeout(() => {
+        if (loginMessage.contains(messageElement)) {
+          loginMessage.removeChild(messageElement);
+        }
+      }, 300);
+    }, 5000);
+    return;
+  }
+
+  // Caso contrário, exibe no container global
   const messageContainer = document.getElementById('message-container');
   if (!messageContainer) {
     console.warn(
@@ -11,8 +61,6 @@ export function showMessage(message, type = 'info', details = '') {
     alert(`${type.toUpperCase()}: ${sanitizeHTML(message)}`);
     return;
   }
-
-  const validTypes = ['info', 'success', 'error', 'warning'];
 
   const messageElement = createSafeElement('div', {
     class: `message message-${validTypes.includes(type) ? type : 'info'}`,

@@ -11,7 +11,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { createWriteStream } = require('fs');
 const { mkdir } = require('fs').promises;
-const logger = require('./logger');
+const { logger } = require('./logger');
 
 // Configurações
 const AUDIT_DIR = process.env.AUDIT_DIR || path.join(__dirname, '../audit');
@@ -101,10 +101,26 @@ async function initializeAudit() {
 function logAction(userId, action, entity, entityId, details = {}) {
   // Se o sistema de auditoria não estiver inicializado, inicializar
   if (!auditStream) {
+    // Tenta inicializar. Se falhar, a ação não será logada.
+    // Idealmente, initializeAudit é chamado no bootstrap da aplicação.
     initializeAudit().catch((error) => {
-      console.error('Erro ao inicializar sistema de auditoria:', error);
+      logger.error(
+        'AuditLogger',
+        'Falha ao inicializar sistema de auditoria preguiçosamente em logAction',
+        { error: error.message, stack: error.stack }
+      );
     });
-    return null;
+    // Se auditStream ainda não estiver pronto após a tentativa (initializeAudit é async),
+    // esta ação específica pode não ser logada.
+    // Para garantir o log, a inicialização deve ser aguardada no bootstrap.
+    if (!auditStream) {
+      logger.warn(
+        'AuditLogger',
+        'Audit stream não disponível, ação não registrada.',
+        { action, entity, entityId }
+      );
+      return null;
+    }
   }
 
   const timestamp = new Date().toISOString();

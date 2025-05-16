@@ -1,6 +1,7 @@
 const { formatErrorResponse } = require('../middleware/errorHandler');
 const path = require('path'); // fs é usado por fileUtils
 const { readJsonFile, writeJsonFile } = require('../utils/fileUtils');
+const { logger } = require('../logger/logger'); // Importar o logger da aplicação
 
 const HONEYPOT_LOG_PATH = path.join(
   __dirname,
@@ -62,7 +63,16 @@ function honeypotMiddleware(req, res, next) {
 
   for (const field of HONEYPOT_CONFIG.fieldNames) {
     if (body[field] && body[field].length > 0) {
-      console.warn(`Detecção de bot: campo honeypot "${field}" preenchido`);
+      logger.warn(
+        'HoneypotMiddleware',
+        `Detecção de bot: campo honeypot "${field}" preenchido`,
+        {
+          ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          path: req.path,
+          userAgent: req.headers['user-agent'],
+          fieldTriggered: field,
+        }
+      );
 
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       logSuspiciousActivity(ip, 'honeypot_triggered', {
@@ -82,8 +92,15 @@ function honeypotMiddleware(req, res, next) {
     const elapsedTime = Date.now() - parseInt(submitTime, 10);
 
     if (elapsedTime < HONEYPOT_CONFIG.minSubmitTime) {
-      console.warn(
-        `Detecção de bot: formulário preenchido muito rapidamente (${elapsedTime}ms)`
+      logger.warn(
+        'HoneypotMiddleware',
+        `Detecção de bot: formulário preenchido muito rapidamente (${elapsedTime}ms)`,
+        {
+          ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          path: req.path,
+          userAgent: req.headers['user-agent'],
+          elapsedTimeMs: elapsedTime,
+        }
       );
 
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -122,13 +139,19 @@ async function logSuspiciousActivity(ip, type, details) {
     details: details,
   };
 
-  console.warn('ATIVIDADE SUSPEITA DETECTADA:', JSON.stringify(logEntry));
+  logger.warn('HoneypotMiddleware', 'ATIVIDADE SUSPEITA DETECTADA:', {
+    logEntry,
+  });
 
   try {
     let logs = await readJsonFile(HONEYPOT_LOG_PATH, []);
     if (!Array.isArray(logs)) {
       // Garantia extra caso readJsonFile retorne algo inesperado
-      console.error('Log de honeypot não é um array, resetando.');
+      logger.error(
+        'HoneypotMiddleware',
+        'Log de honeypot não é um array, resetando.',
+        { path: HONEYPOT_LOG_PATH }
+      );
       logs = [];
     }
 
@@ -142,7 +165,10 @@ async function logSuspiciousActivity(ip, type, details) {
 
     await writeJsonFile(HONEYPOT_LOG_PATH, logs);
   } catch (error) {
-    console.error('Erro ao escrever no log de honeypot:', error);
+    logger.error('HoneypotMiddleware', 'Erro ao escrever no log de honeypot:', {
+      error: error.message,
+      path: HONEYPOT_LOG_PATH,
+    });
   }
 }
 

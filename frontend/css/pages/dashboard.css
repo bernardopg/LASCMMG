@@ -1,9 +1,3 @@
-/*
- * Estilos para o Dashboard Administrativo
- * Inclui cards de estatísticas, lista de próximos jogos e widgets informativos
- */
-
-/* Container principal do dashboard */
 .dashboard-container {
   display: grid;
   grid-template-columns: 1fr;

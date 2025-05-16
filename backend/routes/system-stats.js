@@ -4,14 +4,15 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { DB_CONFIG } = require('../lib/config/config');
-const { checkDbConnection } = require('../lib/db/database'); // Importar checkDbConnection
-const tournamentModel = require('../lib/models/tournamentModel'); // Importar modelos individualmente
+const { checkDbConnection } = require('../lib/db/database');
+const tournamentModel = require('../lib/models/tournamentModel');
 const playerModel = require('../lib/models/playerModel');
 const matchModel = require('../lib/models/matchModel');
 const scoreModel = require('../lib/models/scoreModel');
+const { logger } = require('../lib/logger/logger');
 
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
-const { readJsonFile } = require('../lib/utils/fileUtils'); // Para ler o log do honeypot
+const { readJsonFile } = require('../lib/utils/fileUtils');
 const HONEYPOT_LOG_PATH = path.join(
   __dirname,
   '..',
@@ -21,12 +22,12 @@ const HONEYPOT_LOG_PATH = path.join(
 
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
-    const tournamentCount = await tournamentModel.countTournaments(); // Usar modelo importado
-    const playerCount = await playerModel.countPlayers(); // Usar modelo importado
-    const matchCount = await matchModel.countMatches(); // Usar modelo importado
-    const scoreCount = await scoreModel.countScores(); // Usar modelo importado
+    const tournamentCount = await tournamentModel.countTournaments();
+    const playerCount = await playerModel.countPlayers();
+    const matchCount = await matchModel.countMatches();
+    const scoreCount = await scoreModel.countScores();
 
-    const tournamentsStats = await tournamentModel.getTournamentStats(); // Usar modelo importado
+    const tournamentsStats = await tournamentModel.getTournamentStats();
 
     const dbFilePath = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
     const dbSize = fs.existsSync(dbFilePath)
@@ -67,7 +68,10 @@ router.get('/stats', authMiddleware, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Erro ao obter estatísticas do sistema:', error);
+    logger.error('SystemStatsRoute', 'Erro ao obter estatísticas do sistema:', {
+      error: error,
+      requestId: req.id,
+    });
     res.status(500).json({
       success: false,
       message: 'Erro ao obter estatísticas do sistema',
@@ -78,7 +82,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
 
 router.get('/health', async (req, res) => {
   try {
-    const dbStatus = checkDbConnection(); // Usar checkDbConnection de lib/database.js
+    const dbStatus = checkDbConnection();
 
     const diskStatus = checkDiskSpace();
 
@@ -93,7 +97,7 @@ router.get('/health', async (req, res) => {
     const status =
       dbStatus.status === 'ok' && diskStatus.ok && memoryStatus.ok
         ? 'ok'
-        : 'degraded'; // Ajustar verificação de status do DB
+        : 'degraded';
 
     res.status(status === 'ok' ? 200 : 503).json({
       status,
@@ -107,7 +111,10 @@ router.get('/health', async (req, res) => {
       version: process.env.npm_package_version || 'unknown',
     });
   } catch (error) {
-    console.error('Erro no health check:', error);
+    logger.error('SystemStatsRoute', 'Erro no health check:', {
+      error: error,
+      requestId: req.id,
+    });
     res.status(500).json({
       status: 'error',
       message: 'Erro interno no health check',
@@ -115,8 +122,6 @@ router.get('/health', async (req, res) => {
     });
   }
 });
-
-// Função checkDatabaseConnection removida, usando checkDbConnection de lib/database.js
 
 function checkDiskSpace() {
   try {
@@ -161,10 +166,8 @@ router.get('/security/honeypot-stats', authMiddleware, async (req, res) => {
     };
 
     for (const log of logs) {
-      // Contar tipos de evento
       stats.eventTypes[log.type] = (stats.eventTypes[log.type] || 0) + 1;
 
-      // Contar IPs
       if (!stats.topIps[log.ip]) {
         stats.topIps[log.ip] = { count: 0, types: {}, lastSeen: log.timestamp };
       }
@@ -176,7 +179,6 @@ router.get('/security/honeypot-stats', authMiddleware, async (req, res) => {
       }
     }
 
-    // Converter topIps para array e ordenar (ex: top 10)
     const sortedTopIps = Object.entries(stats.topIps)
       .map(([ip, data]) => ({ ip, ...data }))
       .sort((a, b) => b.count - a.count)
@@ -189,7 +191,11 @@ router.get('/security/honeypot-stats', authMiddleware, async (req, res) => {
       data: stats,
     });
   } catch (error) {
-    console.error('Erro ao obter estatísticas de honeypot:', error);
+    logger.error(
+      'SystemStatsRoute',
+      'Erro ao obter estatísticas de honeypot:',
+      { error: error, requestId: req.id }
+    );
     res.status(500).json({
       success: false,
       message: 'Erro ao obter estatísticas de honeypot',

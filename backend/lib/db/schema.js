@@ -63,12 +63,23 @@ function runMigrations() {
     addColumnIfNotExistsSync(db, 'players', 'gender', 'TEXT');
     addColumnIfNotExistsSync(db, 'players', 'skill_level', 'TEXT');
 
+    // Colunas para a tabela scores conforme o novo schema em database.js
+    addColumnIfNotExistsSync(db, 'scores', 'round', 'TEXT');
+    addColumnIfNotExistsSync(
+      db,
+      'scores',
+      'winner_id',
+      'INTEGER REFERENCES players(id) ON DELETE SET NULL'
+    );
+    // completed_at já está sendo adicionado, mas mantê-lo aqui não prejudica, pois a função verifica a existência.
     addColumnIfNotExistsSync(
       db,
       'scores',
       'completed_at',
       'TEXT DEFAULT CURRENT_TIMESTAMP'
     );
+    // TODO: Considerar uma migração para remover as colunas antigas de 'scores'
+    // (winner, player1, player2, tournament_id) e popular winner_id a partir de winner se necessário.
 
     console.log(
       'Migrações do banco de dados verificadas/executadas com sucesso.'

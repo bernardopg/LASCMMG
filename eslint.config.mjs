@@ -31,7 +31,7 @@ export default tseslint.config(
     },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-console': 'off', // Allow console logs in backend for now
+      'no-console': 'warn', // Warn about console logs in backend
     },
   },
 
@@ -47,7 +47,7 @@ export default tseslint.config(
     },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-console': 'off', // Allow console logs in frontend for now
+      'no-console': 'warn', // Warn about console logs in frontend
     },
   },
 

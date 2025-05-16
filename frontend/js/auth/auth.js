@@ -65,11 +65,14 @@ export async function handleLogin(event, showAdminCallback) {
       false
     );
 
+    console.log('[LOGIN] Resposta do backend:', data);
+
     if (data.success && data.token) {
       sessionStorage.setItem(LOGIN_TOKEN_KEY, data.token);
 
       loginAttempts.count = 0;
 
+      console.log('[LOGIN] Login bem-sucedido, chamando showAdminCallback...');
       await showAdminCallback();
       showMessage(data.message || 'Login realizado com sucesso!', 'success');
     } else {

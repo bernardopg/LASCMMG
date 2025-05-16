@@ -9,8 +9,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { admin: adminModel } = require('../lib/db-init').models;
-const { DB_CONFIG } = require('../lib/config');
+const adminModel = require('../lib/models/adminModel'); // Corrigido para importar diretamente o adminModel
+const { DB_CONFIG } = require('../lib/config/config'); // Corrigido para apontar para o local correto de config
 const { program } = require('commander');
 
 // Configuração do programa CLI

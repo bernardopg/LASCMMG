@@ -5,6 +5,9 @@ import {
   getCSRFToken,
 } from '../utils/securityUtils.js';
 
+// Armazena uma referência ao console.error original
+const originalConsoleError = console.error;
+
 const API_BASE_URL = API_CONSTANTS.BASE_URL;
 
 const API_CONFIG = {
@@ -142,7 +145,8 @@ export async function fetchApi(endpoint, options = {}, requiresAuth = true) {
 
       clearTimeout(timeoutId);
 
-      console.error(
+      originalConsoleError(
+        // Usa a referência original
         `API Error (${options.method || 'GET'} ${endpoint}):`,
         error
       );
@@ -167,12 +171,13 @@ export function clearApiCache(endpoint = null) {
 }
 
 export async function getTournaments() {
-  const response = await fetchApi('/tournaments', {}, false);
-  return response.data;
+  const response = await fetchApi('/tournaments');
+  // O backend retorna { tournaments, ... }
+  return response && response.tournaments ? response.tournaments : [];
 }
 
 export async function getTournamentStats(tournamentId) {
-  return fetchApi(`/tournaments/${tournamentId}/stats`, {}, false);
+  return fetchApi(`/tournaments/${tournamentId}/stats`);
 }
 
 export async function getTrashedTournaments() {
@@ -243,7 +248,7 @@ export async function createTournament(formData) {
 }
 
 export async function getTournamentState(tournamentId) {
-  return fetchApi(`/tournaments/${tournamentId}/state`, {}, false);
+  return fetchApi(`/tournaments/${tournamentId}/state`);
 }
 
 export async function saveTournamentState(tournamentId, stateData) {
@@ -254,7 +259,7 @@ export async function saveTournamentState(tournamentId, stateData) {
 }
 
 export async function getPlayers(tournamentId) {
-  return fetchApi(`/tournaments/${tournamentId}/players`, {}, false);
+  return fetchApi(`/tournaments/${tournamentId}/players`);
 }
 
 export async function addPlayer(tournamentId, playerData) {
@@ -296,7 +301,7 @@ export async function importPlayers(tournamentId, formData) {
 }
 
 export async function getScores(tournamentId) {
-  return fetchApi(`/tournaments/${tournamentId}/scores`, {}, false);
+  return fetchApi(`/tournaments/${tournamentId}/scores`);
 }
 
 export async function saveScore(scoreData) {

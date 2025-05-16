@@ -1,9 +1,3 @@
-/**
- * Estilos da Página Inicial - LASCMMG
- * Para o sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais
- */
-
-/* Seção Hero - Cabeçalho da página inicial */
 .hero-section {
   display: flex;
   flex-direction: column;

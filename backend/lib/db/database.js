@@ -2,6 +2,7 @@ const BetterSqlite3 = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 const { DB_CONFIG, NODE_ENV } = require('../config/config'); // Importar NODE_ENV também
+const { logger } = require('../logger/logger'); // Importar logger
 
 // Construir DB_PATH usando DB_CONFIG.dataDir e DB_CONFIG.dbFile
 const DB_PATH = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
@@ -12,27 +13,35 @@ try {
   const dataDir = DB_CONFIG.dataDir;
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
-    console.log(`Diretório de dados criado em: ${dataDir}`);
+    logger.info('Database', `Diretório de dados criado em: ${dataDir}`);
   }
 
   // Configurar verbose logging apenas em desenvolvimento se logQueries for true
   const verboseLogger =
     DB_CONFIG.logQueries && NODE_ENV === 'development'
-      ? console.log
+      ? (message) => logger.debug('SQLITE_VERBOSE', message) // Usar logger.debug para verbose
       : undefined;
 
   db = new BetterSqlite3(DB_PATH, { verbose: verboseLogger });
-  console.log('Connected to the SQLite database using better-sqlite3.');
+  logger.info(
+    'Database',
+    'Conectado ao banco de dados SQLite usando better-sqlite3.'
+  );
 
   // Habilitar modo WAL
   try {
     db.pragma('journal_mode = WAL');
-    console.log('SQLite WAL mode enabled.');
+    logger.info('Database', 'Modo WAL do SQLite habilitado.');
   } catch (walErr) {
-    console.error('Failed to enable WAL mode for SQLite:', walErr);
+    logger.error('Database', 'Falha ao habilitar modo WAL para SQLite:', {
+      error: walErr,
+    });
   }
 
-  initializeDatabase();
+  // A inicialização do esquema (criação de tabelas, migrações)
+  // é agora gerenciada por 'lib/db/db-init.js' e chamada explicitamente
+  // no servidor (applyDatabaseMigrations) ou scripts de setup.
+  // initializeDatabase(); // Removido daqui
 } catch (err) {
   console.error('Error opening database with better-sqlite3:', err.message);
   throw err;
@@ -42,9 +51,16 @@ try {
 function checkDbConnection() {
   try {
     db.prepare('SELECT 1').get();
-    return { status: 'ok', message: 'Database connection successful.' };
+    return {
+      status: 'ok',
+      message: 'Conexão com banco de dados bem-sucedida.',
+    };
   } catch (err) {
-    console.error('Database health check failed:', err.message);
+    logger.error(
+      'Database',
+      'Falha na verificação de saúde do banco de dados:',
+      { error: err }
+    );
     return {
       status: 'error',
       message: 'Database connection failed.',
@@ -74,10 +90,19 @@ function initializeDatabase() {
       description TEXT,
       num_players_expected INTEGER,
       bracket_type TEXT,
+      entry_fee REAL, -- Adicionado
+      prize_pool TEXT, -- Adicionado
+      rules TEXT, -- Adicionado
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `;
+
+  // Adicionar ALTER TABLE para bancos de dados existentes, se necessário.
+  // Por simplicidade, focaremos no CREATE TABLE IF NOT EXISTS por agora.
+  // const alterTournamentsTable1 = `ALTER TABLE tournaments ADD COLUMN entry_fee REAL;`;
+  // const alterTournamentsTable2 = `ALTER TABLE tournaments ADD COLUMN prize_pool TEXT;`;
+  // const alterTournamentsTable3 = `ALTER TABLE tournaments ADD COLUMN rules TEXT;`;
 
   const createPlayersTable = `
     CREATE TABLE IF NOT EXISTS players (
@@ -99,16 +124,19 @@ function initializeDatabase() {
   const createScoresTable = `
     CREATE TABLE IF NOT EXISTS scores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tournament_id TEXT NOT NULL,
-      round TEXT,
-      player1 TEXT,
-      player2 TEXT,
-      score1 INTEGER,
-      score2 INTEGER,
-      winner TEXT,
-      timestamp TEXT, -- Indexed
-      match_id INTEGER, -- Indexed as part of composite index
-      completed_at TEXT DEFAULT CURRENT_TIMESTAMP
+      match_id INTEGER NOT NULL, -- FK para matches.id
+      -- tournament_id TEXT NOT NULL, -- Removido por redundância, match_id já vincula ao torneio
+      round TEXT, -- Pode ser útil manter para denormalização ou se scores podem existir sem match_number
+      player1_score INTEGER,
+      player2_score INTEGER,
+      winner_id INTEGER, -- ID do jogador vencedor, FK para players.id
+      -- player1 TEXT, -- Removido, informações dos jogadores vêm de matches->players
+      -- player2 TEXT, -- Removido
+      -- winner TEXT,  -- Removido, usar winner_id
+      timestamp TEXT, -- Mantido, pode ser o timestamp do evento de score
+      completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (match_id) REFERENCES matches (id) ON DELETE CASCADE,
+      FOREIGN KEY (winner_id) REFERENCES players (id) ON DELETE SET NULL
     );
   `;
 
@@ -151,7 +179,7 @@ function initializeDatabase() {
 
   // Índices adicionais para otimização de consultas
   const createTournamentStatusDateIndex = `CREATE INDEX IF NOT EXISTS idx_tournaments_status_date ON tournaments(status, date);`;
-  const createScoresTournamentMatchIndex = `CREATE INDEX IF NOT EXISTS idx_scores_tournament_match_id ON scores(tournament_id, match_id);`;
+  const createScoresMatchIdIndex = `CREATE INDEX IF NOT EXISTS idx_scores_match_id ON scores(match_id);`; // Corrigido: removido tournament_id
   const createScoresTimestampIndex = `CREATE INDEX IF NOT EXISTS idx_scores_timestamp ON scores(timestamp);`;
   const createMatchesTournamentRoundScheduledAtIndex = `CREATE INDEX IF NOT EXISTS idx_matches_tournament_round_scheduled_at ON matches(tournament_id, round, scheduled_at);`;
   const createMatchesScheduledAtIndex = `CREATE INDEX IF NOT EXISTS idx_matches_scheduled_at ON matches(scheduled_at);`;
@@ -159,6 +187,9 @@ function initializeDatabase() {
   try {
     db.exec(createUsersTable);
     db.exec(createTournamentsTable);
+    // try { db.exec(alterTournamentsTable1); } catch (e) { /* ignorar se a coluna já existe */ }
+    // try { db.exec(alterTournamentsTable2); } catch (e) { /* ignorar se a coluna já existe */ }
+    // try { db.exec(alterTournamentsTable3); } catch (e) { /* ignorar se a coluna já existe */ }
     db.exec(createPlayersTable);
     db.exec(createScoresTable);
     db.exec(createMatchesTable);
@@ -167,14 +198,19 @@ function initializeDatabase() {
 
     // Executar criação de índices adicionais
     db.exec(createTournamentStatusDateIndex);
-    db.exec(createScoresTournamentMatchIndex);
+    db.exec(createScoresMatchIdIndex); // Corrigido
     db.exec(createScoresTimestampIndex);
     db.exec(createMatchesTournamentRoundScheduledAtIndex);
     db.exec(createMatchesScheduledAtIndex);
 
-    console.log('Database tables and indexes initialized/verified.');
+    logger.info(
+      'Database',
+      'Tabelas e índices do banco de dados inicializados/verificados.'
+    );
   } catch (err) {
-    console.error('Error initializing tables or indexes:', err.message);
+    logger.error('Database', 'Erro ao inicializar tabelas ou índices:', {
+      error: err,
+    });
     throw err; // Relançar o erro para que a aplicação não inicie com DB inconsistente
   }
 }
@@ -187,7 +223,7 @@ function initializeDatabase() {
  */
 function getSyncConnection() {
   if (!db || !db.open) {
-    console.error('Instância DB não está disponível ou aberta!');
+    logger.error('Database', 'Instância DB não está disponível ou aberta!');
     throw new Error('Conexão com banco de dados não estabelecida.');
   }
   return db;
@@ -201,10 +237,12 @@ function closeSyncConnection() {
     try {
       db.close();
       if (NODE_ENV !== 'production' && NODE_ENV !== 'test') {
-        console.log('Conexão SQLite fechada.');
+        logger.info('Database', 'Conexão SQLite fechada.');
       }
     } catch (err) {
-      console.error('Erro ao fechar conexão SQLite:', err.message);
+      logger.error('Database', 'Erro ao fechar conexão SQLite:', {
+        error: err,
+      });
     }
   }
 }
@@ -277,7 +315,9 @@ function transactionAsync(actions) {
       const result = transaction();
       resolve(result);
     } catch (err) {
-      console.error('Erro na transação assíncrona (wrapper):', err.message);
+      logger.error('Database', 'Erro na transação assíncrona (wrapper):', {
+        error: err,
+      });
       reject(err);
     }
   });
@@ -298,14 +338,13 @@ function querySync(sql, params = []) {
       : stmt.all(params);
     return result;
   } catch (err) {
-    console.error(
-      'Erro ao executar query síncrona:',
-      err.message,
-      'SQL:',
+    logger.error('Database', 'Erro ao executar query síncrona:', {
       sql,
-      'Params:',
-      params
-    );
+      params,
+      error_message: err.message,
+      error_stack: err.stack,
+      error_object: err,
+    });
     throw err;
   }
 }
@@ -325,14 +364,13 @@ function getOneSync(sql, params = []) {
       : stmt.get(params);
     return result || null;
   } catch (err) {
-    console.error(
-      'Erro ao executar getOne síncrono:',
-      err.message,
-      'SQL:',
+    logger.error('Database', 'Erro ao executar getOne síncrono:', {
       sql,
-      'Params:',
-      params
-    );
+      params,
+      error_message: err.message,
+      error_stack: err.stack,
+      error_object: err,
+    });
     throw err;
   }
 }
@@ -353,14 +391,13 @@ function runSync(sql, params = []) {
       changes: info.changes,
     };
   } catch (err) {
-    console.error(
-      'Erro ao executar run síncrono:',
-      err.message,
-      'SQL:',
+    logger.error('Database', 'Erro ao executar run síncrono:', {
       sql,
-      'Params:',
-      params
-    );
+      params,
+      error_message: err.message,
+      error_stack: err.stack,
+      error_object: err,
+    });
     throw err;
   }
 }
@@ -378,7 +415,7 @@ function transactionSync(actions) {
     const result = transaction();
     return result;
   } catch (err) {
-    console.error('Erro na transação síncrona:', err.message);
+    logger.error('Database', 'Erro na transação síncrona:', { error: err });
     throw err;
   }
 }
@@ -403,4 +440,5 @@ module.exports = {
   // Funções de conexão/fechamento síncronas (para uso avançado/encerramento)
   getSyncConnection,
   closeSyncConnection,
+  initializeDatabase, // Exportar para ser chamada pelo db-init
 };

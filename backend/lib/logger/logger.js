@@ -119,4 +119,10 @@ const httpLogger = pinoHttp({
   // },
 });
 
+// Pino gerencia os níveis de log. Se logger.level for 'info', logger.debug será uma no-op.
+// Não é necessário um fallback customizado aqui.
+// if (!logger.debug) {
+//   logger.debug = logger.info.bind(logger);
+// }
+
 module.exports = { logger, httpLogger };
