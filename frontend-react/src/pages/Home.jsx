@@ -16,25 +16,33 @@ const Home = () => {
   useEffect(() => {
     const fetchGeneralStats = async () => {
       setStatsLoading(true);
-      // Simulação - Substituir por chamadas reais à API
-      // Ex: const totalPlayers = await api.getTotalPlayers();
-      // Ex: const totalMatches = await api.getTotalMatches();
-      setTimeout(() => { // Simulação de delay da API
+      try {
+        // Importar funções da API se necessário:
+        // import { getAdminPlayers, getAdminScores } from '../services/api';
+        const [playersResp, scoresResp] = await Promise.all([
+          getAdminPlayers({ limit: 1 }),
+          getAdminScores({ limit: 1 }),
+        ]);
         setGeneralStats({
-          players: 128, // Placeholder
-          matches: 210, // Placeholder
-          tournaments: tournaments?.length || 0, // Este é real
+          players: playersResp?.total || playersResp?.totalCount || playersResp?.players?.length || 0,
+          matches: scoresResp?.total || scoresResp?.totalCount || scoresResp?.scores?.length || 0,
+          tournaments: tournaments?.length || 0,
         });
-        setStatsLoading(false);
-      }, 800);
+      } catch (err) {
+        setGeneralStats({
+          players: 0,
+          matches: 0,
+          tournaments: tournaments?.length || 0,
+        });
+      }
+      setStatsLoading(false);
     };
 
     if (tournaments && tournaments.length > 0) {
-      // Atualiza o número de torneios assim que o contexto os carrega
       setGeneralStats(prev => ({ ...prev, tournaments: tournaments.length }));
     }
-    fetchGeneralStats(); // Chama para buscar/simular outros stats
-  }, [tournaments]); // Depende de 'tournaments' para atualizar a contagem de torneios
+    fetchGeneralStats();
+  }, [tournaments]);
 
   return (
     <div className="space-y-8">
@@ -74,14 +82,14 @@ const Home = () => {
                 <FaUsers className="w-5 h-5" />
               </span>
             </div>
-            {loading ? (
+            {statsLoading ? (
               <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
             ) : (
               <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                 {generalStats.players}
               </p>
             )}
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Cadastrados (simulado)</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Cadastrados</p>
           </div>
 
           <div className="card p-6">
@@ -98,7 +106,7 @@ const Home = () => {
                 {generalStats.matches}
               </p>
             )}
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Disputadas (simulado)</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Disputadas</p>
           </div>
 
           <div className="card p-6">

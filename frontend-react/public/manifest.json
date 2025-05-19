@@ -1,7 +1,7 @@
 {
   "short_name": "LASCMMG",
   "name": "LASCMMG - Sistema de Gerenciamento de Torneios",
-  "description": "Sistema de gerenciamento de torneios da Liga Amadora Sul-Campista de Mari-Mari-Gomes",
+  "description": "Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG",
   "icons": [
     {
       "src": "assets/favicon.ico",
@@ -26,7 +26,11 @@
   "theme_color": "#2e9d3a",
   "background_color": "#1a2a1a",
   "orientation": "portrait",
-  "categories": ["sports", "utilities", "productivity"],
+  "categories": [
+    "sports",
+    "utilities",
+    "productivity"
+  ],
   "lang": "pt-BR",
   "dir": "ltr",
   "prefer_related_applications": false,

@@ -85,17 +85,19 @@ export const AuthProvider = ({ children }) => {
         password
       }, { headers });
 
-      const { admin: user, token } = response.data;
+      // Aceita tanto { admin, token } quanto { user, token }
+      const { admin, user, token } = response.data;
+      const userObj = user || admin;
 
-      // Salvar no localStorage
-      localStorage.setItem('authUser', JSON.stringify(user));
+      // Salvar no localStorage sempre como "user"
+      localStorage.setItem('authUser', JSON.stringify(userObj));
       localStorage.setItem('authToken', token);
 
       // Configurar token para futuras requisições
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      setCurrentUser(user);
-      return user;
+      setCurrentUser(userObj);
+      return userObj;
     } catch (err) {
       setError(err.response?.data?.message || 'Falha na autenticação');
       throw err;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { useMessage } from '../context/MessageContext';
+import { getTournamentDetails } from '../services/api';
 
 const Bracket = () => {
   const { currentTournament, loading: tournamentLoading } = useTournament();
@@ -16,103 +17,27 @@ const Bracket = () => {
     const fetchBracketData = async () => {
       try {
         setLoading(true);
-
-        // Simulação da chamada API
-        setTimeout(() => {
-          // Dados simulados para desenvolvimento (simulando uma árvore de eliminação simples)
-          const mockBracket = {
-            name: currentTournament?.name || 'Torneio de Sinuca',
-            rounds: [
-              {
-                name: 'Quartas de Final',
-                matches: [
-                  {
-                    id: 1,
-                    player1: { id: 1, name: 'Carlos Silva' },
-                    player2: { id: 2, name: 'João Ferreira' },
-                    score1: 3,
-                    score2: 1,
-                    winner: 1,
-                    status: 'finished',
-                  },
-                  {
-                    id: 2,
-                    player1: { id: 3, name: 'Pedro Santos' },
-                    player2: { id: 4, name: 'Marcos Oliveira' },
-                    score1: 3,
-                    score2: 2,
-                    winner: 3,
-                    status: 'finished',
-                  },
-                  {
-                    id: 3,
-                    player1: { id: 5, name: 'Rafael Costa' },
-                    player2: { id: 6, name: 'Lucas Pereira' },
-                    score1: 2,
-                    score2: 3,
-                    winner: 6,
-                    status: 'finished',
-                  },
-                  {
-                    id: 4,
-                    player1: { id: 7, name: 'Gabriel Souza' },
-                    player2: { id: 8, name: 'Matheus Lima' },
-                    score1: 3,
-                    score2: 0,
-                    winner: 7,
-                    status: 'finished',
-                  },
-                ],
-              },
-              {
-                name: 'Semifinais',
-                matches: [
-                  {
-                    id: 5,
-                    player1: { id: 1, name: 'Carlos Silva' },
-                    player2: { id: 3, name: 'Pedro Santos' },
-                    score1: 3,
-                    score2: 4,
-                    winner: 3,
-                    status: 'finished',
-                  },
-                  {
-                    id: 6,
-                    player1: { id: 6, name: 'Lucas Pereira' },
-                    player2: { id: 7, name: 'Gabriel Souza' },
-                    score1: 2,
-                    score2: 3,
-                    winner: 7,
-                    status: 'finished',
-                  },
-                ],
-              },
-              {
-                name: 'Final',
-                matches: [
-                  {
-                    id: 7,
-                    player1: { id: 3, name: 'Pedro Santos' },
-                    player2: { id: 7, name: 'Gabriel Souza' },
-                    score1: 1,
-                    score2: 3,
-                    winner: 7,
-                    status: 'finished',
-                  },
-                ],
-              },
-            ],
-          };
-
-          setBracket(mockBracket);
-          setLoading(false);
-        }, 800);
+        if (currentTournament?.id) {
+          const tournament = await getTournamentDetails(currentTournament.id);
+          // Supondo que o backend retorna { name, rounds } ou { bracket: { name, rounds } }
+          if (tournament.rounds) {
+            setBracket({ name: tournament.name, rounds: tournament.rounds });
+          } else if (tournament.bracket) {
+            setBracket(tournament.bracket);
+          } else {
+            setBracket(null);
+          }
+        } else {
+          setBracket(null);
+        }
       } catch (error) {
         console.error('Erro ao carregar dados do chaveamento:', error);
         showError(
           'Falha ao carregar dados do chaveamento',
           'Verifique sua conexão e tente novamente.'
         );
+        setBracket(null);
+      } finally {
         setLoading(false);
       }
     };

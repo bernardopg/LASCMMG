@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import { useMessage } from '../context/MessageContext';
+import { getScores } from '../services/api';
 
 const Scores = () => {
   const { currentTournament, loading: tournamentLoading } = useTournament();
@@ -20,106 +21,19 @@ const Scores = () => {
     const fetchScores = async () => {
       try {
         setLoading(true);
-
-        // Simulação da chamada API
-        setTimeout(() => {
-          // Dados simulados para desenvolvimento
-          const mockScores = [
-            {
-              id: 1,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 101, name: 'Carlos Silva' },
-              player2: { id: 102, name: 'João Ferreira' },
-              score1: 3,
-              score2: 1,
-              date: '2025-05-17T19:30:00',
-              phase: 'Quartas de Final',
-              status: 'finished',
-              location: 'Mesa 1',
-            },
-            {
-              id: 2,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 103, name: 'Pedro Santos' },
-              player2: { id: 104, name: 'Marcos Oliveira' },
-              score1: 3,
-              score2: 2,
-              date: '2025-05-17T20:15:00',
-              phase: 'Quartas de Final',
-              status: 'finished',
-              location: 'Mesa 2',
-            },
-            {
-              id: 3,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 105, name: 'Rafael Costa' },
-              player2: { id: 106, name: 'Lucas Pereira' },
-              score1: 2,
-              score2: 3,
-              date: '2025-05-18T15:00:00',
-              phase: 'Quartas de Final',
-              status: 'finished',
-              location: 'Mesa 3',
-            },
-            {
-              id: 4,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 107, name: 'Gabriel Souza' },
-              player2: { id: 108, name: 'Matheus Lima' },
-              score1: 3,
-              score2: 0,
-              date: '2025-05-18T16:30:00',
-              phase: 'Quartas de Final',
-              status: 'finished',
-              location: 'Mesa 1',
-            },
-            {
-              id: 5,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 101, name: 'Carlos Silva' },
-              player2: { id: 103, name: 'Pedro Santos' },
-              score1: 3,
-              score2: 4,
-              date: '2025-05-19T18:00:00',
-              phase: 'Semifinal',
-              status: 'finished',
-              location: 'Mesa 1',
-            },
-            {
-              id: 6,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 106, name: 'Lucas Pereira' },
-              player2: { id: 107, name: 'Gabriel Souza' },
-              score1: 2,
-              score2: 3,
-              date: '2025-05-19T19:30:00',
-              phase: 'Semifinal',
-              status: 'finished',
-              location: 'Mesa 2',
-            },
-            {
-              id: 7,
-              tournament_id: currentTournament?.id || 1,
-              player1: { id: 103, name: 'Pedro Santos' },
-              player2: { id: 107, name: 'Gabriel Souza' },
-              score1: 1,
-              score2: 3,
-              date: '2025-05-20T19:00:00',
-              phase: 'Final',
-              status: 'finished',
-              location: 'Mesa Principal',
-            },
-          ];
-
-          setScores(mockScores);
-          setLoading(false);
-        }, 800);
+        if (currentTournament?.id) {
+          const apiScores = await getScores(currentTournament.id);
+          setScores(apiScores);
+        } else {
+          setScores([]);
+        }
       } catch (error) {
         console.error('Erro ao carregar dados de placares:', error);
         showError(
           'Falha ao carregar placares',
           'Verifique sua conexão e tente novamente.'
         );
+      } finally {
         setLoading(false);
       }
     };

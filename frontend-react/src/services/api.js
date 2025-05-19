@@ -235,6 +235,14 @@ export const permanentlyDeleteDBItem = async (itemId, itemType) => {
   return response.data;
 };
 
+/**
+ * Admin - Torneios
+ */
+export const deleteTournamentAdmin = async (tournamentId) => {
+  const response = await api.delete(`/api/admin/tournaments/${tournamentId}`);
+  return response.data;
+};
+
 // Admin - Segurança
 export const getSecurityOverviewStats = async () => {
   const response = await api.get('/api/system/security/overview-stats'); // Endpoint based on old handler, might need adjustment

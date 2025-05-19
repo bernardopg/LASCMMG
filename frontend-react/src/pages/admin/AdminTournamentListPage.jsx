@@ -37,9 +37,13 @@ const AdminTournamentListPage = () => {
 
   const handleDeleteTournament = async (tournamentId, tournamentName) => {
     if (window.confirm(`Tem certeza que deseja excluir o torneio "${tournamentName}"? Esta ação pode ser irreversível dependendo da configuração.`)) {
-      showMessage(`Simulando exclusão do torneio ${tournamentId}... (implementar API)`, 'info');
-      // TODO: Implement API call: await deleteTournamentAdmin(tournamentId);
-      // fetchTournaments(currentPage);
+      try {
+        await deleteTournamentAdmin(tournamentId);
+        showMessage(`Torneio "${tournamentName}" excluído com sucesso.`, 'success');
+        fetchTournaments(currentPage);
+      } catch (error) {
+        showMessage(`Erro ao excluir torneio: ${error.message || 'Erro desconhecido'}`, 'error');
+      }
     }
   };
 

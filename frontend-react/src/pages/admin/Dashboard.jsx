@@ -47,64 +47,95 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Importar funções da API
+    // (adicione no topo do arquivo, se necessário)
+    // import {
+    //   getTournaments,
+    //   getAdminPlayers,
+    //   getAdminScores,
+    // } from '../../services/api';
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
 
-        // Simulação da chamada API
-        setTimeout(() => {
-          // Dados simulados para desenvolvimento
-          const mockStats = {
-            totalPlayers: 32,
-            totalMatches: 28,
-            pendingMatches: 4,
-            totalTournaments: 3,
-            averageScore: 2.7,
-          };
+        // Buscar estatísticas gerais
+        const [tournaments, playersResp, scoresResp] = await Promise.all([
+          getTournaments(),
+          getAdminPlayers({ limit: 1 }),
+          getAdminScores({ limit: 1 }),
+        ]);
 
-          const mockActivity = [
-            {
-              id: 1,
+        // Total de torneios
+        const totalTournaments = tournaments?.length || 0;
+
+        // Total de jogadores (pode vir paginado)
+        const totalPlayers = playersResp?.total || playersResp?.totalCount || playersResp?.players?.length || 0;
+
+        // Total de partidas (pode vir paginado)
+        const totalMatches = scoresResp?.total || scoresResp?.totalCount || scoresResp?.scores?.length || 0;
+
+        // Buscar partidas pendentes (status !== 'finalizada')
+        const pendingScoresResp = await getAdminScores({ limit: 100, filters: { status: 'pendente' } });
+        const pendingMatches = pendingScoresResp?.total || pendingScoresResp?.scores?.length || 0;
+
+        // Buscar atividades recentes (últimos scores, jogadores, torneios)
+        const [recentScores, recentPlayers, recentTournaments] = await Promise.all([
+          getAdminScores({ limit: 5, sortBy: 'timestamp', order: 'desc' }),
+          getAdminPlayers({ limit: 5, sortBy: 'createdAt', order: 'desc' }),
+          getTournaments(), // Supondo que já vem ordenado por data
+        ]);
+
+        // Montar lista de atividades recentes
+        const activity = [];
+
+        if (recentScores?.scores) {
+          recentScores.scores.forEach((score) => {
+            activity.push({
+              id: `score-${score.id}`,
               type: 'match',
-              description:
-                'Partida finalizada: Carlos Silva vs João Ferreira (3-1)',
-              timestamp: '2025-05-18T18:30:00',
-              user: 'Administrador',
-            },
-            {
-              id: 2,
+              description: `Partida finalizada: ${score.player1} vs ${score.player2} (${score.score1}-${score.score2})`,
+              timestamp: score.timestamp || score.updatedAt || score.createdAt,
+              user: score.updatedBy || score.createdBy || 'Sistema',
+            });
+          });
+        }
+
+        if (recentPlayers?.players) {
+          recentPlayers.players.forEach((player) => {
+            activity.push({
+              id: `player-${player.id}`,
               type: 'player',
-              description: 'Jogador adicionado: Marcos Oliveira',
-              timestamp: '2025-05-18T17:15:00',
-              user: 'Administrador',
-            },
-            {
-              id: 3,
-              type: 'tournament',
-              description: 'Torneio atualizado: Campeonato de Verão 2025',
-              timestamp: '2025-05-18T15:20:00',
-              user: 'Administrador',
-            },
-            {
-              id: 4,
-              type: 'match',
-              description: 'Partida agendada: Pedro Santos vs Lucas Pereira',
-              timestamp: '2025-05-18T14:45:00',
-              user: 'Administrador',
-            },
-            {
-              id: 5,
-              type: 'system',
-              description: 'Backup do sistema realizado com sucesso',
-              timestamp: '2025-05-18T12:00:00',
-              user: 'Sistema',
-            },
-          ];
+              description: `Jogador adicionado: ${player.name}`,
+              timestamp: player.createdAt,
+              user: player.createdBy || 'Administrador',
+            });
+          });
+        }
 
-          setStats(mockStats);
-          setRecentActivity(mockActivity);
-          setLoading(false);
-        }, 800);
+        if (recentTournaments?.length) {
+          recentTournaments.slice(0, 5).forEach((tournament) => {
+            activity.push({
+              id: `tournament-${tournament.id}`,
+              type: 'tournament',
+              description: `Torneio atualizado: ${tournament.name}`,
+              timestamp: tournament.updatedAt || tournament.createdAt,
+              user: tournament.updatedBy || 'Administrador',
+            });
+          });
+        }
+
+        // Ordenar atividades por data decrescente
+        activity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        setStats({
+          totalPlayers,
+          totalMatches,
+          pendingMatches,
+          totalTournaments,
+        });
+        setRecentActivity(activity.slice(0, 10));
+        setLoading(false);
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
         showError(
