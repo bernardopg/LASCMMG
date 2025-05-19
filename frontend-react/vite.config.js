@@ -17,8 +17,28 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff,woff2}'], // Ensure offline.html is cached
         cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html', // Default fallback
+        // Custom handler for offline navigation
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'navigation-cache',
+              networkTimeoutSeconds: 3, // Optional: timeout for network attempt
+              plugins: [
+                {
+                  handlerDidError: async () => {
+                    // Fallback to offline.html if network fails or times out
+                    return await caches.match('/offline.html') || Response.error();
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
       manifest: {
         name: 'LASCMMG Torneios',

@@ -26,5 +26,16 @@ describe('Smoke Test', () => {
     cy.contains('Painel Administrativo');
   });
 
+  it('should show an error message for invalid login credentials', () => {
+    cy.visit('/login');
+    cy.get('input[name="email"]').type('wrong@example.com');
+    cy.get('input[name="password"]').type('invalidpassword');
+    cy.get('button[type="submit"]').click();
+    // Assuming error messages are displayed within a specific container or have a certain class
+    // Adjust the selector based on how error messages are rendered in Login.jsx
+    // For example, if MessageContext renders messages in a div with class 'message-error'
+    cy.contains('Falha na autenticação. Verifique suas credenciais.', { timeout: 5000 }); // Wait for potential API call
+  });
+
   // Add more basic navigation or critical path tests here
 });
