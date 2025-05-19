@@ -12,6 +12,8 @@ import {
   FaUserShield,
   FaChevronLeft, // Icon for collapse
   FaChevronRight, // Icon for expand
+  FaCalendarAlt, // Added for Schedule
+  FaUsersCog, // Added for User Management
 } from 'react-icons/fa';
 
 const Sidebar = ({ isSidebarCollapsed }) => {
@@ -78,6 +80,18 @@ const Sidebar = ({ isSidebarCollapsed }) => {
       path: '/admin',
       icon: <FaUserShield className="w-5 h-5" />,
       permission: 'admin',
+    },
+    {
+      name: 'Agendamentos',
+      path: '/admin/schedule',
+      icon: <FaCalendarAlt className="w-5 h-5" />,
+      permission: 'admin', // Assuming admin only
+    },
+    {
+      name: 'Usuários Admin',
+      path: '/admin/users',
+      icon: <FaUsersCog className="w-5 h-5" />,
+      permission: 'admin', // Assuming admin only
     },
   ];
 

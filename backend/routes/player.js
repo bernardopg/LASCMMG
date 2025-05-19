@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const playerModel = require('../lib/models/playerModel');
 const { logger } = require('../lib/logger/logger');
-// Joi validation for query params could be added here if needed
+const { validateRequest, playerIdParamSchema } = require('../lib/utils/validationUtils'); // Added playerIdParamSchema
 
 // GET /api/players - List all global players (public, paginated)
 router.get('/', async (req, res) => {
@@ -14,29 +14,23 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Parâmetros de paginação inválidos.' });
     }
 
-    // Assuming playerModel.getAllPlayers can fetch all players if no specific filters are applied
-    // or if a specific method for global players is available.
-    // For now, using getAllPlayers and assuming it handles a "global" context or fetches all.
     const { players, total } = await playerModel.getAllPlayers({
       limit,
       offset: (page - 1) * limit,
-      sortBy: req.query.sortBy || 'name', // Default sort
+      sortBy: req.query.sortBy || 'name',
       order: req.query.order || 'asc',
-      filters: { ...req.query.filters, is_global: true }, // Example: if global players have a flag or null tournament_id
-                                                       // This filter part needs alignment with playerModel.
-                                                       // If getAllPlayers fetches ALL players regardless of tournament,
-                                                       // then is_global filter might not be needed or handled differently.
+      filters: { ...req.query.filters }, // Removed is_global, assuming getAllPlayers handles context or fetches all non-deleted
     });
 
-    // Map to frontend expected format if necessary (e.g., PlayerName)
     const formattedPlayers = players.map(p => ({
       id: p.id,
-      PlayerName: p.name, // Assuming frontend might expect PlayerName
+      PlayerName: p.name,
       name: p.name,
       Nickname: p.nickname,
       gender: p.gender,
       skill_level: p.skill_level,
-      // Add other fields as needed by the frontend for a global player list
+      tournament_id: p.tournament_id, // Include tournament_id if relevant for global list
+      is_deleted: p.is_deleted,
     }));
 
     res.json({
@@ -55,5 +49,45 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro ao buscar jogadores.' });
   }
 });
+
+// GET /api/players/:playerId - Get specific player details (public)
+router.get('/:playerId', validateRequest(playerIdParamSchema), async (req, res) => {
+  const { playerId } = req.params;
+  try {
+    // TODO: Implement caching strategy (e.g., Redis)
+    // const cachedPlayer = await redisClient.get(`player:${playerId}:details`);
+    // if (cachedPlayer) {
+    //   logger.info('PlayerRoute', `Detalhes do jogador ${playerId} servidos do cache.`, { requestId: req.id });
+    //   return res.json({ success: true, player: JSON.parse(cachedPlayer), source: 'cache' });
+    // }
+
+    const player = await playerModel.getPlayerById(playerId); // Assuming getPlayerById fetches a global player
+    if (!player || player.is_deleted) { // Check for soft delete as well
+      return res.status(404).json({ success: false, message: 'Jogador não encontrado.' });
+    }
+
+    // await redisClient.set(`player:${playerId}:details`, JSON.stringify(player), 'EX', 3600); // Cache por 1 hora
+
+    // Format player data if needed, similar to the list route
+    const formattedPlayer = {
+        id: player.id,
+        PlayerName: player.name,
+        name: player.name,
+        Nickname: player.nickname,
+        gender: player.gender,
+        skill_level: player.skill_level,
+        games_played: player.games_played,
+        wins: player.wins,
+        losses: player.losses,
+        tournament_id: player.tournament_id, // if applicable
+    };
+
+    res.json({ success: true, player: formattedPlayer /*, source: 'db'*/ });
+  } catch (error) {
+    logger.error('PlayerRoute', `Erro ao carregar detalhes do jogador ${playerId}:`, { error, requestId: req.id });
+    res.status(500).json({ success: false, message: 'Erro ao carregar detalhes do jogador.' });
+  }
+});
+
 
 module.exports = router;
