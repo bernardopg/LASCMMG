@@ -54,7 +54,10 @@ api.interceptors.response.use(
 
         // Redirecionar para login (se não estiver já na página de login)
         if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+          // Disparar um evento customizado para que o App possa lidar com a navegação
+          const event = new CustomEvent('unauthorized');
+          window.dispatchEvent(event);
+          // window.location.href = '/login'; // Removido hard refresh
         }
       }
     } else if (error.request) {
@@ -125,12 +128,12 @@ export const saveScore = async (scoreData) => {
 
 // Autenticação (exemplo, pode já existir no AuthContext)
 export const loginUser = async (credentials) => {
-  const response = await api.post('/api/auth/login', credentials); // Ajuste o endpoint
-  return response.data; // Espera-se que retorne { token, user }
+  const response = await api.post('/api/auth/login', credentials);
+  return response.data;
 };
 
 export const getCurrentUser = async () => {
-  const response = await api.get('/api/auth/me'); // Ajuste o endpoint
+  const response = await api.get('/api/me'); // Corrigido endpoint
   return response.data;
 };
 
@@ -228,17 +231,26 @@ export const restoreTrashItem = async (itemId, itemType) => {
 };
 
 export const permanentlyDeleteDBItem = async (itemId, itemType) => {
-  // Renamed to avoid conflict
+  // TODO: Verificar se o backend lida com DELETE com corpo.
+  // Alternativamente, passar como query params: api.delete(`/api/admin/trash/item?itemId=${itemId}&itemType=${itemType}`)
+  // Ou como path params se a rota do backend for /api/admin/trash/item/:itemType/:itemId
   const response = await api.delete(`/api/admin/trash/item`, {
     data: { itemId, itemType },
-  }); // Ensure backend handles DELETE with body or use params
+  });
   return response.data;
 };
 
 /**
  * Admin - Torneios
  */
+export const createTournamentAdmin = async (tournamentData) => { // Adicionada função que estava faltando
+  const response = await api.post('/api/tournaments/create', tournamentData); // Endpoint de criação de torneio
+  return response.data;
+};
+
 export const deleteTournamentAdmin = async (tournamentId) => {
+  // TODO: Verificar se DELETE /api/admin/tournaments/:tournamentId existe.
+  // API_REFERENCE.md não lista. Pode ser PATCH para status 'Cancelado' ou via /api/admin/trash.
   const response = await api.delete(`/api/admin/tournaments/${tournamentId}`);
   return response.data;
 };

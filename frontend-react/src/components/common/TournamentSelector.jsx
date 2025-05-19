@@ -55,7 +55,7 @@ const TournamentSelector = () => {
         </label>
         <select
           id="tournament-select"
-          className="form-select input w-full max-w-xs text-sm bg-[var(--input-bg)] border-[var(--input-border-color)] text-gray-400"
+          className="form-select w-full max-w-xs text-sm bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
           disabled
         >
           <option>Carregando torneios...</option>
@@ -75,7 +75,7 @@ const TournamentSelector = () => {
         </label>
         <select
           id="tournament-select"
-          className="form-select input w-full max-w-xs text-sm bg-[var(--input-bg)] border-[var(--input-border-color)] text-gray-400"
+          className="form-select w-full max-w-xs text-sm bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
           disabled
         >
           <option>Nenhum torneio disponível</option>
@@ -103,7 +103,7 @@ const TournamentSelector = () => {
         id="tournament-select"
         value={currentTournament?.id || ''}
         onChange={handleTournamentChange}
-        className="form-select input w-full max-w-xs text-sm pr-8" // pr-8 for arrow space
+        className="form-select block w-full max-w-xs text-sm rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 pr-8" // Tailwind form classes
         aria-label="Selecione um torneio"
       >
         {!currentTournament && (

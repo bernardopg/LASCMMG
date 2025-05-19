@@ -179,23 +179,48 @@ Cria placar para partida (autenticado).
 ## Administração & Lixeira
 
 ### `GET /api/admin/players`
-CRUD de jogadores (admin).
+Lista jogadores para administração.
 **Auth:** JWT
-**GET/POST/PUT/DELETE**
-- `/api/admin/players`
-- `/api/admin/players/:playerId`
+**Query:** `page`, `limit`, `sortBy` (ex: `name`, `created_at`), `order` (`asc`, `desc`), `filters[columnName]=value` (ex: `filters[name]=John&filters[status]=active`)
+**Respostas:**
+- 200: `{ success: true, players: [...], totalPages, currentPage, totalPlayers }`
+
+### `POST /api/admin/players`
+Cria um novo jogador (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ name, nickname, ... }`
+
+### `PUT /api/admin/players/:playerId`
+Atualiza um jogador (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ name, nickname, ... }`
+
+### `DELETE /api/admin/players/:playerId`
+Exclui um jogador (admin, soft delete por padrão).
+**Auth:** JWT + CSRF
+**Query:** `permanent=true` (para exclusão permanente)
 
 ### `GET /api/admin/scores`
-CRUD de placares (admin).
+Lista placares para administração.
 **Auth:** JWT
-**GET/PUT/DELETE**
-- `/api/admin/scores`
-- `/api/admin/scores/:scoreId`
+**Query:** `page`, `limit`, `sortBy` (ex: `timestamp`, `round`), `order` (`asc`, `desc`), `filters[columnName]=value`
+**Respostas:**
+- 200: `{ success: true, scores: [...], totalPages, currentPage, totalScores }`
+
+### `PUT /api/admin/scores/:scoreId`
+Atualiza um placar (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ player1Score, player2Score, winnerId, ... }`
+
+### `DELETE /api/admin/scores/:scoreId`
+Exclui um placar (admin, soft delete por padrão).
+**Auth:** JWT + CSRF
+**Query:** `permanent=true` (para exclusão permanente)
 
 ### `GET /api/admin/trash`
 Itens na lixeira (admin).
 **Auth:** JWT
-**Query:** `type` (`player`, `score`, `tournament`)
+**Query:** `page`, `limit`, `type` (`player`, `score`, `tournament`)
 
 ### `POST /api/admin/trash/restore`
 Restaura item da lixeira (admin).
@@ -237,6 +262,7 @@ Atualiza configuração do honeypot (admin).
 ### `GET /api/system/security/blocked-ips`
 Lista IPs bloqueados (admin).
 **Auth:** JWT
+**Query:** `page`, `limit`
 
 ### `POST /api/system/security/blocked-ips`
 Bloqueia IP manualmente (admin).

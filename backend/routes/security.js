@@ -15,6 +15,7 @@ const {
   honeypotConfigSchema,
   manualBlockIpSchema,
   ipAddressParamSchema,
+  paginationQuerySchema, // Import pagination schema
 } = require('../lib/utils/validationUtils'); // Import Joi validation utilities
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const { readJsonFile } = require('../lib/utils/fileUtils');
@@ -298,9 +299,8 @@ router.post('/security/honeypot-config', authMiddleware, validateRequest(honeypo
 });
 
 // Blocked IPs Management Routes
-router.get('/security/blocked-ips', authMiddleware, async (req, res) => {
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 10;
+router.get('/security/blocked-ips', authMiddleware, validateRequest(paginationQuerySchema), async (req, res) => {
+  const { page, limit } = req.query; // Validated and defaulted by Joi
   try {
     const { ips, total, currentPage, totalPages } = honeypot.getBlockedIPs({
       page,
@@ -310,7 +310,7 @@ router.get('/security/blocked-ips', authMiddleware, async (req, res) => {
       success: true,
       blockedIps: ips,
       totalPages,
-      currentPage,
+      currentPage, // currentPage from honeypot.getBlockedIPs might differ if its internal default differs from Joi's
       totalBlocked: total,
     });
   } catch (error) {

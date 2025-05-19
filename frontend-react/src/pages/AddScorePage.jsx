@@ -8,10 +8,14 @@ import { useNavigate } from 'react-router-dom';
 
 const AddScorePage = () => {
   const [players, setPlayers] = useState([]);
-  const { showMessage } = useMessage();
-  const { currentTournament, refreshCurrentTournament } = // Changed refreshCurrentTournamentDetails to refreshCurrentTournament
+  const { showError, showSuccess, showInfo } = useMessage(); // Corrigido para usar funções específicas
+  const { currentTournament, refreshCurrentTournament } =
     useTournament();
   const navigate = useNavigate();
+
+  // TODO: Esta página precisa receber matchId e, idealmente, os nomes dos jogadores da partida
+  // via props ou useParams (ex: /tournaments/:tournamentId/match/:matchId/add-score)
+  // Sem isso, não é possível associar o placar à partida correta no chaveamento.
 
   const fetchPlayersData = useCallback(async () => {
     if (!currentTournament?.id) {
@@ -19,17 +23,16 @@ const AddScorePage = () => {
       return;
     }
     try {
-      const fetchedPlayers = await getPlayers(currentTournament.id);
+      const fetchedPlayers = await getPlayers(currentTournament.id); // Assumindo que isso busca jogadores do torneio
       setPlayers(fetchedPlayers || []);
     } catch (error) {
       console.error('Erro ao carregar jogadores:', error);
-      showMessage(
-        `Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`,
-        'error'
+      showError( // Corrigido
+        `Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`
       );
       setPlayers([]);
     }
-  }, [currentTournament?.id, showMessage]);
+  }, [currentTournament?.id, showError]); // Corrigido
 
   useEffect(() => {
     fetchPlayersData();
@@ -48,7 +51,6 @@ const AddScorePage = () => {
     score1: Yup.number()
       .required('Placar do Jogador 1 é obrigatório')
       .min(0, 'Placar não pode ser negativo')
-      .max(2, 'Placar não pode ser maior que 2')
       .integer('Placar deve ser um número inteiro'),
     player2_name: Yup.string()
       .required('Jogador 2 é obrigatório')
@@ -56,69 +58,83 @@ const AddScorePage = () => {
     score2: Yup.number()
       .required('Placar do Jogador 2 é obrigatório')
       .min(0, 'Placar não pode ser negativo')
-      .max(2, 'Placar não pode ser maior que 2')
-      .integer('Placar deve ser um número inteiro')
-      .test(
-        'scores-cannot-be-equal-if-max',
-        'Ambos os placares não podem ser 2',
-        function (value) {
-          const { score1 } = this.parent;
-          return !(score1 === 2 && value === 2);
-        }
-      )
-      .test(
-        'one-player-must-win',
-        'Um jogador deve ter placar 2 se o outro não tiver, ou os placares devem ser diferentes (ex: 2x0, 2x1, 1x0).',
-        function (value) {
-          // value is score2
-          const { score1 } = this.parent;
-          // Ensure scores are numbers for comparison
-          const s1 = Number(score1);
-          const s2 = Number(value);
-
-          if (s1 === 2 && s2 === 2) return false; // Both can't be 2
-          if ((s1 === 2 && s2 < 2) || (s2 === 2 && s1 < 2)) return true; // One player reached 2, the other didn't
-          if (s1 < 2 && s2 < 2 && s1 !== s2) return true; // Neither reached 2, scores must be different (e.g., 1-0)
-
-          // This case implies s1 < 2, s2 < 2, and s1 === s2 (e.g. 0-0, 1-1), which is invalid if neither reached 2.
-          // Or one score is not a number yet.
-          if (s1 < 2 && s2 < 2 && s1 === s2) return false;
-
-          return true; // Default to true if conditions not met, allowing other validations to catch NaN etc.
-        }
-      ),
+      .integer('Placar deve ser um número inteiro'),
+      // Removidos testes customizados 'scores-cannot-be-equal-if-max' e 'one-player-must-win'
+      // A lógica de validação de vitória/formato da partida pode ser mais complexa
+      // e talvez melhor tratada no backend ou com base no tipo de torneio/partida.
     round: Yup.string().required('Rodada é obrigatória'),
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     if (!currentTournament?.id) {
-      showMessage('Nenhum torneio selecionado.', 'error');
+      showError('Nenhum torneio selecionado.'); // Corrigido
       setSubmitting(false);
       return;
     }
 
+    // TODO CRÍTICO: Obter matchId e stateMatchKey dinamicamente.
+    // Esta é uma implementação de placeholder e NÃO FUNCIONARÁ corretamente.
+    // A página deve ser acessada com um ID de partida, por exemplo.
+    const matchIdPlaceholder = 'placeholder_match_id'; // Exemplo: viria de useParams()
+    const stateMatchKeyPlaceholder = 'R1M1'; // Exemplo: viria dos dados da partida
+
+    if (!matchIdPlaceholder || !stateMatchKeyPlaceholder) {
+      showError('Informações da partida ausentes. Não é possível salvar o placar.'); // Corrigido
+      setSubmitting(false);
+      return;
+    }
+
+    // TODO: Mapear player_name para player_id.
+    // O backend espera player1Id e player2Id.
+    // Esta lógica precisa buscar os IDs correspondentes aos nomes selecionados.
+    const player1 = players.find(p => p.name === values.player1_name);
+    const player2 = players.find(p => p.name === values.player2_name);
+
+    if (!player1 || !player2) {
+      showError("Jogador selecionado inválido."); // Corrigido
+      setSubmitting(false);
+      return;
+    }
+
+    // TODO: Determinar winnerId com base nos placares ou adicionar um seletor.
+    let winnerId = null;
+    if (Number(values.score1) > Number(values.score2)) {
+      winnerId = player1.id;
+    } else if (Number(values.score2) > Number(values.score1)) {
+      winnerId = player2.id;
+    } else {
+      // Empates podem não ser permitidos dependendo das regras do torneio.
+      // O backend pode ter validação para isso.
+      showError("Empates podem não ser permitidos ou o vencedor precisa ser explicitamente definido."); // Corrigido
+      setSubmitting(false);
+      return;
+    }
+
+
     const payload = {
-      ...values,
-      tournament_id: currentTournament.id,
-      score1: Number(values.score1),
-      score2: Number(values.score2),
+      tournamentId: currentTournament.id,
+      matchId: matchIdPlaceholder, // Usar o ID da partida real
+      player1Id: player1.id, // Usar ID do jogador
+      player2Id: player2.id, // Usar ID do jogador
+      player1Score: Number(values.score1),
+      player2Score: Number(values.score2),
+      winnerId: winnerId, // Enviar winnerId
+      stateMatchKey: stateMatchKeyPlaceholder, // Usar a chave real
+      round: values.round, // O backend pode usar isso para validação ou informação adicional
     };
 
     try {
       await saveScore(payload);
-      showMessage('Placar adicionado com sucesso!', 'success');
+      showSuccess('Placar adicionado com sucesso!'); // Corrigido
       resetForm();
-      if (refreshCurrentTournament) { // Changed refreshCurrentTournamentDetails to refreshCurrentTournament
-        // If context provides a way to refresh bracket/details
+      if (refreshCurrentTournament) {
         refreshCurrentTournament();
       }
-      // Optionally navigate to scores page or bracket page
       // navigate(`/scores?tournament=${currentTournament.id}`);
     } catch (error) {
       console.error('Erro ao adicionar placar:', error);
-      showMessage(
-        `Erro ao adicionar placar: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`,
-        'error'
+      showError( // Corrigido
+        `Erro ao adicionar placar: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
       );
     }
     setSubmitting(false);
@@ -184,7 +200,7 @@ const AddScorePage = () => {
                     id="score1"
                     name="score1"
                     min="0"
-                    max="2"
+                    // max="2" // Removido max para maior flexibilidade
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                     aria-label="Placar do jogador 1"
                   />
@@ -240,7 +256,7 @@ const AddScorePage = () => {
                     id="score2"
                     name="score2"
                     min="0"
-                    max="2"
+                    // max="2" // Removido max para maior flexibilidade
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                     aria-label="Placar do jogador 2"
                   />

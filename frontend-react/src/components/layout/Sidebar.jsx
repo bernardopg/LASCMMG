@@ -61,7 +61,7 @@ const Sidebar = ({ isSidebarCollapsed }) => {
       name: 'Adicionar Placar',
       path: '/add-score',
       icon: <FaPlusCircle className="w-5 h-5" />,
-      permission: 'add_score', // Example permission, adjust as needed
+      permission: null, // Rota será protegida por isAuthenticated, acessível a usuários logados
     },
     {
       name: 'Estatísticas',
@@ -105,11 +105,9 @@ const Sidebar = ({ isSidebarCollapsed }) => {
     const active = isActive(item.path);
     const baseClasses =
       'flex items-center p-2 my-1 text-sm font-medium rounded-md group';
-    // Active classes are fine for dark theme
-    const activeClasses = 'bg-[var(--color-primary-dark)] text-white'; // text-white is good for dark bg
-    // Inactive classes adjusted for dark theme
+    const activeClasses = 'bg-primary-dark text-white'; // Usando cor Tailwind
     const inactiveClasses =
-      'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white';
+      'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white';
 
     return (
       <Link
@@ -119,7 +117,7 @@ const Sidebar = ({ isSidebarCollapsed }) => {
         title={isSidebarCollapsed ? item.name : ''} // Show full name on hover when collapsed
       >
         <div
-          className={`${isSidebarCollapsed ? 'mr-0' : 'mr-3'} ${active ? 'text-white' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-300'}`}
+          className={`${isSidebarCollapsed ? 'mr-0' : 'mr-3'} ${active ? 'text-white' : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'}`} // Ajuste de cores para ícones inativos
         >
           {item.icon}
         </div>
@@ -132,19 +130,16 @@ const Sidebar = ({ isSidebarCollapsed }) => {
     <div
       className={`hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
     >
-      {/* Adjusted for dark theme: bg, border and collapse state */}
       <div className="flex flex-col w-full">
-        {' '}
-        {/* w-full to take width from parent */}
-        <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-[var(--panel-bg)] border-r border-[var(--card-border-color)]">
-          {/* Sidebar Header - can add logo and collapse button here later if needed */}
+        <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700"> {/* Tailwind classes for theme */}
+          {/* Sidebar Header */}
           <div
             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-4'} mb-4 h-10`}
           >
             {!isSidebarCollapsed && (
               <Link to="/" className="flex items-center">
                 <img
-                  className="h-10 w-auto" // Adjusted size
+                  className="h-10 w-auto"
                   src="/assets/logo-removebg.png"
                   alt="LASCMMG Logo"
                 />
@@ -156,7 +151,7 @@ const Sidebar = ({ isSidebarCollapsed }) => {
             {isSidebarCollapsed && (
               <Link to="/">
                 <img
-                  className="h-8 w-auto" // Smaller logo when collapsed
+                  className="h-8 w-auto"
                   src="/assets/logo-removebg.png"
                   alt="LASCMMG"
                 />
@@ -167,19 +162,18 @@ const Sidebar = ({ isSidebarCollapsed }) => {
           <div
             className={`flex flex-col flex-grow ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}
           >
-            <nav className="flex-1 space-y-1 bg-[var(--panel-bg)]">
+            <nav className="flex-1 space-y-1"> {/* Removed redundant bg class */}
               {menuItems.map(renderMenuItem)}
             </nav>
 
             <div
               className={`flex-shrink-0 block w-full mt-auto ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}
             >
-              {/* Adjusted for dark theme: bg, text */}
               <div
-                className={`p-4 bg-gray-100 dark:bg-gray-800 rounded-lg ${isSidebarCollapsed ? 'hidden' : ''}`}
+                className={`p-4 bg-gray-100 dark:bg-slate-700 rounded-lg ${isSidebarCollapsed ? 'hidden' : ''}`} // Adjusted dark bg
               >
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="font-semibold text-gray-900 dark:text-white">
                     LASCMMG
                   </p>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">

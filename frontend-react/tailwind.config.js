@@ -60,6 +60,10 @@ module.exports = {
           light: '#60a5fa',
           dark: '#2563eb',
         },
+        // Cores customizadas para o tema escuro, baseadas nas variáveis CSS
+        'lasc-body-dark': '#1a2a1a',
+        'lasc-panel-dark': '#223322',
+        'lasc-placeholder-dark': '#81c784',
       },
       fontFamily: {
         sans: [

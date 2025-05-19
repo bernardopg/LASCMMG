@@ -20,7 +20,7 @@ const formatBracketType = (type) => {
 
 const StatsPage = () => {
   const { currentTournament } = useTournament();
-  const { showMessage } = useMessage();
+  const { showError } = useMessage(); // Corrigido para showError
 
   const [activeTab, setActiveTab] = useState('tournament'); // 'tournament' or 'players'
   const [tournamentStats, setTournamentStats] = useState(null);
@@ -54,15 +54,14 @@ const StatsPage = () => {
       }
     } catch (error) {
       console.error('Erro ao carregar estatísticas do torneio:', error);
-      showMessage(
-        `Erro ao carregar estatísticas do torneio: ${error.message}`,
-        'error'
+      showError( // Corrigido para showError
+        `Erro ao carregar estatísticas do torneio: ${error.message}`
       );
       setTournamentStats(null);
     } finally {
       setLoadingTournamentStats(false);
     }
-  }, [currentTournament?.id, showMessage]);
+  }, [currentTournament?.id, showError]); // Corrigido para showError
 
   const fetchPlayerStats = useCallback(async () => {
     if (!currentTournament?.id || !selectedPlayerName) {
@@ -81,15 +80,14 @@ const StatsPage = () => {
         `Erro ao carregar estatísticas do jogador ${selectedPlayerName}:`,
         error
       );
-      showMessage(
-        `Erro ao carregar estatísticas do jogador: ${error.message}`,
-        'error'
+      showError( // Corrigido para showError
+        `Erro ao carregar estatísticas do jogador: ${error.message}`
       );
       setPlayerStats(null);
     } finally {
       setLoadingPlayerStats(false);
     }
-  }, [currentTournament?.id, selectedPlayerName, showMessage]);
+  }, [currentTournament?.id, selectedPlayerName, showError]); // Corrigido para showError
 
   useEffect(() => {
     fetchTournamentStats();
@@ -484,7 +482,7 @@ const StatsPage = () => {
                 id="player-select-stats"
                 value={selectedPlayerName}
                 onChange={(e) => setSelectedPlayerName(e.target.value)}
-                className="input w-full md:w-1/2 lg:w-1/3 mt-1 block py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                className="form-select w-full md:w-1/2 lg:w-1/3 mt-1 block py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 sm:text-sm text-gray-900 dark:text-gray-100"
                 disabled={
                   allPlayersForSelect.length === 0 || loadingTournamentStats
                 }

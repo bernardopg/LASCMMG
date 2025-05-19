@@ -21,14 +21,14 @@ const MessageContainer = () => {
 
     switch (type) {
       case 'success':
-        return `${baseClasses} bg-green-50 text-green-800 focus:ring-green-500`;
+        return `${baseClasses} bg-green-50 dark:bg-green-800 dark:bg-opacity-30 text-green-700 dark:text-green-200 focus:ring-green-500 dark:focus:ring-green-400`;
       case 'error':
-        return `${baseClasses} bg-red-50 text-red-800 focus:ring-red-500`;
+        return `${baseClasses} bg-red-50 dark:bg-red-800 dark:bg-opacity-30 text-red-700 dark:text-red-200 focus:ring-red-500 dark:focus:ring-red-400`;
       case 'warning':
-        return `${baseClasses} bg-yellow-50 text-yellow-800 focus:ring-yellow-500`;
+        return `${baseClasses} bg-yellow-50 dark:bg-yellow-800 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 focus:ring-yellow-500 dark:focus:ring-yellow-400`;
       case 'info':
       default:
-        return `${baseClasses} bg-blue-50 text-blue-800 focus:ring-blue-500`;
+        return `${baseClasses} bg-blue-50 dark:bg-blue-800 dark:bg-opacity-30 text-blue-700 dark:text-blue-200 focus:ring-blue-500 dark:focus:ring-blue-400`;
     }
   };
 
@@ -38,7 +38,7 @@ const MessageContainer = () => {
       case 'success':
         return (
           <svg
-            className="h-5 w-5 text-green-400"
+            className="h-5 w-5 text-green-400 dark:text-green-300"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -54,7 +54,7 @@ const MessageContainer = () => {
       case 'error':
         return (
           <svg
-            className="h-5 w-5 text-red-400"
+            className="h-5 w-5 text-red-400 dark:text-red-300"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -70,7 +70,7 @@ const MessageContainer = () => {
       case 'warning':
         return (
           <svg
-            className="h-5 w-5 text-yellow-400"
+            className="h-5 w-5 text-yellow-400 dark:text-yellow-300"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -87,7 +87,7 @@ const MessageContainer = () => {
       default:
         return (
           <svg
-            className="h-5 w-5 text-blue-400"
+            className="h-5 w-5 text-blue-400 dark:text-blue-300"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -133,11 +133,11 @@ const MessageContainer = () => {
                 <button
                   type="button"
                   onClick={() => removeMessage(message.id)}
-                  className="inline-flex rounded-md p-1.5 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-600"
+                  className="inline-flex rounded-md p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-slate-800 focus:ring-gray-600 dark:focus:ring-gray-500"
                 >
                   <span className="sr-only">Fechar</span>
                   <svg
-                    className="h-5 w-5"
+                    className="h-5 w-5" // A cor do ícone de fechar é herdada (currentColor)
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"

@@ -1,9 +1,11 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react';
+// Linha duplicada removida
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
+  useNavigate, // Adicionar useNavigate
 } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
@@ -24,8 +26,11 @@ import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
 import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage';
-import PlayersPage from './pages/admin/PlayersPage';
+// import PlayersPage from './pages/admin/PlayersPage'; // PlayersPage é pública/admin, não só admin. Ajustar rota.
+import PlayersPage from './pages/admin/PlayersPage'; // Corrigido para o caminho existente
 import SettingsPage from './pages/admin/SettingsPage';
+import Home from './pages/Home'; // Importar Home
+import NotFoundPage from './pages/NotFound'; // Importar NotFoundPage
 
 // Admin Security Sub-Pages (eagerly loaded as they are children of a layout)
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
@@ -39,11 +44,11 @@ import ThemeContext from './context/ThemeContext';
 
 // Lazy loaded pages
 const BracketPage = React.lazy(() => import('./pages/BracketPage'));
-const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/admin/Dashboard')); // Corrigido caminho
 const CreateTournamentPage = React.lazy(() => import('./pages/admin/CreateTournamentPage'));
 const AdminTournamentListPage = React.lazy(() => import('./pages/admin/AdminTournamentListPage'));
 const AdminSchedulePage = React.lazy(() => import('./pages/admin/AdminSchedulePage'));
-const AdminUserManagementPage = React.lazy(() => import('./pages/admin/AdminUserManagementPage')); // Added
+const AdminUserManagementPage = React.lazy(() => import('./pages/admin/AdminUserManagementPage'));
 
 // Loading fallback component for Suspense
 const PageLoadingFallback = () => (
@@ -51,6 +56,37 @@ const PageLoadingFallback = () => (
     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
   </div>
 );
+
+// Componente wrapper para lidar com o evento de não autorizado e buscar CSRF token
+const AppContentWrapper = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      if (window.location.pathname !== '/login') {
+        console.log('Unauthorized event received, navigating to login.');
+        navigate('/login', { replace: true });
+      }
+    };
+
+    window.addEventListener('unauthorized', handleUnauthorized);
+
+    // Fetch CSRF token when the app loads
+    api.get('/api/csrf-token')
+      .then(response => {
+        console.log('CSRF token endpoint contacted successfully.');
+      })
+      .catch(error => {
+        console.error('Error fetching CSRF token on app load:', error);
+      });
+
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized);
+    };
+  }, [navigate]);
+
+  return null; // Este componente não renderiza UI diretamente
+};
 
 // Layout principal
 const MainLayout = ({ children }) => {
@@ -78,7 +114,7 @@ const MainLayout = ({ children }) => {
   }, [isSidebarCollapsed]);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] dark:bg-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100"> {/* Tailwind classes para tema */}
       <Header
         isSidebarCollapsed={isSidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
@@ -127,27 +163,13 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  useEffect(() => {
-    // Fetch CSRF token when the app loads to ensure the cookie is set
-    api.get('/api/csrf-token')
-      .then(response => {
-        console.log('CSRF token endpoint contacted successfully. Cookie should be set by browser.');
-        // If you need to use the token value directly from the response for some reason:
-        // const tokenFromResponse = response.data.csrfToken;
-        // console.log('CSRF Token from response body:', tokenFromResponse);
-      })
-      .catch(error => {
-        console.error('Error fetching CSRF token on app load:', error);
-        // Handle error appropriately, maybe show a message to the user
-        // or retry, depending on how critical this is for app startup.
-      });
-  }, []); // Empty dependency array ensures this runs once on mount
-
+  // O useEffect para buscar o token CSRF foi movido para AppContentWrapper
   return (
     <AuthProvider>
       <MessageProvider>
         <TournamentProvider>
           <Router>
+            <AppContentWrapper /> {/* Configura listeners e busca token */}
             <MessageContainer />
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -156,7 +178,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <PagePlaceholder title="Dashboard" />
+                      <Home /> {/* Corrigido para renderizar Home */}
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -315,18 +337,7 @@ function App() {
               <Route
                 path="*"
                 element={
-                  <div className="flex items-center justify-center min-h-screen bg-[var(--bg-color)]">
-                    <div className="text-center">
-                      <h1 className="text-6xl font-bold text-[var(--color-primary)]">404</h1>
-                      <p className="text-2xl text-gray-300 mt-4">Página não encontrada</p>
-                      <a
-                        href="/"
-                        className="mt-6 inline-block px-6 py-3 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
-                      >
-                        Voltar para o início
-                      </a>
-                    </div>
-                  </div>
+                  <NotFoundPage /> // Corrigido para usar o componente NotFoundPage
                 }
               />
             </Routes>

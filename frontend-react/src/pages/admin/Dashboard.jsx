@@ -3,34 +3,31 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTournament } from '../../context/TournamentContext';
 import { useMessage } from '../../context/MessageContext';
+import { getTournaments, getAdminPlayers, getAdminScores } from '../../services/api'; // API imports
+import { FaUsers, FaListOl, FaTrophy, FaClock, FaPlus, FaCog, FaUserShield, FaInfoCircle, FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa'; // Icons
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => (
-  <div className="stat-card bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+  <div className="stat-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
     <div className="flex items-start">
-      <div className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100`}>
-        <span
-          className={`text-${color}-600`}
-          dangerouslySetInnerHTML={{ __html: icon }}
-        ></span>
+      <div className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100 dark:bg-${color}-700 dark:bg-opacity-50`}>
+        <span className={`text-${color}-600 dark:text-${color}-300 text-2xl`}>{icon}</span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-        <p className="text-2xl font-semibold mt-1">{value}</p>
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+        <p className="text-2xl font-semibold mt-1 text-gray-800 dark:text-gray-100">{value}</p>
       </div>
     </div>
   </div>
 );
 
 const ActionCard = ({ title, description, icon, to, buttonText }) => (
-  <div className="action-card bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col h-full">
-    <div className="icon-wrapper mb-4 text-primary">
-      <span dangerouslySetInnerHTML={{ __html: icon }}></span>
-    </div>
-    <h3 className="text-lg font-semibold mb-2">{title}</h3>
-    <p className="text-gray-600 mb-4 flex-grow">{description}</p>
+  <div className="action-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col h-full">
+    <div className="icon-wrapper mb-4 text-primary dark:text-primary-light text-3xl">{icon}</div>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
+    <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">{description}</p>
     <Link
       to={to}
-      className="mt-auto inline-flex items-center justify-center px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-white transition-colors rounded-md"
+      className="btn btn-outline btn-primary mt-auto" // Using global button styles
     >
       {buttonText}
     </Link>
@@ -38,7 +35,7 @@ const ActionCard = ({ title, description, icon, to, buttonText }) => (
 );
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // currentUser from useAuth is 'user'
   const { currentTournament, loading: tournamentLoading } = useTournament();
   const { showError } = useMessage();
 
@@ -47,223 +44,198 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Importar funções da API
-    // (adicione no topo do arquivo, se necessário)
-    // import {
-    //   getTournaments,
-    //   getAdminPlayers,
-    //   getAdminScores,
-    // } from '../../services/api';
-
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
 
         // Buscar estatísticas gerais
-        const [tournaments, playersResp, scoresResp] = await Promise.all([
-          getTournaments(),
-          getAdminPlayers({ limit: 1 }),
-          getAdminScores({ limit: 1 }),
+        // TODO: getTournaments() aqui pode ser redundante se TournamentContext já os carrega.
+        // Considerar usar tournaments do context se já estiverem disponíveis.
+        const [tournamentsData, playersResp, scoresResp] = await Promise.all([
+          getTournaments(), // Assumes this returns { tournaments: [] } or similar
+          getAdminPlayers({ limit: 1 }), // For total count
+          getAdminScores({ limit: 1 }),  // For total count
         ]);
 
-        // Total de torneios
-        const totalTournaments = tournaments?.length || 0;
-
-        // Total de jogadores (pode vir paginado)
-        const totalPlayers = playersResp?.total || playersResp?.totalCount || playersResp?.players?.length || 0;
-
-        // Total de partidas (pode vir paginado)
-        const totalMatches = scoresResp?.total || scoresResp?.totalCount || scoresResp?.scores?.length || 0;
+        const totalTournaments = tournamentsData?.tournaments?.length || tournamentsData?.length || 0;
+        const totalPlayers = playersResp?.total || playersResp?.totalCount || 0;
+        const totalMatches = scoresResp?.total || scoresResp?.totalCount || 0;
 
         // Buscar partidas pendentes (status !== 'finalizada')
-        const pendingScoresResp = await getAdminScores({ limit: 100, filters: { status: 'pendente' } });
-        const pendingMatches = pendingScoresResp?.total || pendingScoresResp?.scores?.length || 0;
+        // TODO: O backend não suporta `filters: { status: 'pendente' }` em getAdminScores.
+        // Esta lógica precisará ser ajustada ou o backend atualizado.
+        // Por ora, vamos simular ou buscar todos e filtrar no cliente (menos ideal).
+        // const pendingScoresResp = await getAdminScores({ limit: 1000 }); // Fetch more to filter
+        // const pendingMatches = pendingScoresResp?.scores?.filter(s => s.status !== 'Concluído' && s.status !== 'Cancelado').length || 0;
+        const pendingMatches = 0; // Placeholder
 
-        // Buscar atividades recentes (últimos scores, jogadores, torneios)
-        const [recentScores, recentPlayers, recentTournaments] = await Promise.all([
+        // Buscar atividades recentes
+        const [recentScoresData, recentPlayersData, recentTournamentsData] = await Promise.all([
           getAdminScores({ limit: 5, sortBy: 'timestamp', order: 'desc' }),
           getAdminPlayers({ limit: 5, sortBy: 'createdAt', order: 'desc' }),
-          getTournaments(), // Supondo que já vem ordenado por data
+          getTournaments({ limit: 5, sortBy: 'createdAt', order: 'desc' }), // Assuming getTournaments can sort
         ]);
 
-        // Montar lista de atividades recentes
         const activity = [];
 
-        if (recentScores?.scores) {
-          recentScores.scores.forEach((score) => {
+        if (recentScoresData?.scores) {
+          recentScoresData.scores.forEach((score) => {
             activity.push({
               id: `score-${score.id}`,
               type: 'match',
-              description: `Partida finalizada: ${score.player1} vs ${score.player2} (${score.score1}-${score.score2})`,
+              description: `Placar: ${score.player1_name || 'P1'} ${score.score1}-${score.score2} ${score.player2_name || 'P2'}`,
               timestamp: score.timestamp || score.updatedAt || score.createdAt,
-              user: score.updatedBy || score.createdBy || 'Sistema',
+              user: 'Sistema', // TODO: Adicionar quem registrou o placar se disponível
             });
           });
         }
 
-        if (recentPlayers?.players) {
-          recentPlayers.players.forEach((player) => {
+        if (recentPlayersData?.players) {
+          recentPlayersData.players.forEach((player) => {
             activity.push({
               id: `player-${player.id}`,
               type: 'player',
-              description: `Jogador adicionado: ${player.name}`,
+              description: `Jogador: ${player.name}`,
               timestamp: player.createdAt,
-              user: player.createdBy || 'Administrador',
+              user: 'Admin', // TODO: Adicionar quem criou/atualizou
             });
           });
         }
 
-        if (recentTournaments?.length) {
-          recentTournaments.slice(0, 5).forEach((tournament) => {
+        const tournamentsForActivity = recentTournamentsData?.tournaments || recentTournamentsData || [];
+        if (tournamentsForActivity.length) {
+          tournamentsForActivity.slice(0, 5).forEach((tournament) => {
             activity.push({
               id: `tournament-${tournament.id}`,
               type: 'tournament',
-              description: `Torneio atualizado: ${tournament.name}`,
+              description: `Torneio: ${tournament.name}`,
               timestamp: tournament.updatedAt || tournament.createdAt,
-              user: tournament.updatedBy || 'Administrador',
+              user: 'Admin', // TODO: Adicionar quem criou/atualizou
             });
           });
         }
 
-        // Ordenar atividades por data decrescente
         activity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-        setStats({
-          totalPlayers,
-          totalMatches,
-          pendingMatches,
-          totalTournaments,
-        });
+        setStats({ totalPlayers, totalMatches, pendingMatches, totalTournaments });
         setRecentActivity(activity.slice(0, 10));
-        setLoading(false);
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
-        showError(
-          'Falha ao carregar dados',
-          'Verifique sua conexão e tente novamente.'
-        );
+        showError('Falha ao carregar dados do dashboard.');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [showError]);
+  }, [showError]); // Removido currentTournament de dependências para evitar re-fetch desnecessário
 
   // Obter a data formatada para exibição
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (!dateString) return 'Data indisponível';
+    try {
+      return new Date(dateString).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (e) {
+      return 'Data inválida';
+    }
   };
 
   // Obter ícone com base no tipo de atividade
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'match':
-        return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5,3.09L15,7.59V4H9V11H14V17.59L19.5,12.09L18.09,10.68L14.5,14.27V13H10V5H14V7.18L15.5,5.68L19.5,3.09M20,20H4V20H4V4H5V20H20V20Z"></path></svg>';
-      case 'player':
-        return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path></svg>';
-      case 'tournament':
-        return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M7,5H21V7H7V5M7,13V11H21V13H7M4,4.5A1.5,1.5 0 0,1 5.5,6A1.5,1.5 0 0,1 4,7.5A1.5,1.5 0 0,1 2.5,6A1.5,1.5 0 0,1 4,4.5M4,10.5A1.5,1.5 0 0,1 5.5,12A1.5,1.5 0 0,1 4,13.5A1.5,1.5 0 0,1 2.5,12A1.5,1.5 0 0,1 4,10.5M7,19V17H21V19H7M4,16.5A1.5,1.5 0 0,1 5.5,18A1.5,1.5 0 0,1 4,19.5A1.5,1.5 0 0,1 2.5,18A1.5,1.5 0 0,1 4,16.5Z"></path></svg>';
-      case 'system':
-        return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M12,3L2,12H5V20H19V12H22L12,3M12,8.5C14.34,8.5 16.46,9.43 18,10.94L16.8,12.12C15.58,10.91 13.88,10.17 12,10.17C10.12,10.17 8.42,10.91 7.2,12.12L6,10.94C7.54,9.43 9.66,8.5 12,8.5M12,11.83C13.4,11.83 14.67,12.39 15.6,13.3L14.4,14.47C13.79,13.87 12.94,13.5 12,13.5C11.06,13.5 10.21,13.87 9.6,14.47L8.4,13.3C9.33,12.39 10.6,11.83 12,11.83M12,15.17C12.94,15.17 13.7,15.91 13.73,16.83H10.27C10.3,15.91 11.06,15.17 12,15.17Z"></path></svg>';
-      default:
-        return '<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M13,9H11V7H13V9M13,17H11V11H13V17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"></path></svg>';
+      case 'match': return <FaListOl className="w-5 h-5" />;
+      case 'player': return <FaUsers className="w-5 h-5" />;
+      case 'tournament': return <FaTrophy className="w-5 h-5" />;
+      case 'system': return <FaCog className="w-5 h-5" />;
+      default: return <FaInfoCircle className="w-5 h-5" />;
     }
   };
 
   // Obter classe de cor com base no tipo de atividade
   const getActivityClass = (type) => {
+    // Estas classes devem ser responsivas ao tema
     switch (type) {
       case 'match':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-blue-100 dark:bg-blue-700 dark:bg-opacity-40 text-blue-600 dark:text-blue-200 border-blue-200 dark:border-blue-600';
       case 'player':
-        return 'bg-green-50 text-green-600 border-green-100';
+        return 'bg-green-100 dark:bg-green-700 dark:bg-opacity-40 text-green-600 dark:text-green-200 border-green-200 dark:border-green-600';
       case 'tournament':
-        return 'bg-purple-50 text-purple-600 border-purple-100';
+        return 'bg-purple-100 dark:bg-purple-700 dark:bg-opacity-40 text-purple-600 dark:text-purple-200 border-purple-200 dark:border-purple-600';
       case 'system':
-        return 'bg-gray-50 text-gray-600 border-gray-100';
+        return 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600';
       default:
-        return 'bg-gray-50 text-gray-600 border-gray-100';
+        return 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600';
     }
   };
 
   return (
-    <div className="page-admin-dashboard py-6">
+    <div className="page-admin-dashboard py-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
       <div className="container mx-auto px-4">
         <div className="dashboard-header mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                 Dashboard Administrativo
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 dark:text-gray-300 mt-1">
                 Bem-vindo, {user?.name || 'Administrador'}! Gerencie torneios,
                 jogadores e partidas.
               </p>
             </div>
 
             <div className="mt-4 md:mt-0 flex gap-2">
-              <button className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 flex items-center">
-                <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M17 19H7V5H19V17H17V19Z"
-                  ></path>
-                </svg>
+              <Link to="/admin/reports" className="btn btn-outline btn-white text-sm"> {/* TODO: Criar página /admin/reports */}
+                <FaChartBar className="w-4 h-4 mr-2" />
                 Relatórios
-              </button>
-              <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark flex items-center">
-                <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
-                  ></path>
-                </svg>
+              </Link>
+              <Link to="/admin/tournaments/create" className="btn btn-primary text-sm">
+                <FaPlus className="w-4 h-4 mr-2" />
                 Novo Torneio
-              </button>
+              </Link>
             </div>
           </div>
         </div>
 
         {loading || tournamentLoading ? (
           <div className="loading-spinner flex justify-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
           </div>
         ) : (
           <div className="dashboard-content">
             {/* Seção de estatísticas */}
             <div className="stats-section mb-8">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700">
+              <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                 Estatísticas Gerais
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                   title="Total de Jogadores"
                   value={stats?.totalPlayers || 0}
-                  icon='<svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path></svg>'
+                  icon={<FaUsers />}
+                  color="blue"
                 />
                 <StatCard
                   title="Partidas Realizadas"
                   value={stats?.totalMatches || 0}
-                  color="blue"
-                  icon='<svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5,3.09L15,7.59V4H9V11H14V17.59L19.5,12.09L18.09,10.68L14.5,14.27V13H10V5H14V7.18L15.5,5.68L19.5,3.09M20,20H4V20H4V4H5V20H20V20Z"></path></svg>'
+                  color="green"
+                  icon={<FaListOl />}
                 />
                 <StatCard
                   title="Partidas Pendentes"
                   value={stats?.pendingMatches || 0}
                   color="yellow"
-                  icon='<svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"></path></svg>'
+                  icon={<FaClock />}
                 />
                 <StatCard
                   title="Torneios Ativos"
                   value={stats?.totalTournaments || 0}
-                  color="green"
-                  icon='<svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M7,5H21V7H7V5M7,13V11H21V13H7M4,4.5A1.5,1.5 0 0,1 5.5,6A1.5,1.5 0 0,1 4,7.5A1.5,1.5 0 0,1 2.5,6A1.5,1.5 0 0,1 4,4.5M4,10.5A1.5,1.5 0 0,1 5.5,12A1.5,1.5 0 0,1 4,13.5A1.5,1.5 0 0,1 2.5,12A1.5,1.5 0 0,1 4,10.5M7,19V17H21V19H7M4,16.5A1.5,1.5 0 0,1 5.5,18A1.5,1.5 0 0,1 4,19.5A1.5,1.5 0 0,1 2.5,18A1.5,1.5 0 0,1 4,16.5Z"></path></svg>'
+                  color="purple"
+                  icon={<FaTrophy />}
                 />
               </div>
             </div>
@@ -272,29 +244,29 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Coluna da esquerda: Ações rápidas */}
               <div className="lg:col-span-1">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                   Ações Rápidas
                 </h2>
                 <div className="grid grid-cols-1 gap-4">
                   <ActionCard
                     title="Gerenciar Jogadores"
                     description="Adicione, edite ou remova jogadores do sistema."
-                    icon='<svg class="w-8 h-8" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path></svg>'
-                    to="/admin/jogadores"
+                    icon={<FaUsers />}
+                    to="/admin/players" // Corrigido
                     buttonText="Gerenciar Jogadores"
                   />
                   <ActionCard
-                    title="Registrar Partida"
-                    description="Registre uma nova partida ou atualize o resultado de uma existente."
-                    icon='<svg class="w-8 h-8" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5,3.09L15,7.59V4H9V11H14V17.59L19.5,12.09L18.09,10.68L14.5,14.27V13H10V5H14V7.18L15.5,5.68L19.5,3.09M20,20H4V20H4V4H5V20H20V20Z"></path></svg>'
-                    to="/admin/partidas/nova"
-                    buttonText="Registrar Partida"
+                    title="Adicionar Placar" // Alterado de "Registrar Partida"
+                    description="Registre o resultado de uma partida existente."
+                    icon={<FaPlusCircle />} // Ícone mais apropriado
+                    to="/add-score" // Rota para adicionar placar (precisa de lógica para selecionar partida)
+                    buttonText="Adicionar Placar"
                   />
                   <ActionCard
-                    title="Configurações do Sistema"
-                    description="Ajuste configurações do sistema, backup de dados e mais."
-                    icon='<svg class="w-8 h-8" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"></path></svg>'
-                    to="/admin/configuracoes"
+                    title="Configurações" // Simplificado
+                    description="Ajuste configurações do sistema e segurança."
+                    icon={<FaCog />}
+                    to="/admin/settings" // Corrigido
                     buttonText="Abrir Configurações"
                   />
                 </div>
@@ -302,34 +274,30 @@ const Dashboard = () => {
 
               {/* Coluna da direita: Atividade recente */}
               <div className="lg:col-span-2">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                   Atividade Recente
                 </h2>
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-slate-700">
                   {recentActivity.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
+                    <div className="p-6 text-center text-gray-500 dark:text-gray-400">
                       <p>Nenhuma atividade recente registrada.</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-gray-100 dark:divide-slate-700">
                       {recentActivity.map((activity) => (
                         <div
                           key={activity.id}
-                          className="p-4 hover:bg-gray-50 transition-colors"
+                          className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                         >
-                          <div className="flex">
+                          <div className="flex items-start">
                             <div
-                              className={`activity-icon p-2 rounded-full mr-3 ${getActivityClass(activity.type)}`}
+                              className={`activity-icon p-2 rounded-full mr-3 border ${getActivityClass(activity.type)}`}
                             >
-                              <span
-                                dangerouslySetInnerHTML={{
-                                  __html: getActivityIcon(activity.type),
-                                }}
-                              ></span>
+                              {getActivityIcon(activity.type)}
                             </div>
                             <div className="flex-grow">
-                              <div className="mb-1">{activity.description}</div>
-                              <div className="text-sm text-gray-500 flex items-center justify-between">
+                              <div className="mb-1 text-gray-800 dark:text-gray-100">{activity.description}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-between">
                                 <div>
                                   <span className="mr-2">
                                     por {activity.user}
@@ -344,10 +312,10 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  <div className="p-4 border-t border-gray-100 bg-gray-50">
+                  <div className="p-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
                     <Link
-                      to="/admin/atividades"
-                      className="text-primary hover:underline inline-flex items-center"
+                      to="/admin/activity-log" // TODO: Criar página /admin/activity-log
+                      className="text-primary dark:text-primary-light hover:underline inline-flex items-center text-sm"
                     >
                       Ver todas as atividades
                       <svg className="w-4 h-4 ml-1" viewBox="0 0 24 24">

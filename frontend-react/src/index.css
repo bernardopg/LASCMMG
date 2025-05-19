@@ -5,55 +5,28 @@
 @tailwind utilities;
 
 :root {
-  /* Cores Primárias (Verde LASCMMG - alinhado com tailwind.config.js) */
-  --color-primary: #2e9d3a;
-  --color-primary-light: #54c160; /* Usado em btn-outline hover, pode ser ajustado */
-  --color-primary-dark: #24803e;
-
-  /* Cor Secundária (Dourado LASCMMG - alinhado com tailwind.config.js) */
-  --color-secondary: #d4b455;
-  --color-secondary-light: #e0c577; /* Para hover de links */
-  --color-secondary-dark: #c0a140;
-
-  /* Cores de Status (Consistente com tailwind.config.js) */
-  --color-success: #10b981;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
-
-  /* Cores Neutras (Escala de Cinza para tema escuro e claro) */
-  /* Estes podem ser usados por componentes customizados ou como fallbacks.
-     Tailwind já oferece uma paleta de cinzas (gray, slate, etc.) que será usada primariamente. */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  /* As cores primárias, secundárias, de status e a paleta de cinzas
+     são definidas em tailwind.config.js e acessadas via classes Tailwind.
+     Variáveis CSS aqui são para casos específicos ou temas complexos. */
 
   /* Cores específicas do Tema Escuro (predominante) */
-  --body-bg-dark: #1a2a1a; /* Verde muito escuro, quase preto */
-  --body-text-dark: #ffffff;
-  --panel-bg-dark: #223322; /* Verde escuro para painéis/cards */
-  --input-bg-dark: #223322;
-  --card-border-color-dark: rgba(212, 180, 85, 0.3); /* Dourado translúcido */
-  --input-border-color-dark: rgba(212, 180, 85, 0.3);
-  --input-focus-border-color-dark: var(--color-primary);
-  --placeholder-color-dark: #81c784; /* Verde claro para placeholder */
-  --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
+  /* --body-bg-dark: #1a2a1a; -- Removida, usar bg-lasc-body-dark do Tailwind */
+  --body-text-dark: #ffffff; /* Cor de texto padrão para tema escuro */
+  /* --panel-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
+  /* --input-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
+  --card-border-color-dark: rgba(212, 180, 85, 0.3); /* Dourado (secondary) translúcido - Mantida por enquanto */
+  --input-border-color-dark: rgba(212, 180, 85, 0.3); /* Similar ao card-border - Mantida por enquanto */
+  /* --placeholder-color-dark: #81c784; -- Removida, usar placeholder-lasc-placeholder-dark do Tailwind */
+  --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra customizada - Mantida */
 
   /* Cores para Scrollbar (Tema Escuro) */
-  --scrollbar-track-dark: #101c10;
-  --scrollbar-thumb-dark: #4a6a4a;
-  --scrollbar-thumb-hover-dark: #5c7a5c;
+  --scrollbar-track-dark: #101c10; /* Quase preto, mais escuro que body-bg-dark */
+  --scrollbar-thumb-dark: #4a6a4a; /* Verde médio (primary-700 ou 600) */
+  --scrollbar-thumb-hover-dark: #5c7a5c; /* Verde um pouco mais claro (primary-600 ou 500) */
 
   /* Cores para Seleção de Texto */
-  --selection-bg: var(--color-primary-dark);
-  --selection-text: var(--body-text-dark);
+  --selection-bg: #24803e; /* primary-dark */
+  --selection-text: #ffffff; /* body-text-dark */
 }
 
 /* Estilos base para HTML e Body */
@@ -68,7 +41,7 @@
 
   body {
     @apply bg-gray-100 text-gray-900; /* Default para light mode */
-    @apply dark:bg-[var(--body-bg-dark)] dark:text-[var(--body-text-dark)];
+    @apply dark:bg-slate-900 dark:text-gray-100; /* Usando cores Tailwind padrão para dark mode */
     margin: 0;
     overflow-x: hidden; /* Evita scroll horizontal desnecessário */
   }
@@ -83,8 +56,8 @@
 
   /* Estilos de link padrão */
   a {
-    @apply text-[var(--color-secondary)] hover:text-[var(--color-secondary-light)];
-    @apply dark:text-[var(--color-secondary)] dark:hover:text-[var(--color-secondary-light)];
+    @apply text-secondary hover:text-secondary-light; /* Usando cores do tema Tailwind */
+    /* O dark mode para links pode ser tratado com dark:text-secondary-light dark:hover:text-secondary se as cores light/dark forem definidas no tema */
   }
 
   code {
@@ -110,10 +83,10 @@
     @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ease-in-out hover:scale-105 active:scale-95; /* Added transition-all, hover/active scale */
   }
   .btn-primary {
-    @apply bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] focus:ring-[var(--color-primary)];
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
   }
   .btn-primary:disabled {
-    @apply bg-[var(--color-primary-dark)] opacity-50 cursor-not-allowed;
+    @apply bg-primary-dark opacity-50 cursor-not-allowed;
   }
   .btn-secondary { /* Adaptado para ser mais neutro e funcionar em ambos os temas */
     @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500;
@@ -123,15 +96,15 @@
     @apply bg-gray-400 opacity-50 cursor-not-allowed dark:bg-gray-500;
   }
   .btn-danger {
-    @apply bg-[var(--color-danger)] text-white hover:opacity-80 focus:ring-[var(--color-danger)];
+    @apply bg-danger text-white hover:opacity-80 focus:ring-danger;
   }
   .btn-outline { /* Adaptado para tema escuro */
-    @apply bg-transparent text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-white hover:border-transparent font-semibold;
-    @apply dark:text-[var(--color-primary-light)] dark:border-[var(--color-primary-light)] dark:hover:bg-[var(--color-primary-dark)] dark:hover:text-white;
+    @apply bg-transparent text-primary border border-primary hover:bg-primary-light hover:text-white hover:border-transparent font-semibold;
+    @apply dark:text-primary-light dark:border-primary-light dark:hover:bg-primary-dark dark:hover:text-white;
   }
   .btn-outline:disabled {
     @apply bg-transparent text-opacity-50 border-opacity-50 cursor-not-allowed;
-    @apply dark:text-[var(--color-primary-dark)] dark:opacity-50 dark:border-[var(--color-primary-dark)];
+    @apply dark:text-primary-dark dark:opacity-50 dark:border-primary-dark;
   }
   .btn-sm { @apply px-3 py-1 text-sm; }
   .btn-lg { @apply px-6 py-3; }
@@ -140,23 +113,23 @@
   .input {
     @apply block w-full px-3 py-2 rounded-md text-sm shadow-sm;
     @apply bg-white border-gray-300 placeholder-gray-400 text-gray-900; /* Light mode */
-    @apply dark:bg-[var(--input-bg-dark)] dark:border-[var(--input-border-color-dark)] dark:placeholder-[var(--placeholder-color-dark)] dark:text-gray-100; /* Dark mode */
-    @apply focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)];
-    @apply dark:focus:ring-[var(--input-focus-border-color-dark)] dark:focus:border-[var(--input-focus-border-color-dark)];
-    @apply disabled:bg-gray-200 disabled:border-gray-300 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:border-gray-600;
+    @apply dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-gray-100; /* Dark mode com cores Tailwind padrão */
+    @apply focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary;
+    @apply dark:focus:ring-primary-light dark:focus:border-primary-light;
+    @apply disabled:bg-gray-200 disabled:border-gray-300 disabled:shadow-none dark:disabled:bg-slate-600 dark:disabled:border-slate-500;
   }
   .label {
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
   }
   .error-message {
-    @apply text-[var(--color-danger)] text-xs mt-1;
+    @apply text-danger dark:text-danger-light text-xs mt-1; /* Adicionado dark:text-danger-light */
   }
 
   /* Cards */
   .card {
-    @apply rounded-lg shadow-sm overflow-hidden animate-fade-in; /* Added animate-fade-in */
+    @apply rounded-lg shadow-sm overflow-hidden animate-fade-in;
     @apply bg-white border border-gray-200; /* Light mode */
-    @apply dark:bg-[var(--panel-bg-dark)] dark:border-[var(--card-border-color-dark)] dark:shadow-[var(--card-shadow-dark)]; /* Dark mode */
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:shadow-md; /* Dark mode com cores Tailwind padrão */
   }
   .card-header {
     @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
@@ -172,33 +145,32 @@
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
-  .badge-primary { @apply bg-primary-100 text-primary-800 dark:bg-[var(--color-primary-dark)] dark:text-primary-100; } /* Tailwind color names or CSS vars */
+  .badge-primary { @apply bg-primary-100 text-primary-800 dark:bg-primary-dark dark:text-primary-100; } /* Usando primary-dark do Tailwind */
   .badge-success { @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100; }
   .badge-warning { @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100; }
-  .badge-error { @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100; }
+  .badge-error { @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100; } /* Renomeado de badge-danger para consistência */
   .badge-info { @apply bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100; }
 
 
   /* Scrollbar (WebKit) */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track {
-    background: var(--color-gray-100, #f1f1f1);
+    @apply bg-gray-100; /* Tailwind color */
   }
   .dark ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-dark, #101c10);
+    @apply bg-slate-800; /* Tailwind color */
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-gray-400, #888);
-    border-radius: 5px;
+    @apply bg-gray-400 rounded-md; /* Tailwind color */
   }
   .dark ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb-dark, #4a6a4a);
+    @apply bg-slate-600 rounded-md; /* Tailwind color */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-gray-500, #555);
+    @apply bg-gray-500; /* Tailwind color */
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover-dark, #5c7a5c);
+    @apply bg-slate-500; /* Tailwind color */
   }
 
   /* Estilos de Impressão Detalhados */
@@ -266,15 +238,15 @@
     position: absolute;
     width: 30px; /* Ajustável */
     border-top-width: 2px;
-    border-color: var(--card-border-color-dark, #4a5568); /* Cor da borda do card no tema escuro */
+    @apply border-gray-300 dark:border-slate-600; /* Tailwind color */
   }
   .bracket-connector-horizontal {
     height: 2px;
-    background-color: var(--card-border-color-dark, #4a5568);
+    @apply bg-gray-300 dark:bg-slate-600; /* Tailwind color */
   }
   .bracket-connector-vertical {
     width: 2px;
-    background-color: var(--card-border-color-dark, #4a5568);
+    @apply bg-gray-300 dark:bg-slate-600; /* Tailwind color */
   }
 } /* Fim @layer components */
 

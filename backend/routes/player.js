@@ -2,24 +2,19 @@ const express = require('express');
 const router = express.Router();
 const playerModel = require('../lib/models/playerModel');
 const { logger } = require('../lib/logger/logger');
-const { validateRequest, playerIdParamSchema } = require('../lib/utils/validationUtils'); // Added playerIdParamSchema
+const { validateRequest, playerIdParamSchema, adminGetPlayersQuerySchema } = require('../lib/utils/validationUtils'); // Added adminGetPlayersQuerySchema
 
 // GET /api/players - List all global players (public, paginated)
-router.get('/', async (req, res) => {
+router.get('/', validateRequest(adminGetPlayersQuerySchema), async (req, res) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    // Basic query param validation (could be enhanced with Joi)
-    if (page < 1 || limit < 1 || limit > 100) {
-      return res.status(400).json({ success: false, message: 'Parâmetros de paginação inválidos.' });
-    }
+    const { page, limit, sortBy, order, filters } = req.query; // Validated by Joi
 
     const { players, total } = await playerModel.getAllPlayers({
       limit,
       offset: (page - 1) * limit,
-      sortBy: req.query.sortBy || 'name',
-      order: req.query.order || 'asc',
-      filters: { ...req.query.filters }, // Removed is_global, assuming getAllPlayers handles context or fetches all non-deleted
+      sortBy: sortBy || 'name', // Default sortBy if not provided by validated query
+      order: order || 'asc',   // Default order if not provided by validated query
+      filters: filters || {},    // Default filters if not provided
     });
 
     const formattedPlayers = players.map(p => ({

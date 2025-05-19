@@ -30,26 +30,18 @@ const Login = () => {
     try {
       setIsLoading(true);
 
-      // Verificação para garantir que o email não está duplicado no input
-      const originalEmail = values.email;
-      const cleanEmail = originalEmail.includes('@') ?
-        originalEmail.substring(0, originalEmail.indexOf('@')) + '@' + originalEmail.substring(originalEmail.indexOf('@') + 1) :
-        originalEmail;
-
-      // Se o email está diferente do limpo, ele estava duplicado
-      if (originalEmail !== cleanEmail) {
-        throw new Error('Email inválido');
-      }
-
-      await login(cleanEmail, values.password);
+      // A validação de email é feita pelo Yup.
+      // O AuthContext.login lida com a transformação para 'username' se necessário.
+      // Não é preciso 'cleanEmail' aqui.
+      await login(values.email, values.password);
       showSuccess('Login realizado com sucesso!');
       navigate('/');
     } catch (error) {
       console.error('Erro no login:', error);
       showError(
-        error.message === 'Email inválido' ? 'Email inválido' :
-        error.response?.data?.message ||
-        'Falha na autenticação. Verifique suas credenciais.'
+        error.response?.data?.message || // Priorizar mensagem do backend
+        error.message || // Mensagem de erro do JS (ex: rede)
+        'Falha na autenticação. Verifique suas credenciais.' // Fallback
       );
     } finally {
       setIsLoading(false);

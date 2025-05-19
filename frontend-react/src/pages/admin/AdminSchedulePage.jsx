@@ -12,20 +12,20 @@ const AdminSchedulePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-gray-100">Gerenciar Agendamento de Partidas</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gerenciar Agendamento de Partidas</h1>
         <div className="flex items-center space-x-2">
-          <button className="btn btn-outline btn-sm flex items-center">
+          <button className="btn btn-outline btn-sm flex items-center text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700">
             <FaFilter className="mr-2" /> Filtrar Torneio
           </button>
-          <div className="tabs tabs-boxed bg-gray-700">
+          <div className="tabs tabs-boxed bg-gray-200 dark:bg-slate-700">
             <button
-              className={`tab ${viewMode === 'calendar' ? 'tab-active !bg-primary' : 'text-gray-300'}`}
+              className={`tab ${viewMode === 'calendar' ? 'tab-active !bg-primary text-white dark:!bg-primary-dark' : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'}`}
               onClick={() => setViewMode('calendar')}
             >
               <FaCalendarAlt className="mr-2" /> Calendário
             </button>
             <button
-              className={`tab ${viewMode === 'list' ? 'tab-active !bg-primary' : 'text-gray-300'}`}
+              className={`tab ${viewMode === 'list' ? 'tab-active !bg-primary text-white dark:!bg-primary-dark' : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'}`}
               onClick={() => setViewMode('list')}
             >
               <FaListUl className="mr-2" /> Lista
@@ -35,13 +35,13 @@ const AdminSchedulePage = () => {
       </div>
 
       {viewMode === 'calendar' && (
-        <div className="card p-6 md:p-8">
+        <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6 md:p-8">
           <div className="text-center py-10">
-            <FaCalendarAlt size={48} className="mx-auto text-gray-500 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-300 mb-2">
+            <FaCalendarAlt size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Visualização de Calendário (Em Desenvolvimento)
             </h2>
-            <p className="text-gray-400">
+            <p className="text-gray-500 dark:text-gray-400">
               Um calendário interativo para arrastar e soltar partidas será implementado aqui.
             </p>
           </div>
@@ -50,30 +50,30 @@ const AdminSchedulePage = () => {
 
       {viewMode === 'list' && (
         <div className="space-y-6">
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-3">Partidas Não Agendadas</h3>
+          <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Partidas Não Agendadas</h3>
             {unscheduledMatches.length > 0 ? (
-              <ul className="divide-y divide-gray-700">
+              <ul className="divide-y divide-gray-200 dark:divide-slate-700">
                 {unscheduledMatches.map(match => (
                   <li key={match.id} className="py-3 flex justify-between items-center">
                     <div>
-                      <p className="text-sm font-medium text-gray-100">
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
                         {match.player1} vs {match.player2} ({match.round})
                       </p>
-                      <p className="text-xs text-gray-400">{match.tournament}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{match.tournament}</p>
                     </div>
                     <button className="btn btn-primary btn-sm">Agendar</button>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-400 text-sm">Nenhuma partida não agendada.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Nenhuma partida não agendada.</p>
             )}
           </div>
           {/* Placeholder for Scheduled Matches List */}
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-3">Partidas Agendadas</h3>
-            <p className="text-gray-400 text-sm">Lista de partidas já agendadas aparecerá aqui...</p>
+          <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Partidas Agendadas</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Lista de partidas já agendadas aparecerá aqui...</p>
           </div>
         </div>
       )}

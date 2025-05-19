@@ -8,7 +8,7 @@ import React from 'react';
 const SettingsPage = () => {
   return (
     <div className="py-8">
-      <h1 className="text-2xl font-bold mb-4 text-primary">Configurações (Admin)</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Configurações (Admin)</h1>
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
         <p className="text-gray-700 dark:text-gray-300 mb-4">
           Esta página permitirá o ajuste de configurações globais do sistema, preferências do usuário administrador e integrações futuras.

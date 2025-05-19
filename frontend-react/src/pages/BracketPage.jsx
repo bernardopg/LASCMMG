@@ -6,7 +6,7 @@ import BracketSection from '../components/bracket/BracketSection'; // Import the
 
 const BracketPage = () => {
   const { currentTournament } = useTournament();
-  const { showMessage } = useMessage();
+  const { showError } = useMessage(); // Corrigido para showError
   const [tournamentState, setTournamentState] = useState(null); // Will hold matches, bracket_type etc.
   const [loading, setLoading] = useState(true);
   const [selectedMatchId, setSelectedMatchId] = useState(null);
@@ -27,15 +27,14 @@ const BracketPage = () => {
       setTournamentState(data);
     } catch (error) {
       console.error('Erro ao carregar dados do chaveamento:', error);
-      showMessage(
-        `Erro ao carregar chaveamento: ${error.message || 'Erro desconhecido'}`,
-        'error'
+      showError( // Corrigido para showError
+        `Erro ao carregar chaveamento: ${error.message || 'Erro desconhecido'}`
       );
       setTournamentState(null);
     } finally {
       setLoading(false);
     }
-  }, [currentTournament?.id, showMessage]);
+  }, [currentTournament?.id, showError]); // Corrigido para showError
 
   useEffect(() => {
     fetchBracketData();
@@ -66,12 +65,12 @@ const BracketPage = () => {
       </h2>
       <div
         id="bracket"
-        className="bracket-container bg-[var(--panel-bg)] shadow-xl rounded-lg p-6 md:p-8 min-h-[400px]"
+        className="bracket-container bg-white dark:bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 min-h-[400px]" // Tailwind classes para tema
       >
         {loading ? (
           <div className="flex flex-col justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            <span className="ml-4 mt-4 text-gray-300">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
+            <span className="ml-4 mt-4 text-gray-600 dark:text-gray-300"> {/* Ajuste de cor do texto */}
               Carregando chaveamento...
             </span>
           </div>

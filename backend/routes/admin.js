@@ -12,6 +12,8 @@ const {
   scoreIdParamSchema,    // For routes like PUT/DELETE /scores/:scoreId
   scoreUpdateSchema,
   trashItemSchema,
+  adminGetPlayersQuerySchema,
+  adminGetTrashQuerySchema, // Import the new schema for trash
   // Schemas for query params if needed for GET routes (e.g., pagination, filters)
   // For now, GET routes will not have Joi validation unless specified.
 } = require('../lib/utils/validationUtils');
@@ -44,25 +46,18 @@ router.use(authMiddleware);
 router.use(ensureAdmin);
 
 // == PLAYER MANAGEMENT ==
-// GET /players - Query params validation could be added if complex
-router.get('/players', async (req, res) => {
+router.get('/players', validateRequest(adminGetPlayersQuerySchema), async (req, res) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    // sortBy, order, and filters are passed from query to playerModel.
-    // playerModel.getAllPlayers should handle these.
+    // Query parameters are now validated and coerced by adminGetPlayersQuerySchema
+    // Default values for page and limit are handled by the schema if not provided
+    const { page, limit, sortBy, order, filters } = req.query;
 
-    // For now, using a generic getAllPlayers. This might need adjustment
-    // if playerModel.getAllPlayers doesn't support pagination/filtering directly
-    // or if we need to filter by tournament for some admin views.
-    // The frontend sends filters, sortBy, order.
-    // Assuming playerModel.getAllPlayers can take these.
     const { players, total } = await playerModel.getAllPlayers({
       limit,
       offset: (page - 1) * limit,
-      sortBy: req.query.sortBy,
-      order: req.query.order,
-      filters: req.query.filters || {}, // Pass filters if playerModel supports it
+      sortBy,
+      order,
+      filters, // filters will be an empty object by default if not provided
     });
 
     res.json({
@@ -185,21 +180,18 @@ router.delete('/players/:playerId', validateRequest({ params: optionalPlayerIdSc
 });
 
 // == SCORE MANAGEMENT ==
-// GET /scores - Query params validation could be added
-router.get('/scores', async (req, res) => {
+router.get('/scores', validateRequest(adminGetPlayersQuerySchema), async (req, res) => { // Using adminGetPlayersQuerySchema for now
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    // sortBy, order, and filters are passed from query to scoreModel.
-    // scoreModel.getAllScores should handle these.
+    // Query parameters are now validated and coerced
+    const { page, limit, sortBy, order, filters } = req.query;
 
     // Assuming scoreModel.getAllScores supports pagination and filtering
     const { scores, total } = await scoreModel.getAllScores({
       limit,
       offset: (page - 1) * limit,
-      sortBy: req.query.sortBy,
-      order: req.query.order,
-      filters: req.query.filters || {},
+      sortBy,
+      order,
+      filters,
     });
 
     res.json({
@@ -288,12 +280,10 @@ router.delete('/scores/:scoreId', validateRequest({ params: scoreIdParamSchema.p
 });
 
 // == TRASH MANAGEMENT ==
-// GET /trash - Query params (page, limit, type) could be validated
-router.get('/trash', async (req, res) => {
+router.get('/trash', validateRequest(adminGetTrashQuerySchema), async (req, res) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10; // Limit per item type for now
-    const itemTypeFilter = req.query.type || null; // 'player', 'score', 'tournament'
+    // Query parameters are now validated and coerced
+    const { page, limit, type: itemTypeFilter } = req.query;
 
     let allItems = [];
     let totalPlayers = 0,

@@ -19,9 +19,10 @@ const {
   updateMatchWinnerSchema,
   updateScoresSchema,
   playerImportItemSchema, // Import the new schema for player import validation
+  paginationQuerySchema, // Import pagination schema
 } = require('../lib/utils/validationUtils');
 
-console.log('DEBUG: specificTournamentIdStringSchema in tournaments.js:', specificTournamentIdStringSchema); // DEBUG LINE
+// console.log('DEBUG: specificTournamentIdStringSchema in tournaments.js:', specificTournamentIdStringSchema); // DEBUG LINE - Can be removed
 
 const router = express.Router();
 
@@ -61,16 +62,23 @@ const handleMulterError = (err, req, res, next) => {
 };
 
 // GET /api/tournaments - List all tournaments (public)
-router.get('/', async (req, res) => {
+router.get('/', validateRequest(paginationQuerySchema), async (req, res) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const { page, limit } = req.query; // Validated and defaulted by Joi
     const offset = (page - 1) * limit;
+    // orderBy and order are still hardcoded here, but page/limit are validated.
     const { tournaments, total } = await tournamentModel.getAllTournaments({
-      orderBy: 'date', order: 'DESC', limit, offset,
+      orderBy: req.query.orderBy || 'date', // Allow optional orderBy from query
+      order: req.query.order || 'DESC',   // Allow optional order from query
+      limit,
+      offset,
     });
     res.json({
-      tournaments, totalPages: Math.ceil(total / limit), currentPage: page, totalTournaments: total,
+      success: true, // Added success field for consistency
+      tournaments,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      totalTournaments: total,
     });
   } catch (error) {
     logger.error('TournamentsRoute', 'Erro ao carregar lista de torneios:', { error, requestId: req.id });
@@ -187,15 +195,14 @@ router.post('/:tournamentId/state', authMiddleware, validateRequest({ ...tournam
 });
 
 // GET /api/tournaments/:tournamentId/players - List players for a tournament (public)
-router.get('/:tournamentId/players', validateRequest(tournamentIdParamSchema), async (req, res) => {
-  const { tournamentId } = req.params;
+router.get('/:tournamentId/players', validateRequest({ ...tournamentIdParamSchema, ...paginationQuerySchema }), async (req, res) => {
+  const { tournamentId } = req.params; // Validated by tournamentIdParamSchema
+  const { page, limit } = req.query; // Validated by paginationQuerySchema
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20; // Default limit
     const offset = (page - 1) * limit;
     const { players: playersFromDB, total } = await playerModel.getPlayersByTournamentId(tournamentId, { limit, offset });
     const players = playersFromDB.map(p => ({ PlayerName: p.name, Nickname: p.nickname, GamesPlayed: p.games_played, Wins: p.wins, Losses: p.losses, id: p.id, gender: p.gender, skill_level: p.skill_level }));
-    res.json({ players, totalPages: Math.ceil(total / limit), currentPage: page, totalPlayers: total });
+    res.json({ success: true, players, totalPages: Math.ceil(total / limit), currentPage: page, totalPlayers: total });
   } catch (error) {
     logger.error('TournamentsRoute', `Erro ao carregar jogadores do torneio ${tournamentId}:`, { error, requestId: req.id });
     res.status(500).json({ success: false, message: 'Erro ao carregar jogadores.' });
@@ -311,14 +318,13 @@ router.post('/:tournamentId/players/update', authMiddleware, validateRequest({ .
 });
 
 // GET /api/tournaments/:tournamentId/scores - List scores for a tournament (public)
-router.get('/:tournamentId/scores', validateRequest(tournamentIdParamSchema), async (req, res) => {
-  const { tournamentId } = req.params;
+router.get('/:tournamentId/scores', validateRequest({ ...tournamentIdParamSchema, ...paginationQuerySchema }), async (req, res) => {
+  const { tournamentId } = req.params; // Validated
+  const { page, limit } = req.query; // Validated
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
     const offset = (page - 1) * limit;
     const { scores, total } = await scoreModel.getScoresByTournamentId(tournamentId, { limit, offset });
-    res.json({ scores, totalPages: Math.ceil(total / limit), currentPage: page, totalScores: total });
+    res.json({ success: true, scores, totalPages: Math.ceil(total / limit), currentPage: page, totalScores: total });
   } catch (error) {
     logger.error('TournamentsRoute', `Erro ao carregar placares do torneio ${tournamentId}:`, { error, requestId: req.id });
     res.status(500).json({ success: false, message: 'Erro ao carregar placares.' });

@@ -4,7 +4,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer bg-white border-t border-gray-200 py-4 px-6 mt-auto">
+    <footer className="footer bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 py-4 px-6 mt-auto">
       <div className="container mx-auto">
         <div className="footer-content flex flex-col md:flex-row justify-between items-center">
           <div className="footer-logo flex items-center mb-4 md:mb-0">
@@ -13,25 +13,25 @@ const Footer = () => {
               alt="Logo LASCMMG"
               className="footer-logo-img h-8 mr-2"
             />
-            <span className="text-gray-800 font-medium">LASCMMG</span>
+            <span className="text-gray-800 dark:text-gray-100 font-medium">LASCMMG</span>
           </div>
 
           <div className="footer-links flex flex-wrap justify-center gap-4 my-3 md:my-0">
             <Link
-              to="/"
-              className="footer-link text-gray-600 hover:text-primary transition-colors"
+              to="/about" // TODO: Criar página /about
+              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
             >
               Sobre
             </Link>
             <Link
-              to="/"
-              className="footer-link text-gray-600 hover:text-primary transition-colors"
+              to="/contact" // TODO: Criar página /contact
+              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
             >
               Contato
             </Link>
             <Link
-              to="/"
-              className="footer-link text-gray-600 hover:text-primary transition-colors"
+              to="/privacy" // TODO: Criar página /privacy
+              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
             >
               Política de Privacidade
             </Link>
@@ -39,10 +39,10 @@ const Footer = () => {
 
           <div className="footer-social flex items-center gap-3">
             <a
-              href="https://facebook.com"
+              href="https://facebook.com" // TODO: Usar link real da LASCMMG
               target="_blank"
               rel="noopener noreferrer"
-              className="social-link text-gray-600 hover:text-primary transition-colors"
+              className="social-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
               aria-label="Facebook"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -53,10 +53,10 @@ const Footer = () => {
               </svg>
             </a>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com" // TODO: Usar link real da LASCMMG
               target="_blank"
               rel="noopener noreferrer"
-              className="social-link text-gray-600 hover:text-primary transition-colors"
+              className="social-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
               aria-label="Instagram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <p className="copyright text-center text-gray-500 text-sm mt-4">
+        <p className="copyright text-center text-gray-500 dark:text-gray-400 text-sm mt-4">
           &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de
           Minas Gerais. Todos os direitos reservados.
         </p>

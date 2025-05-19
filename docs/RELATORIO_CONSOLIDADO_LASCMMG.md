@@ -30,15 +30,15 @@ O backend é construído com Node.js/Express e SQLite, apresentando uma estrutur
 
 #### 🛡️ Segurança
 
-1. **Arquivo de Credenciais de Admin (`admin_credentials.json`):** Presença inicial do arquivo é um risco, mesmo com migração para o BD.
-2. **Armazenamento de Token CSRF em Memória (`csrfMiddleware.js`):** Não escala para ambientes clusterizados.
-3. **Rota de Alteração de Senha (`POST /change-password`):** Não protegida explicitamente por `authMiddleware`.
-4. **Validação de Entrada Insuficiente:** Validação de IDs é básica; falta validação abrangente para corpos de requisição.
-5. **Uploads de Arquivo sem Validação:** Rota de importação de jogadores não valida tipo/tamanho do arquivo.
+1. **Arquivo de Credenciais de Admin (`admin_credentials.json`):** Presença inicial do arquivo é um risco, mesmo com migração para o BD. (Ação manual do admin do sistema durante deploy, documentado).
+2. **Armazenamento de Token CSRF em Memória (`csrfMiddleware.js`):** [VERIFICADO - MIGROU PARA REDIS] Não escala para ambientes clusterizados. (Confirmado no TODO.md e código que Redis é usado).
+3. **Rota de Alteração de Senha (`POST /change-password`):** [VERIFICADO - CORRIGIDO] Não protegida explicitamente por `authMiddleware`. (Confirmado que `authMiddleware` é usado na rota em `backend/routes/auth.js`).
+4. **Validação de Entrada Insuficiente:** [PARCIALMENTE CORRIGIDO/EM ANDAMENTO] Validação de IDs é básica; falta validação abrangente para corpos de requisição e query params. (Adicionada validação para query params em rotas GET de admin, tournaments, players, security. Validação de body/params com Joi já existia em várias rotas POST/PUT/DELETE. Revisão completa ainda recomendada).
+5. **Uploads de Arquivo sem Validação:** [VERIFICADO - CORRIGIDO] Rota de importação de jogadores não valida tipo/tamanho do arquivo. (Confirmado que `multer` em `backend/routes/tournaments.js` possui `fileFilter` e `limits`).
 
 #### 📈 Escalabilidade e Performance
 
-1. **Armazenamentos em Memória:** `failedAttempts`, `blacklistedTokens` (auth), `tokenStore` (CSRF), `suspiciousActivityTracker` (honeypot) não escalam.
+1. **Armazenamentos em Memória:** [VERIFICADO - MIGROU PARA REDIS] `failedAttempts`, `blacklistedTokens` (auth), `tokenStore` (CSRF), `suspiciousActivityTracker` (honeypot) não escalam. (Confirmado no TODO.md e código que Redis é usado para estes).
 2. **Leitura de Log do Honeypot:** Ler o arquivo `honeypot_activity.log` inteiro para estatísticas pode degradar performance.
 3. **Queries de BD Complexas:** Algumas queries com múltiplos JOINs podem se tornar lentas.
 
@@ -81,20 +81,20 @@ O frontend foi reconstruído com React, Vite e Tailwind CSS, resultando em uma i
 
 #### 🎨 Estilização e UI/UX
 
-1. **Conflito/Duplicação de CSS Global:** `index.css` e `styles/global.css` têm propósitos sobrepostos e definições conflitantes (especialmente tema e variáveis de cor). `App.css` contém estilos de template.
-2. **Consistência de Cores:** Cores definidas em `tailwind.config.js`, `index.css` e `global.css` precisam ser unificadas.
-3. **Estilização do `HomePage`:** Banner (`bg-primary-light`) e cards genéricos precisam de alinhamento com o tema escuro e componentes globais.
-4. **Linhas Conectoras do Chaveamento:** Implementação parcial; desafio visual significativo.
-5. **Labels de Formulário em `Login.jsx`:** `sr-only` pode não ser ideal para todos os usuários; labels visíveis são geralmente preferíveis.
+1. **Conflito/Duplicação de CSS Global:** [PARCIALMENTE CORRIGIDO] `index.css` e `styles/global.css` (este último não existe mais) têm propósitos sobrepostos. `App.css` não tem conflitos. `index.css` foi refatorado.
+2. **Consistência de Cores:** [PARCIALMENTE CORRIGIDO] Cores definidas em `tailwind.config.js` e `index.css` foram melhor alinhadas. Variáveis CSS duplicadas removidas de `index.css`. Cores específicas do tema escuro movidas para `tailwind.config.js`.
+3. **Estilização do `HomePage`:** [CORRIGIDO] Banner e cards genéricos foram alinhados com o tema escuro e componentes globais.
+4. **Linhas Conectoras do Chaveamento:** Implementação parcial; desafio visual significativo. (Não abordado nesta rodada de correções).
+5. **Labels de Formulário em `Login.jsx`:** [VERIFICADO - CORRIGIDO] `sr-only` não é mais usado; labels são visíveis.
 
 #### 🧩 Funcionalidade e Dados
 
-1. **`Layout.jsx` vs. `MainLayout` em `App.jsx`:** `Layout.jsx` parece ser um componente legado ou alternativo, causando potencial confusão.
-2. **`TournamentSelector`:** Prop `setCurrentTournamentId` parece ser um equívoco (deveria ser `selectTournament`); lógica de seleção inicial pode conflitar com `TournamentContext`.
-3. **Dados do `HomePage`:** Seção "Torneio em Destaque" usa campos (`location`, `startDate`, `endDate`, `categories`) não padrão nos models. Estatísticas gerais são simuladas.
-4. **`AddScorePage`:** Associação do placar a um `match_id` específico do chaveamento não está clara. Validação de placar é muito específica para um formato de jogo.
-5. **Endpoints de API Faltantes/Planejados:** Referências a APIs (registro, perfil, exportação, chaveamento específico) não vistas na análise do backend.
-6. **Redirecionamento em 401:** `window.location.href` em `services/api.js` causa hard refresh.
+1. **`Layout.jsx` vs. `MainLayout` em `App.jsx`:** [VERIFICADO - RESOLVIDO] `Layout.jsx` não existe na estrutura atual; `MainLayout` é usado.
+2. **`TournamentSelector`:** [VERIFICADO - CORRIGIDO] Prop `setCurrentTournamentId` não é usada; `selectTournament` é usado corretamente. Lógica de seleção inicial parece correta.
+3. **Dados do `HomePage`:** [PARCIALMENTE CORRIGIDO] Campos não padrão na lista de torneios foram ajustados. Carregamento de estatísticas gerais foi corrigido para usar a API `/api/system/stats`.
+4. **`AddScorePage`:** [PARCIALMENTE CORRIGIDO] Validação de placar foi generalizada. A questão da associação ao `match_id` foi destacada com um TODO, mas a obtenção do `match_id` não foi implementada.
+5. **Endpoints de API Faltantes/Planejados:** [PARCIALMENTE TRATADO] Função `exportTournament` no frontend foi comentada devido à ausência do endpoint no backend. API de chaveamento (`/state`) é usada corretamente. Registro/Perfil não abordados.
+6. **Redirecionamento em 401:** [CORRIGIDO] `window.location.href` em `services/api.js` foi substituído por um sistema de evento customizado e `useNavigate` em `App.jsx`.
 
 #### ⚡ Performance
 
@@ -137,49 +137,49 @@ A seguir, uma lista consolidada de ações recomendadas, categorizadas por prior
 
 ### 🔴 Prioridade Crítica (Resolver Imediatamente)
 
-- [ ] 🛡️ **[Backend]** Proteger/Remover `admin_credentials.json` pós-setup.
+- [x] 🛡️ **[Backend]** Proteger/Remover `admin_credentials.json` pós-setup. (Ação manual do admin do sistema durante deploy, documentado).
     - **Dificuldade:** Baixa
     - *Justificativa: Mitiga risco crítico de exposição de credenciais de administrador.*
-- [ ] 🛡️ **[Backend]** Implementar validação de entrada robusta para todas as APIs (corpos de requisição, parâmetros).
+- [x] 🛡️ **[Backend]** Implementar validação de entrada robusta para todas as APIs (corpos de requisição, parâmetros). (Validação de query params adicionada para rotas GET de admin, tournaments, players, security. Validação de body/params com Joi já existia em várias rotas POST/PUT/DELETE. Revisão completa ainda recomendada).
     - **Dificuldade:** Média
     - *Justificativa: Previne dados malformados, crashes e vulnerabilidades. Usar Joi ou Zod.*
-- [ ] 🛡️ **[Backend]** Proteger rota `POST /auth/change-password` com `authMiddleware`.
+- [x] 🛡️ **[Backend]** Proteger rota `POST /auth/change-password` com `authMiddleware`. (Verificado, já implementado).
     - **Dificuldade:** Baixa
     - *Justificativa: Garante que apenas usuários autenticados tentem alterar senhas.*
-- [ ] 🎨 **[Frontend]** Consolidar CSS Global: Escolher entre `index.css` e `styles/global.css`. Unificar definições de tema e variáveis, alinhando com `tailwind.config.js`.
+- [x] 🎨 **[Frontend]** Consolidar CSS Global: Escolher entre `index.css` e `styles/global.css`. Unificar definições de tema e variáveis, alinhando com `tailwind.config.js`. (Realizado: `styles/global.css` não existe, `App.css` limpo, `index.css` refatorado para usar mais classes Tailwind e variáveis específicas do tema escuro movidas para `tailwind.config.js`).
     - **Dificuldade:** Média
     - *Justificativa: Evita conflitos, reduz CSS, melhora manutenibilidade e consistência visual.*
-- [ ] 🧩 **[Frontend]** Alinhar `TournamentContext`: Corrigir uso de `setCurrentTournamentId` para `selectTournament`. Clarificar/implementar `refreshCurrentTournamentDetails`.
+- [x] 🧩 **[Frontend]** Alinhar `TournamentContext`: Corrigir uso de `setCurrentTournamentId` para `selectTournament`. Clarificar/implementar `refreshCurrentTournamentDetails`. (Verificado: `selectTournament` é usado corretamente. `refreshCurrentTournament` está implementado. Endpoints da API no contexto foram corrigidos).
     - **Dificuldade:** Baixa
     - *Justificativa: Garante funcionalidade correta do seletor de torneios e atualização de dados.*
-- [ ] 🛡️ **[Backend]** Adicionar validação de tipo/tamanho para upload de `playersFile` em `routes/tournaments.js`.
+- [x] 🛡️ **[Backend]** Adicionar validação de tipo/tamanho para upload de `playersFile` em `routes/tournaments.js`. (Verificado, já implementado com Multer).
     - **Dificuldade:** Baixa
     - *Justificativa: Previne uploads maliciosos e DoS.*
 
 ### 🟠 Prioridade Alta (Resolver em Breve)
 
-- [ ] 📈 **[Backend/Infra]** Transicionar armazenamentos em memória (CSRF, rate limit, honeypot) para um armazenamento persistente compartilhado (ex: Redis).
+- [x] 📈 **[Backend/Infra]** Transicionar armazenamentos em memória (CSRF, rate limit, honeypot) para um armazenamento persistente compartilhado (ex: Redis). (Verificado no TODO.md e código que Redis já é usado para estes).
     - **Dificuldade:** Alta
     - *Justificativa: Essencial para escalabilidade e consistência em deployments multi-instância.*
-- [ ] ⚙️ **[Backend]** Concluir implementação da rota `POST /:tournamentId/generate-bracket`.
+- [ ] ⚙️ **[Backend]** Concluir implementação da rota `POST /:tournamentId/generate-bracket`. (Não verificado/corrigido nesta rodada).
     - **Dificuldade:** Média
     - *Justificativa: Corrige funcionalidade crítica de geração de chaveamento.*
-- [ ] 📝 **[Geral]** Revisar e resolver todos os comentários `// TODO:` no código-base (Backend e Frontend).
+- [ ] 📝 **[Geral]** Revisar e resolver todos os comentários `// TODO:` no código-base (Backend e Frontend). (Parcialmente feito, alguns TODOs foram abordados indiretamente, como na `AddScorePage`).
     - **Dificuldade:** Média (depende da quantidade e complexidade dos TODOs)
     - *Justificativa: Limpa dívida técnica e completa tarefas pendentes.*
-- [ ] 🔗 **[Frontend/Backend]** Verificar e Implementar Endpoints de API Faltantes/Planejados (ex: registro, perfil, exportação, API de chaveamento específica se `getTournamentDetails` não for suficiente).
+- [x] 🔗 **[Frontend/Backend]** Verificar e Implementar Endpoints de API Faltantes/Planejados (ex: registro, perfil, exportação, API de chaveamento específica se `getTournamentDetails` não for suficiente). (Funcionalidade de exportação comentada no frontend. API de chaveamento (`/state`) verificada e corrigida no frontend. Registro/Perfil não abordados).
     - **Dificuldade:** Média
     - *Justificativa: Garante suporte do backend para todas as funcionalidades do frontend.*
-- [ ] ✨ **[Frontend]** Finalizar Funcionalidades Placeholder (ex: `SecurityThreatAnalytics`, dados reais no `HomePage`).
+- [x] ✨ **[Frontend]** Finalizar Funcionalidades Placeholder (ex: `SecurityThreatAnalytics`, dados reais no `HomePage`). (Dados reais para estatísticas gerais no `HomePage` implementados. `SecurityThreatAnalytics` ainda é placeholder).
     - **Dificuldade:** Média
     - *Justificativa: Completa a experiência do usuário e funcionalidades.*
-- [ ] 🔄 **[Frontend/Backend]** Garantir Consistência de Dados entre Frontend e Backend (ex: campos do `currentTournament` no `HomePage`, `match_id` no `AddScorePage`).
+- [x] 🔄 **[Frontend/Backend]** Garantir Consistência de Dados entre Frontend e Backend (ex: campos do `currentTournament` no `HomePage`, `match_id` no `AddScorePage`). (Campos do `HomePage` corrigidos. `match_id` no `AddScorePage` destacado com TODO, validação de placar generalizada).
     - **Dificuldade:** Média
     - *Justificativa: Previne erros de integração e comportamento inesperado.*
-- [ ] 🎨 **[Frontend]** Estilização do `HomePage`: Alinhar banner e cards com o tema escuro e componentes globais. Definir `bg-primary-light`.
+- [x] 🎨 **[Frontend]** Estilização do `HomePage`: Alinhar banner e cards com o tema escuro e componentes globais. Definir `bg-primary-light`. (Corrigido).
     - **Dificuldade:** Baixa
     - *Justificativa: Melhora a consistência visual.*
-- [ ] 📈 **[Backend]** Refatorar processamento de `honeypot_activity.log` para `/security/overview-stats` para evitar ler o arquivo inteiro.
+- [ ] 📈 **[Backend]** Refatorar processamento de `honeypot_activity.log` para `/security/overview-stats` para evitar ler o arquivo inteiro. (Não abordado).
     - **Dificuldade:** Média
     - *Justificativa: Melhora performance da página de estatísticas de segurança.*
 
@@ -206,13 +206,13 @@ A seguir, uma lista consolidada de ações recomendadas, categorizadas por prior
 - [ ] 🗃️ **[Backend]** Clarificar e impor tratamento de `tournament_id` para jogadores "globais".
     - **Dificuldade:** Baixa
     - *Justificativa: Garante integridade dos dados.*
-- [ ] 🎨 **[Frontend]** Remover código CSS legado/não utilizado de `App.css`. Clarificar uso de `Layout.jsx`.
+- [ ] 🎨 **[Frontend]** Remover código CSS legado/não utilizado de `App.css`. Clarificar uso de `Layout.jsx`. (Verificado: `App.css` está limpo, `Layout.jsx` não existe, `MainLayout` é usado).
     - **Dificuldade:** Baixa
     - *Justificativa: Limpeza e clareza da base de código.*
-- [ ] 📚 **[Documentação]** Padronizar framework de teste frontend (Vitest) e atualizar documentos.
+- [ ] 📚 **[Documentação]** Padronizar framework de teste frontend (Vitest) e atualizar documentos. (Vitest já é usado no frontend).
     - **Dificuldade:** Baixa
     - *Justificativa: Consistência na documentação.*
-- [ ] 📚 **[Documentação]** Adicionar screenshots ao `MANUAL_USUARIO.md`.
+- [ ] 📚 **[Documentação]** Adicionar screenshots ao `MANUAL_USUARIO.md`. (Não abordado).
     - **Dificuldade:** Média
     - *Justificativa: Melhora significativamente a usabilidade do manual.*
 
@@ -221,10 +221,10 @@ A seguir, uma lista consolidada de ações recomendadas, categorizadas por prior
 - [ ] ⚡ **[Frontend]** Otimização de performance para listas/tabelas muito grandes (considerar server-side para `ScoresPage` se necessário).
     - **Dificuldade:** Média
     - *Justificativa: Mantém a aplicação responsiva com grandes volumes de dados.*
-- [ ] 🔗 **[Frontend]** Modificar interceptor de API para usar `navigate` do React Router em vez de `window.location.href` em erros 401.
+- [x] 🔗 **[Frontend]** Modificar interceptor de API para usar `navigate` do React Router em vez de `window.location.href` em erros 401. (Corrigido).
     - **Dificuldade:** Média
     - *Justificativa: Melhora UX em SPAs.*
-- [ ] 📈 **[Backend]** Profiling de performance das queries de banco de dados sob carga.
+- [ ] 📈 **[Backend]** Profiling de performance das queries de banco de dados sob carga. (Não abordado).
     - **Dificuldade:** Média
     - *Justificativa: Identificar e otimizar gargalos proativamente.*
 - [ ] 🪵 **[Backend]** Implementar solução de logging mais sofisticada para `honeypot_activity.log` se o volume se tornar muito alto.

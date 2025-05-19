@@ -37,18 +37,25 @@ export const AuthProvider = ({ children }) => {
             if (response.data && response.data.success && response.data.user) {
               setCurrentUser(response.data.user);
             } else {
-              // Token inválido, fazer logout
+              // Token inválido ou resposta inesperada, fazer logout
+              // logout() já lida com a limpeza do localStorage e axios defaults
               await logout();
             }
           } catch (err) {
-            // Se 401 ou erro, fazer logout
+            // Se /api/me falhar (ex: 401, token expirado, erro de rede), fazer logout
+            // logout() já lida com a limpeza do localStorage e axios defaults
+            console.warn('Falha ao verificar token com /api/me, fazendo logout:', err.message);
             await logout();
           }
         }
       } catch (err) {
-        console.error('Erro ao verificar autenticação:', err);
+        // Erro ao acessar localStorage, por exemplo.
+        console.error('Erro crítico durante checkLoggedIn (ex: localStorage):', err);
+        // Garantir que o estado local seja limpo se houver erro aqui
         localStorage.removeItem('authUser');
         localStorage.removeItem('authToken');
+        delete axios.defaults.headers.common['Authorization'];
+        setCurrentUser(null);
       } finally {
         setLoading(false);
       }
@@ -62,28 +69,19 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      // Get CSRF token from cookies
-      const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrfToken='))
-        ?.split('=')[1];
-
-      // Set CSRF token in headers if available
-      const headers = {};
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
-      }
+      // O interceptor do Axios em services/api.js já deve adicionar o X-CSRF-Token.
+      // A leitura manual do cookie aqui é provavelmente redundante.
 
       // Mapeia email para username conforme esperado pelo backend
-      // Remove eventual duplicação de email causada pelo bug no frontend
+      // TODO: Verificar se esta limpeza de email ainda é necessária após correções no formulário de Login.
       const cleanEmail = email.includes('@') ?
         email.substring(0, email.indexOf('@')) + '@' + email.substring(email.indexOf('@') + 1) :
         email;
 
       const response = await axios.post('/api/auth/login', {
-        username: cleanEmail,
+        username: cleanEmail, // O backend espera 'username'
         password
-      }, { headers });
+      }); // O header CSRF será adicionado pelo interceptor
 
       // Aceita tanto { admin, token } quanto { user, token }
       const { admin, user, token } = response.data;
@@ -125,46 +123,62 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Função para registro (se necessário)
-  const register = async (userData) => {
-    try {
-      setError(null);
-      const response = await axios.post('/api/auth/register', userData);
-      return response.data;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Falha ao registrar');
-      throw err;
-    }
-  };
+  // TODO: Endpoint /api/auth/register não existe no backend atualmente.
+  // const register = async (userData) => {
+  //   try {
+  //     setError(null);
+  //     const response = await axios.post('/api/auth/register', userData);
+  //     // Considerar login automático após registro bem-sucedido
+  //     return response.data;
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || 'Falha ao registrar');
+  //     throw err;
+  //   }
+  // };
 
   // Função para atualizar o perfil do usuário
-  const updateProfile = async (userData) => {
-    try {
-      setError(null);
-      const response = await axios.put('/api/auth/profile', userData);
+  // TODO: Endpoint /api/auth/profile não existe no backend atualmente.
+  // const updateProfile = async (userData) => {
+  //   try {
+  //     setError(null);
+  //     const response = await axios.put('/api/auth/profile', userData);
+  //     const updatedUser = response.data.user; // Supondo que o backend retorne { success: true, user: ... }
 
-      const updatedUser = response.data;
-
-      // Atualizar no localStorage e no estado
-      localStorage.setItem('authUser', JSON.stringify(updatedUser));
-      setCurrentUser(updatedUser);
-
-      return updatedUser;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Falha ao atualizar perfil');
-      throw err;
-    }
-  };
+  //     if (updatedUser) {
+  //       localStorage.setItem('authUser', JSON.stringify(updatedUser));
+  //       setCurrentUser(updatedUser);
+  //     }
+  //     return updatedUser;
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || 'Falha ao atualizar perfil');
+  //     throw err;
+  //   }
+  // };
 
   // Verificar se o usuário tem uma determinada permissão
+  // TODO: O backend atualmente retorna user.role (singular). Se múltiplas permissões/papéis forem necessários,
+  // o backend precisa ser ajustado para enviar um array currentUser.permissions.
   const hasPermission = (permission) => {
-    if (!currentUser || !currentUser.permissions) return false;
-    return currentUser.permissions.includes(permission);
+    // Exemplo de implementação se currentUser.permissions fosse um array:
+    // if (!currentUser || !Array.isArray(currentUser.permissions)) return false;
+    // return currentUser.permissions.includes(permission);
+
+    // Implementação atual baseada em um único role:
+    if (!currentUser || !currentUser.role) return false;
+    // Simplesmente verificar se a "permissão" é igual ao "papel" pode ser um placeholder.
+    // Uma lógica mais robusta seria mapear papéis para permissões.
+    // Por agora, se a permissão for 'admin', verificamos se o papel é 'admin'.
+    if (permission === 'admin') {
+      return currentUser.role === 'admin';
+    }
+    return false; // Nenhuma outra permissão definida por enquanto
   };
 
   // Verificar se o usuário tem um determinado papel
   const hasRole = (role) => {
-    if (!currentUser || !currentUser.roles) return false;
-    return currentUser.roles.includes(role);
+    if (!currentUser || !currentUser.role) return false;
+    // O backend retorna user.role (singular)
+    return currentUser.role === role;
   };
 
   // Valor fornecido pelo context
@@ -174,8 +188,8 @@ export const AuthProvider = ({ children }) => {
     error,
     login,
     logout,
-    register,
-    updateProfile,
+    // register, // Removido pois o endpoint não existe
+    // updateProfile, // Removido pois o endpoint não existe
     hasPermission,
     hasRole,
     isAuthenticated: !!currentUser,

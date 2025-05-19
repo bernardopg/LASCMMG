@@ -29,14 +29,12 @@ const Header = ({
   };
 
   // const handleChangeTournament = (e) => { // Logic moved to TournamentSelector
-  //   const tournamentId = e.target.value;
-  //   selectTournament(tournamentId);
   // };
 
   return (
     <Disclosure
       as="nav"
-      className="bg-[var(--panel-bg)] shadow-md border-b border-[var(--card-border-color)]"
+      className="bg-white dark:bg-slate-800 shadow-md border-b border-gray-200 dark:border-slate-700" // Use Tailwind classes for theme
     >
       {({ open }) => (
         <>
@@ -49,7 +47,7 @@ const Header = ({
                 <div className="hidden md:flex items-center mr-4">
                   <button
                     onClick={toggleSidebarCollapse}
-                    className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                    className="p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark"
                     aria-label={
                       isSidebarCollapsed
                         ? 'Expandir menu lateral'
@@ -76,31 +74,31 @@ const Header = ({
                   {/* Adjusted for dark theme */}
                   <Link
                     to="/"
-                    className="border-[var(--color-primary)] text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className="border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" // Active link
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/tournaments"
-                    className="border-transparent text-gray-300 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
                     Torneios
                   </Link>
                   <Link
                     to="/players"
-                    className="border-transparent text-gray-300 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
                     Jogadores
                   </Link>
                   <Link
                     to="/brackets"
-                    className="border-transparent text-gray-300 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
                     Chaves
                   </Link>
                   <Link
                     to="/stats"
-                    className="border-transparent text-gray-300 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
                     Estatísticas
                   </Link>
@@ -115,7 +113,7 @@ const Header = ({
                 {/* Theme Toggle Button */}
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white mr-3"
+                  className="p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark mr-3"
                   aria-label={
                     currentTheme === 'dark'
                       ? 'Ativar modo claro'
@@ -134,9 +132,9 @@ const Header = ({
                   {' '}
                   {/* Removed ml-3 as theme toggle has mr-3 */}
                   <div>
-                    <Menu.Button className="bg-[var(--panel-bg)] rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--panel-bg)] focus:ring-[var(--color-secondary)]">
+                    <Menu.Button className="bg-white dark:bg-slate-800 rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-secondary">
                       <span className="sr-only">Abrir menu do usuário</span>
-                      <div className="h-8 w-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white uppercase font-bold">
+                      <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white uppercase font-bold">
                         {currentUser?.name?.charAt(0) || 'U'}
                       </div>
                     </Menu.Button>
@@ -150,16 +148,16 @@ const Header = ({
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-[var(--input-bg)] ring-1 ring-[var(--card-border-color)] ring-opacity-50 focus:outline-none z-10">
+                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-700 ring-1 ring-black dark:ring-slate-600 ring-opacity-5 focus:outline-none z-10">
                       <Menu.Item>
                         {({ active }) => (
                           <Link
                             to="/profile"
                             className={`${
                               active
-                                ? 'bg-[var(--color-primary-dark)] text-white'
-                                : 'text-gray-200'
-                            } block px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
+                                ? 'bg-primary-dark text-white'
+                                : 'text-gray-700 dark:text-gray-200'
+                            } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Meu Perfil
                           </Link>
@@ -171,9 +169,9 @@ const Header = ({
                             to="/settings"
                             className={`${
                               active
-                                ? 'bg-[var(--color-primary-dark)] text-white'
-                                : 'text-gray-200'
-                            } block px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
+                                ? 'bg-primary-dark text-white'
+                                : 'text-gray-700 dark:text-gray-200'
+                            } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Configurações
                           </Link>
@@ -185,9 +183,9 @@ const Header = ({
                             onClick={handleLogout}
                             className={`${
                               active
-                                ? 'bg-[var(--color-primary-dark)] text-white'
-                                : 'text-gray-200'
-                            } block w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
+                                ? 'bg-primary-dark text-white'
+                                : 'text-gray-700 dark:text-gray-200'
+                            } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Sair
                           </button>
@@ -200,40 +198,12 @@ const Header = ({
 
               {/* Menu mobile */}
               <div className="-mr-2 flex items-center sm:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark">
                   <span className="sr-only">Abrir menu principal</span>
                   {open ? (
-                    <svg
-                      className="block h-6 w-6"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <FaTimes className="block h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <svg
-                      className="block h-6 w-6"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
+                    <FaBars className="block h-6 w-6" aria-hidden="true" />
                   )}
                 </Disclosure.Button>
               </div>
@@ -241,83 +211,56 @@ const Header = ({
           </div>
 
           {/* Painel mobile */}
-          <Disclosure.Panel className="sm:hidden border-t border-[var(--card-border-color)]">
+          <Disclosure.Panel className="sm:hidden border-t border-gray-200 dark:border-slate-700">
             <div className="pt-2 pb-3 space-y-1">
-              {/* Adjusted for dark theme */}
-              <Link
-                to="/"
-                className="bg-[var(--color-primary-dark)] border-[var(--color-primary)] text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-              >
+              <Disclosure.Button as={Link} to="/" className="bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                 Dashboard
-              </Link>
-              <Link
-                to="/tournaments"
-                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-              >
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/tournaments" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                 Torneios
-              </Link>
-              <Link
-                to="/players"
-                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-              >
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/players" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                 Jogadores
-              </Link>
-              <Link
-                to="/brackets"
-                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-              >
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/brackets" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                 Chaves
-              </Link>
-              <Link
-                to="/stats"
-                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-              >
+              </Disclosure.Button>
+              <Disclosure.Button as={Link} to="/stats" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
                 Estatísticas
-              </Link>
+              </Disclosure.Button>
             </div>
 
             {/* Torneios no mobile */}
             <div className="pt-2 px-3 pb-3">
-              {' '}
-              {/* Added pb-3 for spacing */}
-              <TournamentSelector /> {/* Use the new selector here as well */}
+              <TournamentSelector />
             </div>
 
-            <div className="pt-4 pb-3 border-t border-[var(--card-border-color)]">
+            <div className="pt-4 pb-3 border-t border-gray-200 dark:border-slate-700">
               <div className="flex items-center px-4">
                 <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white uppercase font-bold">
+                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white uppercase font-bold">
                     {currentUser?.name?.charAt(0) || 'U'}
                   </div>
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium text-gray-200">
+                  <div className="text-base font-medium text-gray-800 dark:text-white">
                     {currentUser?.name || 'Usuário'}
                   </div>
-                  <div className="text-sm font-medium text-gray-400">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {currentUser?.email || ''}
                   </div>
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
-                >
+                <Disclosure.Button as={Link} to="/profile" className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
                   Meu Perfil
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
-                >
+                </Disclosure.Button>
+                <Disclosure.Button as={Link} to="/settings" className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
                   Configurações
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
-                >
+                </Disclosure.Button>
+                <Disclosure.Button as="button" onClick={handleLogout} className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
                   Sair
-                </button>
+                </Disclosure.Button>
               </div>
             </div>
           </Disclosure.Panel>

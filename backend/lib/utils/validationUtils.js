@@ -1,22 +1,15 @@
-const Joi = require('joi'); // This will be added as a dependency
+const Joi = require('joi');
 const { logger } = require('../logger/logger');
 
 // Middleware factory for Joi validation
 const validateRequest = (schema) => {
   return (req, res, next) => {
     const options = {
-      abortEarly: false, // Report all errors, not just the first
-      allowUnknown: true, // Allow properties not defined in the schema
-      stripUnknown: true, // Remove unknown properties from the validated object
+      abortEarly: false,
+      allowUnknown: true,
+      stripUnknown: true,
     };
 
-    // Validate body, params, and query
-    // Note: Joi schemas should be structured to expect { body: ..., params: ..., query: ... }
-    // or we can validate them separately. For simplicity here, we'll assume
-    // the schema passed is for req.body, req.params, or req.query directly
-    // or a combined schema. A more robust approach might involve separate schemas.
-
-    let validationTarget = {};
     if (schema.body) {
       const { error: bodyError, value: bodyValue } = schema.body.validate(req.body, options);
       if (bodyError) {
@@ -26,7 +19,7 @@ const validateRequest = (schema) => {
           details: bodyError.details.map(d => ({ message: d.message, path: d.path })),
         });
       }
-      req.body = bodyValue; // Use validated and potentially stripped/coerced value
+      req.body = bodyValue;
     }
 
     if (schema.params) {
@@ -57,9 +50,6 @@ const validateRequest = (schema) => {
   };
 };
 
-
-// --- Existing ID Validators (can be kept or replaced by Joi schemas) ---
-
 function isValidTournamentId(id) {
   if (!id || typeof id !== 'string') return false;
   if (id.includes('..') || id.includes('/') || id.length > 255) {
@@ -70,8 +60,6 @@ function isValidTournamentId(id) {
     );
     return false;
   }
-  // Example: Tournament ID might be a slug or UUID
-  // This basic check is okay, but Joi schema for params would be more robust.
   return true;
 }
 
@@ -85,9 +73,6 @@ function isValidScoreId(id) {
   return Number.isInteger(numId) && numId > 0;
 }
 
-// --- Joi Schemas (Examples - to be moved to a dedicated schemas file or per route/module) ---
-
-// Example schema for Admin Login (used in routes/auth.js)
 const adminLoginSchema = {
   body: Joi.object({
     username: Joi.string().email().required().messages({
@@ -96,7 +81,6 @@ const adminLoginSchema = {
       'string.email': `"username" deve ser um email válido`,
       'any.required': `"username" é um campo obrigatório`,
     }),
-    // In a real scenario, password might have more complex rules (uppercase, number, special char)
     password: Joi.string().min(6).required().messages({
       'string.base': `"password" deve ser do tipo texto`,
       'string.empty': `"password" não pode estar vazio`,
@@ -106,7 +90,6 @@ const adminLoginSchema = {
   })
 };
 
-// Schema for Change Password (used in routes/auth.js)
 const changePasswordSchema = {
   body: Joi.object({
     username: Joi.string().alphanum().min(3).max(30).required().messages({
@@ -123,20 +106,16 @@ const changePasswordSchema = {
       'any.required': `"currentPassword" é um campo obrigatório`,
     }),
     newPassword: Joi.string().min(6).required()
-      // Example of a more complex password rule:
-      // .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})'))
       .messages({
         'string.base': `"newPassword" deve ser do tipo texto`,
         'string.empty': `"newPassword" não pode estar vazio`,
         'string.min': `"newPassword" deve ter no mínimo {#limit} caracteres`,
-        // 'string.pattern.base': `"newPassword" deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.`,
         'any.required': `"newPassword" é um campo obrigatório`,
     }),
   })
 };
 
-// Example schema for Tournament ID in params
-const specificTournamentIdStringSchema = Joi.string().trim().min(1).max(255).required().pattern(new RegExp('^[a-zA-Z0-9-]+$')).messages({ // Example: slug-like IDs
+const specificTournamentIdStringSchema = Joi.string().trim().min(1).max(255).required().pattern(new RegExp('^[a-zA-Z0-9-]+$')).messages({
   'string.pattern.base': `"tournamentId" contém caracteres inválidos. Use apenas letras, números e hífens.`,
   'any.required': `"tournamentId" é obrigatório nos parâmetros da URL.`,
 });
@@ -147,10 +126,9 @@ const tournamentIdParamSchema = {
   })
 };
 
-// --- Schemas for Admin Routes (routes/admin.js) ---
 const optionalPlayerIdSchema = {
   params: Joi.object({
-    playerId: Joi.number().integer().positive().optional().messages({ // Optional for POST, required for PUT/DELETE
+    playerId: Joi.number().integer().positive().optional().messages({
       'number.base': `"playerId" deve ser um número.`,
       'number.integer': `"playerId" deve ser um inteiro.`,
       'number.positive': `"playerId" deve ser um número positivo.`,
@@ -172,10 +150,9 @@ const playerSchema = {
     gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, '').messages({
       'any.only': 'Gênero inválido. Valores permitidos: Masculino, Feminino, Outro.',
     }),
-    level: Joi.string().trim().valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional').allow(null, '').messages({ // Assuming 'level' is used instead of 'skill_level' based on AdminPlayersTable
+    level: Joi.string().trim().valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional').allow(null, '').messages({
       'any.only': 'Nível inválido. Valores permitidos: Iniciante, Intermediário, Avançado, Profissional.',
     }),
-    // For updates, other fields like games_played, wins, losses might be included
     games_played: Joi.number().integer().min(0).optional(),
     wins: Joi.number().integer().min(0).optional(),
     losses: Joi.number().integer().min(0).optional(),
@@ -195,12 +172,12 @@ const scoreIdParamSchema = {
 
 const scoreUpdateSchema = {
   body: Joi.object({
-    score1: Joi.number().integer().min(0).required().messages({ // Renamed from player1_score to match AdminScoresTable modal
+    score1: Joi.number().integer().min(0).required().messages({
       'number.base': 'Placar do Jogador 1 deve ser um número.',
       'number.min': 'Placar do Jogador 1 não pode ser negativo.',
       'any.required': 'Placar do Jogador 1 é obrigatório.',
     }),
-    score2: Joi.number().integer().min(0).required().messages({ // Renamed from player2_score
+    score2: Joi.number().integer().min(0).required().messages({
       'number.base': 'Placar do Jogador 2 deve ser um número.',
       'number.min': 'Placar do Jogador 2 não pode ser negativo.',
       'any.required': 'Placar do Jogador 2 é obrigatório.',
@@ -211,7 +188,6 @@ const scoreUpdateSchema = {
       'string.max': 'Rodada deve ter no máximo 50 caracteres.',
       'any.required': 'Rodada é obrigatória.',
     }),
-    // winner_id might be part of score update, but it's often derived or handled separately
     winner_id: Joi.number().integer().positive().allow(null).optional(),
   })
 };
@@ -228,11 +204,9 @@ const trashItemSchema = {
   })
 };
 
-
-// --- Schemas for Scores Routes (routes/scores.js) ---
 const newScoreSchema = {
   body: Joi.object({
-    tournamentId: Joi.string().trim().min(1).max(255).required().messages({ // Assuming tournamentId is passed in body for this route
+    tournamentId: Joi.string().trim().min(1).max(255).required().messages({
         'string.empty': 'ID do torneio é obrigatório.',
         'any.required': 'ID do torneio é obrigatório.',
     }),
@@ -246,7 +220,7 @@ const newScoreSchema = {
         'any.required': 'Placar do Jogador 2 é obrigatório.',
     }),
     winnerId: Joi.number().integer().positive().allow(null).optional(),
-    stateMatchKey: Joi.alternatives().try(Joi.string(), Joi.number()).required().messages({ // Key for bracket state update
+    stateMatchKey: Joi.alternatives().try(Joi.string(), Joi.number()).required().messages({
         'any.required': 'Chave da partida (stateMatchKey) é obrigatória.',
     }),
   })
@@ -254,15 +228,15 @@ const newScoreSchema = {
 
 const bulkScoreItemSchema = Joi.object({
   match_id: Joi.number().integer().positive().required(),
-  player1_id: Joi.number().integer().positive().allow(null).optional(), // Assuming IDs might not always be present if names are used
+  player1_id: Joi.number().integer().positive().allow(null).optional(),
   player2_id: Joi.number().integer().positive().allow(null).optional(),
   player1_score: Joi.number().integer().min(0).required(),
   player2_score: Joi.number().integer().min(0).required(),
   winner_id: Joi.number().integer().positive().allow(null).optional(),
-  round: Joi.string().trim().min(1).max(50).optional().allow(null, ''), // Round might be optional for bulk update
+  round: Joi.string().trim().min(1).max(50).optional().allow(null, ''),
 });
 
-const updateScoresSchema = { // For POST /:tournamentId/scores/update
+const updateScoresSchema = {
   body: Joi.object({
     scores: Joi.array().items(bulkScoreItemSchema).min(1).required().messages({
       'array.base': 'O campo "scores" deve ser um array.',
@@ -271,9 +245,6 @@ const updateScoresSchema = { // For POST /:tournamentId/scores/update
     })
   })
 };
-
-// --- Schemas for Tournaments Routes (routes/tournaments.js) ---
-// Tournament ID param schema is already defined as tournamentIdParamSchema
 
 const createTournamentSchema = {
   body: Joi.object({
@@ -291,18 +262,17 @@ const createTournamentSchema = {
     description: Joi.string().trim().max(1000).allow(null, '').messages({
       'string.max': 'Descrição deve ter no máximo 1000 caracteres.',
     }),
-    numPlayersExpected: Joi.number().integer().min(2).optional().allow(null).messages({ // Renamed from num_players_expected to match frontend
+    numPlayersExpected: Joi.number().integer().min(2).optional().allow(null).messages({
       'number.min': 'Número esperado de jogadores deve ser no mínimo 2.',
     }),
     bracket_type: Joi.string().valid('single-elimination', 'double-elimination', 'round-robin').default('single-elimination'),
     entry_fee: Joi.number().min(0).optional().allow(null),
     prize_pool: Joi.string().trim().max(255).allow(null, ''),
     rules: Joi.string().trim().max(2000).allow(null, ''),
-    // playersFile is handled by multer, not Joi for body validation here
   })
 };
 
-const updateTournamentSchema = { // For PATCH routes, all fields are optional
+const updateTournamentSchema = {
   body: Joi.object({
     name: Joi.string().trim().min(3).max(100).optional(),
     date: Joi.date().iso().optional(),
@@ -313,7 +283,7 @@ const updateTournamentSchema = { // For PATCH routes, all fields are optional
     entry_fee: Joi.number().min(0).optional().allow(null),
     prize_pool: Joi.string().trim().max(255).allow(null, '').optional(),
     rules: Joi.string().trim().max(2000).allow(null, '').optional(),
-  }).min(1) // Require at least one field to be updated
+  }).min(1)
   .messages({
     'object.min': 'Pelo menos um campo deve ser fornecido para atualização.'
   })
@@ -322,8 +292,7 @@ const updateTournamentSchema = { // For PATCH routes, all fields are optional
 const tournamentStateSchema = {
   body: Joi.object({
     state: Joi.object({
-      matches: Joi.object().required(), // Basic check, can be more detailed
-      // other state properties...
+      matches: Joi.object().required(),
     }).required().messages({
       'any.required': 'Objeto de estado é obrigatório.',
       'object.base': 'Estado deve ser um objeto.',
@@ -331,9 +300,9 @@ const tournamentStateSchema = {
   })
 };
 
-const addPlayerToTournamentSchema = { // For POST /:tournamentId/players
+const addPlayerToTournamentSchema = {
   body: Joi.object({
-    PlayerName: Joi.string().trim().min(2).max(100).required().messages({ // Matches frontend key
+    PlayerName: Joi.string().trim().min(2).max(100).required().messages({
       'string.empty': 'Nome do jogador é obrigatório.',
       'any.required': 'Nome do jogador é obrigatório.',
     }),
@@ -343,34 +312,34 @@ const addPlayerToTournamentSchema = { // For POST /:tournamentId/players
   })
 };
 
-const updatePlayersInTournamentSchema = { // For POST /:tournamentId/players/update
+const updatePlayersInTournamentSchema = {
   body: Joi.object({
     players: Joi.array().items(Joi.object({
-      PlayerName: Joi.string().trim().min(2).max(100).required(), // Matches frontend key
+      PlayerName: Joi.string().trim().min(2).max(100).required(),
       Nickname: Joi.string().trim().max(50).allow(null, ''),
       gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, ''),
       skill_level: Joi.string().trim().valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional').allow(null, ''),
-    })).min(0).required().messages({ // Allow empty array to clear players
+    })).min(0).required().messages({
       'array.base': 'Lista de jogadores deve ser um array.',
       'any.required': 'Lista de jogadores é obrigatória.',
     })
   })
 };
 
-const updateMatchScheduleSchema = { // For PATCH /:tournamentId/matches/:matchId/schedule
+const updateMatchScheduleSchema = {
   params: Joi.object({
     tournamentId: Joi.string().trim().required(),
     matchId: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
   }),
   body: Joi.object({
-    schedule: Joi.date().iso().required().messages({ // Assuming schedule is a full ISO datetime string
+    schedule: Joi.date().iso().required().messages({
       'date.base': 'Agendamento deve ser uma data/hora válida.',
       'any.required': 'Agendamento é obrigatório.',
     })
   })
 };
 
-const updateMatchWinnerSchema = { // For PATCH /:tournamentId/matches/:matchId/winner
+const updateMatchWinnerSchema = {
   params: Joi.object({
     tournamentId: Joi.string().trim().required(),
     matchId: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
@@ -379,20 +348,17 @@ const updateMatchWinnerSchema = { // For PATCH /:tournamentId/matches/:matchId/w
     winnerId: Joi.number().integer().positive().allow(null).optional(),
     player1Score: Joi.number().integer().min(0).allow(null).optional(),
     player2Score: Joi.number().integer().min(0).allow(null).optional(),
-  }).or('winnerId', 'player1Score', 'player2Score') // At least one must be provided
+  }).or('winnerId', 'player1Score', 'player2Score')
   .messages({
     'object.missing': 'Pelo menos um campo (winnerId, player1Score, player2Score) deve ser fornecido.'
   })
 };
 
-
-// --- Schemas for Security Routes (routes/security.js) ---
 const honeypotConfigSchema = {
   body: Joi.object({
-    // Based on frontend SecurityHoneypots.jsx
-    threshold: Joi.number().integer().min(1).max(100).optional(), // Renamed from detectionThreshold
-    block_duration_hours: Joi.number().integer().min(1).max(720).optional(), // Renamed from blockDurationHours
-    whitelist_ips: Joi.array().items(Joi.string().ip({ version: ['ipv4'] })).optional(), // Renamed from ipWhitelist
+    threshold: Joi.number().integer().min(1).max(100).optional(),
+    block_duration_hours: Joi.number().integer().min(1).max(720).optional(),
+    whitelist_ips: Joi.array().items(Joi.string().ip({ version: ['ipv4'] })).optional(),
   }).min(1)
   .messages({
     'object.min': 'Pelo menos um campo de configuração deve ser fornecido.'
@@ -401,11 +367,11 @@ const honeypotConfigSchema = {
 
 const manualBlockIpSchema = {
   body: Joi.object({
-    ipAddress: Joi.string().ip({ version: ['ipv4', 'ipv6'] }).required().messages({ // Matches frontend key
+    ipAddress: Joi.string().ip({ version: ['ipv4', 'ipv6'] }).required().messages({
       'string.ip': 'Endereço IP inválido.',
       'any.required': 'Endereço IP é obrigatório.',
     }),
-    durationHours: Joi.number().integer().min(0).optional().allow(null), // 0 or null for permanent
+    durationHours: Joi.number().integer().min(0).optional().allow(null),
     reason: Joi.string().trim().min(3).max(255).optional().allow(null, ''),
   })
 };
@@ -416,8 +382,6 @@ const ipAddressParamSchema = {
   })
 };
 
-
-// Schema for individual player item during bulk import (routes/tournaments.js)
 const playerImportItemSchema = Joi.object({
   PlayerName: Joi.string().trim().min(2).max(100).required().messages({
     'string.empty': 'Nome do jogador (PlayerName) é obrigatório para importação.',
@@ -426,8 +390,72 @@ const playerImportItemSchema = Joi.object({
   Nickname: Joi.string().trim().max(50).allow(null, ''),
   gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, ''),
   skill_level: Joi.string().trim().valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional').allow(null, ''),
-  // Outros campos podem ser opcionais ou não presentes no import
 });
+
+// --- Schema for Admin GET Players Query Parameters ---
+const adminGetPlayersQuerySchema = {
+  query: Joi.object({
+    page: Joi.number().integer().min(1).optional().default(1).messages({
+      'number.base': 'Página deve ser um número.',
+      'number.integer': 'Página deve ser um inteiro.',
+      'number.min': 'Página deve ser no mínimo 1.',
+    }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
+    sortBy: Joi.string().trim().optional().messages({
+      'string.base': 'Campo de ordenação (sortBy) deve ser uma string.',
+    }),
+    order: Joi.string().trim().valid('asc', 'desc').optional().default('asc').messages({
+      'string.base': 'Direção de ordenação (order) deve ser uma string.',
+      'any.only': 'Direção de ordenação (order) deve ser "asc" ou "desc".',
+    }),
+    filters: Joi.object().optional().default({}).unknown(true).messages({
+      'object.base': 'Filtros (filters) devem ser um objeto.',
+    }),
+  })
+};
+
+// --- Generic Pagination Query Schema ---
+const paginationQuerySchema = {
+  query: Joi.object({
+    page: Joi.number().integer().min(1).optional().default(1).messages({
+      'number.base': 'Página deve ser um número.',
+      'number.integer': 'Página deve ser um inteiro.',
+      'number.min': 'Página deve ser no mínimo 1.',
+    }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
+  }).unknown(true)
+};
+
+// --- Schema for Admin GET Trash Query Parameters ---
+const adminGetTrashQuerySchema = {
+  query: Joi.object({
+    page: Joi.number().integer().min(1).optional().default(1).messages({
+      'number.base': 'Página deve ser um número.',
+      'number.integer': 'Página deve ser um inteiro.',
+      'number.min': 'Página deve ser no mínimo 1.',
+    }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
+    type: Joi.string().trim().valid('player', 'score', 'tournament').optional().messages({
+      'string.base': 'Tipo de item (type) deve ser uma string.',
+      'any.only': 'Tipo de item (type) deve ser "player", "score", ou "tournament".',
+    }),
+  })
+};
 
 module.exports = {
   validateRequest,
@@ -437,15 +465,12 @@ module.exports = {
   adminLoginSchema,
   changePasswordSchema,
   tournamentIdParamSchema,
-  // Admin Schemas
   optionalPlayerIdSchema,
   playerSchema,
   scoreIdParamSchema,
   scoreUpdateSchema,
   trashItemSchema,
-  // Scores Schemas
   newScoreSchema,
-  // Tournaments Schemas
   createTournamentSchema,
   updateTournamentSchema,
   tournamentStateSchema,
@@ -453,11 +478,13 @@ module.exports = {
   updatePlayersInTournamentSchema,
   updateMatchScheduleSchema,
   updateMatchWinnerSchema,
-  // Security Schemas
   honeypotConfigSchema,
   manualBlockIpSchema,
   ipAddressParamSchema,
   updateScoresSchema,
-  playerImportItemSchema, // Export new schema
-  specificTournamentIdStringSchema, // Export the specific string schema
+  playerImportItemSchema,
+  specificTournamentIdStringSchema,
+  adminGetPlayersQuerySchema,
+  adminGetTrashQuerySchema,
+  paginationQuerySchema,
 };

@@ -6,7 +6,7 @@ import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 const ScoresPage = () => {
   const { currentTournament } = useTournament();
-  const { showMessage } = useMessage();
+  const { showError } = useMessage(); // Corrigido para showError
   const [scores, setScores] = useState([]);
   const [allPlayers, setAllPlayers] = useState([]); // For filter dropdown
   const [loading, setLoading] = useState(true);
@@ -34,16 +34,15 @@ const ScoresPage = () => {
       setAllPlayers(fetchedPlayers || []);
     } catch (error) {
       console.error('Erro ao carregar placares ou jogadores:', error);
-      showMessage(
-        `Erro ao carregar dados: ${error.message || 'Erro desconhecido'}`,
-        'error'
+      showError( // Corrigido para showError
+        `Erro ao carregar dados: ${error.message || 'Erro desconhecido'}`
       );
       setScores([]);
       setAllPlayers([]);
     } finally {
       setLoading(false);
     }
-  }, [currentTournament?.id, showMessage]);
+  }, [currentTournament?.id, showError]); // Corrigido para showError
 
   useEffect(() => {
     fetchScoresAndPlayers();

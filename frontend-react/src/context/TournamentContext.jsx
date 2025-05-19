@@ -29,34 +29,36 @@ export const TournamentProvider = ({ children }) => {
       setError(null);
 
       const response = await axios.get('/api/tournaments');
-      setTournaments(response.data);
+      // API_REFERENCE.md indica: { success: true, tournaments: [...], totalPages, currentPage, totalTournaments }
+      const fetchedTournaments = response.data.tournaments || [];
+      setTournaments(fetchedTournaments);
 
       // Se houver um torneio ativo no localStorage, selecionar ele
       const savedTournamentId = localStorage.getItem('currentTournamentId');
       if (savedTournamentId) {
-        const saved = response.data.find(
+        const saved = fetchedTournaments.find(
           (t) => t.id.toString() === savedTournamentId
         );
         if (saved) {
           setCurrentTournament(saved);
-        } else if (response.data.length > 0) {
+        } else if (fetchedTournaments.length > 0) {
           // Se o torneio salvo não existir mais, usar o primeiro da lista
-          setCurrentTournament(response.data[0]);
+          setCurrentTournament(fetchedTournaments[0]);
           localStorage.setItem(
             'currentTournamentId',
-            response.data[0].id.toString()
+            fetchedTournaments[0].id.toString()
           );
         }
-      } else if (response.data.length > 0) {
+      } else if (fetchedTournaments.length > 0) {
         // Se não houver torneio salvo, usar o primeiro da lista
-        setCurrentTournament(response.data[0]);
+        setCurrentTournament(fetchedTournaments[0]);
         localStorage.setItem(
           'currentTournamentId',
-          response.data[0].id.toString()
+          fetchedTournaments[0].id.toString()
         );
       }
 
-      return response.data;
+      return fetchedTournaments; // Retornar a lista de torneios
     } catch (err) {
       console.error('Erro ao carregar torneios:', err);
       setError(err.response?.data?.message || 'Falha ao carregar torneios');
@@ -87,16 +89,16 @@ export const TournamentProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post('/api/tournaments', tournamentData);
+      const response = await axios.post('/api/tournaments/create', tournamentData); // Corrigido endpoint
 
       // Adicionar o novo torneio à lista
-      setTournaments((prev) => [...prev, response.data]);
+      setTournaments((prev) => [...prev, response.data.tournament]); // API retorna { success, tournamentId, tournament }
 
       // Selecionar o novo torneio como atual
-      setCurrentTournament(response.data);
-      localStorage.setItem('currentTournamentId', response.data.id.toString());
+      setCurrentTournament(response.data.tournament);
+      localStorage.setItem('currentTournamentId', response.data.tournament.id.toString());
 
-      return response.data;
+      return response.data.tournament;
     } catch (err) {
       console.error('Erro ao criar torneio:', err);
       setError(err.response?.data?.message || 'Falha ao criar torneio');
@@ -112,27 +114,38 @@ export const TournamentProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
+      // TODO: Verificar e alinhar com o backend. API_REFERENCE.md sugere PATCH para propriedades específicas.
+      // Se um PUT /api/tournaments/:id para atualização completa não existir, esta função falhará ou terá comportamento inesperado.
+      // Por ora, mantendo a lógica PUT, mas com este aviso.
+      // Uma abordagem mais granular com PATCH para cada propriedade editável seria mais alinhada com a API_REFERENCE.md.
       const response = await axios.put(
         `/api/tournaments/${tournamentId}`,
         tournamentData
       );
 
-      // Atualizar o torneio na lista
-      setTournaments((prev) =>
-        prev.map((t) =>
-          t.id.toString() === tournamentId.toString() ? response.data : t
-        )
-      );
+      // Assumindo que a API, se existir, retorna { success: true, tournament: updatedTournament }
+      const updatedTournamentData = response.data.tournament;
 
-      // Se for o torneio atual, atualizá-lo também
-      if (
-        currentTournament &&
-        currentTournament.id.toString() === tournamentId.toString()
-      ) {
-        setCurrentTournament(response.data);
+      if (updatedTournamentData) {
+        // Atualizar o torneio na lista
+        setTournaments((prev) =>
+          prev.map((t) =>
+            t.id.toString() === tournamentId.toString() ? updatedTournamentData : t
+          )
+        );
+
+        // Se for o torneio atual, atualizá-lo também
+        if (
+          currentTournament &&
+          currentTournament.id.toString() === tournamentId.toString()
+        ) {
+          setCurrentTournament(updatedTournamentData);
+        }
+        return updatedTournamentData;
+      } else {
+        // Se a API não retornar o torneio atualizado no formato esperado
+        throw new Error("Resposta da API de atualização de torneio inesperada.");
       }
-
-      return response.data;
     } catch (err) {
       console.error('Erro ao atualizar torneio:', err);
       setError(err.response?.data?.message || 'Falha ao atualizar torneio');
@@ -148,24 +161,35 @@ export const TournamentProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      await axios.delete(`/api/tournaments/${tournamentId}`);
+      // API_REFERENCE.md não lista DELETE /api/tournaments/:tournamentId.
+      // A exclusão pode ser uma atualização de status para 'Cancelado' ou via /api/admin/trash.
+      // Por ora, vamos assumir que é uma atualização de status para 'Cancelado'.
+      // Se for exclusão permanente, a API precisaria ser diferente.
+      // Esta é uma simplificação; uma implementação real poderia chamar uma rota PATCH para status.
+      // Ou, se a intenção é mover para a lixeira (soft delete), a API seria diferente.
+      // Para fins de correção do contexto, vamos simular uma atualização de status.
+      // Idealmente, o backend teria uma rota específica para "cancelar" ou "arquivar".
+      // await axios.delete(`/api/tournaments/${tournamentId}`); // Comentado - endpoint incerto
+      await axios.patch(`/api/tournaments/${tournamentId}/status`, { status: 'Cancelado' });
 
-      // Remover o torneio da lista
-      const updatedTournaments = tournaments.filter(
-        (t) => t.id.toString() !== tournamentId.toString()
-      );
-      setTournaments(updatedTournaments);
+
+      // Remover o torneio da lista ou apenas atualizar seu status
+      const updatedTournamentsAfterDelete = tournaments.map(t =>
+        t.id.toString() === tournamentId.toString() ? { ...t, status: 'Cancelado' } : t
+      ).filter(t => t.status !== 'Cancelado'); // Ou apenas atualizar e manter na lista se preferir
+
+      setTournaments(updatedTournamentsAfterDelete);
 
       // Se for o torneio atual, selecionar outro
       if (
         currentTournament &&
         currentTournament.id.toString() === tournamentId.toString()
       ) {
-        if (updatedTournaments.length > 0) {
-          setCurrentTournament(updatedTournaments[0]);
+        if (updatedTournamentsAfterDelete.length > 0) {
+          setCurrentTournament(updatedTournamentsAfterDelete[0]);
           localStorage.setItem(
             'currentTournamentId',
-            updatedTournaments[0].id.toString()
+            updatedTournamentsAfterDelete[0].id.toString()
           );
         } else {
           setCurrentTournament(null);
@@ -209,7 +233,7 @@ export const TournamentProvider = ({ children }) => {
       setError(null);
 
       const response = await axios.get(
-        `/api/tournaments/${tournamentId}/brackets`
+        `/api/tournaments/${tournamentId}/state` // Corrigido endpoint
       );
       return response.data;
     } catch (err) {
@@ -222,34 +246,35 @@ export const TournamentProvider = ({ children }) => {
   };
 
   // Exportar torneio (PDF, Excel, etc)
-  const exportTournament = async (tournamentId, format) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // TODO: Implementar endpoint /api/tournaments/:tournamentId/export no backend
+  // const exportTournament = async (tournamentId, format) => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
 
-      const response = await axios.get(
-        `/api/tournaments/${tournamentId}/export?format=${format}`,
-        { responseType: 'blob' }
-      );
+  //     const response = await axios.get(
+  //       `/api/tournaments/${tournamentId}/export?format=${format}`,
+  //       { responseType: 'blob' }
+  //     );
 
-      // Criar URL e baixar o arquivo
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `torneio-${tournamentId}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
+  //     // Criar URL e baixar o arquivo
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', `torneio-${tournamentId}.${format}`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.parentNode.removeChild(link);
 
-      return true;
-    } catch (err) {
-      console.error('Erro ao exportar torneio:', err);
-      setError(err.response?.data?.message || 'Falha ao exportar torneio');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     return true;
+  //   } catch (err) {
+  //     console.error('Erro ao exportar torneio:', err);
+  //     setError(err.response?.data?.message || 'Falha ao exportar torneio');
+  //     throw err;
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Carregar torneios no carregamento inicial
   useEffect(() => {
@@ -264,12 +289,18 @@ export const TournamentProvider = ({ children }) => {
     try {
       setLoading(true); // Pode usar um loading state específico se preferir
       const response = await axios.get(`/api/tournaments/${currentTournament.id}`);
-      setCurrentTournament(response.data); // Atualiza o torneio atual com os dados mais recentes
-      // Atualizar também na lista geral de torneios, caso algo tenha mudado lá
-      setTournaments(prev =>
-        prev.map(t => t.id === currentTournament.id ? response.data : t)
-      );
-      setError(null);
+      // A API GET /api/tournaments/:id retorna { success: true, tournament: tournamentDetails }
+      if (response.data.success && response.data.tournament) {
+        setCurrentTournament(response.data.tournament); // Atualiza o torneio atual com os dados mais recentes
+        // Atualizar também na lista geral de torneios, caso algo tenha mudado lá
+        setTournaments(prev =>
+          prev.map(t => t.id === currentTournament.id ? response.data.tournament : t)
+        );
+        setError(null);
+      } else {
+        // Tratar caso onde response.data.success é false ou tournament não existe
+        throw new Error(response.data.message || 'Falha ao buscar detalhes do torneio para atualização.');
+      }
     } catch (err) {
       console.error('Erro ao recarregar detalhes do torneio:', err);
       setError(err.response?.data?.message || 'Falha ao recarregar detalhes do torneio');
@@ -292,7 +323,7 @@ export const TournamentProvider = ({ children }) => {
     deleteTournament,
     getTournamentPlayers,
     getTournamentBrackets,
-    exportTournament,
+    // exportTournament, // Comentado até o backend ser implementado
     refreshCurrentTournament, // Adicionar a nova função ao contexto
   };
 

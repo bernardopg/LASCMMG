@@ -1,43 +1,76 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getAdminPlayers, deletePlayerAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
+import { useAuth } from '../../context/AuthContext'; // Importar useAuth
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const PlayersPage = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { showMessage } = useMessage();
+  const { showError, showSuccess, showInfo } = useMessage(); // Usar as funções específicas
+  const { isAuthenticated } = useAuth(); // Obter estado de autenticação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchPlayers = useCallback(async (page = 1) => {
-    setLoading(true);
+    let isMounted = true; // Flag para verificar se o componente está montado
+
+    if (!isAuthenticated) {
+      if (isMounted) setLoading(false);
+      if (isMounted) setPlayers([]);
+      return;
+    }
+    if (isMounted) setLoading(true);
     try {
       const data = await getAdminPlayers({ page, limit: 20 });
-      setPlayers(data.players || []);
-      setTotalPages(data.totalPages || 1);
-      setCurrentPage(data.currentPage || 1);
+      if (isMounted) {
+        setPlayers(data.players || []);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.currentPage || 1);
+      }
     } catch (error) {
-      showMessage(`Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`, 'error');
-      setPlayers([]);
+      if (isMounted) {
+        if (showError) { // Usar showError
+          showError(`Erro ao carregar jogadores: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
+        } else {
+          console.error("showError não está disponível. Erro ao carregar jogadores:", error);
+        }
+        setPlayers([]);
+      }
     } finally {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
-  }, [showMessage]);
+    // A função de cleanup do useEffect que chama fetchPlayers cuidará do isMounted.
+    // Não é necessário retornar uma função de cleanup daqui diretamente,
+    // mas o useEffect que chama fetchPlayers deve ter uma.
+  }, [isAuthenticated, showError]); // Depender de showError
 
   useEffect(() => {
-    fetchPlayers(currentPage);
-  }, [fetchPlayers, currentPage]);
+    let isMounted = true;
+    if (isAuthenticated) {
+      fetchPlayers(currentPage);
+    } else {
+      if (isMounted) {
+        setLoading(false);
+        setPlayers([]);
+      }
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchPlayers, currentPage, isAuthenticated]);
 
   const handleDeletePlayer = async (playerId, playerName) => {
     if (window.confirm(`Tem certeza que deseja excluir o jogador "${playerName}"?`)) {
       try {
         await deletePlayerAdmin(playerId);
-        showMessage(`Jogador "${playerName}" excluído com sucesso.`, 'success');
-        fetchPlayers(currentPage);
+        if (showSuccess) showSuccess(`Jogador "${playerName}" excluído com sucesso.`);
+        fetchPlayers(currentPage); // Recarregar jogadores
       } catch (error) {
-        showMessage(`Erro ao excluir jogador: ${error.message || 'Erro desconhecido'}`, 'error');
+        if (showError) showError(`Erro ao excluir jogador: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
       }
     }
   };
@@ -79,7 +112,7 @@ const PlayersPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{player.nickname || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{player.email || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                      <button onClick={() => showMessage(`Editar jogador ${player.id} (implementar)`, 'info')} className="text-blue-500 hover:text-blue-400" title="Editar">
+                      <button onClick={() => showInfo(`Editar jogador ${player.id} (implementar)`)} className="text-blue-500 hover:text-blue-400" title="Editar">
                         <FaEdit />
                       </button>
                       <button onClick={() => handleDeletePlayer(player.id, player.name)} className="text-red-500 hover:text-red-400" title="Excluir">
