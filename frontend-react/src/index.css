@@ -107,7 +107,7 @@
 @layer components {
   /* Botões */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ease-in-out hover:scale-105 active:scale-95; /* Added transition-all, hover/active scale */
   }
   .btn-primary {
     @apply bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] focus:ring-[var(--color-primary)];

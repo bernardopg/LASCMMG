@@ -121,7 +121,7 @@
 - [x] ✅ **Atualizar Manual do Usuário (MANUAL_USUARIO.md)** (Incluindo nota sobre `admin_credentials.json`).
 - [x] ✅ **Atualizar Estratégia de Escalabilidade (SCALING.md)** (Refletindo uso de Redis).
 - [x] ✅ **Atualizar Lista de Tarefas (TODO.md)** (Este arquivo).
-- [ ] 🔄 **Revisar TROUBLESHOOTING.md** para garantir que cobre problemas comuns com Vite, Redis e a estrutura atual.
+- [x] ✅ **Revisar TROUBLESHOOTING.md** para garantir que cobre problemas comuns com Vite, Redis e a estrutura atual.
 - [ ] 💡 **Criar Documentação da API (Swagger/OpenAPI)**
 
 ---

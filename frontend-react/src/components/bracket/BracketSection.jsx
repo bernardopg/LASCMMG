@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'; // Added useMemo
+import React from 'react'; // Removed unused useMemo
 import RoundColumn from './RoundColumn';
 
 const BracketSection = ({

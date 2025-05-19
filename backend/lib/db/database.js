@@ -180,6 +180,7 @@ function initializeDatabase() {
 
   // Índices adicionais para otimização de consultas
   const createTournamentStatusDateIndex = `CREATE INDEX IF NOT EXISTS idx_tournaments_status_date ON tournaments(status, date);`;
+  const createTournamentStatusDeletedIndex = `CREATE INDEX IF NOT EXISTS idx_tournaments_status_deleted ON tournaments(status, is_deleted);`; // Added new index
   const createScoresMatchIdIndex = `CREATE INDEX IF NOT EXISTS idx_scores_match_id ON scores(match_id);`; // Corrigido: removido tournament_id
   const createScoresTimestampIndex = `CREATE INDEX IF NOT EXISTS idx_scores_timestamp ON scores(timestamp);`;
   const createMatchesTournamentRoundScheduledAtIndex = `CREATE INDEX IF NOT EXISTS idx_matches_tournament_round_scheduled_at ON matches(tournament_id, round, scheduled_at);`;
@@ -199,6 +200,7 @@ function initializeDatabase() {
 
     // Executar criação de índices adicionais
     db.exec(createTournamentStatusDateIndex);
+    db.exec(createTournamentStatusDeletedIndex); // Added new index execution
     db.exec(createScoresMatchIdIndex); // Corrigido
     db.exec(createScoresTimestampIndex);
     db.exec(createMatchesTournamentRoundScheduledAtIndex);

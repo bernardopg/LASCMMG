@@ -31,6 +31,7 @@ import SecurityOverview from './pages/admin/security/SecurityOverview';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
 import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
+import CreateTournamentPage from './pages/admin/CreateTournamentPage'; // Import new page
 
 // Layouts
 import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
@@ -232,6 +233,18 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <AdminDashboardPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Admin Create Tournament Page */}
+              <Route
+                path="/admin/tournaments/create"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <CreateTournamentPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
