@@ -1,9 +1,9 @@
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Login = () => {
       console.error('Erro no login:', error);
       showError(
         error.response?.data?.message ||
-          'Falha na autenticação. Verifique suas credenciais.'
+        'Falha na autenticação. Verifique suas credenciais.'
       );
     } finally {
       setIsLoading(false);
@@ -51,8 +51,7 @@ const Login = () => {
             Login - LASCMMG
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sistema de gerenciamento de torneios da Liga Amadora Sul-Campista de
-            Mari-Mari-Gomes
+            Sistema de gerenciamento de torneios da Liga Academica de Sinuca - CMMG
           </p>
         </div>
 
@@ -73,11 +72,10 @@ const Login = () => {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                      errors.email && touched.email
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email && touched.email
                         ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
                         : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                    } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
+                      } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
                     placeholder="Email"
                   />
                   <ErrorMessage
@@ -95,11 +93,10 @@ const Login = () => {
                     name="password"
                     type="password"
                     autoComplete="current-password"
-                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
-                      errors.password && touched.password
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password && touched.password
                         ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
                         : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                    } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
+                      } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
                     placeholder="Senha"
                   />
                   <ErrorMessage
@@ -140,10 +137,9 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
-                    (isSubmitting || isLoading) &&
+                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${(isSubmitting || isLoading) &&
                     'opacity-70 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   {isLoading || isSubmitting ? (
                     <svg
