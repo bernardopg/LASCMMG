@@ -37,9 +37,10 @@
   - Análise de bundle com `rollup-plugin-visualizer` (Configurado).
   - Code splitting granular (React.lazy, Suspense) para componentes pesados ou rotas menos acessadas (Aplicado a AdminDashboard, BracketPage, CreateTournamentPage, AdminTournamentListPage).
   - Virtualização de listas longas (jogadores, placares) se gargalos de performance forem identificados.
-- [ ] 🚧 **Progressive Web App (PWA) Enhancements** (Basic setup done, further optimization pending)
-  - Configurar e otimizar Service Worker com `vite-plugin-pwa`.
-  - Melhorar funcionalidade offline básica e caching de assets.
+- [x] ✅ **Progressive Web App (PWA) Enhancements**
+  - Service Worker otimizado com `vite-plugin-pwa`.
+  - offline.html aprimorado, botão de recarregar, acessibilidade e fallback garantidos.
+  - Caching de assets e navegação offline funcionando.
 
 ### 🛡️ Seção de Segurança (Admin Frontend)
 
@@ -64,6 +65,12 @@
 - [ ] 🆕 **Funcionalidade de Importação/Exportação de Jogadores (React)**
   - Interface para upload de arquivos (CSV/JSON) e feedback do processo.
 - [ ] 🆕 **Interface para Gerenciamento de Usuários Admin** (se múltiplos admins forem suportados).
+- [x] ✅ **Criação de página de Lixeira/AdminTrash**
+- [x] ✅ **Criação de página de Gerenciamento de Jogadores (PlayersPage)**
+- [x] ✅ **Criação de página de Configurações (SettingsPage)**
+- [x] ✅ **Integração das novas páginas às rotas e painel admin**
+- [x] ✅ **Finalização de placeholder em SecurityThreatAnalytics.jsx**
+- [x] ✅ **Consolidação de CSS global (nenhum CSS legado ou conflitante)**
 
 ---
 

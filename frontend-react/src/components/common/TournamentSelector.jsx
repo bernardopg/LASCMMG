@@ -13,7 +13,10 @@ const TournamentSelector = () => {
     const queryParams = new URLSearchParams(location.search);
     const urlTournamentId = queryParams.get('tournament');
 
-    if (urlTournamentId && tournaments.find((t) => t.id.toString() === urlTournamentId)) {
+    // Defensive: always treat tournaments as array
+    const safeTournaments = Array.isArray(tournaments) ? tournaments : [];
+
+    if (urlTournamentId && safeTournaments.find((t) => t.id.toString() === urlTournamentId)) {
       if (!currentTournament || currentTournament.id.toString() !== urlTournamentId) {
         selectTournament(urlTournamentId);
       }
@@ -39,7 +42,9 @@ const TournamentSelector = () => {
     }
   };
 
-  if (loading && tournaments.length === 0) {
+  const safeTournaments = Array.isArray(tournaments) ? tournaments : [];
+
+  if (loading && safeTournaments.length === 0) {
     return (
       <div className="select-wrapper">
         <label
@@ -59,7 +64,7 @@ const TournamentSelector = () => {
     );
   }
 
-  if (!tournaments || tournaments.length === 0) {
+  if (!safeTournaments || safeTournaments.length === 0) {
     return (
       <div className="select-wrapper">
         <label
@@ -80,7 +85,7 @@ const TournamentSelector = () => {
   }
 
   // Sort tournaments, newest first (assuming date is in a parsable format or sort by ID if date is not reliable)
-  const sortedTournaments = [...tournaments].sort((a, b) => {
+  const sortedTournaments = [...safeTournaments].sort((a, b) => {
     // Assuming IDs are sortable in a meaningful way (e.g., sequential or timestamp-based)
     // Or use a date field if available and reliable
     if (a.date && b.date) {

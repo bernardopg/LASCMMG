@@ -54,7 +54,20 @@
     <h1>Você está Offline</h1>
     <p>Parece que você perdeu a conexão com a internet. Por favor, verifique sua rede e tente recarregar a página.</p>
     <p>Enquanto isso, algumas funcionalidades podem não estar disponíveis.</p>
-    <p><a href="/">Tentar Recarregar</a></p>
+    <button
+      onclick="window.location.reload()"
+      style="background-color:#2e9d3a;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:1em;cursor:pointer;transition:background 0.2s;"
+      aria-label="Tentar recarregar a página"
+      autofocus
+    >
+      Tentar Recarregar
+    </button>
+    <p style="margin-top:2em;font-size:0.95em;color:#bbb;">
+      Se o botão não funcionar, tente atualizar manualmente (Ctrl+R ou F5).
+    </p>
+    <noscript>
+      <p style="color:#ffb300;">Este aplicativo requer JavaScript para funcionar corretamente.</p>
+    </noscript>
   </div>
 </body>
 </html>

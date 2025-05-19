@@ -1,8 +1,8 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react';
 import {
-  BrowserRouter as Router,
   Navigate,
   Route,
+  BrowserRouter as Router,
   Routes,
 } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -22,7 +22,10 @@ import Login from './pages/Login';
 import AddScorePage from './pages/AddScorePage';
 import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
+import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage';
+import PlayersPage from './pages/admin/PlayersPage';
+import SettingsPage from './pages/admin/SettingsPage';
 
 // Admin Security Sub-Pages (eagerly loaded as they are children of a layout)
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
@@ -193,7 +196,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <PagePlaceholder title="Gerenciamento de Jogadores" />
+                      <PlayersPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -223,7 +226,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <PagePlaceholder title="Configurações" />
+                      <SettingsPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -265,6 +268,18 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <AdminSchedulePage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/match-schedule"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <React.Suspense fallback={<PageLoadingFallback />}>
+                        <AdminMatchSchedulePage />
+                      </React.Suspense>
                     </MainLayout>
                   </ProtectedRoute>
                 }

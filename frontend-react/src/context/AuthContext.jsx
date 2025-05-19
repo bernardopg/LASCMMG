@@ -31,13 +31,17 @@ export const AuthProvider = ({ children }) => {
           axios.defaults.headers.common['Authorization'] =
             `Bearer ${storedToken}`;
 
-          // Verificar se o token ainda é válido
-          const response = await axios.get('/api/auth/verify');
-
-          if (response.data.valid) {
-            setCurrentUser(JSON.parse(storedUser));
-          } else {
-            // Token inválido, fazer logout
+          // Verificar se o token ainda é válido usando /api/me
+          try {
+            const response = await axios.get('/api/me');
+            if (response.data && response.data.success && response.data.user) {
+              setCurrentUser(response.data.user);
+            } else {
+              // Token inválido, fazer logout
+              await logout();
+            }
+          } catch (err) {
+            // Se 401 ou erro, fazer logout
             await logout();
           }
         }

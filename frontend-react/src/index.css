@@ -207,7 +207,7 @@
       background-color: white !important;
       color: black !important;
       -webkit-print-color-adjust: exact !important;
-      color-adjust: exact !important;
+      print-color-adjust: exact !important;
       font-family: 'Times New Roman', Times, serif !important; /* Fonte serifada para impressão */
     }
     .no-print, header, .sidebar, .sidebar-overlay, nav, .btn, button, .mobile-toggle, footer, .actions-bar, .filter-controls, #mobile-sidebar-toggle, .profile-menu, .tournament-actions {
