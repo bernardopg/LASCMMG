@@ -154,7 +154,7 @@
 
   /* Cards */
   .card {
-    @apply rounded-lg shadow-sm overflow-hidden;
+    @apply rounded-lg shadow-sm overflow-hidden animate-fade-in; /* Added animate-fade-in */
     @apply bg-white border border-gray-200; /* Light mode */
     @apply dark:bg-[var(--panel-bg-dark)] dark:border-[var(--card-border-color-dark)] dark:shadow-[var(--card-shadow-dark)]; /* Dark mode */
   }

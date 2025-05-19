@@ -30,7 +30,7 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
   - Atualização em tempo real do progresso das partidas.
 - **Painel Administrativo Completo e Seguro:**
   - Autenticação baseada em JWT.
-  - Gerenciamento de torneios, jogadores e placares.
+  - Gerenciamento de torneios (incluindo formulário de criação), jogadores e placares.
   - Lixeira para recuperação de itens excluídos (soft delete).
   - Funcionalidades de segurança, incluindo monitoramento de honeypot, gerenciamento de IPs bloqueados, e armazenamento de tokens CSRF e rate-limiting em Redis.
 - **Gestão Detalhada de Torneios:**
@@ -94,6 +94,7 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 - **Prettier:** Para formatação automática de código, garantindo consistência.
 - **Vitest:** Framework de testes para o backend (unitários, integração).
 - **Jest & React Testing Library (ou Vitest para frontend):** Para testes de componentes e funcionalidades no frontend.
+- **rollup-plugin-visualizer:** Para análise do bundle do frontend Vite.
 - **Husky & lint-staged (Recomendado):** Para executar linters e formatadores antes dos commits.
 
 ## 🚀 Instalação e Execução
@@ -102,18 +103,18 @@ Consulte o [**Guia de Deploy (DEPLOYMENT.md)**](DEPLOYMENT.md) para instruções
 
 Resumidamente:
 
-1. **Pré-requisitos:** Node.js (v18+), npm/yarn, Git, ferramentas de compilação C/C++, Servidor Redis (para funcionalidade completa).
-2. **Clonar Repositório:** `git clone https://github.com/bernardopg/LASCMMG.git lascmmg && cd lascmmg`
-3. **Configurar Backend:**
+1.  **Pré-requisitos:** Node.js (v18+), npm/yarn, Git, ferramentas de compilação C/C++, Servidor Redis (para funcionalidade completa).
+2.  **Clonar Repositório:** `git clone https://github.com/bernardopg/LASCMMG.git lascmmg && cd lascmmg`
+3.  **Configurar Backend:**
     - Copie `.env.example` para `.env` e configure as variáveis (especialmente `COOKIE_SECRET`, `JWT_SECRET`, `REDIS_URL`).
     - Instale dependências: `npm install` (inclui `joi`, `redis`).
-4. **Configurar Frontend:**
+4.  **Configurar Frontend:**
     - Navegue para `frontend-react/`.
     - Crie `.env.development` (ou `.env.production`) e defina `VITE_API_URL`.
-    - Instale dependências: `npm install`
+    - Instale dependências: `npm install` (inclui `rollup-plugin-visualizer` como devDependency).
     - Volte para a raiz: `cd ..`
-5. **Inicializar Admin:** `node scripts/initialize_admin.js --username admin --password suaSenhaSuperForte` (na raiz)
-6. **Executar:**
+5.  **Inicializar Admin:** `node scripts/initialize_admin.js --username admin --password suaSenhaSuperForte` (na raiz)
+6.  **Executar:**
     - Backend (raiz): `npm run dev` (ou `npm start` para produção)
     - Frontend (`frontend-react/`): `npm run dev` (Vite usa `npm run dev` por padrão)
 
@@ -154,25 +155,29 @@ Explore a pasta `docs/` para guias completos:
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
-│   │   ├── components/ # layout/MainLayout.jsx, AdminSecurityLayout.jsx (Layout.jsx removido)
+│   │   ├── components/
+│   │   │   ├── admin/  # Contém TournamentForm.jsx
+│   │   │   └── ...
 │   │   ├── context/
 │   │   ├── hooks/
 │   │   ├── pages/
+│   │   │   ├── admin/  # Contém CreateTournamentPage.jsx
+│   │   │   └── ...
 │   │   ├── services/   # api.js
 │   │   ├── App.jsx     # Contém a lógica de roteamento principal
 │   │   └── main.jsx
 │   ├── index.html
-│   ├── vite.config.js
+│   ├── vite.config.js  # Configurado com rollup-plugin-visualizer
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
 │   └── package.json
 ├── data/
-├── scripts/
+├── scripts/            # Contém initialize_admin.js, manage-database.js
 ├── .env.example
 ├── .gitignore
 ├── eslint.config.mjs
 ├── package.json
-├── LICENSE.md  # Adicionado
+├── LICENSE.md
 └── README.md
 ```
 
@@ -197,12 +202,12 @@ Consulte `CODING_STANDARDS.md` e as configurações de segurança no backend par
 
 Contribuições são bem-vindas! Siga os passos:
 
-1. Faça um fork do repositório.
-2. Crie uma branch para sua feature/correção (ex: `feature/minha-nova-feature` ou `fix/corrige-bug-xyz`).
-3. Siga os padrões definidos em [CODING_STANDARDS.md](CODING_STANDARDS.md).
-4. Escreva mensagens de commit claras e significativas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
-5. Garanta que todos os testes e verificações de lint/formatação passem.
-6. Abra um Pull Request (PR) detalhado para a branch `main` (ou a branch de desenvolvimento principal).
+1.  Faça um fork do repositório.
+2.  Crie uma branch para sua feature/correção (ex: `feature/minha-nova-feature` ou `fix/corrige-bug-xyz`).
+3.  Siga os padrões definidos em [CODING_STANDARDS.md](CODING_STANDARDS.md).
+4.  Escreva mensagens de commit claras e significativas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+5.  Garanta que todos os testes e verificações de lint/formatação passem.
+6.  Abra um Pull Request (PR) detalhado para a branch `main` (ou a branch de desenvolvimento principal).
 
 ## 📜 Licença
 

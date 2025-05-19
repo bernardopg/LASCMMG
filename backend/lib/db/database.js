@@ -185,6 +185,8 @@ function initializeDatabase() {
   const createScoresTimestampIndex = `CREATE INDEX IF NOT EXISTS idx_scores_timestamp ON scores(timestamp);`;
   const createMatchesTournamentRoundScheduledAtIndex = `CREATE INDEX IF NOT EXISTS idx_matches_tournament_round_scheduled_at ON matches(tournament_id, round, scheduled_at);`;
   const createMatchesScheduledAtIndex = `CREATE INDEX IF NOT EXISTS idx_matches_scheduled_at ON matches(scheduled_at);`;
+  const createPlayersTournamentIdDeletedIndex = `CREATE INDEX IF NOT EXISTS idx_players_tournament_id_deleted ON players (tournament_id, is_deleted);`; // New Index
+  const createPlayersNameIndex = `CREATE INDEX IF NOT EXISTS idx_players_name ON players (name);`; // New Index
 
   try {
     db.exec(createUsersTable);
@@ -205,6 +207,8 @@ function initializeDatabase() {
     db.exec(createScoresTimestampIndex);
     db.exec(createMatchesTournamentRoundScheduledAtIndex);
     db.exec(createMatchesScheduledAtIndex);
+    db.exec(createPlayersTournamentIdDeletedIndex); // Execute new index
+    db.exec(createPlayersNameIndex); // Execute new index
 
     logger.info(
       'Database',

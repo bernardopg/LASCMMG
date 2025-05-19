@@ -62,9 +62,10 @@ const Login = () => {
         >
           {({ errors, touched, isSubmitting }) => (
             <Form className="mt-8 space-y-6">
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="email" className="sr-only">
+              {/* Removed -space-y-px to allow space for labels */}
+              <div className="rounded-md shadow-sm">
+                <div className="mb-4"> {/* Added margin for spacing */}
+                  <label htmlFor="email" className="label mb-1"> {/* Use .label class */}
                     Email
                   </label>
                   <Field
@@ -81,11 +82,11 @@ const Login = () => {
                   <ErrorMessage
                     name="email"
                     component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
+                    className="error-message"
                   />
                 </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">
+                <div className="mb-4"> {/* Added margin for spacing */}
+                  <label htmlFor="password" className="label mb-1"> {/* Use .label class */}
                     Senha
                   </label>
                   <Field

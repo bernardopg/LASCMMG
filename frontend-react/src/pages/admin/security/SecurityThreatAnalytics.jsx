@@ -18,7 +18,24 @@ const SecurityThreatAnalytics = () => {
           <li>Análise de Padrões de Tráfego e Anomalias.</li>
           <li>Relatórios de Segurança Personalizáveis.</li>
         </ul>
-        <p>
+
+        {/* Placeholder para Gráficos */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="card p-4">
+            <h3 className="text-lg font-semibold text-gray-200 mb-2">Distribuição de Tipos de Ameaça</h3>
+            <div className="h-64 bg-gray-700 rounded flex items-center justify-center text-gray-400">
+              [Placeholder para Gráfico de Pizza/Barras]
+            </div>
+          </div>
+          <div className="card p-4">
+            <h3 className="text-lg font-semibold text-gray-200 mb-2">Linha do Tempo de Ameaças</h3>
+            <div className="h-64 bg-gray-700 rounded flex items-center justify-center text-gray-400">
+              [Placeholder para Gráfico de Linha]
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-4">
           A implementação destas funcionalidades dependerá da coleta e agregação de dados relevantes pelo backend.
         </p>
         <div className="mt-6 p-4 border border-yellow-500/50 rounded-md bg-yellow-500/10">

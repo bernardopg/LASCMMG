@@ -49,6 +49,7 @@ A formatação é automatizada para garantir consistência.
 - **ESLint:** Analisa o código JavaScript/TypeScript.
   - Backend: Configuração em `eslint.config.mjs` (raiz do projeto).
   - Frontend (React com Vite): Configuração em `frontend-react/eslint.config.js` (ou `frontend-react/.eslintrc.cjs` dependendo da configuração do Vite).
+- **rollup-plugin-visualizer (Frontend/Vite):** Para análise do tamanho do bundle de produção. Configurado em `frontend-react/vite.config.js`.
 
 **Comandos Úteis:**
 

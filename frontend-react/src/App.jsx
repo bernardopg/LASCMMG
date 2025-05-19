@@ -1,12 +1,11 @@
+import React, { Suspense, useContext, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
-  Routes,
-  Route,
   Navigate,
-  Outlet,
+  Route,
+  Routes,
 } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import { TournamentProvider } from './context/TournamentContext';
 
@@ -18,25 +17,34 @@ import Sidebar from './components/layout/Sidebar';
 // Páginas de autenticação
 import Login from './pages/Login';
 
-// Outras Páginas
-import ScoresPage from './pages/ScoresPage';
+// Outras Páginas (eagerly loaded)
 import AddScorePage from './pages/AddScorePage';
+import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
-import BracketPage from './pages/BracketPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage';
 
-// Admin Security Sub-Pages
-import SecurityOverview from './pages/admin/security/SecurityOverview';
-import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
-import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
+// Admin Security Sub-Pages (eagerly loaded as they are children of a layout)
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
-import CreateTournamentPage from './pages/admin/CreateTournamentPage'; // Import new page
+import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
+import SecurityOverview from './pages/admin/security/SecurityOverview';
+import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
 
 // Layouts
 import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
-import { useState, useEffect, useContext } from 'react'; // Added useContext
-import ThemeContext from './context/ThemeContext'; // Import ThemeContext
+import ThemeContext from './context/ThemeContext';
+
+// Lazy loaded pages
+const BracketPage = React.lazy(() => import('./pages/BracketPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
+const CreateTournamentPage = React.lazy(() => import('./pages/admin/CreateTournamentPage'));
+const AdminTournamentListPage = React.lazy(() => import('./pages/admin/AdminTournamentListPage')); // Added
+
+// Loading fallback component for Suspense
+const PageLoadingFallback = () => (
+  <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+  </div>
+);
 
 // Layout principal
 const MainLayout = ({ children }) => {
@@ -45,7 +53,6 @@ const MainLayout = ({ children }) => {
     return savedState ? JSON.parse(savedState) : false;
   });
 
-  // Consume ThemeContext
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   const toggleSidebarCollapse = () => {
@@ -56,9 +63,6 @@ const MainLayout = ({ children }) => {
     });
   };
 
-  // Removed local theme state, toggleTheme, and useEffect for theme
-  // as they are now handled by ThemeContext and ThemeProvider
-
   useEffect(() => {
     if (isSidebarCollapsed) {
       document.body.classList.add('sidebar-collapsed-app');
@@ -68,22 +72,19 @@ const MainLayout = ({ children }) => {
   }, [isSidebarCollapsed]);
 
   return (
-    // The 'dark' class on <html> is handled by ThemeProvider.
-    // bg- and text- colors here should use Tailwind's dark: prefix for variations.
-    // For now, assuming CSS variables handle dark mode theming.
     <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] dark:bg-gray-900 dark:text-gray-100">
       <Header
         isSidebarCollapsed={isSidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
-        currentTheme={theme} // from context
-        toggleTheme={toggleTheme} // from context
+        currentTheme={theme}
+        toggleTheme={toggleTheme}
       />
       <div className="flex">
         <Sidebar isSidebarCollapsed={isSidebarCollapsed} />
         <main
           className={`flex-1 p-6 pt-8 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}
         >
-          {children}
+          <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
         </main>
       </div>
     </div>
@@ -127,10 +128,7 @@ function App() {
           <Router>
             <MessageContainer />
             <Routes>
-              {/* Rotas públicas */}
               <Route path="/login" element={<Login />} />
-
-              {/* Rotas protegidas - Dashboard */}
               <Route
                 path="/"
                 element={
@@ -141,8 +139,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Histórico de Placares */}
               <Route
                 path="/scores"
                 element={
@@ -153,8 +149,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Adicionar Placar */}
               <Route
                 path="/add-score"
                 element={
@@ -165,8 +159,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Torneios */}
               <Route
                 path="/tournaments"
                 element={
@@ -177,8 +169,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Jogadores */}
               <Route
                 path="/players"
                 element={
@@ -189,8 +179,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Brackets */}
               <Route
                 path="/brackets"
                 element={
@@ -201,8 +189,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Estatísticas */}
               <Route
                 path="/stats"
                 element={
@@ -213,8 +199,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Configurações */}
               <Route
                 path="/settings"
                 element={
@@ -225,8 +209,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin Dashboard */}
               <Route
                 path="/admin"
                 element={
@@ -237,8 +219,17 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin Create Tournament Page */}
+              {/* Admin Tournament List Page */}
+              <Route
+                path="/admin/tournaments"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AdminTournamentListPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/tournaments/create"
                 element={
@@ -249,42 +240,31 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin Security Section with Nested Routes */}
               <Route
                 path="/admin/security"
                 element={
                   <ProtectedRoute>
                     <AdminSecurityLayout>
-                      <AdminSecurityPage />{' '}
-                      {/* This now renders an <Outlet /> */}
+                      <Suspense fallback={<PageLoadingFallback />}>
+                        <AdminSecurityPage /> {/* This renders an <Outlet /> */}
+                      </Suspense>
                     </AdminSecurityLayout>
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<SecurityOverview />} />{' '}
-                {/* Default for /admin/security */}
+                <Route index element={<SecurityOverview />} />
                 <Route path="overview" element={<SecurityOverview />} />
                 <Route path="honeypots" element={<SecurityHoneypots />} />
-                <Route
-                  path="threat-analytics"
-                  element={<SecurityThreatAnalytics />}
-                />
+                <Route path="threat-analytics" element={<SecurityThreatAnalytics />} />
                 <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
               </Route>
-
-              {/* Página 404 */}
               <Route
                 path="*"
                 element={
                   <div className="flex items-center justify-center min-h-screen bg-[var(--bg-color)]">
                     <div className="text-center">
-                      <h1 className="text-6xl font-bold text-[var(--color-primary)]">
-                        404
-                      </h1>
-                      <p className="text-2xl text-gray-300 mt-4">
-                        Página não encontrada
-                      </p>
+                      <h1 className="text-6xl font-bold text-[var(--color-primary)]">404</h1>
+                      <p className="text-2xl text-gray-300 mt-4">Página não encontrada</p>
                       <a
                         href="/"
                         className="mt-6 inline-block px-6 py-3 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
