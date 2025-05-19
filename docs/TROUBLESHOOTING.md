@@ -143,9 +143,39 @@ Se precisar de ajuda:
 - Descrição clara do problema e passos para reproduzir.
 - Informações da Seção 1.
 - Logs relevantes (servidor, navegador, build).
-- Mensagens de erro completas.
+- Mensagens de erro completas (exemplo abaixo).
 - Conteúdo do `.env` do backend e `.env.*` do frontend (OMITIR SEGREDOS!).
 - Detalhes da configuração de deploy, se aplicável.
+
+### Exemplo de log de erro real (backend)
+```
+[2025-05-19T15:00:00.000Z] ERROR: AuthMiddleware - Falha na verificação do token JWT: { error: 'jwt expired', requestId: 'abc123', ip: '::1' }
+```
+
+### Exemplo de erro no frontend (console)
+```
+POST http://localhost:3001/api/auth/login 401 (Unauthorized)
+Falha na autenticação. Verifique suas credenciais.
+```
+
+---
+
+## FAQ - Dúvidas Frequentes
+
+**1. O sistema funciona em Windows, Linux e Mac?**
+Sim, desde que Node.js 18+ e dependências estejam instaladas.
+
+**2. Preciso de Redis em desenvolvimento?**
+Não é obrigatório, mas funcionalidades como CSRF, rate limit e honeypot ficam limitadas sem Redis.
+
+**3. Como faço rollback de uma atualização?**
+Restaure o backup do banco de dados (`data/database.sqlite`) e faça `git checkout` para o commit anterior.
+
+**4. Como reportar um bug?**
+Abra uma issue no GitHub com logs, passos para reproduzir e ambiente.
+
+**5. O que fazer se o build do frontend falhar?**
+Veja a seção 8 deste documento e confira dependências, Node.js e logs.
 
 ---
 

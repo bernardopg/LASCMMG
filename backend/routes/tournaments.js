@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const Joi = require('joi');
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const tournamentModel = require('../lib/models/tournamentModel');
 const playerModel = require('../lib/models/playerModel');
@@ -7,7 +8,8 @@ const scoreModel = require('../lib/models/scoreModel');
 const { logger } = require('../lib/logger/logger');
 const {
   validateRequest,
-  tournamentIdParamSchema,
+  tournamentIdParamSchema, // Keep for other potential uses
+  specificTournamentIdStringSchema, // Import the new specific schema
   createTournamentSchema,
   updateTournamentSchema,
   tournamentStateSchema,
@@ -18,6 +20,8 @@ const {
   updateScoresSchema,
   playerImportItemSchema, // Import the new schema for player import validation
 } = require('../lib/utils/validationUtils');
+
+console.log('DEBUG: specificTournamentIdStringSchema in tournaments.js:', specificTournamentIdStringSchema); // DEBUG LINE
 
 const router = express.Router();
 
@@ -600,7 +604,7 @@ router.get('/:tournamentId/stats', authMiddleware, validateRequest(tournamentIdP
 
 // GET /api/tournaments/:tournamentId/players/:playerName/stats - Get specific player stats in a tournament (admin only)
 // Define a schema for playerName if it has specific constraints (e.g., length, characters)
-const playerNameParamSchema = { params: Joi.object({ tournamentId: tournamentIdParamSchema.params.tournamentId, playerName: Joi.string().trim().min(1).required() }) };
+const playerNameParamSchema = { params: Joi.object({ tournamentId: specificTournamentIdStringSchema, playerName: Joi.string().trim().min(1).required() }) };
 router.get('/:tournamentId/players/:playerName/stats', authMiddleware, validateRequest(playerNameParamSchema), async (req, res) => {
   const { tournamentId, playerName: routePlayerName } = req.params;
   const playerName = decodeURIComponent(routePlayerName); // Already validated as string

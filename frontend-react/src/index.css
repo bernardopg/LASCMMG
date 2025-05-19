@@ -181,9 +181,25 @@
 
   /* Scrollbar (WebKit) */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: var(--color-gray-100, #f1f1f1); dark:background: var(--scrollbar-track-dark, #101c10); }
-  ::-webkit-scrollbar-thumb { background: var(--color-gray-400, #888); border-radius: 5px; dark:background: var(--scrollbar-thumb-dark, #4a6a4a); }
-  ::-webkit-scrollbar-thumb:hover { background: var(--color-gray-500, #555); dark:background: var(--scrollbar-thumb-hover-dark, #5c7a5c); }
+  ::-webkit-scrollbar-track {
+    background: var(--color-gray-100, #f1f1f1);
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-dark, #101c10);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-400, #888);
+    border-radius: 5px;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-dark, #4a6a4a);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-500, #555);
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-dark, #5c7a5c);
+  }
 
   /* Estilos de Impressão Detalhados */
   @media print {

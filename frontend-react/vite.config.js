@@ -95,5 +95,14 @@ export default defineConfig({
   ],
   build: {
     sourcemap: true, // Optional: generate sourcemaps for production
-  }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // Your backend server address
+        changeOrigin: true, // Recommended for virtual hosted sites
+        // secure: false, // Uncomment if your backend is on HTTP and Vite is on HTTPS, or for self-signed certs
+      },
+    },
+  },
 });

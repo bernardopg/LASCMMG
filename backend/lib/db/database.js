@@ -94,6 +94,7 @@ function initializeDatabase() {
       entry_fee REAL, -- Adicionado
       prize_pool TEXT, -- Adicionado
       rules TEXT, -- Adicionado
+      is_deleted INTEGER DEFAULT 0, -- Added for soft delete
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -117,6 +118,7 @@ function initializeDatabase() {
       score INTEGER DEFAULT 0,
       gender TEXT,
       skill_level TEXT,
+      is_deleted INTEGER DEFAULT 0, -- Added for soft delete
       FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
       UNIQUE (tournament_id, name)
     );

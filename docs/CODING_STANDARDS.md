@@ -201,7 +201,14 @@ Nomes devem ser descritivos e refletir a intenção.
 ## 9. Controle de Versão (Git)
 
 - **Commits:**
-  - Mensagens claras e concisas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/). Ex: `feat: adiciona login com OAuth`, `fix: corrige bug na paginação de placares`.
+  - Mensagens claras e concisas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+    - Exemplos:
+      - `feat: adiciona login com OAuth`
+      - `fix: corrige bug na paginação de placares`
+      - `refactor: reorganiza models de jogador`
+      - `docs: atualiza README com badges`
+      - `test: adiciona teste unitário para AuthContext`
+      - `chore: atualiza dependências de segurança`
   - Commits pequenos e atômicos, focados em uma única mudança lógica.
 - **Branches:**
   - `main` (ou `master`) é a branch estável e reflete o estado de produção.
@@ -219,6 +226,9 @@ Nomes devem ser descritivos e refletir a intenção.
 - **Ferramentas Automatizadas:** ESLint e Prettier são configurados para reforçar padrões. Sua execução deve ser parte do processo de CI.
 - **Revisões de Código:** Essenciais para manter a qualidade, compartilhar conhecimento e garantir a conformidade com os padrões.
 - **CI/CD (Integração Contínua / Entrega Contínua):** Pipelines devem ser configuradas para rodar linters, testes, e builds automaticamente a cada push ou PR.
+  - Recomenda-se uso de ferramentas de SAST/SCA como `npm audit`, `snyk`, ou integração com Dependabot para análise de vulnerabilidades e atualização automática de dependências.
+  - Cobertura de testes deve ser monitorada (ex: Codecov, Coveralls).
+  - Scripts de pre-commit (Husky/lint-staged) são recomendados para garantir qualidade antes do push.
 
 ---
 

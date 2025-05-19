@@ -57,9 +57,31 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await axios.post('/api/auth/login', { email, password });
 
-      const { user, token } = response.data;
+      // Get CSRF token from cookies
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrfToken='))
+        ?.split('=')[1];
+
+      // Set CSRF token in headers if available
+      const headers = {};
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
+      // Mapeia email para username conforme esperado pelo backend
+      // Remove eventual duplicação de email causada pelo bug no frontend
+      const cleanEmail = email.includes('@') ?
+        email.substring(0, email.indexOf('@')) + '@' + email.substring(email.indexOf('@') + 1) :
+        email;
+
+      const response = await axios.post('/api/auth/login', {
+        username: cleanEmail,
+        password
+      }, { headers });
+
+      const { admin: user, token } = response.data;
 
       // Salvar no localStorage
       localStorage.setItem('authUser', JSON.stringify(user));

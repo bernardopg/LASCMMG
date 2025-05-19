@@ -8,6 +8,7 @@ import {
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import { TournamentProvider } from './context/TournamentContext';
+import api from './services/api'; // Import the api instance
 
 // Componentes comuns
 import MessageContainer from './components/common/MessageContainer';
@@ -123,6 +124,22 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  useEffect(() => {
+    // Fetch CSRF token when the app loads to ensure the cookie is set
+    api.get('/api/csrf-token')
+      .then(response => {
+        console.log('CSRF token endpoint contacted successfully. Cookie should be set by browser.');
+        // If you need to use the token value directly from the response for some reason:
+        // const tokenFromResponse = response.data.csrfToken;
+        // console.log('CSRF Token from response body:', tokenFromResponse);
+      })
+      .catch(error => {
+        console.error('Error fetching CSRF token on app load:', error);
+        // Handle error appropriately, maybe show a message to the user
+        // or retry, depending on how critical this is for app startup.
+      });
+  }, []); // Empty dependency array ensures this runs once on mount
+
   return (
     <AuthProvider>
       <MessageProvider>

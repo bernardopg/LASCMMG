@@ -17,7 +17,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/login', loginLimiter, validateRequest(adminLoginSchema), async (req, res) => {
+router.post('/auth/login', loginLimiter, validateRequest(adminLoginSchema), async (req, res) => { // Changed path to /auth/login
   // Validation is now handled by validateRequest middleware using adminLoginSchema
   // req.body will contain validated and potentially sanitized data.
   const { username, password } = req.body;

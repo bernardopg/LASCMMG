@@ -1,122 +1,268 @@
-# Referência da API LASCMMG
+# Referência Completa da API LASCMMG
 
 [⬅ Voltar ao README Principal](README.md)
 
-Este documento fornece uma referência para os endpoints da API do sistema LASCMMG.
-
-## Convenções
-
-- **URL Base:** A URL base para todos os endpoints da API é `/api`.
-- **Autenticação:** Endpoints que requerem autenticação esperam um Token JWT no header `Authorization: Bearer <token>`.
-- **Proteção CSRF:** Métodos que modificam o estado (POST, PUT, PATCH, DELETE) requerem um token CSRF no header `X-CSRF-Token`. Este token é geralmente fornecido em um cookie `csrfToken` após o login ou em uma chamada GET anterior.
-- **Formato de Resposta:**
-  - Sucesso: `Content-Type: application/json`, corpo com `{ success: true, ...dados }`
-  - Erro: `Content-Type: application/json`, corpo com `{ success: false, message: "Descrição do erro", details?: [...] }` (para erros de validação).
-- **Códigos de Status HTTP Comuns:**
-  - `200 OK`: Requisição bem-sucedida.
-  - `201 Created`: Recurso criado com sucesso.
-  - `204 No Content`: Requisição bem-sucedida, sem corpo de resposta (ex: DELETE).
-  - `400 Bad Request`: Erro de validação ou requisição malformada.
-  - `401 Unauthorized`: Autenticação necessária ou falhou.
-  - `403 Forbidden`: Acesso negado (permissões insuficientes).
-  - `404 Not Found`: Recurso não encontrado.
-  - `409 Conflict`: Conflito com o estado atual do recurso (ex: item duplicado).
-  - `500 Internal Server Error`: Erro inesperado no servidor.
+> **Esta documentação reflete fielmente o backend real, cobre todos os endpoints REST, requisitos de autenticação, CSRF, exemplos de request/response, status HTTP e observações de segurança.**
 
 ---
 
-## Torneios (`/api/tournaments`)
+## Convenções Gerais
+
+- **URL Base:** `/api`
+- **Autenticação:** JWT via `Authorization: Bearer <token>`
+- **Proteção CSRF:** Métodos mutáveis (POST, PUT, PATCH, DELETE) requerem header `X-CSRF-Token` (token fornecido via cookie após login ou endpoint dedicado).
+- **Formato de Resposta:**
+  - Sucesso: `{ success: true, ...dados }`
+  - Erro: `{ success: false, message: "...", details?: [...] }`
+- **Status HTTP:** 200, 201, 204, 400, 401, 403, 404, 409, 500
+- **Content-Type:** Sempre `application/json` (exceto upload de arquivos)
+
+---
+
+## Sumário de Endpoints
+
+- [Autenticação & Usuário](#autenticação--usuário)
+- [Torneios](#torneios)
+- [Jogadores](#jogadores)
+- [Placares](#placares)
+- [Administração & Lixeira](#administração--lixeira)
+- [Estatísticas & Sistema](#estatísticas--sistema)
+- [Segurança & Honeypot](#segurança--honeypot)
+- [Health Check](#health-check)
+
+---
+
+## Autenticação & Usuário
+
+### `POST /api/auth/login`
+Autentica usuário admin.
+**Body:** `{ "username": "admin", "password": "senha" }`
+**Respostas:**
+- 200: `{ success: true, token, admin: { username, role } }`
+- 401: `{ success: false, message: "Credenciais inválidas." }`
+- 429: Rate limit
+
+### `POST /api/change-password`
+Troca senha do admin autenticado.
+**Auth:** JWT
+**Body:** `{ "username": "admin", "currentPassword": "...", "newPassword": "..." }`
+**Respostas:**
+- 200: `{ success: true, message: "Senha alterada com sucesso" }`
+- 400/403: Erro de validação/autorização
+
+### `GET /api/me`
+Retorna dados do usuário autenticado.
+**Auth:** JWT
+**Respostas:**
+- 200: `{ success: true, user: { id, username, name, role } }`
+- 401: Não autenticado
+
+### `POST /api/logout`
+Revoga o token JWT do usuário autenticado.
+**Auth:** JWT
+**Respostas:**
+- 200: `{ success: true, message: "Logout realizado com sucesso." }`
+
+---
+
+## Torneios
 
 ### `GET /api/tournaments`
-
-Lista todos os torneios públicos. Suporta paginação e ordenação.
-
-- **Método:** `GET`
-- **Autenticação:** Nenhuma (Público)
-- **Parâmetros de Query:**
-  - `page` (opcional, número): Número da página (padrão: 1).
-  - `limit` (opcional, número): Número de itens por página (padrão: 10).
-  - `orderBy` (opcional, string): Campo para ordenação (padrão: `date`). Campos permitidos: `id`, `name`, `date`, `status`, `created_at`, `updated_at`.
-  - `order` (opcional, string): Direção da ordenação (`ASC` ou `DESC`, padrão: `DESC`).
-- **Resposta de Sucesso (200 OK):**
-  ```json
-  {
-    "success": true,
-    "tournaments": [
-      {
-        "id": "timestamp-nome-do-torneio",
-        "name": "Nome do Torneio Exemplo",
-        "date": "2025-12-31T00:00:00.000Z",
-        "status": "Pendente",
-        "description": "Descrição do torneio.",
-        "num_players_expected": 32,
-        "bracket_type": "single-elimination",
-        "entry_fee": 10.50,
-        "prize_pool": "Troféus e medalhas",
-        "rules": "Regras oficiais da liga.",
-        "created_at": "2025-05-19T02:00:00.000Z",
-        "updated_at": "2025-05-19T02:00:00.000Z",
-        "is_deleted": 0,
-        "deleted_at": null
-        // state_json é omitido nesta listagem
-      }
-      // ... mais torneios
-    ],
-    "totalPages": 5,
-    "currentPage": 1,
-    "totalTournaments": 50
-  }
-  ```
-- **Resposta de Erro (500 Internal Server Error):**
-  ```json
-  {
-    "success": false,
-    "message": "Erro ao carregar lista de torneios."
-  }
-  ```
+Lista torneios públicos.
+**Query:** `page`, `limit`, `orderBy`, `order`
+**Respostas:**
+- 200: `{ success: true, tournaments: [...], totalPages, currentPage, totalTournaments }`
 
 ### `POST /api/tournaments/create`
+Cria torneio (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ name, date, ... }`
+**Upload:** `playersFile` (opcional, multipart/form-data)
+**Respostas:**
+- 201: `{ success: true, tournamentId, tournament }`
+- 400/401/403/500
 
-Cria um novo torneio.
+### `GET /api/tournaments/:tournamentId`
+Detalhes de um torneio.
+**Respostas:**
+- 200: `{ success: true, tournament }`
+- 404
 
-- **Método:** `POST`
-- **Autenticação:** Requerida (Admin)
-- **Proteção CSRF:** Requerida
-- **Corpo da Requisição (JSON):**
-  ```json
-  {
-    "name": "Novo Torneio de Primavera",
-    "date": "2025-09-15", // Formato YYYY-MM-DD
-    "description": "Torneio anual de primavera.",
-    "numPlayersExpected": 64, // Opcional, padrão 32
-    "bracket_type": "double-elimination", // Opcional, padrão 'single-elimination'
-    "entry_fee": 20.00, // Opcional
-    "prize_pool": "R$ 1000 + Troféu", // Opcional
-    "rules": "Regras da LASCMMG." // Opcional
-    // playersFile: (opcional, arquivo JSON via multipart/form-data, não parte deste corpo JSON)
-  }
-  ```
-  - **Validação (Joi):** `createTournamentSchema`
-- **Resposta de Sucesso (201 Created):**
-  ```json
-  {
-    "success": true,
-    "message": "Torneio criado com sucesso!",
-    "tournamentId": "timestamp-novo-torneio-de-primavera",
-    "tournament": {
-      "id": "timestamp-novo-torneio-de-primavera",
-      "name": "Novo Torneio de Primavera",
-      "date": "2025-09-15T00:00:00.000Z",
-      "status": "Pendente",
-      // ...outros campos, incluindo state_json inicial
-    }
-  }
-  ```
-- **Respostas de Erro:**
-  - `400 Bad Request`: Erro de validação (detalhes no corpo da resposta).
-  - `401 Unauthorized`: Não autenticado.
-  - `403 Forbidden`: Não é admin ou token CSRF inválido.
-  - `500 Internal Server Error`: Erro ao criar no banco de dados.
+### `GET /api/tournaments/:tournamentId/state`
+Estado (chaveamento) do torneio.
+- 200: `{ ...state }`
+
+### `POST /api/tournaments/:tournamentId/state`
+Atualiza estado do torneio (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ state }`
+
+### `GET /api/tournaments/:tournamentId/players`
+Lista jogadores do torneio.
+**Query:** `page`, `limit`
+
+### `POST /api/tournaments/:tournamentId/players`
+Adiciona jogador ao torneio (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ PlayerName, Nickname, ... }`
+
+### `POST /api/tournaments/:tournamentId/players/import`
+Importa jogadores via arquivo JSON (admin).
+**Auth:** JWT + CSRF
+**Upload:** `jsonFile` (multipart/form-data)
+
+### `POST /api/tournaments/:tournamentId/players/update`
+Substitui lista de jogadores (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ players: [...] }`
+
+### `GET /api/tournaments/:tournamentId/scores`
+Lista placares do torneio.
+**Query:** `page`, `limit`
+
+### `POST /api/tournaments/:tournamentId/scores/update`
+Adiciona/atualiza placares em lote (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ scores: [...] }`
+
+### `POST /api/tournaments/:tournamentId/generate-bracket`
+Gera chaveamento (admin).
+**Auth:** JWT + CSRF
+
+### `POST /api/tournaments/:tournamentId/reset`
+Reseta estado do torneio (admin).
+**Auth:** JWT + CSRF
+
+### `PATCH /api/tournaments/:tournamentId/[property]`
+Atualiza propriedade específica (admin).
+**Auth:** JWT + CSRF
+**Body:** `{ name | description | entry_fee | prize_pool | rules | status }`
+
+### `PATCH /api/tournaments/:tournamentId/matches/:matchId/schedule`
+Atualiza agendamento de partida (admin).
+**Auth:** JWT + CSRF
+
+### `PATCH /api/tournaments/:tournamentId/matches/:matchId/winner`
+Atualiza vencedor/placar de partida (admin).
+**Auth:** JWT + CSRF
+
+### `GET /api/tournaments/:tournamentId/stats`
+Estatísticas do torneio (admin).
+**Auth:** JWT
+
+### `GET /api/tournaments/:tournamentId/players/:playerName/stats`
+Estatísticas de jogador no torneio (admin).
+**Auth:** JWT
 
 ---
-*(Mais endpoints serão documentados aqui)*
+
+## Jogadores
+
+### `GET /api/players`
+Lista jogadores globais.
+**Query:** `page`, `limit`, `sortBy`, `order`
+
+### `GET /api/players/:playerId`
+Detalhes de jogador global.
+
+---
+
+## Placares
+
+### `POST /api/scores`
+Cria placar para partida (autenticado).
+**Auth:** JWT + CSRF
+**Body:** `{ tournamentId, matchId, player1Score, player2Score, winnerId, stateMatchKey }`
+
+---
+
+## Administração & Lixeira
+
+### `GET /api/admin/players`
+CRUD de jogadores (admin).
+**Auth:** JWT
+**GET/POST/PUT/DELETE**
+- `/api/admin/players`
+- `/api/admin/players/:playerId`
+
+### `GET /api/admin/scores`
+CRUD de placares (admin).
+**Auth:** JWT
+**GET/PUT/DELETE**
+- `/api/admin/scores`
+- `/api/admin/scores/:scoreId`
+
+### `GET /api/admin/trash`
+Itens na lixeira (admin).
+**Auth:** JWT
+**Query:** `type` (`player`, `score`, `tournament`)
+
+### `POST /api/admin/trash/restore`
+Restaura item da lixeira (admin).
+**Auth:** JWT
+**Body:** `{ itemId, itemType }`
+
+### `DELETE /api/admin/trash/item`
+Exclui item permanentemente (admin).
+**Auth:** JWT
+**Body:** `{ itemId, itemType }`
+
+---
+
+## Estatísticas & Sistema
+
+### `GET /api/system/stats`
+Estatísticas gerais do sistema (admin).
+**Auth:** JWT
+
+### `GET /api/system/health`
+Health check do sistema.
+
+---
+
+## Segurança & Honeypot
+
+### `GET /api/system/security/overview-stats`
+Estatísticas de segurança/honeypot (admin).
+**Auth:** JWT
+
+### `GET /api/system/security/honeypot-config`
+Configuração do honeypot (admin).
+**Auth:** JWT
+
+### `POST /api/system/security/honeypot-config`
+Atualiza configuração do honeypot (admin).
+**Auth:** JWT + CSRF
+
+### `GET /api/system/security/blocked-ips`
+Lista IPs bloqueados (admin).
+**Auth:** JWT
+
+### `POST /api/system/security/blocked-ips`
+Bloqueia IP manualmente (admin).
+**Auth:** JWT + CSRF
+
+### `DELETE /api/system/security/blocked-ips/:ipAddress`
+Desbloqueia IP (admin).
+**Auth:** JWT + CSRF
+
+---
+
+## Health Check
+
+### `GET /api/system/health`
+Retorna status do sistema, banco, disco, memória, versão.
+
+---
+
+## Observações de Segurança
+
+- Todos os endpoints mutáveis exigem CSRF token e JWT.
+- Rate limiting ativo em endpoints sensíveis.
+- Todas as respostas de erro são padronizadas.
+- Senhas nunca são retornadas.
+- Logs de segurança e auditoria são mantidos.
+
+---
+
+**Consulte os exemplos de request/response e detalhes de cada endpoint acima. Para detalhes de schemas, veja o código-fonte ou os arquivos de validação Joi.**

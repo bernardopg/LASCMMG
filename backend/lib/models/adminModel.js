@@ -72,7 +72,7 @@ async function createAdmin(admin) {
     const result = await runAsync(sql, [admin.username, hashedPassword]);
 
     return {
-      id: result.lastID,
+      id: result.lastInsertRowid, // Corrected from lastID to lastInsertRowid
       username: admin.username,
       role: 'admin',
     };

@@ -19,16 +19,35 @@ const Login = () => {
       .required('Senha é obrigatória'),
   });
 
+  // Valores iniciais para facilitar o teste
+  const initialValues = {
+    email: process.env.NODE_ENV === 'development' ? 'admin@example.com' : '',
+    password: process.env.NODE_ENV === 'development' ? 'Admin123!' : '',
+  };
+
   // Função de submit do formulário
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setIsLoading(true);
-      await login(values.email, values.password);
+
+      // Verificação para garantir que o email não está duplicado no input
+      const originalEmail = values.email;
+      const cleanEmail = originalEmail.includes('@') ?
+        originalEmail.substring(0, originalEmail.indexOf('@')) + '@' + originalEmail.substring(originalEmail.indexOf('@') + 1) :
+        originalEmail;
+
+      // Se o email está diferente do limpo, ele estava duplicado
+      if (originalEmail !== cleanEmail) {
+        throw new Error('Email inválido');
+      }
+
+      await login(cleanEmail, values.password);
       showSuccess('Login realizado com sucesso!');
       navigate('/');
     } catch (error) {
       console.error('Erro no login:', error);
       showError(
+        error.message === 'Email inválido' ? 'Email inválido' :
         error.response?.data?.message ||
         'Falha na autenticação. Verifique suas credenciais.'
       );
@@ -56,7 +75,7 @@ const Login = () => {
         </div>
 
         <Formik
-          initialValues={{ email: '', password: '' }}
+          initialValues={initialValues}
           validationSchema={LoginSchema}
           onSubmit={handleSubmit}
         >

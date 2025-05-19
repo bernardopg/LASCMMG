@@ -204,7 +204,7 @@ const setContentTypeHeaders = (res, filePath) => {
 // Configuração de arquivos estáticos com headers adequados
 app.use(
   '/css',
-  express.static(path.join(__dirname, '../frontend/css'), {
+  express.static(path.join(__dirname, '../frontend-react/css'), { // Changed path
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -212,7 +212,7 @@ app.use(
 
 app.use(
   '/js',
-  express.static(path.join(__dirname, '../frontend/js'), {
+  express.static(path.join(__dirname, '../frontend-react/js'), { // Changed path
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -220,7 +220,7 @@ app.use(
 
 app.use(
   '/favicon.ico',
-  express.static(path.join(__dirname, '../frontend/assets/favicon.ico'), {
+  express.static(path.join(__dirname, '../frontend-react/public/assets/favicon.ico'), { // Changed path to public/assets
     maxAge: oneDay * 7,
     setHeaders: setContentTypeHeaders,
   })
@@ -228,7 +228,7 @@ app.use(
 
 app.use(
   '/assets',
-  express.static(path.join(__dirname, '../frontend/assets'), {
+  express.static(path.join(__dirname, '../frontend-react/public/assets'), { // Changed path to public/assets
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -250,6 +250,18 @@ app.use('/api/admin', adminRoutes); // Montar as rotas de admin
 app.use('/api/scores', scoresRoutes); // Montar as rotas de scores
 app.use('/api/players', playerRoutes); // Mount player routes
 // app.use('/api/stats', statsRoutes); // Removido pois as rotas foram movidas
+
+// Endpoint to provide CSRF token to SPA clients
+app.get('/api/csrf-token', csrfMiddleware.csrfProvider, (req, res) => {
+  // The csrfProvider middleware has set the cookie.
+  // Optionally send the token in the response body if needed by the client,
+  // though reading from the cookie is typical for subsequent requests.
+  res.status(200).json({
+    success: true,
+    message: 'CSRF token provided.',
+    csrfToken: res.locals.csrfToken // res.locals.csrfToken is set by csrfProvider
+  });
+});
 
 app.get('/ping', (req, res) => {
   const dbStatus = checkDbConnection();
@@ -281,7 +293,7 @@ app.use('/api/*', (req, res) => {
 
 app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
   try {
-    const filePath = path.join(__dirname, '../frontend/admin.html');
+    const filePath = path.join(__dirname, '../frontend-react/public/admin.html'); // Changed path, assuming it's in public
     const htmlContent = await fs.readFile(filePath, 'utf-8');
     const injectedHtml = honeypot.injectFields(htmlContent);
     res.send(injectedHtml);
@@ -296,7 +308,7 @@ app.get(
   csrfMiddleware.csrfProvider,
   async (req, res, next) => {
     try {
-      const filePath = path.join(__dirname, '../frontend/admin-security.html');
+      const filePath = path.join(__dirname, '../frontend-react/public/admin-security.html'); // Changed path, assuming it's in public
       const htmlContent = await fs.readFile(filePath, 'utf-8');
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
@@ -311,7 +323,7 @@ app.get(
   csrfMiddleware.csrfProvider,
   async (req, res, next) => {
     try {
-      const filePath = path.join(__dirname, '../frontend/index.html');
+      const filePath = path.join(__dirname, '../frontend-react/index.html'); // Changed path (Vite's index.html is usually at root of its project)
       const htmlContent = await fs.readFile(filePath, 'utf-8');
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
@@ -333,7 +345,7 @@ app.get('*', (req, res, next) => {
     return next();
   }
 
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend-react/index.html')); // Changed path
 });
 
 async function startServer() {

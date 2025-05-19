@@ -1,10 +1,23 @@
 # LASCMMG - Sistema de Gerenciamento de Torneios de Sinuca (Versão React)
 
 [![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow.svg)](LICENSE.md)
+![Build](https://img.shields.io/github/actions/workflow/status/bernardopg/LASCMMG/ci.yml?branch=main)
+![Coverage](https://img.shields.io/codecov/c/github/bernardopg/LASCMMG)
+![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen)
+![Last Commit](https://img.shields.io/github/last-commit/bernardopg/LASCMMG)
 
 ## 🎱 Visão Geral
 
 O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
+
+**Diferenciais do projeto:**
+- Auditoria detalhada de ações administrativas (backend).
+- Sistema de honeypot e bloqueio automático/manual de IPs.
+- Lixeira (soft delete) com restauração e exclusão permanente.
+- API RESTful documentada e alinhada com o backend real.
+- Segurança avançada: JWT, CSRF, XSS, rate limit, headers, logging estruturado.
+- Pronto para deploy escalável (Docker, Nginx, PM2, CI/CD).
+- Documentação e padrões de indústria em todos os arquivos markdown.
 
 O sistema foi desenvolvido com foco em:
 

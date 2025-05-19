@@ -90,11 +90,10 @@ function isValidScoreId(id) {
 // Example schema for Admin Login (used in routes/auth.js)
 const adminLoginSchema = {
   body: Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required().messages({
+    username: Joi.string().email().required().messages({
       'string.base': `"username" deve ser do tipo texto`,
       'string.empty': `"username" não pode estar vazio`,
-      'string.min': `"username" deve ter no mínimo {#limit} caracteres`,
-      'string.max': `"username" deve ter no máximo {#limit} caracteres`,
+      'string.email': `"username" deve ser um email válido`,
       'any.required': `"username" é um campo obrigatório`,
     }),
     // In a real scenario, password might have more complex rules (uppercase, number, special char)
@@ -137,12 +136,14 @@ const changePasswordSchema = {
 };
 
 // Example schema for Tournament ID in params
+const specificTournamentIdStringSchema = Joi.string().trim().min(1).max(255).required().pattern(new RegExp('^[a-zA-Z0-9-]+$')).messages({ // Example: slug-like IDs
+  'string.pattern.base': `"tournamentId" contém caracteres inválidos. Use apenas letras, números e hífens.`,
+  'any.required': `"tournamentId" é obrigatório nos parâmetros da URL.`,
+});
+
 const tournamentIdParamSchema = {
   params: Joi.object({
-    tournamentId: Joi.string().trim().min(1).max(255).required().pattern(new RegExp('^[a-zA-Z0-9-]+$')).messages({ // Example: slug-like IDs
-      'string.pattern.base': `"tournamentId" contém caracteres inválidos. Use apenas letras, números e hífens.`,
-      'any.required': `"tournamentId" é obrigatório nos parâmetros da URL.`,
-    })
+    tournamentId: specificTournamentIdStringSchema
   })
 };
 
@@ -416,37 +417,6 @@ const ipAddressParamSchema = {
 };
 
 
-module.exports = {
-  validateRequest,
-  isValidTournamentId,
-  isValidPlayerId,
-  isValidScoreId,
-  adminLoginSchema,
-  changePasswordSchema,
-  tournamentIdParamSchema,
-  // Admin Schemas
-  optionalPlayerIdSchema,
-  playerSchema,
-  scoreIdParamSchema,
-  scoreUpdateSchema,
-  trashItemSchema,
-  // Scores Schemas
-  newScoreSchema,
-  // Tournaments Schemas
-  createTournamentSchema,
-  updateTournamentSchema,
-  tournamentStateSchema,
-  addPlayerToTournamentSchema,
-  updatePlayersInTournamentSchema,
-  updateMatchScheduleSchema,
-  updateMatchWinnerSchema,
-  // Security Schemas
-  honeypotConfigSchema,
-  manualBlockIpSchema,
-  ipAddressParamSchema,
-  updateScoresSchema, // Export new schema
-};
-
 // Schema for individual player item during bulk import (routes/tournaments.js)
 const playerImportItemSchema = Joi.object({
   PlayerName: Joi.string().trim().min(2).max(100).required().messages({
@@ -489,4 +459,5 @@ module.exports = {
   ipAddressParamSchema,
   updateScoresSchema,
   playerImportItemSchema, // Export new schema
+  specificTournamentIdStringSchema, // Export the specific string schema
 };
