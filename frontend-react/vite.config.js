@@ -38,6 +38,29 @@ export default defineConfig({
               ],
             },
           },
+          // Cache API calls
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api'), // Adjust if your API path is different
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 5, // How long to wait for network before falling back to cache
+              cacheableResponse: {
+                statuses: [0, 200], // Cache successful responses and opaque responses (for CORS)
+              },
+              plugins: [
+                {
+                  handlerDidError: async () => {
+                    // Optional: Provide a fallback response for API errors when offline
+                    // return new Response(JSON.stringify({ success: false, message: 'API offline' }), {
+                    //   headers: { 'Content-Type': 'application/json' }
+                    // });
+                    return Response.error(); // Or just let it fail if no specific offline API response is needed
+                  }
+                }
+              ]
+            }
+          }
         ],
       },
       manifest: {
