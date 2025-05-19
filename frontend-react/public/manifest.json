@@ -1,0 +1,34 @@
+{
+  "short_name": "LASCMMG",
+  "name": "LASCMMG - Sistema de Gerenciamento de Torneios",
+  "description": "Sistema de gerenciamento de torneios da Liga Amadora Sul-Campista de Mari-Mari-Gomes",
+  "icons": [
+    {
+      "src": "assets/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "assets/logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2e9d3a",
+  "background_color": "#1a2a1a",
+  "orientation": "portrait",
+  "categories": ["sports", "utilities", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": []
+}

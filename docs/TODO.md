@@ -1,14 +1,4 @@
-# 📝 Lista de Tarefas e Melhorias - LASCMMG
-
-## 🆕 Atualizações Recentes
-
-- Imports relativos padronizados e corrigidos em todo o projeto (frontend e backend).
-- Estrutura de pastas modularizada e documentação revisada.
-- Boas práticas de UI/UX, acessibilidade e responsividade implementadas.
-- Scripts, handlers e documentação atualizados para refletir a arquitetura real do sistema.
-- Favicon dinâmico implementado para melhor experiência visual.
-- Estilos de impressão otimizados para chaveamentos e tabelas.
-- Documentação atualizada com as novas funcionalidades.
+# 📝 Lista de Tarefas e Melhorias - LASCMMG (Versão React)
 
 [⬅ Voltar ao README](README.md)
 
@@ -19,136 +9,138 @@
 > **Legenda de Status:**
 >
 > - [ ] 🆕 **Novo**
-> - [ ] 🚧 **Em andamento**
+> - [ ] 🚧 **Em Andamento**
 > - [x] ✅ **Concluído**
 > - [ ] 🔄 **Revisar**
 
 ---
 
-## 📅 Prioridade Alta / Curto Prazo
+## 🚀 Frontend React (Migração e Novas Features)
 
-### ⚙️ Backend e Estrutura
+### ✨ Interface e Experiência do Usuário (UX/UI)
+- [x] ✅ **Migração Completa da Interface para React com Tailwind CSS**
+  - Componentização de todas as seções públicas e administrativas.
+  - Uso de React Router para navegação.
+  - Context API para gerenciamento de estado global (Auth, Messages, Tournaments).
+- [x] ✅ **Design Moderno e Responsivo Implementado**
+  - Layout adaptável para desktop, tablets e mobile.
+  - Sidebar inteligente (colapsável/deslizante) com persistência de estado.
+- [x] ✅ **Tema Claro/Escuro com Persistência**
+  - Alternador de tema no cabeçalho.
+  - Preferência salva no localStorage.
+- [x] ✅ **Favicon Dinâmico Implementado**
+- [x] ✅ **Estilos de Impressão Otimizados**
+  - Para chaveamentos e tabelas.
+- [ ] 🚧 **Implementação Avançada de Conectores de Chaveamento (Bracket)**
+  - Desenhar linhas de conexão dinâmicas e precisas entre as partidas.
+- [ ] 🆕 **Melhorar Feedback Visual e Animações**
+  - Refinar transições e interações para maior fluidez.
+- [ ] 🆕 **Revisão Completa de Acessibilidade (A11y)**
+  - Testes com leitores de tela, navegação por teclado em todos os componentes.
+  - Garantir conformidade com WCAG.
+- [ ] 🆕 **Otimização de Performance do Frontend**
+  - Análise de bundle (Webpack Bundle Analyzer / source-map-explorer).
+  - Code splitting granular (React.lazy, Suspense) onde aplicável.
+  - Virtualização de listas longas (jogadores, placares) se necessário.
+- [ ] 🆕 **Progressive Web App (PWA) Enhancements**
+  - Configurar e otimizar Service Worker com Workbox (já incluído em `react-scripts`).
+  - Manifest.json completo, ícones, funcionalidade offline básica.
 
-- [x] **Migração para SQLite e `better-sqlite3`**
-  - Persistência de dados migrada de JSON para SQLite.
-- [x] **Configuração de ESLint e Prettier**
-  - Ferramentas de linting e formatação padronizadas.
-- [x] **Configuração de Testes com Vitest**
-  - Testes unitários validados.
-- [x] **Revisão e Refatoração Inicial de Modelos**
-  - Modelos revisados para uso do banco SQLite.
-- [x] **Revisão e Melhoria de Rotas Principais**
-  - Rotas de autenticação, torneios e estatísticas revisadas.
-- [x] **Melhoria do Honeypot**
-  - Logs persistidos e estatísticas reais.
-- [ ] 🚧 **Refatorar Lógica de Chaveamento**
-  - Modularização da lógica de chaveamento.
-- [ ] 🆕 **Otimização Abrangente de Consultas SQL e Índices**
-  - Revisão de queries e índices para performance.
+### 🛡️ Seção de Segurança (Admin Frontend)
+- [x] ✅ **Visão Geral de Segurança (React)**
+- [x] ✅ **Configuração de Honeypots (React)**
+- [x] ✅ **Gerenciamento de IPs Bloqueados (React)**
+- [ ] 🚧 **Implementar Gráficos Detalhados em "Análise de Ameaças"**
+  - Requer definição de dados e possíveis novos endpoints de API.
+  - Gráfico de distribuição de padrões de ataque.
+  - Gráfico de atividade ao longo do tempo.
+  - Mapa de calor geográfico (se viável).
+
+### 🛠️ Funcionalidades Administrativas (Frontend)
+- [x] ✅ **CRUD de Jogadores (React)**
+- [x] ✅ **Edição/Exclusão de Placares (React)**
+- [x] ✅ **Gerenciamento da Lixeira (React)**
+- [ ] 🆕 **CRUD Completo de Torneios (React)**
+  - Formulários para criação e edição detalhada de torneios.
+- [ ] 🆕 **Gerenciamento de Agendamento de Partidas (React)**
+- [ ] 🆕 **Funcionalidade de Importação/Exportação de Jogadores (React)**
+
+---
+
+## ⚙️ Backend (Node.js/Express & SQLite)
+
+### 🏗️ Arquitetura e Core
+- [x] ✅ **Migração para SQLite e `better-sqlite3`**
+- [x] ✅ **Revisão e Refatoração Inicial de Modelos e Rotas**
+- [ ] 🚧 **Otimização Abrangente de Consultas SQL e Índices**
+  - Revisar todas as queries para performance.
+  - Garantir índices adequados em todas as tabelas.
+- [ ] 🆕 **Implementar Modo WAL para SQLite**
+  - Para melhor concorrência.
 - [ ] 🆕 **Automação de Backup e Otimização de DB**
-  - Scripts de backup e otimização automatizados.
+  - Script para `VACUUM` e agendamento de backups.
 - [ ] 🆕 **Logs Estruturados e Aprimorados do Servidor**
-  - Mais contexto e análise facilitada.
+  - Utilizar Pino de forma mais eficaz, adicionar mais contexto aos logs.
+- [ ] 🔄 **Revisar e Modernizar Endpoints da API**
+  - Garantir consistência RESTful, clareza nas respostas.
+  - Documentar API (Swagger/OpenAPI).
+- [ ] 🆕 **Estratégia de Cache para API (Redis/Memcached)**
+  - Para endpoints frequentemente acessados e com dados menos voláteis.
 
-### 💻 Interface e Experiência do Usuário
+### 🛡️ Segurança Backend
+- [x] ✅ **Melhoria do Honeypot com Logs e Estatísticas**
+- [ ] 🆕 **Revisão de Segurança de Sessão e JWT**
+  - Considerar refresh tokens, mecanismos de revogação mais robustos para JWT.
+- [ ] 🆕 **Persistência Centralizada para Blacklist/Rate Limiting (Redis)**
+  - Para ambientes com múltiplas instâncias.
+- [ ] 🆕 **Auditoria de Segurança Periódica do Código Backend**
 
-- [x] ✅ **Tema Completo da LASCMMG**
-  - Padronização visual em todas as páginas.
-- [x] ✅ **Revisão e Refatoração do Frontend JavaScript**
-  - Modularização e clareza do JS frontend.
-- [x] ✅ **Visualização Responsiva Otimizada de Chaveamentos**
-  - Melhor usabilidade em dispositivos móveis.
-- [x] ✅ **Indicadores de Progresso e Feedback Visual**
-  - Feedback visual durante operações assíncronas.
-- [x] ✅ **Sistema de Notificações Robusto**
-  - Toasts e banners informativos.
-- [x] ✅ **Filtros e Pesquisa Avançada nas Listagens**
-  - Filtros e busca aprimorados.
-- [x] ✅ **Favicon Dinâmico**
-  - Ícone do site que se adapta ao tema do sistema.
-- [x] ✅ **Sidebar Responsiva e Colapsável**
-  - Navegação adaptativa para desktop e dispositivos móveis.
-  - Persistência de preferências do usuário.
+---
 
-### 🧪 Testes
+## 🧪 Testes
 
-- [ ] 🆕 **Ampliar Cobertura de Testes Unitários**
+- [x] ✅ **Configuração de Testes com Vitest (Backend)**
+- [x] ✅ **Configuração de Testes com Jest/RTL (Frontend via CRA)**
+- [ ] 🚧 **Ampliar Cobertura de Testes Unitários (Backend e Frontend)**
+  - Foco em lógica de negócios, utils, componentes complexos.
 - [ ] 🆕 **Testes de Integração para Fluxos Críticos**
+  - Ex: Criação de torneio -> adição de jogadores -> registro de placares -> visualização de chaveamento.
+- [ ] 🆕 **Testes End-to-End (E2E) com Cypress ou Playwright (Opcional)**
 
 ---
 
-## ⏳ Médio Prazo
+## 📚 Documentação
 
-### 🛠️ Backend e Funcionalidades
-
-- [ ] 🚧 **Documentação da API RESTful**
-- [ ] 🆕 **Cache de Dados Estratégico**
-- [ ] 🆕 **Otimização de Assets para Produção**
-- [ ] 🆕 **Persistência Centralizada para Blacklist/Rate Limiting**
-
-### 📊 Interface e Experiência do Usuário
-
-- [ ] 🚧 **Visualizações de Estatísticas Aprimoradas**
-- [x] ✅ **Melhorias na Impressão de Chaveamentos**
-  - Estilos de impressão otimizados para chaveamentos e tabelas.
-
-### 🌟 Novos Recursos Chave
-
-- [ ] 🆕 **Sistema de Inscrição Online para Jogadores**
-- [ ] 🆕 **Sistema de Rankings e Histórico de Confrontos (H2H)**
+- [x] ✅ **Atualizar README.md Principal**
+- [x] ✅ **Atualizar Padrões de Codificação (CODING_STANDARDS.md)**
+- [x/🚧] **Atualizar Guia de Deploy (DEPLOYMENT.md)** (Atualizado, mas pode precisar de refinamentos pós-backend)
+- [x/🚧] **Atualizar Manual do Usuário (MANUAL_USUARIO.md)** (Atualizado, mas pode precisar de refinamentos)
+- [x/🚧] **Atualizar Estratégia de Escalabilidade (SCALING.md)** (Atualizado, mas pode precisar de refinamentos)
+- [x] ✅ **Atualizar Lista de Tarefas (TODO.md)** (Este arquivo)
+- [ ] 🆕 **Criar Documentação da API (Swagger/OpenAPI)**
 
 ---
 
-## 🔒 Aprimoramentos de Segurança (Contínuo)
+## 🧹 Limpeza e Organização
 
-- [ ] 🆕 **Duplo Fator de Autenticação (2FA)**
-- [ ] 🆕 **Auditoria de Segurança Periódica**
-- [ ] 🚧 **Monitoramento e Aprimoramento Contínuo das Defesas**
-- [ ] 🚧 **Revisão de Sessões Seguras**
-
----
-
-## ⚙️ Otimizações Técnicas e DevOps
-
-- [ ] 🆕 **CI/CD Pipeline Automatizado**
-- [ ] 🔄 **Avaliação de Migração para TypeScript**
+- [x] ✅ **Remoção de Código Obsoleto do Frontend Antigo (HTML, CSS, JS)**
+- [x] ✅ **Revisão e Padronização de Imports Relativos**
+- [ ] 🔄 **Revisar e Mover Assets de `frontend/assets` para `frontend-react/public/assets` e remover `frontend/assets`** (Parcialmente feito, confirmar se todos os assets foram movidos)
+- [ ] 🆕 **Remover diretório `frontend/` completamente após mover todos os assets.**
 
 ---
 
 ## 💡 Considerações Futuras / Baixa Prioridade Atual
 
-- [ ] 🆕 **Tutorial Interativo para novos usuários**
-- [ ] 🆕 **Histórico de Atividades dos administradores**
-- [ ] 🆕 **Integração com Notificação (Email/SMS)**
-- [ ] 🆕 **Compartilhamento em Redes Sociais**
-- [ ] 🆕 **Geração de Certificados de Participação/Premiação**
-- [ ] 🆕 **Modo Espectador com atualizações em tempo real**
-- [ ] 🆕 **Gestão de Locais, Recursos (mesas), Voluntários/Staff**
-- [ ] 🆕 **Templates de Torneios para agilizar a criação**
-- [ ] 🆕 **Transformação em PWA e otimizações mobile**
+- [ ] 🆕 **Sistema de Inscrição Online para Jogadores**
+- [ ] 🆕 **Sistema de Rankings e Histórico de Confrontos (H2H)**
+- [ ] 🆕 **Duplo Fator de Autenticação (2FA) para Admin**
+- [ ] 🆕 **Tutorial Interativo (Onboarding) para novos usuários/admins**
+- [ ] 🆕 **Notificações (Email/Push) para eventos importantes**
+- [ ] 🆕 **Internacionalização (i18n)**
 
 ---
 
-## 📈 Progresso Visual
+> _Esta lista é um documento vivo e será revisada e atualizada regularmente._
 
-| Status      | Quantidade |
-|-------------|:----------:|
-| 🆕 Novo     | 15         |
-| 🚧 Em andamento | 5      |
-| ✅ Concluído| 15         |
-| 🔄 Revisar  | 1          |
-
----
-
-## 🏁 Dicas de Uso
-
-- Marque tarefas como concluídas marcando o checkbox `[x]`.
-- Use os emojis para identificar rapidamente o status.
-- Atualize esta lista conforme o progresso do projeto.
-- Para sugestões, utilize o [README](README.md) ou abra uma issue.
-
----
-
-[⬆ Voltar ao topo](#-lista-de-tarefas-e-melhorias---lascmmg) | [Voltar ao README](README.md)
-
-> _Esta lista é um documento vivo e será revisada e atualizada regularmente para refletir as prioridades e o progresso do projeto._
+[⬆ Voltar ao topo](#-lista-de-tarefas-e-melhorias---lascmmg-versão-react) | [Voltar ao README](README.md)

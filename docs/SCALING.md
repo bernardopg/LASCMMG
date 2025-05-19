@@ -1,215 +1,191 @@
-# Estratégia de Escalabilidade - LASCMMG
-
-## 🆕 Atualizações Recentes
-
-- Imports relativos padronizados e corrigidos em todo o projeto para garantir escalabilidade e modularidade.
-- Estrutura de pastas e modularização revisadas para facilitar manutenção e crescimento.
-- Documentação e scripts atualizados para refletir a arquitetura real e as melhores práticas de escalabilidade.
+# Estratégia de Escalabilidade - LASCMMG (Versão React)
 
 [⬅ Voltar ao README](README.md)
 
 ## Índice
 
-- [Visão Geral](#1-visão-geral-e-considerações)
+- [Visão Geral](#1-visão-geral-e-considerações-com-react)
 - [Métricas de Monitoramento](#2-métricas-chave-de-monitoramento)
-- [Estratégias de Escalabilidade](#3-estratégias-de-escalabilidade)
-- [Otimização de Banco de Dados](#4-otimização-de-banco-de-dados-sqlite)
-- [Otimização de Código](#5-otimização-de-código-backend-e-frontend)
-- [Arquitetura e Roadmap](#6-arquitetura-atual-e-evolução)
-- [Cache e Monitoramento](#7-cache)
+- [Estratégias de Escalabilidade do Frontend (React)](#3-estratégias-de-escalabilidade-do-frontend-react)
+- [Estratégias de Escalabilidade do Backend (Node.js/Express)](#4-estratégias-de-escalabilidade-do-backend-nodejsexpress)
+- [Otimização de Banco de Dados (SQLite e Futuro)](#5-otimização-de-banco-de-dados-sqlite-e-futuro)
+- [Otimização de Código](#6-otimização-de-código)
+- [Arquitetura e Evolução](#7-arquitetura-atual-e-evolução)
+- [Cache](#8-cache)
+- [Monitoramento e Alertas](#9-monitoramento-e-alertas)
+- [Roadmap de Escalabilidade](#10-roadmap-de-escalabilidade)
 
 ---
 
-## 📈 Preparando o Sistema para Crescer: Otimização e Arquitetura para Alta Performance
+## 📈 Preparando o Sistema para Crescer: Otimização e Arquitetura para Alta Performance com React
 
-Este documento detalha a estratégia de escalabilidade do Sistema de Gerenciamento de Torneios de Sinuca (LASCMMG). Nosso objetivo é garantir que o sistema possa crescer de forma sustentável, mantendo alta performance, confiabilidade e disponibilidade à medida que o número de usuários, torneios e a carga de trabalho aumentam.
+Este documento detalha a estratégia de escalabilidade do Sistema LASCMMG, agora com seu frontend reconstruído em **React e Tailwind CSS**. O objetivo é garantir que o sistema possa crescer de forma sustentável, mantendo alta performance, confiabilidade e disponibilidade.
 
-Abordamos desde otimizações na configuração atual com SQLite até planos futuros para arquiteturas distribuídas.
+## 1. Visão Geral e Considerações (com React)
 
-## 📑 Índice
+A arquitetura agora consiste em:
+*   **Frontend React:** Uma Single Page Application (SPA) construída com `react-scripts` (Create React App). Após o build (`npm run build` em `frontend-react/`), gera arquivos estáticos (HTML, CSS, JS).
+*   **Backend Node.js/Express:** Serve a API RESTful e interage com o banco de dados SQLite.
 
-1. [Visão Geral e Considerações](#visão-geral-e-considerações)
-2. [Métricas Chave de Monitoramento](#métricas-chave-de-monitoramento)
-3. [Estratégias de Escalabilidade](#estratégias-de-escalabilidade)
-    * [Escalabilidade Vertical](#escalabilidade-vertical)
-    * [Escalabilidade Horizontal (Plano Futuro)](#escalabilidade-horizontal-plano-futuro)
-4. [Otimização de Banco de Dados (SQLite)](#otimização-de-banco-de-dados-sqlite)
-5. [Otimização de Código (Backend e Frontend)](#otimização-de-código-backend-e-frontend)
-6. [Arquitetura Atual e Evolução](#arquitetura-atual-e-evolução)
-7. [Cache](#cache)
-8. [Monitoramento e Alertas](#monitoramento-e-alertas)
-9. [Roadmap de Escalabilidade](#roadmap-de-escalabilidade)
+Esta separação oferece flexibilidade na escalabilidade de cada camada.
 
-## 1. Visão Geral e Considerações
-
-O LASCMMG, em sua configuração atual, utiliza Node.js/Express com SQLite. Esta arquitetura é eficiente e simples de gerenciar para a maioria dos casos de uso, especialmente para torneios de pequeno a médio porte. No entanto, o SQLite possui limitações inerentes de concorrência de escrita que se tornam um fator limitante em cenários de altíssima escala ou com picos extremos de escrita simultânea.
-
-Nossa estratégia de escalabilidade considera:
-
-* **Padrão de Uso:** O tráfego tende a ser maior durante a realização de torneios, com períodos de menor atividade entre eles.
-* **Crescimento:** Prevemos um crescimento contínuo na base de usuários e no volume de dados (torneios, jogadores, placares).
-* **Evolução Planejada:** A arquitetura atual é uma base sólida, mas planejamos evoluir para soluções mais robustas (como bancos de dados cliente-servidor e arquiteturas distribuídas) conforme a necessidade.
+*   **Padrão de Uso:** Picos de tráfego durante torneios.
+*   **Crescimento:** Antecipamos aumento de usuários e dados.
+*   **Evolução Planejada:** O backend com SQLite é o principal ponto a ser considerado para escalabilidade de escrita em cenários de altíssima carga.
 
 ## 2. Métricas Chave de Monitoramento
 
-Monitoramos continuamente as seguintes métricas para identificar gargalos e determinar o momento ideal para escalar:
+Monitorar continuamente é vital:
 
-| Métrica           | Descrição                                                                 | Limiar para Ação de Escala | Ferramentas de Monitoramento (Exemplos)        |
-| :---------------- | :------------------------------------------------------------------------ | :------------------------- | :--------------------------------------------- |
-| **Uso de CPU**    | Percentual médio de utilização da CPU do servidor.                        | >70% por 15 minutos        | Prometheus/Grafana, CloudWatch, Monitoramento SO |
-| **Uso de Memória**| Percentual de memória RAM utilizada pelo processo da aplicação.           | >80% por 10 minutos        | Prometheus/Grafana, CloudWatch, Monitoramento SO |
-| **Tempo de Resposta**| Latência média das requisições da API.                                    | >500ms para 95% das req.   | Sentry APM, New Relic, Prometheus              |
-| **Taxa de Erro**  | Percentual de respostas da API com status de erro (HTTP 5xx).             | >1% em janela de 5 minutos | Sentry, Logs da Aplicação                      |
-| **I/O de Disco**  | Atividade de leitura/escrita no disco (especialmente relevante para SQLite).| Alto e constante           | Monitoramento SO                               |
-| **Tamanho do DB** | Crescimento do arquivo `data/data.db`.                                    | > Limite de armazenamento  | Monitoramento SO, Script de Verificação        |
-| **Conexões DB**   | (Relevante após migração para DB cliente-servidor) Número de conexões ativas.| >80% do pool configurado   | Ferramentas específicas do DB                  |
+| Métrica                | Descrição                                                              | Limiar para Ação           | Ferramentas (Exemplos)                         |
+| :--------------------- | :--------------------------------------------------------------------- | :------------------------- | :--------------------------------------------- |
+| **Uso de CPU (Backend)** | % de CPU do servidor da API.                                           | >70% por 15 min            | Prometheus, CloudWatch, Monitoramento SO       |
+| **Uso de Memória (Backend)** | % de RAM do servidor da API.                                         | >80% por 10 min            | Prometheus, CloudWatch, Monitoramento SO       |
+| **Tempo de Resposta API**| Latência média das requisições da API.                                 | >500ms (95th percentile)   | Sentry APM, New Relic, Prometheus              |
+| **Taxa de Erro API**   | % de respostas da API com erro (HTTP 5xx).                             | >1% em 5 min               | Sentry, Logs da Aplicação                      |
+| **I/O de Disco (DB)**  | Atividade de leitura/escrita no disco do SQLite.                       | Alto e constante           | Monitoramento SO                               |
+| **Tamanho do DB**      | Crescimento do arquivo `database.sqlite`.                              | > Limite de armazenamento  | Monitoramento SO, Script                       |
+| **Performance Frontend**| Métricas Web Vitals (LCP, FID, CLS), tamanho do bundle.                | Regressões significativas  | Lighthouse, PageSpeed Insights, Webpack Bundle Analyzer |
+| **Conexões DB (Futuro)**| (Relevante após migração para DB cliente-servidor) Número de conexões. | >80% do pool               | Ferramentas específicas do DB                  |
 
-## 3. Estratégias de Escalabilidade
+## 3. Estratégias de Escalabilidade do Frontend (React)
+
+O frontend React, sendo uma SPA de arquivos estáticos após o build, é inerentemente escalável:
+
+*   **CDN (Content Delivery Network):** Servir os arquivos de `frontend-react/build/` através de uma CDN (Cloudflare, AWS CloudFront, Akamai) é a principal estratégia. Isso distribui os assets globalmente, reduzindo a latência e a carga no servidor de origem.
+*   **Cache de Navegador:** `react-scripts` configura o build para otimizar o cache de navegador (hashing de nomes de arquivo).
+*   **Code Splitting:** `react-scripts` (via Webpack) já implementa code splitting por rota, garantindo que os usuários baixem apenas o código necessário para a visualização atual. `React.lazy` e `Suspense` podem ser usados para granularidade maior.
+*   **Otimização de Assets:**
+    *   Minificação de JS, CSS, HTML (automática pelo `npm run build`).
+    *   Compressão de imagens (usar ferramentas como ImageOptim ou bibliotecas).
+    *   Uso de formatos modernos de imagem (WebP) com fallbacks.
+*   **Service Workers (PWA):** `react-scripts` inclui suporte para Workbox. Configurar um service worker pode melhorar a performance offline e o cache de assets.
+
+## 4. Estratégias de Escalabilidade do Backend (Node.js/Express)
 
 ### Escalabilidade Vertical (Scale Up)
 
-**Descrição:** Aumentar os recursos (CPU, memória, armazenamento) do servidor existente que hospeda a aplicação e o banco de dados SQLite.
+*   **Descrição:** Aumentar recursos (CPU, RAM) do servidor da API.
+*   **Quando:** Fase inicial/média, picos temporários.
+*   **Limites:** Custo e limites físicos do servidor único; concorrência de escrita do SQLite.
 
-**Quando Aplicar:**
+### Escalabilidade Horizontal (Scale Out) - Requer migração do DB
 
-* Fase inicial e média do projeto, onde a carga ainda permite.
-* Para lidar com picos temporários de tráfego.
-* Quando a simplicidade operacional é a maior prioridade.
+*   **Descrição:** Distribuir a API entre múltiplas instâncias Node.js, atrás de um balanceador de carga.
+*   **Pré-requisito Crítico:** Migrar de SQLite para um banco de dados cliente-servidor (PostgreSQL, MySQL, etc.) que suporte múltiplas conexões concorrentes.
+*   **Quando:** Limites da escala vertical atingidos, necessidade de alta disponibilidade.
+*   **Componentes:**
+    *   Balanceador de Carga (Nginx, HAProxy, ELB).
+    *   Múltiplas instâncias da API Node.js (gerenciadas por PM2, Systemd, ou contêineres Docker/Kubernetes).
+    *   Banco de dados centralizado (PostgreSQL, MySQL).
+    *   Cache distribuído (Redis) para sessões (se não usar JWT stateless), blacklist de tokens, rate limiting compartilhado.
 
-**Processo:** Geralmente envolve a atualização do plano de hospedagem em serviços de nuvem ou a adição de hardware em servidores dedicados. Requer um breve downtime para a aplicação.
+## 5. Otimização de Banco de Dados (SQLite e Futuro)
 
-**Limites:** Existe um limite físico e de custo para o quanto um único servidor pode ser escalado verticalmente. A concorrência de escrita do SQLite também impõe um limite inerente.
+### SQLite (Configuração Atual)
 
-### Escalabilidade Horizontal (Scale Out) - Plano Futuro
+*   **Índices:** Manter índices otimizados para consultas frequentes.
+*   **Otimização de Queries:** Analisar e refatorar queries lentas.
+*   **Modo WAL (`PRAGMA journal_mode=WAL;`):** Melhora a concorrência de leitura/escrita.
+*   **`VACUUM`:** Executar periodicamente para otimizar o arquivo do banco.
+*   **Limitar Transações Longas:** Manter transações curtas para reduzir bloqueios.
 
-**Descrição:** Distribuir a carga de trabalho entre múltiplas instâncias da aplicação. **Esta estratégia exige a migração do banco de dados SQLite para um sistema de banco de dados cliente-servidor (como PostgreSQL ou MySQL) que suporte múltiplas conexões concorrentes de forma eficiente.**
+### Banco de Dados Cliente-Servidor (Futuro - para Escala Horizontal)
 
-**Quando Aplicar:**
+*   **Escolha:** PostgreSQL ou MySQL são opções populares e robustas.
+*   **Pooling de Conexões:** Essencial para gerenciar conexões eficientemente.
+*   **Replicação:** Configurar réplicas de leitura para distribuir carga de leitura.
+*   **Sharding:** Para volumes de dados massivos (consideração de longo prazo).
 
-* Quando a escalabilidade vertical atingir seus limites práticos ou de custo.
-* Para aumentar a disponibilidade e resiliência do sistema (se uma instância falhar, outras continuam operando).
-* Em cenários de alto tráfego sustentado.
-
-**Preparação Necessária (Roadmap Futuro):**
-
-1. **Migração de Banco de Dados:** Planejar e executar a migração de dados de SQLite para um SGBD cliente-servidor (ex: PostgreSQL). Isso envolve a criação de um novo esquema e a transferência dos dados existentes.
-2. **Gestão de Estado Compartilhado:** Se houver necessidade de compartilhar estado entre instâncias (ex: cache de aplicação, filas de mensagens), implementar soluções como Redis. O uso atual de JWT para autenticação já ajuda, pois é stateless no servidor.
-3. **Armazenamento de Arquivos:** Se o sistema permitir upload de arquivos no futuro, será necessário usar um armazenamento compartilhado (ex: S3, Azure Blob Storage) acessível por todas as instâncias.
-
-**Processo (Roadmap Futuro):**
-
-1. Configurar um **balanceador de carga** (Nginx, HAProxy, Load Balancer de nuvem) para distribuir as requisições entre as instâncias.
-2. Implantar a aplicação em **contêineres (Docker)** para facilitar a replicação e o gerenciamento de múltiplas instâncias.
-3. Considerar um sistema de **orquestração de contêineres** (Kubernetes, Docker Swarm) para automatizar a implantação, escalonamento e gerenciamento das instâncias.
-4. Implementar **autoscaling** baseado em métricas (se o ambiente de hospedagem suportar).
-
-## 4. Otimização de Banco de Dados (SQLite)
-
-Mesmo com SQLite, há otimizações cruciais para melhorar a performance e a longevidade:
-
-* **Índices:** Garantir que todas as colunas frequentemente usadas em cláusulas `WHERE`, `JOIN`, e `ORDER BY` possuam índices apropriados. O esquema inicial em `lib/database.js` já inclui índices essenciais, mas revisões periódicas são importantes.
-* **Otimização de Queries:** Analisar e refatorar consultas SQL lentas ou ineficientes nos modelos (`lib/models/`).
-* **`VACUUM`:** Executar o comando `VACUUM` periodicamente para reconstruir o banco de dados, recuperar espaço não utilizado e melhorar a performance de I/O. Um script (`scripts/optimize-database.js` - a ser criado ou aprimorado) pode ser usado para isso.
-* **Modo WAL (Write-Ahead Logging):** Avaliar e implementar o modo WAL (`PRAGMA journal_mode=WAL;`) para melhorar a concorrência de leitura/escrita em cenários onde há leituras frequentes e escritas simultâneas.
-
-## 5. Otimização de Código (Backend e Frontend)
-
-Otimizações no código da aplicação são contínuas:
+## 6. Otimização de Código
 
 ### Backend (Node.js/Express)
 
-* **Otimização de Consultas DB:** (Já mencionado) É o gargalo mais comum.
-* **Paginação:** Implementar paginação para endpoints de API que retornam grandes listas de dados.
-* **Rate Limiting:** Já implementado para proteger contra abuso e garantir a disponibilidade (configurável via `.env`).
-* **Processamento Assíncrono:** Para tarefas que consomem tempo (ex: envio de emails, processamento de arquivos grandes), considerar movê-las para processos em background ou filas de mensagens para não bloquear o loop de eventos principal.
+*   **Operações Assíncronas:** Usar `async/await` e garantir que operações de I/O não bloqueiem o loop de eventos.
+*   **Paginação:** Para todas as APIs que retornam listas grandes.
+*   **Rate Limiting:** Já implementado; ajustar limites conforme necessário.
+*   **Logging Eficiente:** Usar Pino com níveis de log apropriados; evitar logging excessivo em produção.
 
-### Frontend (JavaScript Vanilla)
+### Frontend (React)
 
-* **Otimização de Assets:** Minificação e compressão de arquivos JS, CSS e imagens.
-* **Lazy Loading:** Carregar módulos JavaScript ou partes da interface apenas quando necessário.
-* **Cache de Navegador:** Configurar headers HTTP apropriados para cache de assets estáticos (já implementado em `server.js`).
-* **Otimização de Renderização:** Otimizar a manipulação do DOM e a renderização de listas grandes.
+*   **Memoização:** `React.memo` para componentes, `useMemo` para cálculos caros, `useCallback` para funções passadas como props.
+*   **Virtualização de Listas:** Para listas/tabelas muito longas (ex: `react-window`, `react-virtualized`).
+*   **Estado Colocado Corretamente:** Evitar elevação desnecessária de estado.
+*   **Bundle Analysis:** Usar `webpack-bundle-analyzer` (ou similar via `source-map-explorer` com CRA) para identificar e otimizar partes grandes do bundle.
 
-## 6. Arquitetura Atual e Evolução
+## 7. Arquitetura Atual e Evolução
 
-### Arquitetura Atual (Monolítica com SQLite)
-
-```mermaid
-graph LR
-    A[Cliente Web] --> B(Servidor Express);
-    B --> C[Camada de Modelos];
-    C --> D[(Banco de Dados SQLite)];
-```
-
-Esta arquitetura é simples, eficiente para o escopo atual e fácil de implantar.
-
-### Arquitetura Futura (Considerações para Escala Horizontal)
+### Arquitetura Atual (Frontend React + Backend Node.js/SQLite)
 
 ```mermaid
-graph LR
-    A[Cliente Web] --> LB(Balanceador de Carga);
-    LB --> S1(Servidor Express Instância 1);
-    LB --> S2(Servidor Express Instância 2);
-    LB --> Sn(Servidor Express Instância N);
-    S1 --> DB[(Banco de Dados PostgreSQL/MySQL)];
-    S2 --> DB;
-    Sn --> DB;
-    S1 --> Cache[(Cache Redis)];
-    S2 --> Cache;
-    Sn --> Cache;
-    S1 --> W(Servidores Worker/Filas);
-    S2 --> W;
-    Sn --> W;
-    W --> DB;
+graph TD
+    A[Cliente Web (React SPA)] -->|Requisições HTTP/S| LB{Load Balancer / Web Server (Nginx)};
+    LB -->|Sirva Estáticos| FE[Assets React Estáticos];
+    LB -->|Proxy /api| API[Backend Node.js/Express API];
+    API --> DB[(Banco de Dados SQLite)];
+```
+*Em desenvolvimento, o servidor de desenvolvimento do React (`react-scripts start`) e o servidor Node.js rodam separadamente.*
+
+### Arquitetura Futura (Escala Horizontal)
+
+```mermaid
+graph TD
+    A[Cliente Web (React SPA)] -->|Requisições HTTP/S| CDN[CDN para Assets Estáticos];
+    A -->|Requisições API| APILB(API Load Balancer);
+    APILB --> API1[Node.js API Instância 1];
+    APILB --> API2[Node.js API Instância 2];
+    APILB --> APIn[Node.js API Instância N];
+    API1 --> DBMaster[(DB Master PostgreSQL/MySQL)];
+    API2 --> DBMaster;
+    APIn --> DBMaster;
+    API1 --> DBReplica[(DB Réplica Leitura)];
+    API2 --> DBReplica;
+    APIn --> DBReplica;
+    API1 --> Cache[(Cache Distribuído Redis)];
+    API2 --> Cache;
+    APIn --> Cache;
 ```
 
-Esta arquitetura distribuída permite escalar a camada de aplicação horizontalmente e utilizar um banco de dados mais robusto para alta concorrência.
+## 8. Cache
 
-## 7. Cache
+*   **Frontend:**
+    *   **Cache de Navegador:** Para assets estáticos (controlado por hashing de nome de arquivo no build do React).
+    *   **Service Worker (Workbox):** Para PWA, cache offline de assets e dados da API.
+    *   **Estado Local (Context/Redux/Zustand):** Cache de dados da API no cliente para evitar requisições repetidas.
+*   **Backend:**
+    *   **Cache em Memória (simples):** Para dados raramente alterados.
+    *   **Cache Distribuído (Redis):** Para dados frequentemente acessados, resultados de queries, sessões (se não JWT stateless), etc., em um ambiente multi-instância.
+*   **CDN:** Para assets estáticos do frontend.
+*   **Nginx (Proxy Reverso):** Pode cachear respostas da API.
 
-Estratégias de cache para melhorar a performance:
+## 9. Monitoramento e Alertas
 
-1. **Cache de Navegador:** Utilizar headers HTTP (`Cache-Control`, `ETag`) para que o navegador do usuário armazene assets estáticos e dados da API (já implementado para assets estáticos).
-2. **Cache de Aplicação (Backend):** Implementar um cache em memória ou distribuído (ex: Redis) para armazenar resultados de consultas frequentes ou dados computacionalmente caros, reduzindo a carga no banco de dados.
-3. **CDN (Content Delivery Network):** Utilizar uma CDN para servir assets estáticos globalmente, reduzindo a latência para usuários geograficamente distantes.
+*   **Métricas:** Conforme Seção 2.
+*   **Logging Centralizado:** ELK Stack, Grafana Loki, Datadog, etc.
+*   **Alertas:** Prometheus Alertmanager, Sentry, Grafana Alerts.
 
-## 8. Monitoramento e Alertas
+## 10. Roadmap de Escalabilidade
 
-Um sistema de monitoramento robusto é essencial para identificar problemas de performance e capacidade antes que afetem os usuários.
+### Fase 1: Otimização da Configuração Atual
+*   **[CONCLUÍDO]** Migração do frontend para React.
+*   **[EM ANDAMENTO]** Otimizar queries SQL e índices do SQLite.
+*   **[EM ANDAMENTO]** Implementar modo WAL para SQLite.
+*   **[A FAZER]** Analisar e otimizar o bundle do frontend React.
+*   **[A FAZER]** Configurar Service Worker básico com Workbox.
+*   **[A FAZER]** Script de `VACUUM` para SQLite.
 
-* **Métricas:** Monitorar as métricas chave listadas na Seção 2.
-* **Logs:** Utilizar um sistema de log centralizado (ex: ELK Stack, Grafana Loki) para agregar e analisar logs de múltiplas instâncias.
-* **Alertas:** Configurar alertas baseados nos limiares das métricas para ser notificado proativamente sobre possíveis problemas de escalabilidade ou performance. Ferramentas como Prometheus Alertmanager, Sentry ou sistemas de alerta de nuvem são úteis.
+### Fase 2: Preparação para Escala Maior (Médio Prazo)
+*   Planejar migração de SQLite para PostgreSQL/MySQL.
+*   Introduzir Redis para cache e/ou gerenciamento de sessão/blacklist.
+*   Containerizar backend e frontend (Dockerfile multi-estágio).
+*   Configurar CI/CD básico.
 
-## 9. Roadmap de Escalabilidade
-
-Nossa jornada de escalabilidade é dividida em fases:
-
-### Fase 1: Otimização da Configuração Atual (SQLite) - Foco Principal
-
-* **[CONCLUÍDO]** Migração completa de dados de JSON para SQLite.
-* **[CONCLUÍDO]** Otimizar consultas SQL e garantir índices essenciais.
-* **[CONCLUÍDO]** Implementar monitoramento básico de saúde da aplicação (`/ping`, `/api/system/health`) e logs aprimorados (Pino).
-* **[CONCLUÍDO]** Implementar cache de assets estáticos robusto e headers de cache HTTP.
-* **[EM ANDAMENTO]** Avaliar e implementar o modo WAL para SQLite para melhorar a concorrência.
-* **[A FAZER]** Criar/aprimorar script de manutenção para `VACUUM` (`scripts/optimize-database.js`) e automatizar sua execução.
-* **[A FAZER]** Revisar e otimizar todas as consultas SQL nos modelos.
-
-### Fase 2: Preparação para Escala Maior (Plano Futuro)
-
-* Avaliar e planejar detalhadamente a migração de SQLite para um SGBD cliente-servidor (PostgreSQL ou MySQL).
-* Introduzir Redis para cache de dados e, potencialmente, gerenciar a blacklist de tokens JWT e contadores de brute-force de forma centralizada.
-* Containerizar a aplicação com Docker e criar configurações `docker-compose` para ambientes de desenvolvimento e produção.
-* Implementar um pipeline de CI/CD básico para automatizar builds e deploys.
-
-### Fase 3: Escala Horizontal e Resiliência (Plano Futuro Avançado)
-
-* Implementar balanceamento de carga (Nginx, HAProxy, ou Load Balancer de nuvem).
-* Implantar múltiplas instâncias da aplicação Node.js.
-* Considerar separar componentes em serviços menores (microserviços) se a complexidade e a necessidade de escala justificarem.
-* Implementar autoscaling se hospedado em ambiente de nuvem que suporte.
-* Utilizar CDN para servir assets estáticos.
+### Fase 3: Escala Horizontal e Resiliência (Longo Prazo)
+*   Implementar balanceamento de carga para API.
+*   Implantar múltiplas instâncias da API.
+*   Configurar réplicas de leitura para o banco de dados.
+*   Utilizar CDN para todos os assets estáticos do frontend.
 
 ---
 
-[⬆ Voltar ao topo](#estratégia-de-escalabilidade---lascmmg) | [Voltar ao README](README.md)
+[⬆ Voltar ao topo](#estratégia-de-escalabilidade---lascmmg-versão-react) | [Voltar ao README](README.md)

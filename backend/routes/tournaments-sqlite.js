@@ -203,7 +203,49 @@ router.post(
       });
     }
   }
-);
+});
+
+// Rota para obter detalhes de um torneio específico
+router.get('/:tournamentId', async (req, res) => {
+  const { tournamentId } = req.params;
+  if (!isValidTournamentId(tournamentId)) {
+    logger.warn('TournamentsRoute', 'ID de torneio inválido em GET /:tournamentId.', {
+      tournamentId,
+      requestId: req.id,
+    });
+    return res
+      .status(400)
+      .json({ success: false, message: 'ID de torneio inválido.' });
+  }
+  try {
+    const tournament = await tournamentModel.getTournamentById(tournamentId);
+    if (!tournament) {
+      logger.warn(
+        'TournamentsRoute',
+        `Torneio ${tournamentId} não encontrado em GET /:tournamentId.`,
+        { tournamentId, requestId: req.id }
+      );
+      return res
+        .status(404)
+        .json({ success: false, message: 'Torneio não encontrado.' });
+    }
+    // O state_json pode ser grande, decidir se retorna aqui ou em /state
+    // Por ora, retornando sem o state_json completo para leveza.
+    // O frontend pode fazer uma chamada separada para /state se precisar do JSON completo.
+    const { state_json, ...tournamentDetails } = tournament;
+    res.json({ success: true, tournament: tournamentDetails });
+  } catch (error) {
+    logger.error(
+      'TournamentsRoute',
+      `Erro ao carregar detalhes do torneio ${tournamentId}:`,
+      { error, tournamentId, requestId: req.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao carregar detalhes do torneio.',
+    });
+  }
+});
 
 router.get('/:tournamentId/state', async (req, res) => {
   const { tournamentId } = req.params;

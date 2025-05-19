@@ -1,0 +1,457 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2e9d3a;
+  --color-primary-dark: #24803e;
+  --color-secondary: #d4b455;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* Scrollbar colors from .verde-escuro-base theme */
+  --scrollbar-track: #101c10;
+  --scrollbar-thumb: #4a6a4a;
+  --scrollbar-thumb-hover: #5c7a5c;
+
+  /* Card/Panel colors from .verde-escuro theme */
+  --panel-bg: #223322; /* From .verde-escuro-base */
+  --card-border-color: rgba(212, 180, 85, 0.3); /* From .verde-escuro-theme-modern --border-color */
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* From .verde-escuro-theme-modern */
+
+  /* Form input colors from .verde-escuro theme */
+  --input-bg: #223322; /* Similar to --panel-bg or --bg-color-secondary */
+  --input-border-color: rgba(212, 180, 85, 0.3); /* Similar to --card-border-color */
+  --input-focus-border-color: var(--color-primary);
+  --placeholder-color: #81c784; /* A light green, as per old theme */
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1a2a1a; /* --bg-color from .verde-escuro-base */
+  color: #ffffff; /* --text-color from .verde-escuro-theme-modern */
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--color-primary-dark, #1a2a1a); /* Using a fallback if --selection-bg is not defined */
+  color: var(--text-color, #ffffff);
+}
+
+/* Ensure links and other elements adapt if they don't use Tailwind text color utilities */
+a {
+  color: var(--color-secondary); /* Using the new secondary color for links by default */
+}
+a:hover {
+  color: #e0c577; /* Lighter shade of secondary for hover */
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Estilizações personalizadas - extensões do Tailwind */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-opacity-90 focus:ring-secondary;
+  }
+  .btn-primary:disabled {
+    @apply bg-primary-dark opacity-50 cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-gray-500 hover:bg-gray-600 text-white;
+  }
+  .btn-secondary:disabled {
+    @apply bg-gray-400 opacity-50 cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white;
+  }
+  .btn-outline {
+    @apply bg-transparent hover:bg-primary-light text-primary font-semibold hover:text-white border border-primary hover:border-transparent;
+  }
+  .btn-outline:disabled {
+    @apply bg-transparent text-primary-dark opacity-50 border-primary-dark cursor-not-allowed;
+  }
+
+  /* Forms */
+  .input {
+    @apply block w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--input-border-color)] rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
+    focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500
+    disabled:bg-gray-500 disabled:border-gray-200 disabled:shadow-none
+    dark:text-gray-100;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800 dark:bg-primary-700 dark:text-primary-100;
+  }
+  .badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100;
+  }
+
+  /* Error messages for forms */
+  .error-message {
+    @apply text-red-500 text-xs mt-1;
+  }
+
+  /* Custom scrollbar (optional, but nice for dark theme) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg, #2d3748); /* fallback: gray-800 */
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg, #4a5568); /* fallback: gray-600 */
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg, #718096); /* fallback: gray-500 */
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: var(--selection-bg, #4a90e2); /* fallback: a pleasant blue */
+    color: var(--selection-color, white);
+  }
+  ::-moz-selection { /* Firefox */
+    background-color: var(--selection-bg, #4a90e2);
+    color: var(--selection-color, white);
+  }
+
+  /* Print-specific styles */
+  @media print {
+    body {
+      background-color: white !important;
+      color: black !important;
+      -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
+      color-adjust: exact !important; /* Standard */
+    }
+    .no-print {
+      display: none !important;
+    }
+    /* Ensure dark theme overrides are removed for print */
+    .dark, [data-theme="dark"], .dark body, [data-theme="dark"] body {
+      background-color: white !important;
+      color: black !important;
+    }
+    .dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400 {
+      color: black !important;
+    }
+    .dark .bg-gray-800, .dark .bg-gray-700, .dark .bg-gray-900 {
+      background-color: white !important;
+    }
+    .dark .border-gray-700, .dark .border-gray-600 {
+      border-color: #e5e7eb !important; /* light gray border */
+    }
+  }
+
+  /* Bracket Connector Styles (from old brackets.css) */
+  .bracket-connector {
+    position: absolute;
+    /* right: -30px; */ /* This will be handled by Tailwind positioning relative to the match card */
+    width: 30px; /* Adjust as needed or make dynamic */
+    border-top-width: 2px;
+    border-color: var(--card-border-color, #4a5568); /* Default to a gray, can be themed */
+  }
+
+  .bracket-connector-horizontal { /* The main horizontal line from a match */
+    height: 2px;
+    background-color: var(--card-border-color, #4a5568);
+  }
+
+  .bracket-connector-vertical { /* The vertical line connecting two horizontal lines */
+    width: 2px;
+    background-color: var(--card-border-color, #4a5568);
+  }
+
+  /* These specific top/bottom might be too complex without JS for positioning */
+  /* .bracket-connector-top {
+    top: 50%;
+    height: 50%;
+    border-right-width: 2px;
+  }
+
+  .bracket-connector-bottom {
+    top: 0;
+    height: 50%;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+  } */
+
+}
+
+  body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    width: 100%;
+  }
+
+  /* Esconder elementos desnecessários para impressão */
+  header,
+  .sidebar,
+  .sidebar-overlay,
+  nav,
+  .no-print,
+  .btn,
+  button,
+  .mobile-toggle,
+  footer,
+  .actions-bar,
+  .filter-controls,
+  #mobile-sidebar-toggle,
+  .profile-menu,
+  .tournament-actions {
+    display: none !important;
+  }
+
+  /* Layout para impressão */
+  .container,
+  .container-fluid,
+  main,
+  .content-wrapper {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+  }
+
+  /* Ajustes para o chaveamento */
+  .bracket-container {
+    width: 100% !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .bracket {
+    transform: scale(0.9) !important;
+    transform-origin: top left !important;
+    margin-bottom: 20pt !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .bracket-round {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .bracket-match {
+    border: 1pt solid #000 !important;
+    margin: 5pt 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .bracket-match-player {
+    border-bottom: 1pt solid #000 !important;
+    padding: 3pt !important;
+  }
+
+  /* Ajustes para tabelas */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 20pt !important;
+  }
+
+  table, th, td {
+    border: 1pt solid #000 !important;
+  }
+
+  th, td {
+    padding: 5pt !important;
+    text-align: left !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Cabeçalho e rodapé da página */
+  @page {
+    margin: 2cm;
+  }
+
+  h1 {
+    font-size: 24pt !important;
+    margin-bottom: 20pt !important;
+    text-align: center !important;
+  }
+
+  h2 {
+    font-size: 18pt !important;
+    margin-bottom: 10pt !important;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+    margin-bottom: 8pt !important;
+  }
+
+  /* Informações do torneio */
+  .tournament-info {
+    margin-bottom: 20pt !important;
+    text-align: center !important;
+  }
+
+  .tournament-name {
+    font-size: 20pt !important;
+    font-weight: bold !important;
+    margin-bottom: 5pt !important;
+  }
+
+  .tournament-date {
+    font-size: 14pt !important;
+    margin-bottom: 5pt !important;
+  }
+
+  .tournament-location {
+    font-size: 12pt !important;
+    margin-bottom: 15pt !important;
+  }
+
+  /* Quebras de página */
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* Links */
+  a, a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 90%;
+  }
+
+  a[href^="#"]:after,
+  a[href^="javascript:"]:after {
+    content: "";
+  }
+
+  /* Imagens */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Ajustes específicos para o chaveamento */
+  .bracket-connector {
+    border-color: #000 !important;
+  }
+
+  .bracket-match-winner {
+    font-weight: bold !important;
+    background-color: #f0f0f0 !important;
+  }
+
+  .bracket-match-score {
+    font-weight: bold !important;
+  }
+
+  /* Rodapé da página impressa */
+  .print-footer {
+    display: block !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 9pt !important;
+    border-top: 1pt solid #000 !important;
+    padding-top: 5pt !important;
+  }
+
+  /* Cabeçalho da página impressa */
+  .print-header {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 9pt !important;
+    border-bottom: 1pt solid #000 !important;
+    padding-bottom: 5pt !important;
+  }
+
+  /* Ajustes para o logo */
+  .print-logo {
+    display: block !important;
+    text-align: center !important;
+    margin-bottom: 15pt !important;
+  }
+
+  .print-logo img {
+    height: 60pt !important;
+    width: auto !important;
+  }
+}
+
+/* Custom Scrollbar Styles from frontend/css/base/style.css */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #101c10); /* Fallback color */
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #4a6a4a); /* Fallback color */
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #5c7a5c); /* Fallback color */
+}

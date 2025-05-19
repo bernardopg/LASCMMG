@@ -132,7 +132,7 @@ if (!COOKIE_SECRET) {
     );
   } else {
     logger.warn(
-      'AVISO: COOKIE_SECRET não está definido em ambiente de desenvolvimento. As sessões podem não funcionar como esperado e o CSRF pode ser menos seguro.'
+      'AVISO: COOKIE_SECRET não configurado! Uma chave aleatória temporária foi gerada para desenvolvimento.'
     );
   }
 }
@@ -180,44 +180,56 @@ app.use((req, res, next) => {
 
 const oneDay = 86400000;
 
+// Função para definir os cabeçalhos adequados por tipo de arquivo
+const setContentTypeHeaders = (res, filePath) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  const ext = path.extname(filePath).toLowerCase();
+
+  if (ext === '.css') {
+    res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+  } else if (ext === '.js') {
+    res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+  } else if (ext === '.png') {
+    res.setHeader('Content-Type', 'image/png');
+  } else if (ext === '.jpg' || ext === '.jpeg') {
+    res.setHeader('Content-Type', 'image/jpeg');
+  } else if (ext === '.svg') {
+    res.setHeader('Content-Type', 'image/svg+xml');
+  } else if (ext === '.ico') {
+    res.setHeader('Content-Type', 'image/x-icon');
+  }
+};
+
+// Configuração de arquivos estáticos com headers adequados
 app.use(
   '/css',
-  serveStatic(path.join(__dirname, '../frontend/css'), {
+  express.static(path.join(__dirname, '../frontend/css'), {
     maxAge: oneDay,
-    setHeaders: (res, _filePath) => {
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-    },
+    setHeaders: setContentTypeHeaders,
   })
 );
 
 app.use(
   '/js',
-  serveStatic(path.join(__dirname, '../frontend/js'), {
+  express.static(path.join(__dirname, '../frontend/js'), {
     maxAge: oneDay,
-    setHeaders: (res, filePath) => {
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-      if (
-        serveStatic.mime &&
-        serveStatic.mime.lookup(filePath) === 'application/javascript'
-      ) {
-        res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-      }
-    },
+    setHeaders: setContentTypeHeaders,
   })
 );
 
 app.use(
   '/favicon.ico',
-  serveStatic(path.join(__dirname, '../frontend/favicon.ico'))
+  express.static(path.join(__dirname, '../frontend/assets/favicon.ico'), {
+    maxAge: oneDay * 7,
+    setHeaders: setContentTypeHeaders,
+  })
 );
 
 app.use(
   '/assets',
-  serveStatic(path.join(__dirname, '../frontend/assets'), {
+  express.static(path.join(__dirname, '../frontend/assets'), {
     maxAge: oneDay,
-    setHeaders: (res, _filePath) => {
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-    },
+    setHeaders: setContentTypeHeaders,
   })
 );
 

@@ -151,6 +151,27 @@ router.post('/change-password', async (req, res) => {
 
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 
+// Rota para obter informações do usuário logado (baseado no token)
+router.get('/me', authMiddleware, async (req, res) => {
+  // Se o authMiddleware passar, req.user estará populado
+  // Retornar apenas os dados relevantes e não sensíveis do usuário
+  if (req.user) {
+    const { id, username, name, role } = req.user; // Ajuste conforme a estrutura do seu objeto user
+    logger.info(
+      { username: req.user.username, success: true, requestId: req.id, ip: req.ip },
+      'Dados do usuário atual recuperados com sucesso.'
+    );
+    res.json({ success: true, user: { id, username, name, role } });
+  } else {
+    // Isso não deveria acontecer se authMiddleware estiver funcionando corretamente
+    logger.error(
+      { requestId: req.id, ip: req.ip },
+      'Erro: /api/auth/me acessado mas req.user não definido após authMiddleware.'
+    );
+    res.status(401).json({ success: false, message: 'Não autenticado ou token inválido.' });
+  }
+});
+
 router.post('/logout', authMiddleware, async (req, res) => {
   try {
     // req.user é garantido pelo authMiddleware
