@@ -73,42 +73,29 @@
 
 - [x] ✅ **Migração para SQLite e `better-sqlite3`**
 - [x] ✅ **Revisão e Refatoração Inicial de Modelos (Player, Score, Tournament, Match)**
-  - Correção de bugs (ex: `module.exports` duplicados, imports ausentes).
-  - Melhoria na segurança de queries (prevenção de SQL Injection em `ORDER BY`).
-  - Lógica de soft delete e importação/sincronização de dados mais robusta.
 - [x] ✅ **Revisão e Organização de Rotas**
-  - Renomeação de arquivos de rota para maior clareza.
-  - Verificação de endpoints.
 - [x] ✅ **Limpeza de Arquivos e Diretórios Obsoletos**
-  - Remoção de `server-sqlite.js` e `backend/lib/data/`.
-- [x] ✅ **Revisão de Middlewares Essenciais (CSRF, Auth, Honeypot)**
-  - Garantia de funcionamento e integração com frontend (ex: CSRF token handling).
+- [x] ✅ **Revisão de Middlewares Essenciais (CSRF, Auth, Honeypot) e Migração para Redis**
+  - Garantia de funcionamento e integração com frontend.
+  - CSRF tokens, rate limiting (failed login attempts), JWT blacklist, e honeypot suspicious activity tracker agora usam Redis.
+- [x] ✅ **Implementação de Validação de Entrada com Joi** para rotas críticas.
+- [x] ✅ **Implementação da Lógica de Geração de Chaveamento** na rota `POST /:tournamentId/generate-bracket`.
 - [ ] 🚧 **Otimização Abrangente de Consultas SQL e Índices**
-  - Revisar todas as queries complexas para performance.
-  - Validar e adicionar índices conforme necessário (alguns já existem).
-- [x] ✅ **Implementar Modo WAL para SQLite** (Habilitado em `database.js`).
+- [x] ✅ **Implementar Modo WAL para SQLite**
 - [ ] 🆕 **Automação de Backup e Otimização de DB**
-  - Script para `VACUUM` periódico.
-  - Melhorar script de backup (ex: rotação, armazenamento externo).
 - [ ] 🔄 **Revisar e Modernizar Endpoints da API**
-  - Garantir consistência RESTful, clareza e padronização nas respostas.
-  - Adicionar paginação e filtros onde faltar.
 - [ ] 💡 **Documentar API (Swagger/OpenAPI)**
-  - Para facilitar o desenvolvimento e a integração.
-- [ ] 💡 **Estratégia de Cache para API (Redis/Memcached)**
-  - Para endpoints frequentemente acessados e com dados menos voláteis, visando escalabilidade.
+- [ ] 💡 **Estratégia de Cache para API (Redis/Memcached)** (Expandir uso de Redis para cache de dados).
 
 ### 🛡️ Segurança Backend
 
-- [x] ✅ **Melhoria do Honeypot com Logs e Estatísticas**
-- [x] ✅ **Correção de vulnerabilidades básicas (SQLi em Order By, XSS via `xss-clean`, CSRF)**
+- [x] ✅ **Melhoria do Honeypot com Logs, Estatísticas e Tracker em Redis**
+- [x] ✅ **Correção de vulnerabilidades básicas (SQLi em Order By, XSS via `xss-clean`, CSRF com Redis)**
+- [x] ✅ **Validação de Upload de Arquivos** (tipo e tamanho para importação de jogadores).
+- [x] ✅ **Proteção da Rota de Alteração de Senha** com authMiddleware.
 - [ ] 🔄 **Revisão de Segurança de Sessão e JWT**
-  - Avaliar ciclo de vida dos tokens, considerar refresh tokens se necessário.
-  - Mecanismos de revogação de tokens (blacklist já implementada).
-- [ ] 💡 **Persistência Centralizada para Blacklist/Rate Limiting (Redis)**
-  - Para ambientes com múltiplas instâncias.
+- [x] ✅ **Persistência Centralizada para Blacklist/Rate Limiting (Redis)**
 - [ ] 🆕 **Auditoria de Segurança Periódica do Código Backend**
-  - Revisão de dependências, práticas de codificação segura.
 
 ---
 
@@ -130,11 +117,11 @@
 
 - [x] ✅ **Atualizar README.md Principal**
 - [x] ✅ **Atualizar Padrões de Codificação (CODING_STANDARDS.md)**
-- [x] ✅ **Atualizar Guia de Deploy (DEPLOYMENT.md)**
-- [x] ✅ **Atualizar Manual do Usuário (MANUAL_USUARIO.md)**
-- [x] ✅ **Atualizar Estratégia de Escalabilidade (SCALING.md)**
-- [x] ✅ **Atualizar Lista de Tarefas (TODO.md)** (Este arquivo)
-- [ ] 🔄 **Revisar TROUBLESHOOTING.md** para garantir que cobre problemas comuns com Vite e a estrutura atual.
+- [x] ✅ **Atualizar Guia de Deploy (DEPLOYMENT.md)** (Incluindo notas sobre `admin_credentials.json` e Redis).
+- [x] ✅ **Atualizar Manual do Usuário (MANUAL_USUARIO.md)** (Incluindo nota sobre `admin_credentials.json`).
+- [x] ✅ **Atualizar Estratégia de Escalabilidade (SCALING.md)** (Refletindo uso de Redis).
+- [x] ✅ **Atualizar Lista de Tarefas (TODO.md)** (Este arquivo).
+- [ ] 🔄 **Revisar TROUBLESHOOTING.md** para garantir que cobre problemas comuns com Vite, Redis e a estrutura atual.
 - [ ] 💡 **Criar Documentação da API (Swagger/OpenAPI)**
 
 ---
@@ -142,6 +129,8 @@
 ## 🧹 Limpeza e Organização de Código
 
 - [x] ✅ **Remoção de Código Obsoleto do Frontend Antigo (HTML, CSS, JS)**
+- [x] ✅ **Consolidação de CSS Global no Frontend** (`index.css` como primário, `styles/global.css` removido, `App.css` limpo).
+- [x] ✅ **Remoção de Componentes de Layout Não Utilizados no Frontend** (`Layout.jsx`, `AppRouter.jsx`).
 - [x] ✅ **Revisão e Padronização de Imports Relativos**
 - [x] ✅ **Correção de erros e warnings do ESLint (Backend)**
 - [ ] 🚧 **Correção de erros e warnings do ESLint (Frontend)**
@@ -155,8 +144,8 @@
 - [ ] 💡 **Sistema de Inscrição Online para Jogadores**
 - [ ] 💡 **Sistema de Rankings e Histórico de Confrontos (H2H) mais elaborado**
 - [ ] 💡 **Duplo Fator de Autenticação (2FA) para Admin**
-- [ ] 💡 **Tutorial Interativo (Onboarding) para novos usuários/admins**
-- [ ] 💡 **Notificações (Email/Push) para eventos importantes do torneio**
+- [ ] � **Tutorial Interativo (Onboarding) para novos usuários/admins**
+- [ ] � **Notificações (Email/Push) para eventos importantes do torneio**
 - [ ] 💡 **Internacionalização (i18n) da interface**
 
 ---

@@ -1,16 +1,16 @@
 # LASCMMG - Sistema de Gerenciamento de Torneios de Sinuca (Versão React)
 
-[![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow.svg)](LICENSE.md)
 
 ## 🎱 Visão Geral
 
-O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados.
+O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
 
 O sistema foi desenvolvido com foco em:
 
 - **Experiência do Usuário (UX) Moderna:** Interface intuitiva, responsiva e agradável.
 - **Performance:** Carregamento rápido e interações fluidas.
-- **Segurança:** Proteções contra ameaças web comuns.
+- **Segurança:** Proteções contra ameaças web comuns, validação de entrada robusta.
 - **Acessibilidade (A11y):** Esforços para tornar o sistema utilizável por todos.
 - **Manutenibilidade:** Código bem estruturado e documentado.
 
@@ -32,13 +32,13 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
   - Autenticação baseada em JWT.
   - Gerenciamento de torneios, jogadores e placares.
   - Lixeira para recuperação de itens excluídos (soft delete).
-  - Funcionalidades de segurança, incluindo monitoramento de honeypot e gerenciamento de IPs bloqueados.
+  - Funcionalidades de segurança, incluindo monitoramento de honeypot, gerenciamento de IPs bloqueados, e armazenamento de tokens CSRF e rate-limiting em Redis.
 - **Gestão Detalhada de Torneios:**
   - Criação, edição, listagem e arquivamento.
   - Definição de status, datas, número de jogadores, tipo de chaveamento, taxas e premiações.
 - **Gerenciamento de Jogadores:**
   - Cadastro, edição e exclusão (soft delete e permanente).
-  - Importação de listas de jogadores.
+  - Importação de listas de jogadores com validação.
 - **Registro de Placares:**
   - Adição e edição de resultados das partidas.
   - Histórico detalhado com filtros e ordenação.
@@ -50,9 +50,10 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
   - Sidebar inteligente (colapsável/expansível) e menu mobile otimizado.
   - Foco em navegação por teclado, atributos ARIA e contraste de cores adequado.
 - **Segurança Robusta no Backend:**
-  - Proteções contra CSRF e XSS.
+  - Validação de entrada com Joi.
+  - Proteções contra CSRF (com tokens em Redis) e XSS.
   - Uso de cookies HttpOnly, Secure e SameSite.
-  - Rate limiting para APIs críticas.
+  - Rate limiting para APIs críticas (com suporte a Redis).
   - Headers HTTP de segurança (configurados via Helmet).
   - Hashing de senhas com bcrypt.
   - Logging detalhado de eventos de segurança e erros (Pino).
@@ -77,12 +78,14 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 - **Node.js (v18+ recomendado):** Ambiente de execução JavaScript no servidor.
 - **Express.js:** Framework web minimalista para Node.js.
 - **SQLite (via `better-sqlite3`):** Banco de dados relacional embarcado.
+- **Redis:** Cache e armazenamento de estado compartilhado (CSRF, rate limit, JWT blacklist).
+- **Joi:** Validação de schemas de requisição.
 - **JSON Web Tokens (JWT):** Para autenticação stateless.
 - **bcrypt:** Para hashing seguro de senhas.
 - **Pino:** Logger JSON de alta performance.
 - **Helmet:** Para configuração de headers HTTP de segurança.
 - **express-rate-limit:** Para limitar requisições à API.
-- **csurf (ou middleware customizado):** Para proteção contra CSRF.
+- **Middleware customizado com Redis:** Para proteção contra CSRF.
 - **xss-clean:** Para sanitização contra XSS.
 
 ### Ferramentas de Desenvolvimento e Qualidade
@@ -90,7 +93,7 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 - **ESLint:** Para análise estática de código e identificação de problemas.
 - **Prettier:** Para formatação automática de código, garantindo consistência.
 - **Vitest:** Framework de testes para o backend (unitários, integração).
-- **Jest & React Testing Library:** Para testes de componentes e funcionalidades no frontend.
+- **Jest & React Testing Library (ou Vitest para frontend):** Para testes de componentes e funcionalidades no frontend.
 - **Husky & lint-staged (Recomendado):** Para executar linters e formatadores antes dos commits.
 
 ## 🚀 Instalação e Execução
@@ -99,20 +102,20 @@ Consulte o [**Guia de Deploy (DEPLOYMENT.md)**](DEPLOYMENT.md) para instruções
 
 Resumidamente:
 
-1.  **Pré-requisitos:** Node.js (v18+), npm/yarn, Git, ferramentas de compilação C/C++.
-2.  **Clonar Repositório:** `git clone https://github.com/bernardopg/LASCMMG.git lascmmg && cd lascmmg`
-3.  **Configurar Backend:**
-    - Copie `.env.example` para `.env` e configure as variáveis (especialmente `COOKIE_SECRET`, `JWT_SECRET`).
-    - Instale dependências: `npm install`
-4.  **Configurar Frontend:**
+1. **Pré-requisitos:** Node.js (v18+), npm/yarn, Git, ferramentas de compilação C/C++, Servidor Redis (para funcionalidade completa).
+2. **Clonar Repositório:** `git clone https://github.com/bernardopg/LASCMMG.git lascmmg && cd lascmmg`
+3. **Configurar Backend:**
+    - Copie `.env.example` para `.env` e configure as variáveis (especialmente `COOKIE_SECRET`, `JWT_SECRET`, `REDIS_URL`).
+    - Instale dependências: `npm install` (inclui `joi`, `redis`).
+4. **Configurar Frontend:**
     - Navegue para `frontend-react/`.
-    - Crie `.env.development` (ou `.env.production`) e defina `REACT_APP_API_URL`.
+    - Crie `.env.development` (ou `.env.production`) e defina `VITE_API_URL`.
     - Instale dependências: `npm install`
     - Volte para a raiz: `cd ..`
-5.  **Inicializar Admin:** `node scripts/initialize_admin.js --username admin --password suаSеnhаFоrtе` (na raiz)
-6.  **Executar:**
+5. **Inicializar Admin:** `node scripts/initialize_admin.js --username admin --password suaSenhaSuperForte` (na raiz)
+6. **Executar:**
     - Backend (raiz): `npm run dev` (ou `npm start` para produção)
-    - Frontend (`frontend-react/`): `npm start`
+    - Frontend (`frontend-react/`): `npm run dev` (Vite usa `npm run dev` por padrão)
 
 ## 📚 Documentação Detalhada
 
@@ -124,47 +127,53 @@ Explore a pasta `docs/` para guias completos:
 - **[📈 SCALING.md](SCALING.md):** Estratégias e considerações para a escalabilidade do sistema.
 - **[🔧 TROUBLESHOOTING.md](TROUBLESHOOTING.md):** Soluções para problemas comuns de instalação, configuração e execução.
 - **[📝 TODO.md](TODO.md):** Lista de tarefas, funcionalidades planejadas e melhorias futuras.
+- **[🎱 RELATORIO_CONSOLIDADO_LASCMMG.md](RELATORIO_CONSOLIDADO_LASCMMG.md):** Análise completa do sistema com recomendações.
 
 ## 🧪 Testes
 
 - **Backend (Vitest):** `npm test` ou `npm run test:watch` (na raiz do projeto).
-- **Frontend (Jest & React Testing Library):** `npm test` (no diretório `frontend-react/`).
+- **Frontend (Vitest ou Jest & React Testing Library):** `npm test` (no diretório `frontend-react/`). (Verificar `CODING_STANDARDS.md` para a escolha final do framework de teste do frontend).
 
 ## 📂 Estrutura de Pastas Principal
 
 ```
 /lascmmg
-├── backend/                # Lógica do servidor Node.js/Express
-│   ├── lib/                # Módulos principais (config, db, logger, middleware, models, services, utils)
-│   ├── routes/             # Definições de rotas da API
-│   └── server.js           # Ponto de entrada do backend
-├── docs/                   # Documentação do projeto
-├── frontend-react/         # Aplicação Frontend React (Vite)
-│   ├── public/             # Assets estáticos e index.html principal
-│   ├── src/                # Código fonte do React
+├── backend/
+│   ├── lib/
+│   │   ├── config/
+│   │   ├── db/         # Contém redisClient.js, database.js, db-init.js, schema.js
+│   │   ├── logger/
+│   │   ├── middleware/ # Contém authMiddleware.js, csrfMiddleware.js, honeypot.js
+│   │   ├── models/
+│   │   ├── services/
+│   │   └── utils/      # Contém validationUtils.js
+│   ├── routes/         # Contém admin.js, auth.js, player.js, scores.js, security.js, tournaments.js
+│   └── server.js
+├── docs/
+├── frontend-react/
+│   ├── public/
+│   ├── src/
 │   │   ├── assets/
-│   │   ├── components/
+│   │   ├── components/ # layout/MainLayout.jsx, AdminSecurityLayout.jsx (Layout.jsx removido)
 │   │   ├── context/
 │   │   ├── hooks/
 │   │   ├── pages/
-│   │   ├── router/
-│   │   ├── services/
-│   │   ├── styles/
-│   │   ├── utils/
-│   │   ├── App.jsx
-│   │   └── main.jsx        # Ponto de entrada do frontend React/Vite
-│   ├── index.html          # Ponto de entrada HTML para Vite
-│   ├── vite.config.js      # Configuração do Vite
+│   │   ├── services/   # api.js
+│   │   ├── App.jsx     # Contém a lógica de roteamento principal
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── vite.config.js
 │   ├── tailwind.config.js
 │   ├── postcss.config.js
 │   └── package.json
-├── data/                   # Arquivo do banco de dados SQLite (gerado)
-├── scripts/                # Scripts utilitários (ex: init admin, backup)
-├── .env.example            # Exemplo de variáveis de ambiente para o backend
+├── data/
+├── scripts/
+├── .env.example
 ├── .gitignore
-├── eslint.config.mjs       # Configuração do ESLint para o backend (raiz)
-├── package.json            # Dependências do backend e scripts gerais do projeto
-└── README.md               # Este arquivo (documentação principal do projeto)
+├── eslint.config.mjs
+├── package.json
+├── LICENSE.md  # Adicionado
+└── README.md
 ```
 
 ## 🛡️ Segurança
@@ -172,13 +181,15 @@ Explore a pasta `docs/` para guias completos:
 O sistema implementa diversas medidas de segurança, incluindo:
 
 - Autenticação robusta com JWT.
-- Proteção contra CSRF e XSS.
+- Proteção contra CSRF (tokens armazenados em Redis) e XSS.
 - Configuração segura de cookies (HttpOnly, Secure, SameSite).
-- Rate limiting para APIs.
+- Rate limiting para APIs críticas (com suporte a Redis para contadores).
+- Validação de entrada de API com Joi.
 - Uso de Helmet para headers HTTP de segurança.
 - Logging detalhado de eventos e erros.
 - Hashing de senhas com bcrypt.
 - Trilha de auditoria para ações administrativas.
+- Sistema Honeypot para detecção de bots.
 
 Consulte `CODING_STANDARDS.md` e as configurações de segurança no backend para mais detalhes.
 
@@ -186,16 +197,16 @@ Consulte `CODING_STANDARDS.md` e as configurações de segurança no backend par
 
 Contribuições são bem-vindas! Siga os passos:
 
-1.  Faça um fork do repositório.
-2.  Crie uma branch para sua feature/correção (ex: `feature/minha-nova-feature` ou `fix/corrige-bug-xyz`).
-3.  Siga os padrões definidos em [CODING_STANDARDS.md](CODING_STANDARDS.md).
-4.  Escreva mensagens de commit claras e significativas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
-5.  Garanta que todos os testes e verificações de lint/formatação passem.
-6.  Abra um Pull Request (PR) detalhado para a branch `main` (ou a branch de desenvolvimento principal).
+1. Faça um fork do repositório.
+2. Crie uma branch para sua feature/correção (ex: `feature/minha-nova-feature` ou `fix/corrige-bug-xyz`).
+3. Siga os padrões definidos em [CODING_STANDARDS.md](CODING_STANDARDS.md).
+4. Escreva mensagens de commit claras e significativas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+5. Garanta que todos os testes e verificações de lint/formatação passem.
+6. Abra um Pull Request (PR) detalhado para a branch `main` (ou a branch de desenvolvimento principal).
 
 ## 📜 Licença
 
-Este projeto é licenciado sob a [Licença MIT](LICENSE.md) (assumindo que um arquivo LICENSE.md com o texto da licença MIT exista ou será criado).
+Este projeto é licenciado sob a [Licença MIT](LICENSE.md).
 
 ---
 

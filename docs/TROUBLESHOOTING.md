@@ -64,6 +64,9 @@ Este guia foi atualizado para ajudar a diagnosticar e resolver problemas com o S
 - **Erro de CORS no navegador (Frontend não acessa API):**
   - Solução (Desenvolvimento): `CORS_ORIGIN=*` no `.env` do backend geralmente permite. Verifique se o frontend está rodando na porta esperada (Vite padrão: 5173).
   - Solução (Produção): `CORS_ORIGIN` no `.env` do backend DEVE ser a URL exata do frontend (ex: `https://app.seudominio.com`). `VITE_API_URL` no frontend deve corresponder ao que o backend espera ou ao proxy.
+- **Problemas com Redis (Backend):**
+  - **Erro: "Cliente Redis não disponível" ou falhas em CSRF, rate limiting, login/logout, honeypot.**
+    - Solução: Verifique se o servidor Redis está rodando e acessível na URL configurada em `REDIS_URL` no arquivo `.env` do backend. Verifique os logs do Redis para erros de conexão.
 
 ## 4. Problemas do Banco de Dados (SQLite)
 

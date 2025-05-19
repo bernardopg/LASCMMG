@@ -120,6 +120,11 @@ Nomes devem ser descritivos e refletir a intenção.
 - **Tratamento de Erros:**
   - Use `try...catch` e reporte erros para o sistema de logging (Pino no backend) ou para o usuário de forma clara no frontend.
   - No frontend, use Error Boundaries para capturar erros em partes da UI e evitar que a aplicação inteira quebre.
+- **Validação de Entrada (Backend):**
+  - Utilize **Joi** para definir schemas e validar dados de entrada (corpo da requisição, parâmetros de URL, query strings) nas rotas da API. Isso garante que os dados sejam consistentes e seguros antes do processamento.
+- **Interação com Redis (Backend):**
+  - Ao interagir com o cliente Redis, utilize `try...catch` para lidar com possíveis erros de conexão ou comando.
+  - Siga as convenções de nomenclatura de chaves (ex: prefixos como `csrf:`, `failedlogin:`).
 
 ## 5. JSX (Frontend React)
 

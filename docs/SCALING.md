@@ -157,7 +157,7 @@ graph TD
   - **Estado Local (Context/Zustand/Redux):** Cache de dados da API no cliente para evitar requisições repetidas.
 - **Backend:**
   - **Cache em Memória (simples):** Para dados raramente alterados (ex: configurações).
-  - **Cache Distribuído (Redis):** Para dados frequentemente acessados, resultados de queries, sessões (se não JWT stateless), blacklist de tokens, em um ambiente multi-instância.
+  - **Cache Distribuído (Redis):** Já implementado para tokens CSRF, contadores de rate limiting, blacklist de JWTs e rastreamento de atividade do honeypot. Pode ser expandido para cache de dados frequentemente acessados e resultados de queries.
 - **CDN:** Para assets estáticos do frontend.
 - **Nginx (Proxy Reverso):** Pode cachear respostas da API (com cuidado para dados dinâmicos).
 
@@ -181,7 +181,7 @@ graph TD
 ### Fase 2: Preparação para Escala Maior (Médio Prazo)
 
 - Planejar migração de SQLite para PostgreSQL/MySQL.
-- Introduzir Redis para cache e/ou gerenciamento de sessão/blacklist de tokens.
+- **[CONCLUÍDO PARCIALMENTE]** Introduzir Redis para estado compartilhado (CSRF, rate limit, JWT blacklist, honeypot tracker). Expandir para cache de dados.
 - Containerizar backend e frontend (Dockerfile multi-estágio).
 - Configurar CI/CD robusto (GitHub Actions, GitLab CI).
 
