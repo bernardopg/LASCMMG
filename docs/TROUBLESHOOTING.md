@@ -49,6 +49,15 @@ Este guia foi atualizado para ajudar a diagnosticar e resolver problemas com o S
   - Solução: Navegue até `frontend-react/` e execute `npm install` (ou `yarn install`). Se persistir, remova `frontend-react/node_modules` e `frontend-react/package-lock.json` (ou `yarn.lock`), depois reinstale.
 - **Problemas com Vite ou plugins do Vite:**
   - Solução: Verifique a compatibilidade da versão do Node.js. Tente atualizar os pacotes do Vite e seus plugins. Limpe o cache do Vite (`npx vite clear-cache` ou remova `node_modules/.vite`) e o cache do npm/yarn (`npm cache clean --force`).
+- **Erro: `npm ERR! Missing script: "lint"` (Frontend):**
+  - Solução: Certifique-se de que os scripts `lint` e `lint:fix` estão definidos no `frontend-react/package.json`. Eles foram adicionados recentemente. Se ausentes, adicione:
+    ```json
+    "scripts": {
+      // ... outros scripts
+      "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
+      "lint:fix": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0 --fix"
+    }
+    ```
 
 ## 3. Problemas de Configuração (`.env` e Frontend Envs)
 

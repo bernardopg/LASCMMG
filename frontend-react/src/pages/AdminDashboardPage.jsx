@@ -18,9 +18,17 @@ const AdminDashboardPage = () => {
 
       <div className="space-y-8">
         <div className="admin-card bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
-            Gerenciamento de Jogadores
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
+              Gerenciamento de Jogadores
+            </h3>
+            <button
+              onClick={() => alert('Funcionalidade de Importar Jogadores a ser implementada.')}
+              className="btn btn-outline btn-sm"
+            >
+              Importar Jogadores
+            </button>
+          </div>
           <AdminPlayersTable />
         </div>
 

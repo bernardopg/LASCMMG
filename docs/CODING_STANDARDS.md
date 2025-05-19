@@ -61,8 +61,8 @@ npm run lint:fix
 
 # No diretório frontend-react/ (para linting específico do frontend)
 cd frontend-react
-npm run lint
-npm run lint:fix # Se configurado no package.json do frontend
+npm run lint      # Para verificar erros de lint
+npm run lint:fix  # Para tentar corrigir automaticamente erros de lint
 cd ..
 ```
 

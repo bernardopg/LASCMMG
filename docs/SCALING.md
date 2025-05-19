@@ -88,7 +88,7 @@ O frontend React, sendo uma SPA de arquivos estáticos após o build com Vite, �
 - **Índices:** Manter índices otimizados para consultas frequentes (já implementado em `schema.js`).
 - **Otimização de Queries:** Analisar e refatorar queries lentas (processo contínuo).
 - **Modo WAL (`PRAGMA journal_mode=WAL;`):** Melhora a concorrência de leitura/escrita (já habilitado em `database.js`).
-- **`VACUUM`:** Executar periodicamente para otimizar o arquivo do banco (pode ser adicionado a um script de manutenção).
+- **`VACUUM`:** Executar periodicamente usando `node scripts/manage-database.js vacuum` para otimizar o arquivo do banco.
 - **Limitar Transações Longas:** Manter transações curtas para reduzir bloqueios.
 
 ### Banco de Dados Cliente-Servidor (Futuro - para Escala Horizontal)
@@ -112,8 +112,8 @@ O frontend React, sendo uma SPA de arquivos estáticos após o build com Vite, �
 - **Memoização:** `React.memo` para componentes, `useMemo` para cálculos caros, `useCallback` para funções passadas como props.
 - **Virtualização de Listas:** Para listas/tabelas muito longas (ex: `react-window`, `react-virtualized`, `tanstack-virtual`).
 - **Estado Colocado Corretamente:** Evitar elevação desnecessária de estado.
-- **Bundle Analysis:** Usar `vite-bundle-visualizer` ou `rollup-plugin-visualizer` para identificar e otimizar partes grandes do bundle.
-- **Lazy Loading de Componentes/Rotas:** Utilizar `React.lazy` e `Suspense`.
+- **Bundle Analysis:** Usar `rollup-plugin-visualizer` (configurado em `vite.config.js`) para identificar e otimizar partes grandes do bundle.
+- **Lazy Loading de Componentes/Rotas:** Utilizar `React.lazy` e `Suspense` (já implementado para algumas rotas).
 
 ## 7. Arquitetura Atual e Evolução
 
@@ -174,9 +174,9 @@ graph TD
 - **[CONCLUÍDO]** Migração do frontend para React com Vite.
 - **[EM ANDAMENTO]** Otimizar queries SQL e índices do SQLite.
 - **[CONCLUÍDO]** Implementar modo WAL para SQLite.
-- **[A FAZER]** Analisar e otimizar o bundle do frontend React/Vite (`vite-bundle-visualizer`).
+- **[CONCLUÍDO]** Configurar `rollup-plugin-visualizer` para análise de bundle do frontend React/Vite.
 - **[A FAZER]** Configurar Service Worker básico com `vite-plugin-pwa`.
-- **[A FAZER]** Script de `VACUUM` para SQLite e agendamento.
+- **[CONCLUÍDO]** Script `manage-database.js` com comando `vacuum` para SQLite. Agendamento via cron é responsabilidade do admin do servidor.
 
 ### Fase 2: Preparação para Escala Maior (Médio Prazo)
 

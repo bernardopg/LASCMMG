@@ -37,7 +37,9 @@ import ThemeContext from './context/ThemeContext';
 const BracketPage = React.lazy(() => import('./pages/BracketPage'));
 const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
 const CreateTournamentPage = React.lazy(() => import('./pages/admin/CreateTournamentPage'));
-const AdminTournamentListPage = React.lazy(() => import('./pages/admin/AdminTournamentListPage')); // Added
+const AdminTournamentListPage = React.lazy(() => import('./pages/admin/AdminTournamentListPage'));
+const AdminSchedulePage = React.lazy(() => import('./pages/admin/AdminSchedulePage'));
+const AdminUserManagementPage = React.lazy(() => import('./pages/admin/AdminUserManagementPage')); // Added
 
 // Loading fallback component for Suspense
 const PageLoadingFallback = () => (
@@ -226,6 +228,26 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <AdminTournamentListPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AdminUserManagementPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/schedule"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AdminSchedulePage />
                     </MainLayout>
                   </ProtectedRoute>
                 }

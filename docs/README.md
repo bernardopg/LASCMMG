@@ -20,17 +20,18 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 
 - **Frontend Moderno em React:**
   - Interface de usuário dinâmica e componentizada.
-  - Roteamento com React Router DOM.
+  - Roteamento com React Router DOM e code-splitting com `React.lazy`.
   - Gerenciamento de estado global com Context API.
 - **Estilização com Tailwind CSS:**
   - Design responsivo e altamente customizável.
   - Suporte a tema claro/escuro com persistência da preferência do usuário.
+  - Animações sutis para feedback visual.
 - **Chaveamentos Dinâmicos e Interativos:**
   - Geração e visualização de chaveamentos de eliminação simples e dupla.
   - Atualização em tempo real do progresso das partidas.
 - **Painel Administrativo Completo e Seguro:**
   - Autenticação baseada em JWT.
-  - Gerenciamento de torneios (incluindo formulário de criação), jogadores e placares.
+  - Gerenciamento de torneios (incluindo formulário de criação e página de listagem), jogadores e placares.
   - Lixeira para recuperação de itens excluídos (soft delete).
   - Funcionalidades de segurança, incluindo monitoramento de honeypot, gerenciamento de IPs bloqueados, e armazenamento de tokens CSRF e rate-limiting em Redis.
 - **Gestão Detalhada de Torneios:**
@@ -78,7 +79,7 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 - **Node.js (v18+ recomendado):** Ambiente de execução JavaScript no servidor.
 - **Express.js:** Framework web minimalista para Node.js.
 - **SQLite (via `better-sqlite3`):** Banco de dados relacional embarcado.
-- **Redis:** Cache e armazenamento de estado compartilhado (CSRF, rate limit, JWT blacklist).
+- **Redis:** Cache e armazenamento de estado compartilhado (CSRF, rate limit, JWT blacklist, honeypot tracker).
 - **Joi:** Validação de schemas de requisição.
 - **JSON Web Tokens (JWT):** Para autenticação stateless.
 - **bcrypt:** Para hashing seguro de senhas.
@@ -117,6 +118,9 @@ Resumidamente:
 6.  **Executar:**
     - Backend (raiz): `npm run dev` (ou `npm start` para produção)
     - Frontend (`frontend-react/`): `npm run dev` (Vite usa `npm run dev` por padrão)
+7.  **Gerenciamento do Banco de Dados (Opcional):**
+    - `node scripts/manage-database.js backup` - Para criar um backup do banco de dados.
+    - `node scripts/manage-database.js vacuum` - Para otimizar o arquivo do banco de dados.
 
 ## 📚 Documentação Detalhada
 
@@ -129,6 +133,7 @@ Explore a pasta `docs/` para guias completos:
 - **[🔧 TROUBLESHOOTING.md](TROUBLESHOOTING.md):** Soluções para problemas comuns de instalação, configuração e execução.
 - **[📝 TODO.md](TODO.md):** Lista de tarefas, funcionalidades planejadas e melhorias futuras.
 - **[🎱 RELATORIO_CONSOLIDADO_LASCMMG.md](RELATORIO_CONSOLIDADO_LASCMMG.md):** Análise completa do sistema com recomendações.
+- **[📖 API_REFERENCE.md](API_REFERENCE.md):** Referência inicial da API.
 
 ## 🧪 Testes
 
@@ -150,7 +155,7 @@ Explore a pasta `docs/` para guias completos:
 │   │   └── utils/      # Contém validationUtils.js
 │   ├── routes/         # Contém admin.js, auth.js, player.js, scores.js, security.js, tournaments.js
 │   └── server.js
-├── docs/
+├── docs/               # Contém API_REFERENCE.md
 ├── frontend-react/
 │   ├── public/
 │   ├── src/
@@ -161,7 +166,7 @@ Explore a pasta `docs/` para guias completos:
 │   │   ├── context/
 │   │   ├── hooks/
 │   │   ├── pages/
-│   │   │   ├── admin/  # Contém CreateTournamentPage.jsx
+│   │   │   ├── admin/  # Contém CreateTournamentPage.jsx, AdminTournamentListPage.jsx
 │   │   │   └── ...
 │   │   ├── services/   # api.js
 │   │   ├── App.jsx     # Contém a lógica de roteamento principal

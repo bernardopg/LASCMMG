@@ -342,8 +342,9 @@ Esta abordagem é comum para VPS ou servidores dedicados.
 
 ## 💾 Backup e Recuperação de Dados
 
-- **Backup:** Use `node scripts/backup-database.js`. Automatize com cron. Armazene backups em local seguro e, preferencialmente, externo.
+- **Backup:** Use `node scripts/manage-database.js backup`. Automatize com cron. Armazene backups em local seguro e, preferencialmente, externo.
 - **Recuperação:** Pare a aplicação, substitua o arquivo `database.sqlite` no diretório `data/` pelo backup desejado, reinicie a aplicação.
+- **Otimização:** Use `node scripts/manage-database.js vacuum` periodicamente para otimizar o arquivo do banco de dados.
 
 ## 📊 Monitoramento Essencial
 

@@ -159,13 +159,17 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
       {/* Connector Line: Horizontal part from match card */}
       {match.next_match_id && !p1IsBye && !p2IsBye && (
         <div
-          className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-[var(--card-border-color,theme(colors.gray.500))]"
-          // Extends into the spacer area. Width can be adjusted.
+          className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-[var(--card-border-color,theme(colors.gray.500))] flex items-center"
+          // Extends further into the spacer area.
           // The spacer in BracketSection is w-10 (40px) or md:w-16 (64px).
-          // This line will extend 20px into that space.
-          style={{ left: '100%', width: '20px' }}
+          style={{ left: '100%', width: 'calc(50% + 10px)' }} // Try to extend roughly half into spacer + a bit
           aria-hidden="true"
         >
+          {/* Small circle at the end of the line */}
+          <div
+            className="w-2 h-2 rounded-full bg-[var(--card-border-color,theme(colors.gray.500))]"
+            style={{ position: 'absolute', right: '-4px' }} // Position circle at the end
+          ></div>
           {/* Note: Full connector lines (vertical segments and turns) require more complex
               positioning logic, potentially using JS to measure elements or an SVG approach,
               and are not implemented in this simplified version. */}

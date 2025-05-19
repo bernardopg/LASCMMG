@@ -126,12 +126,22 @@ router.post(
 router.get('/:tournamentId', validateRequest(tournamentIdParamSchema), async (req, res) => {
   const { tournamentId } = req.params;
   try {
+    // TODO: Implement caching strategy (e.g., Redis)
+    // const cachedTournament = await redisClient.get(`tournament:${tournamentId}:details`);
+    // if (cachedTournament) {
+    //   logger.info('TournamentsRoute', `Detalhes do torneio ${tournamentId} servidos do cache.`, { requestId: req.id });
+    //   return res.json({ success: true, tournament: JSON.parse(cachedTournament), source: 'cache' });
+    // }
+
     const tournament = await tournamentModel.getTournamentById(tournamentId);
     if (!tournament) {
       return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
     }
     const { state_json, ...tournamentDetails } = tournament; // Exclude state_json from general details
-    res.json({ success: true, tournament: tournamentDetails });
+
+    // await redisClient.set(`tournament:${tournamentId}:details`, JSON.stringify(tournamentDetails), 'EX', 3600); // Cache por 1 hora
+
+    res.json({ success: true, tournament: tournamentDetails /*, source: 'db'*/ });
   } catch (error) {
     logger.error('TournamentsRoute', `Erro ao carregar detalhes do torneio ${tournamentId}:`, { error, requestId: req.id });
     res.status(500).json({ success: false, message: 'Erro ao carregar detalhes do torneio.' });
