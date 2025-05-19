@@ -14,12 +14,18 @@ dist/
 # Ambiente
 .env
 .env.*
+!.env.example
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
 
 # SQLite e bancos de dados
 *.sqlite
 *.sqlite-journal
-data/*.sqlite
-data/*.sqlite-journal
+# data/*.sqlite # Covered by data/ below
+# data/*.sqlite-journal # Covered by data/ below
+data/ # Ignore all contents of the data directory, including .sqlite, .sqlite-journal, and potentially other files
 
 # Logs e auditoria
 *.log

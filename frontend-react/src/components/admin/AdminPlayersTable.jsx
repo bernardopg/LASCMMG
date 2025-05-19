@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getAdminPlayers, deletePlayerAdmin } from '../../services/api'; // Assuming deletePlayerAdmin handles soft/permanent
-import { useMessage } from '../../context/MessageContext';
-import React, { useState, useEffect, useCallback } from 'react';
-import { getAdminPlayers, deletePlayerAdmin, createPlayerAdmin, updatePlayerAdmin } from '../../services/api';
+// Removed duplicated and partial imports that were here
+import {
+  getAdminPlayers,
+  deletePlayerAdmin,
+  createPlayerAdmin,
+  updatePlayerAdmin,
+} from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaEdit, FaTrash, FaUndo, FaPlusCircle } from 'react-icons/fa';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -19,10 +22,20 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required('Nome é obrigatório').min(2, 'Nome muito curto').max(100, 'Nome muito longo'),
+    name: Yup.string()
+      .required('Nome é obrigatório')
+      .min(2, 'Nome muito curto')
+      .max(100, 'Nome muito longo'),
     nickname: Yup.string().max(50, 'Apelido muito longo'),
-    gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').required('Gênero é obrigatório'),
-    level: Yup.string().oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido').required('Nível é obrigatório'),
+    gender: Yup.string()
+      .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
+      .required('Gênero é obrigatório'),
+    level: Yup.string()
+      .oneOf(
+        ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'],
+        'Nível inválido'
+      )
+      .required('Nível é obrigatório'),
   });
 
   return (
@@ -43,42 +56,89 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
           {({ isSubmitting, dirty, isValid }) => (
             <Form className="space-y-4">
               <div>
-                <label htmlFor="name" className="label">Nome Completo</label>
+                <label htmlFor="name" className="label">
+                  Nome Completo
+                </label>
                 <Field type="text" name="name" id="name" className="input" />
-                <ErrorMessage name="name" component="div" className="error-message" />
+                <ErrorMessage
+                  name="name"
+                  component="div"
+                  className="error-message"
+                />
               </div>
               <div>
-                <label htmlFor="nickname" className="label">Apelido (Opcional)</label>
-                <Field type="text" name="nickname" id="nickname" className="input" />
-                <ErrorMessage name="nickname" component="div" className="error-message" />
+                <label htmlFor="nickname" className="label">
+                  Apelido (Opcional)
+                </label>
+                <Field
+                  type="text"
+                  name="nickname"
+                  id="nickname"
+                  className="input"
+                />
+                <ErrorMessage
+                  name="nickname"
+                  component="div"
+                  className="error-message"
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="gender" className="label">Gênero</label>
-                  <Field as="select" name="gender" id="gender" className="input">
+                  <label htmlFor="gender" className="label">
+                    Gênero
+                  </label>
+                  <Field
+                    as="select"
+                    name="gender"
+                    id="gender"
+                    className="input"
+                  >
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                     <option value="Outro">Outro</option>
                   </Field>
-                  <ErrorMessage name="gender" component="div" className="error-message" />
+                  <ErrorMessage
+                    name="gender"
+                    component="div"
+                    className="error-message"
+                  />
                 </div>
                 <div>
-                  <label htmlFor="level" className="label">Nível de Habilidade</label>
+                  <label htmlFor="level" className="label">
+                    Nível de Habilidade
+                  </label>
                   <Field as="select" name="level" id="level" className="input">
                     <option value="Iniciante">Iniciante</option>
                     <option value="Intermediário">Intermediário</option>
                     <option value="Avançado">Avançado</option>
                     <option value="Profissional">Profissional</option>
                   </Field>
-                  <ErrorMessage name="level" component="div" className="error-message" />
+                  <ErrorMessage
+                    name="level"
+                    component="div"
+                    className="error-message"
+                  />
                 </div>
               </div>
               <div className="mt-8 flex justify-end space-x-3 pt-4 border-t border-gray-700">
-                <button type="button" onClick={onClose} className="btn btn-secondary text-sm" disabled={isSubmitting}>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="btn btn-secondary text-sm"
+                  disabled={isSubmitting}
+                >
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary text-sm" disabled={isSubmitting || !dirty || !isValid}>
-                  {isSubmitting ? 'Salvando...' : (player ? 'Atualizar Jogador' : 'Adicionar Jogador')}
+                <button
+                  type="submit"
+                  className="btn btn-primary text-sm"
+                  disabled={isSubmitting || !dirty || !isValid}
+                >
+                  {isSubmitting
+                    ? 'Salvando...'
+                    : player
+                      ? 'Atualizar Jogador'
+                      : 'Adicionar Jogador'}
                 </button>
               </div>
             </Form>
@@ -88,7 +148,6 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
     </div>
   );
 };
-
 
 const AdminPlayersTable = () => {
   const [players, setPlayers] = useState([]);
@@ -103,22 +162,28 @@ const AdminPlayersTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
 
-  const fetchPlayers = useCallback(async (page = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAdminPlayers({ page, limit });
-      setPlayers(data.players || []);
-      setTotalPages(data.totalPages || 1);
-      setCurrentPage(data.currentPage || 1);
-    } catch (err) {
-      setError(err.message || 'Erro ao buscar jogadores.');
-      showMessage(`Erro ao buscar jogadores: ${err.message || 'Erro desconhecido'}`, 'error');
-      setPlayers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [limit, showMessage]);
+  const fetchPlayers = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAdminPlayers({ page, limit });
+        setPlayers(data.players || []);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.currentPage || 1);
+      } catch (err) {
+        setError(err.message || 'Erro ao buscar jogadores.');
+        showMessage(
+          `Erro ao buscar jogadores: ${err.message || 'Erro desconhecido'}`,
+          'error'
+        );
+        setPlayers([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [limit, showMessage]
+  );
 
   useEffect(() => {
     fetchPlayers(currentPage);
@@ -130,13 +195,20 @@ const AdminPlayersTable = () => {
   };
 
   const handleDelete = async (playerId) => {
-    if (window.confirm('Tem certeza que deseja enviar este jogador para a lixeira?')) {
+    if (
+      window.confirm(
+        'Tem certeza que deseja enviar este jogador para a lixeira?'
+      )
+    ) {
       try {
         await deletePlayerAdmin(playerId); // Soft delete by default
         showMessage('Jogador enviado para a lixeira.', 'success');
         fetchPlayers(currentPage); // Refresh list
       } catch (err) {
-        showMessage(`Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`, 'error');
+        showMessage(
+          `Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`,
+          'error'
+        );
       }
     }
   };
@@ -154,10 +226,12 @@ const AdminPlayersTable = () => {
       setIsModalOpen(false);
       setEditingPlayer(null);
     } catch (err) {
-      showMessage(`Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`, 'error');
+      showMessage(
+        `Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`,
+        'error'
+      );
     }
   };
-
 
   if (loading) {
     return (
@@ -175,7 +249,13 @@ const AdminPlayersTable = () => {
   return (
     <div>
       <div className="mb-4 flex justify-end">
-        <button onClick={() => { setEditingPlayer(null); setIsModalOpen(true); }} className="btn btn-primary text-sm">
+        <button
+          onClick={() => {
+            setEditingPlayer(null);
+            setIsModalOpen(true);
+          }}
+          className="btn btn-primary text-sm"
+        >
           <FaPlusCircle className="inline mr-2" /> Adicionar Jogador
         </button>
       </div>
@@ -183,30 +263,76 @@ const AdminPlayersTable = () => {
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="bg-gray-700">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Apelido</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gênero</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nível</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[120px]">Ações</th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Nome
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Apelido
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Gênero
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Nível
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[120px]"
+              >
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {players.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-400">Nenhum jogador encontrado.</td>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-sm text-gray-400"
+                >
+                  Nenhum jogador encontrado.
+                </td>
               </tr>
             ) : (
               players.map((player) => (
                 <tr key={player.id} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">{player.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{player.nickname || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{player.gender || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{player.level || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
+                    {player.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    {player.nickname || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    {player.gender || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    {player.level || '-'}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button onClick={() => handleEdit(player)} className="text-blue-400 hover:text-blue-300" title="Editar">
+                    <button
+                      onClick={() => handleEdit(player)}
+                      className="text-blue-400 hover:text-blue-300"
+                      title="Editar"
+                    >
                       <FaEdit />
                     </button>
-                    <button onClick={() => handleDelete(player.id)} className="text-red-400 hover:text-red-300" title="Mover para Lixeira">
+                    <button
+                      onClick={() => handleDelete(player.id)}
+                      className="text-red-400 hover:text-red-300"
+                      title="Mover para Lixeira"
+                    >
                       <FaTrash />
                     </button>
                   </td>
@@ -219,17 +345,19 @@ const AdminPlayersTable = () => {
       {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="py-4 flex justify-between items-center text-sm text-gray-400">
-          <span>Página {currentPage} de {totalPages}</span>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
           <div className="space-x-2">
             <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1 || loading}
               className="btn btn-outline btn-sm disabled:opacity-50"
             >
               Anterior
             </button>
             <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages || loading}
               className="btn btn-outline btn-sm disabled:opacity-50"
             >
@@ -240,7 +368,10 @@ const AdminPlayersTable = () => {
       )}
       <PlayerFormModal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setEditingPlayer(null); }}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPlayer(null);
+        }}
         player={editingPlayer}
         onSave={handleSavePlayer}
       />

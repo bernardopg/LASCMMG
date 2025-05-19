@@ -189,7 +189,7 @@ const authMiddleware = (req, res, next) => {
         message: 'Acesso negado. Token ainda não é válido.',
       });
     } else {
-      console.error('Erro na verificação do JWT:', error);
+      logger.error('AuthMiddleware', 'Erro na verificação do JWT:', { error }); // Replaced console.error with logger.error
       logAction(
         'system_error',
         'jwt_verification_error',

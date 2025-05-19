@@ -55,9 +55,7 @@ export const MessageProvider = ({ children }) => {
   };
 
   return (
-    <MessageContext.Provider value={value}>
-      {children}
-    </MessageContext.Provider>
+    <MessageContext.Provider value={value}>{children}</MessageContext.Provider>
   );
 };
 

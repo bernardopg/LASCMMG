@@ -38,10 +38,12 @@ let JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
   if (NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
     console.error(
       '\x1b[41m\x1b[37m%s\x1b[0m',
       ' ERRO CRÍTICO DE SEGURANÇA: JWT_SECRET não definido em produção! '
     );
+    // eslint-disable-next-line no-console
     console.error(
       '\x1b[31m%s\x1b[0m',
       'Defina JWT_SECRET como uma string aleatória e segura nas variáveis de ambiente. A aplicação será encerrada.'
@@ -49,10 +51,12 @@ if (!JWT_SECRET) {
     process.exit(1); // Encerrar a aplicação
   } else {
     JWT_SECRET = crypto.randomBytes(32).toString('hex');
+    // eslint-disable-next-line no-console
     console.warn(
       '\x1b[33m%s\x1b[0m',
       '⚠️ AVISO: JWT_SECRET não configurado! Uma chave aleatória temporária foi gerada para desenvolvimento.'
     );
+    // eslint-disable-next-line no-console
     console.warn(
       'Esta chave será redefinida em cada reinicialização, causando invalidação de sessões.'
     );
@@ -66,10 +70,12 @@ let COOKIE_SECRET = process.env.COOKIE_SECRET;
 
 if (!COOKIE_SECRET) {
   if (NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
     console.error(
       '\x1b[41m\x1b[37m%s\x1b[0m',
       ' ERRO CRÍTICO DE SEGURANÇA: COOKIE_SECRET não definido em produção! '
     );
+    // eslint-disable-next-line no-console
     console.error(
       '\x1b[31m%s\x1b[0m',
       'Defina COOKIE_SECRET como uma string aleatória e segura nas variáveis de ambiente. A aplicação será encerrada.'
@@ -77,10 +83,12 @@ if (!COOKIE_SECRET) {
     process.exit(1); // Encerrar a aplicação
   } else {
     COOKIE_SECRET = crypto.randomBytes(32).toString('hex');
+    // eslint-disable-next-line no-console
     console.warn(
       '\x1b[33m%s\x1b[0m',
       '⚠️ AVISO: COOKIE_SECRET não configurado! Uma chave aleatória temporária foi gerada para desenvolvimento.'
     );
+    // eslint-disable-next-line no-console
     console.warn(
       'Esta chave será redefinida em cada reinicialização, invalidando sessões de cookie (ex: CSRF).'
     );

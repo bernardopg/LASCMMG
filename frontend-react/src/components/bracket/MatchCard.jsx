@@ -8,8 +8,11 @@ const formatMatchDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
     if (isNaN(date.getTime())) return 'Data inválida';
     return date.toLocaleString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   } catch (e) {
     return 'Data inválida';
@@ -32,16 +35,19 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
   // The old code used match.winner which was an index (0 or 1).
   // Assuming API provides match.winner_name or match.winner_id.
   // If match.winner is an index:
-  const winnerPlayer = (match.winner !== null && match.winner !== undefined && match.players)
-    ? match.players[match.winner]
-    : null;
+  const winnerPlayer =
+    match.winner !== null && match.winner !== undefined && match.players
+      ? match.players[match.winner]
+      : null;
   const winnerName = winnerPlayer?.name || match.winner_name;
-
 
   const p1IsWinner = !p1IsBye && winnerName === p1Name;
   const p2IsWinner = !p2IsBye && winnerName === p2Name;
 
-  const isFinalRound = match.roundName === 'Final' || match.roundName === 'Grande Final' || match.roundName === 'Grande Final Reset';
+  const isFinalRound =
+    match.roundName === 'Final' ||
+    match.roundName === 'Grande Final' ||
+    match.roundName === 'Grande Final Reset';
   const p1IsChampion = p1IsWinner && isFinalRound;
   const p2IsChampion = p2IsWinner && isFinalRound;
 
@@ -49,8 +55,11 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
   let cardClasses = `
     relative group border rounded-md shadow-sm mb-3 min-w-[220px] md:min-w-[250px]
     transition-all duration-200 ease-in-out overflow-hidden
-    ${isSelected ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)] bg-gray-600 scale-105'
-                  : 'border-[var(--card-border-color)] bg-gray-750 hover:bg-gray-700 hover:border-gray-500'}
+    ${
+      isSelected
+        ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)] bg-gray-600 scale-105'
+        : 'border-[var(--card-border-color)] bg-gray-750 hover:bg-gray-700 hover:border-gray-500'
+    }
     ${p1IsBye || p2IsBye ? 'opacity-60 bg-gray-800' : ''}
   `;
 
@@ -58,13 +67,17 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
     cardClasses += ' border-[var(--color-primary)] shadow-lg'; // .bracket-final .bracket-match-card
   }
 
-  const matchStatus = match.status || (winnerName ? 'Concluída' : (match.dateTime ? 'Agendada' : 'Pendente'));
-  let statusBadgeClasses = "text-xs font-medium px-2 py-0.5 rounded-full";
-  if (matchStatus === 'Concluída') statusBadgeClasses += " bg-green-700 text-green-100";
-  else if (matchStatus === 'Em Andamento') statusBadgeClasses += " bg-yellow-600 text-yellow-100 animate-pulse";
-  else if (matchStatus === 'Agendada') statusBadgeClasses += " bg-blue-700 text-blue-100";
-  else statusBadgeClasses += " bg-gray-600 text-gray-300";
-
+  const matchStatus =
+    match.status ||
+    (winnerName ? 'Concluída' : match.dateTime ? 'Agendada' : 'Pendente');
+  let statusBadgeClasses = 'text-xs font-medium px-2 py-0.5 rounded-full';
+  if (matchStatus === 'Concluída')
+    statusBadgeClasses += ' bg-green-700 text-green-100';
+  else if (matchStatus === 'Em Andamento')
+    statusBadgeClasses += ' bg-yellow-600 text-yellow-100 animate-pulse';
+  else if (matchStatus === 'Agendada')
+    statusBadgeClasses += ' bg-blue-700 text-blue-100';
+  else statusBadgeClasses += ' bg-gray-600 text-gray-300';
 
   return (
     // .bracket-match
@@ -74,9 +87,15 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
       tabIndex={0}
       role="button"
       aria-label={`Partida ${match.id}: ${p1Name} vs ${p2Name}. Status: ${matchStatus}`}
-      onClick={() => !(p1IsBye || p2IsBye) && onMatchClick && onMatchClick(match.id)} // Disable click for BYE matches
+      onClick={() =>
+        !(p1IsBye || p2IsBye) && onMatchClick && onMatchClick(match.id)
+      } // Disable click for BYE matches
       onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && !(p1IsBye || p2IsBye) && onMatchClick) {
+        if (
+          (e.key === 'Enter' || e.key === ' ') &&
+          !(p1IsBye || p2IsBye) &&
+          onMatchClick
+        ) {
           e.preventDefault();
           onMatchClick(match.id);
         }
@@ -90,19 +109,37 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
 
       {/* .bracket-match-teams */}
       <div className="py-1">
-        <PlayerDisplay player={p1} score={p1?.score} isWinner={p1IsWinner} isChampion={p1IsChampion} isBye={p1IsBye} seed={p1?.seed} />
+        <PlayerDisplay
+          player={p1}
+          score={p1?.score}
+          isWinner={p1IsWinner}
+          isChampion={p1IsChampion}
+          isBye={p1IsBye}
+          seed={p1?.seed}
+        />
 
         {!(p1IsBye || p2IsBye) && (
           <div className="text-center text-xs text-gray-500 my-0.5">vs</div>
         )}
 
-        <PlayerDisplay player={p2} score={p2?.score} isWinner={p2IsWinner} isChampion={p2IsChampion} isBye={p2IsBye} seed={p2?.seed} />
+        <PlayerDisplay
+          player={p2}
+          score={p2?.score}
+          isWinner={p2IsWinner}
+          isChampion={p2IsChampion}
+          isBye={p2IsBye}
+          seed={p2?.seed}
+        />
       </div>
 
       {/* .bracket-match-footer */}
       {(match.dateTime || winnerName) && !p1IsBye && !p2IsBye && (
-         <div className="px-3 py-1 bg-gray-800 border-t border-gray-600 text-xs text-gray-400 text-center">
-          {match.dateTime ? formatMatchDateTime(match.dateTime) : <span>&nbsp;</span>}
+        <div className="px-3 py-1 bg-gray-800 border-t border-gray-600 text-xs text-gray-400 text-center">
+          {match.dateTime ? (
+            formatMatchDateTime(match.dateTime)
+          ) : (
+            <span>&nbsp;</span>
+          )}
           {/* Winner display is handled by PlayerDisplay's styling */}
         </div>
       )}

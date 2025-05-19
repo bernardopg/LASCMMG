@@ -12,7 +12,7 @@ const Scores = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({
     key: 'date',
-    direction: 'desc'
+    direction: 'desc',
   });
 
   // Buscar dados dos placares
@@ -28,96 +28,98 @@ const Scores = () => {
             {
               id: 1,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 101, name: "Carlos Silva" },
-              player2: { id: 102, name: "João Ferreira" },
+              player1: { id: 101, name: 'Carlos Silva' },
+              player2: { id: 102, name: 'João Ferreira' },
               score1: 3,
               score2: 1,
-              date: "2025-05-17T19:30:00",
-              phase: "Quartas de Final",
-              status: "finished",
-              location: "Mesa 1"
+              date: '2025-05-17T19:30:00',
+              phase: 'Quartas de Final',
+              status: 'finished',
+              location: 'Mesa 1',
             },
             {
               id: 2,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 103, name: "Pedro Santos" },
-              player2: { id: 104, name: "Marcos Oliveira" },
+              player1: { id: 103, name: 'Pedro Santos' },
+              player2: { id: 104, name: 'Marcos Oliveira' },
               score1: 3,
               score2: 2,
-              date: "2025-05-17T20:15:00",
-              phase: "Quartas de Final",
-              status: "finished",
-              location: "Mesa 2"
+              date: '2025-05-17T20:15:00',
+              phase: 'Quartas de Final',
+              status: 'finished',
+              location: 'Mesa 2',
             },
             {
               id: 3,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 105, name: "Rafael Costa" },
-              player2: { id: 106, name: "Lucas Pereira" },
+              player1: { id: 105, name: 'Rafael Costa' },
+              player2: { id: 106, name: 'Lucas Pereira' },
               score1: 2,
               score2: 3,
-              date: "2025-05-18T15:00:00",
-              phase: "Quartas de Final",
-              status: "finished",
-              location: "Mesa 3"
+              date: '2025-05-18T15:00:00',
+              phase: 'Quartas de Final',
+              status: 'finished',
+              location: 'Mesa 3',
             },
             {
               id: 4,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 107, name: "Gabriel Souza" },
-              player2: { id: 108, name: "Matheus Lima" },
+              player1: { id: 107, name: 'Gabriel Souza' },
+              player2: { id: 108, name: 'Matheus Lima' },
               score1: 3,
               score2: 0,
-              date: "2025-05-18T16:30:00",
-              phase: "Quartas de Final",
-              status: "finished",
-              location: "Mesa 1"
+              date: '2025-05-18T16:30:00',
+              phase: 'Quartas de Final',
+              status: 'finished',
+              location: 'Mesa 1',
             },
             {
               id: 5,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 101, name: "Carlos Silva" },
-              player2: { id: 103, name: "Pedro Santos" },
+              player1: { id: 101, name: 'Carlos Silva' },
+              player2: { id: 103, name: 'Pedro Santos' },
               score1: 3,
               score2: 4,
-              date: "2025-05-19T18:00:00",
-              phase: "Semifinal",
-              status: "finished",
-              location: "Mesa 1"
+              date: '2025-05-19T18:00:00',
+              phase: 'Semifinal',
+              status: 'finished',
+              location: 'Mesa 1',
             },
             {
               id: 6,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 106, name: "Lucas Pereira" },
-              player2: { id: 107, name: "Gabriel Souza" },
+              player1: { id: 106, name: 'Lucas Pereira' },
+              player2: { id: 107, name: 'Gabriel Souza' },
               score1: 2,
               score2: 3,
-              date: "2025-05-19T19:30:00",
-              phase: "Semifinal",
-              status: "finished",
-              location: "Mesa 2"
+              date: '2025-05-19T19:30:00',
+              phase: 'Semifinal',
+              status: 'finished',
+              location: 'Mesa 2',
             },
             {
               id: 7,
               tournament_id: currentTournament?.id || 1,
-              player1: { id: 103, name: "Pedro Santos" },
-              player2: { id: 107, name: "Gabriel Souza" },
+              player1: { id: 103, name: 'Pedro Santos' },
+              player2: { id: 107, name: 'Gabriel Souza' },
               score1: 1,
               score2: 3,
-              date: "2025-05-20T19:00:00",
-              phase: "Final",
-              status: "finished",
-              location: "Mesa Principal"
-            }
+              date: '2025-05-20T19:00:00',
+              phase: 'Final',
+              status: 'finished',
+              location: 'Mesa Principal',
+            },
           ];
 
           setScores(mockScores);
           setLoading(false);
         }, 800);
-
       } catch (error) {
-        console.error("Erro ao carregar dados de placares:", error);
-        showError("Falha ao carregar placares", "Verifique sua conexão e tente novamente.");
+        console.error('Erro ao carregar dados de placares:', error);
+        showError(
+          'Falha ao carregar placares',
+          'Verifique sua conexão e tente novamente.'
+        );
         setLoading(false);
       }
     };
@@ -136,8 +138,9 @@ const Scores = () => {
   };
 
   // Filtrar por pesquisa e filtros
-  const filteredScores = scores.filter(score => {
-    const matchesSearch = searchTerm === '' ||
+  const filteredScores = scores.filter((score) => {
+    const matchesSearch =
+      searchTerm === '' ||
       score.player1.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       score.player2.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       score.phase.toLowerCase().includes(searchTerm.toLowerCase());
@@ -151,7 +154,10 @@ const Scores = () => {
     }
     if (filter === 'top') {
       // Filtrar apenas semifinais e finais
-      return matchesSearch && (score.phase === 'Semifinal' || score.phase === 'Final');
+      return (
+        matchesSearch &&
+        (score.phase === 'Semifinal' || score.phase === 'Final')
+      );
     }
 
     return matchesSearch;
@@ -179,7 +185,7 @@ const Scores = () => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -207,9 +213,9 @@ const Scores = () => {
 
   // Construir classe de resultado com base nos scores
   const getResultClass = (score1, score2) => {
-    if (score1 > score2) return "text-green-600 font-medium";
-    if (score1 < score2) return "text-red-600 font-medium";
-    return "text-gray-600";
+    if (score1 > score2) return 'text-green-600 font-medium';
+    if (score1 < score2) return 'text-red-600 font-medium';
+    return 'text-gray-600';
   };
 
   return (
@@ -269,7 +275,10 @@ const Scores = () => {
                 />
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"></path>
+                    <path
+                      fill="currentColor"
+                      d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"
+                    ></path>
                   </svg>
                 </div>
               </div>
@@ -285,9 +294,7 @@ const Scores = () => {
             </div>
           ) : sortedScores.length === 0 ? (
             <div className="empty-state text-center p-8">
-              <p className="text-gray-500 mb-4">
-                Nenhum resultado encontrado.
-              </p>
+              <p className="text-gray-500 mb-4">Nenhum resultado encontrado.</p>
               <button
                 onClick={() => {
                   setSearchTerm('');
@@ -303,19 +310,28 @@ const Scores = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className={getHeaderClass('date')} onClick={() => sortScores('date')}>
+                    <th
+                      className={getHeaderClass('date')}
+                      onClick={() => sortScores('date')}
+                    >
                       <div className="flex items-center">
                         Data
                         {getSortIcon('date')}
                       </div>
                     </th>
-                    <th className={getHeaderClass('phase')} onClick={() => sortScores('phase')}>
+                    <th
+                      className={getHeaderClass('phase')}
+                      onClick={() => sortScores('phase')}
+                    >
                       <div className="flex items-center">
                         Fase
                         {getSortIcon('phase')}
                       </div>
                     </th>
-                    <th className={getHeaderClass('player')} onClick={() => sortScores('player')}>
+                    <th
+                      className={getHeaderClass('player')}
+                      onClick={() => sortScores('player')}
+                    >
                       <div className="flex items-center">
                         Jogadores
                         {getSortIcon('player')}
@@ -338,16 +354,30 @@ const Scores = () => {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium">{score.player1.name}</span>
-                          <span className="font-medium">{score.player2.name}</span>
+                          <span className="font-medium">
+                            {score.player1.name}
+                          </span>
+                          <span className="font-medium">
+                            {score.player2.name}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-center">
                         <div className="flex flex-col">
-                          <span className={getResultClass(score.score1, score.score2)}>
+                          <span
+                            className={getResultClass(
+                              score.score1,
+                              score.score2
+                            )}
+                          >
                             {score.score1}
                           </span>
-                          <span className={getResultClass(score.score2, score.score1)}>
+                          <span
+                            className={getResultClass(
+                              score.score2,
+                              score.score1
+                            )}
+                          >
                             {score.score2}
                           </span>
                         </div>

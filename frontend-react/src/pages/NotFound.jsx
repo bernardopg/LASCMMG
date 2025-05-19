@@ -4,9 +4,13 @@ const NotFound = () => {
   return (
     <div className="page-not-found flex items-center justify-center pt-16 pb-32">
       <div className="text-center max-w-lg px-6">
-        <div className="error-code text-9xl font-bold text-primary mb-6 opacity-25">404</div>
+        <div className="error-code text-9xl font-bold text-primary mb-6 opacity-25">
+          404
+        </div>
 
-        <h1 className="text-4xl font-bold mb-4 text-gray-800">Página não encontrada</h1>
+        <h1 className="text-4xl font-bold mb-4 text-gray-800">
+          Página não encontrada
+        </h1>
 
         <p className="text-lg text-gray-600 mb-8">
           A página que você está procurando não existe ou foi movida.

@@ -14,7 +14,8 @@ import {
   FaChevronRight, // Icon for expand
 } from 'react-icons/fa';
 
-const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
+const Sidebar = ({ isSidebarCollapsed }) => {
+  // Accept isSidebarCollapsed prop
   const location = useLocation();
   const { hasPermission } = useAuth();
 
@@ -77,7 +78,7 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
       path: '/admin',
       icon: <FaUserShield className="w-5 h-5" />,
       permission: 'admin',
-    }
+    },
   ];
 
   // Renderizar link do menu
@@ -88,11 +89,13 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
     }
 
     const active = isActive(item.path);
-    const baseClasses = "flex items-center p-2 my-1 text-sm font-medium rounded-md group";
+    const baseClasses =
+      'flex items-center p-2 my-1 text-sm font-medium rounded-md group';
     // Active classes are fine for dark theme
-    const activeClasses = "bg-[var(--color-primary-dark)] text-white";
+    const activeClasses = 'bg-[var(--color-primary-dark)] text-white'; // text-white is good for dark bg
     // Inactive classes adjusted for dark theme
-    const inactiveClasses = "text-gray-300 hover:bg-gray-700 hover:text-white";
+    const inactiveClasses =
+      'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white';
 
     return (
       <Link
@@ -101,7 +104,9 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
         className={`${baseClasses} ${active ? activeClasses : inactiveClasses} ${isSidebarCollapsed ? 'justify-center' : ''}`}
         title={isSidebarCollapsed ? item.name : ''} // Show full name on hover when collapsed
       >
-        <div className={`${isSidebarCollapsed ? 'mr-0' : 'mr-3'} ${active ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
+        <div
+          className={`${isSidebarCollapsed ? 'mr-0' : 'mr-3'} ${active ? 'text-white' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-300'}`}
+        >
           {item.icon}
         </div>
         {!isSidebarCollapsed && item.name}
@@ -110,12 +115,18 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
   };
 
   return (
-    <div className={`hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+    <div
+      className={`hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+    >
       {/* Adjusted for dark theme: bg, border and collapse state */}
-      <div className="flex flex-col w-full"> {/* w-full to take width from parent */}
+      <div className="flex flex-col w-full">
+        {' '}
+        {/* w-full to take width from parent */}
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-[var(--panel-bg)] border-r border-[var(--card-border-color)]">
           {/* Sidebar Header - can add logo and collapse button here later if needed */}
-          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-4'} mb-4 h-10`}>
+          <div
+            className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-4'} mb-4 h-10`}
+          >
             {!isSidebarCollapsed && (
               <Link to="/" className="flex items-center">
                 <img
@@ -123,11 +134,13 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
                   src="/assets/logo-removebg.png"
                   alt="LASCMMG Logo"
                 />
-                <span className="ml-3 text-xl font-semibold text-white">LASCMMG</span>
+                <span className="ml-3 text-xl font-semibold text-gray-800 dark:text-white">
+                  LASCMMG
+                </span>
               </Link>
             )}
             {isSidebarCollapsed && (
-               <Link to="/">
+              <Link to="/">
                 <img
                   className="h-8 w-auto" // Smaller logo when collapsed
                   src="/assets/logo-removebg.png"
@@ -137,21 +150,30 @@ const Sidebar = ({ isSidebarCollapsed }) => { // Accept isSidebarCollapsed prop
             )}
           </div>
 
-          <div className={`flex flex-col flex-grow ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
+          <div
+            className={`flex flex-col flex-grow ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}
+          >
             <nav className="flex-1 space-y-1 bg-[var(--panel-bg)]">
               {menuItems.map(renderMenuItem)}
             </nav>
 
-            <div className={`flex-shrink-0 block w-full mt-auto ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}>
+            <div
+              className={`flex-shrink-0 block w-full mt-auto ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}
+            >
               {/* Adjusted for dark theme: bg, text */}
-              <div className={`p-4 bg-gray-800 rounded-lg ${isSidebarCollapsed ? 'hidden' : ''}`}>
-                <div className="text-sm text-gray-300">
-                  <p className="font-semibold text-gray-100">LASCMMG</p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Sistema de gerenciamento de torneios da Liga Amadora Sul-Campista de Mari-Mari-Gomes
+              <div
+                className={`p-4 bg-gray-100 dark:bg-gray-800 rounded-lg ${isSidebarCollapsed ? 'hidden' : ''}`}
+              >
+                <div className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                    LASCMMG
                   </p>
-                  <div className="mt-3 text-xs text-gray-400">
-                    <p>Versão: {process.env.REACT_APP_VERSION || '0.1.0'}</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Sistema de gerenciamento de torneios da Liga Amadora
+                    Sul-Campista de Mari-Mari-Gomes
+                  </p>
+                  <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    <p>Versão: {import.meta.env.VITE_APP_VERSION || '0.1.0'}</p>
                   </div>
                 </div>
               </div>

@@ -158,7 +158,12 @@ router.get('/me', authMiddleware, async (req, res) => {
   if (req.user) {
     const { id, username, name, role } = req.user; // Ajuste conforme a estrutura do seu objeto user
     logger.info(
-      { username: req.user.username, success: true, requestId: req.id, ip: req.ip },
+      {
+        username: req.user.username,
+        success: true,
+        requestId: req.id,
+        ip: req.ip,
+      },
       'Dados do usuário atual recuperados com sucesso.'
     );
     res.json({ success: true, user: { id, username, name, role } });
@@ -168,7 +173,9 @@ router.get('/me', authMiddleware, async (req, res) => {
       { requestId: req.id, ip: req.ip },
       'Erro: /api/auth/me acessado mas req.user não definido após authMiddleware.'
     );
-    res.status(401).json({ success: false, message: 'Não autenticado ou token inválido.' });
+    res
+      .status(401)
+      .json({ success: false, message: 'Não autenticado ou token inválido.' });
   }
 });
 

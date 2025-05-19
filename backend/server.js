@@ -9,7 +9,7 @@ const xss = require('xss-clean');
 const csrfMiddleware = require('./lib/middleware/csrfMiddleware');
 const honeypot = require('./lib/middleware/honeypot');
 const fs = require('fs').promises;
-const serveStatic = require('serve-static');
+// const serveStatic = require('serve-static'); // Unused import
 const {
   PORT: envPort,
   NODE_ENV,
@@ -234,15 +234,19 @@ app.use(
 );
 
 const authRoutes = require('./routes/auth');
-const tournamentSqliteRoutes = require('./routes/tournaments-sqlite'); // Mantido como sqlite, pode ser específico
-const systemStatsRouter = require('./routes/system-stats');
-const statsRoutes = require('./routes/stats'); // Renomeado de legacyStatsRoutes
+const tournamentRoutes = require('./routes/tournaments.js');
+const securityRoutes = require('./routes/security.js');
+const adminRoutes = require('./routes/admin'); // Novo router para admin
+const scoresRoutes = require('./routes/scores'); // Novo router para scores
+// const statsRoutes = require('./routes/stats'); // Removido pois as rotas foram movidas
 const { checkDbConnection } = require('./lib/db/database');
 
 app.use('/api', authRoutes);
-app.use('/api/tournaments', tournamentSqliteRoutes);
-app.use('/api/system', systemStatsRouter);
-app.use('/api/stats', statsRoutes); // Rota atualizada
+app.use('/api/tournaments', tournamentRoutes); // Agora inclui as rotas de estatísticas de torneio e jogador
+app.use('/api/system', securityRoutes);
+app.use('/api/admin', adminRoutes); // Montar as rotas de admin
+app.use('/api/scores', scoresRoutes); // Montar as rotas de scores
+// app.use('/api/stats', statsRoutes); // Removido pois as rotas foram movidas
 
 app.get('/ping', (req, res) => {
   const dbStatus = checkDbConnection();

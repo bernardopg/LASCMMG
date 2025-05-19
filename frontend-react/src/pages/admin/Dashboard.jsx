@@ -8,7 +8,10 @@ const StatCard = ({ title, value, icon, color = 'primary' }) => (
   <div className="stat-card bg-white p-6 rounded-lg shadow-sm border border-gray-100">
     <div className="flex items-start">
       <div className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100`}>
-        <span className={`text-${color}-600`} dangerouslySetInnerHTML={{ __html: icon }}></span>
+        <span
+          className={`text-${color}-600`}
+          dangerouslySetInnerHTML={{ __html: icon }}
+        ></span>
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
@@ -56,55 +59,58 @@ const Dashboard = () => {
             totalMatches: 28,
             pendingMatches: 4,
             totalTournaments: 3,
-            averageScore: 2.7
+            averageScore: 2.7,
           };
 
           const mockActivity = [
             {
               id: 1,
               type: 'match',
-              description: 'Partida finalizada: Carlos Silva vs João Ferreira (3-1)',
+              description:
+                'Partida finalizada: Carlos Silva vs João Ferreira (3-1)',
               timestamp: '2025-05-18T18:30:00',
-              user: 'Administrador'
+              user: 'Administrador',
             },
             {
               id: 2,
               type: 'player',
               description: 'Jogador adicionado: Marcos Oliveira',
               timestamp: '2025-05-18T17:15:00',
-              user: 'Administrador'
+              user: 'Administrador',
             },
             {
               id: 3,
               type: 'tournament',
               description: 'Torneio atualizado: Campeonato de Verão 2025',
               timestamp: '2025-05-18T15:20:00',
-              user: 'Administrador'
+              user: 'Administrador',
             },
             {
               id: 4,
               type: 'match',
               description: 'Partida agendada: Pedro Santos vs Lucas Pereira',
               timestamp: '2025-05-18T14:45:00',
-              user: 'Administrador'
+              user: 'Administrador',
             },
             {
               id: 5,
               type: 'system',
               description: 'Backup do sistema realizado com sucesso',
               timestamp: '2025-05-18T12:00:00',
-              user: 'Sistema'
-            }
+              user: 'Sistema',
+            },
           ];
 
           setStats(mockStats);
           setRecentActivity(mockActivity);
           setLoading(false);
         }, 800);
-
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
-        showError('Falha ao carregar dados', 'Verifique sua conexão e tente novamente.');
+        showError(
+          'Falha ao carregar dados',
+          'Verifique sua conexão e tente novamente.'
+        );
         setLoading(false);
       }
     };
@@ -119,7 +125,7 @@ const Dashboard = () => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -165,20 +171,27 @@ const Dashboard = () => {
                 Dashboard Administrativo
               </h1>
               <p className="text-gray-600 mt-1">
-                Bem-vindo, {user?.name || 'Administrador'}! Gerencie torneios, jogadores e partidas.
+                Bem-vindo, {user?.name || 'Administrador'}! Gerencie torneios,
+                jogadores e partidas.
               </p>
             </div>
 
             <div className="mt-4 md:mt-0 flex gap-2">
               <button className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 flex items-center">
                 <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M17 19H7V5H19V17H17V19Z"></path>
+                  <path
+                    fill="currentColor"
+                    d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M17 19H7V5H19V17H17V19Z"
+                  ></path>
                 </svg>
                 Relatórios
               </button>
               <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark flex items-center">
                 <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"></path>
+                  <path
+                    fill="currentColor"
+                    d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+                  ></path>
                 </svg>
                 Novo Torneio
               </button>
@@ -194,7 +207,9 @@ const Dashboard = () => {
           <div className="dashboard-content">
             {/* Seção de estatísticas */}
             <div className="stats-section mb-8">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700">Estatísticas Gerais</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                Estatísticas Gerais
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                   title="Total de Jogadores"
@@ -226,7 +241,9 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Coluna da esquerda: Ações rápidas */}
               <div className="lg:col-span-1">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Ações Rápidas</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Ações Rápidas
+                </h2>
                 <div className="grid grid-cols-1 gap-4">
                   <ActionCard
                     title="Gerenciar Jogadores"
@@ -254,7 +271,9 @@ const Dashboard = () => {
 
               {/* Coluna da direita: Atividade recente */}
               <div className="lg:col-span-2">
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Atividade Recente</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">
+                  Atividade Recente
+                </h2>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   {recentActivity.length === 0 ? (
                     <div className="p-6 text-center text-gray-500">
@@ -263,16 +282,27 @@ const Dashboard = () => {
                   ) : (
                     <div className="divide-y divide-gray-100">
                       {recentActivity.map((activity) => (
-                        <div key={activity.id} className="p-4 hover:bg-gray-50 transition-colors">
+                        <div
+                          key={activity.id}
+                          className="p-4 hover:bg-gray-50 transition-colors"
+                        >
                           <div className="flex">
-                            <div className={`activity-icon p-2 rounded-full mr-3 ${getActivityClass(activity.type)}`}>
-                              <span dangerouslySetInnerHTML={{ __html: getActivityIcon(activity.type) }}></span>
+                            <div
+                              className={`activity-icon p-2 rounded-full mr-3 ${getActivityClass(activity.type)}`}
+                            >
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: getActivityIcon(activity.type),
+                                }}
+                              ></span>
                             </div>
                             <div className="flex-grow">
                               <div className="mb-1">{activity.description}</div>
                               <div className="text-sm text-gray-500 flex items-center justify-between">
                                 <div>
-                                  <span className="mr-2">por {activity.user}</span>
+                                  <span className="mr-2">
+                                    por {activity.user}
+                                  </span>
                                 </div>
                                 <div>{formatDate(activity.timestamp)}</div>
                               </div>
@@ -290,7 +320,10 @@ const Dashboard = () => {
                     >
                       Ver todas as atividades
                       <svg className="w-4 h-4 ml-1" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"></path>
+                        <path
+                          fill="currentColor"
+                          d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                        ></path>
                       </svg>
                     </Link>
                   </div>

@@ -1,19 +1,43 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MdOutlineSecurity, MdOutlineBugReport, MdOutlineAnalytics, MdBlock, MdArrowBack } from 'react-icons/md';
+import {
+  MdOutlineSecurity,
+  MdOutlineBugReport,
+  MdOutlineAnalytics,
+  MdBlock,
+  MdArrowBack,
+} from 'react-icons/md';
 
 // Placeholder for security-specific sidebar items
 const securityMenuItems = [
-  { name: 'Visão Geral', path: '/admin/security', icon: <MdOutlineSecurity className="w-5 h-5" /> },
-  { name: 'Honeypots', path: '/admin/security/honeypots', icon: <MdOutlineBugReport className="w-5 h-5" /> },
-  { name: 'Análise de Ameaças', path: '/admin/security/threat-analytics', icon: <MdOutlineAnalytics className="w-5 h-5" /> },
-  { name: 'IPs Bloqueados', path: '/admin/security/blocked-ips', icon: <MdBlock className="w-5 h-5" /> },
+  {
+    name: 'Visão Geral',
+    path: '/admin/security',
+    icon: <MdOutlineSecurity className="w-5 h-5" />,
+  },
+  {
+    name: 'Honeypots',
+    path: '/admin/security/honeypots',
+    icon: <MdOutlineBugReport className="w-5 h-5" />,
+  },
+  {
+    name: 'Análise de Ameaças',
+    path: '/admin/security/threat-analytics',
+    icon: <MdOutlineAnalytics className="w-5 h-5" />,
+  },
+  {
+    name: 'IPs Bloqueados',
+    path: '/admin/security/blocked-ips',
+    icon: <MdBlock className="w-5 h-5" />,
+  },
 ];
 
 const AdminSecuritySidebar = () => {
   const location = useLocation();
-  const isActive = (path) => location.pathname === path || (path === '/admin/security' && location.pathname.startsWith('/admin/security/'));
-
+  const isActive = (path) =>
+    location.pathname === path ||
+    (path === '/admin/security' &&
+      location.pathname.startsWith('/admin/security/'));
 
   return (
     <aside className="w-64 bg-gray-800 text-gray-100 min-h-screen p-4 space-y-2 flex flex-col">
@@ -21,7 +45,7 @@ const AdminSecuritySidebar = () => {
         <h1 className="text-xl font-semibold">Segurança</h1>
       </div>
       <nav className="flex-grow">
-        {securityMenuItems.map(item => (
+        {securityMenuItems.map((item) => (
           <Link
             key={item.name}
             to={item.path}
@@ -35,18 +59,17 @@ const AdminSecuritySidebar = () => {
       </nav>
       <div className="mt-auto pt-6 border-t border-gray-700">
         <Link
-            to="/admin"
-            className="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+          to="/admin"
+          className="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
         >
-            <MdArrowBack className="w-5 h-5 mr-3" />
-            Voltar ao Admin
+          <MdArrowBack className="w-5 h-5 mr-3" />
+          Voltar ao Admin
         </Link>
-         {/* Logout button can be added here if needed */}
+        {/* Logout button can be added here if needed */}
       </div>
     </aside>
   );
 };
-
 
 const AdminSecurityLayout = ({ children }) => {
   return (

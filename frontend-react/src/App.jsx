@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
@@ -28,7 +34,8 @@ import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 
 // Layouts
 import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react'; // Added useContext
+import ThemeContext from './context/ThemeContext'; // Import ThemeContext
 
 // Layout principal
 const MainLayout = ({ children }) => {
@@ -37,32 +44,19 @@ const MainLayout = ({ children }) => {
     return savedState ? JSON.parse(savedState) : false;
   });
 
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    // Prefer system theme if no saved theme, but default to 'dark' if system preference is not 'light'
-    // Tailwind's 'class' strategy means we add 'dark' class to html element
-    if (savedTheme) return savedTheme;
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      return 'light';
-    }
-    return 'dark'; // Default to dark
-  });
+  // Consume ThemeContext
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const toggleSidebarCollapse = () => {
-    setIsSidebarCollapsed(prev => {
+    setIsSidebarCollapsed((prev) => {
       const newState = !prev;
       localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
       return newState;
     });
   };
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => {
-      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', newTheme);
-      return newTheme;
-    });
-  };
+  // Removed local theme state, toggleTheme, and useEffect for theme
+  // as they are now handled by ThemeContext and ThemeProvider
 
   useEffect(() => {
     if (isSidebarCollapsed) {
@@ -72,27 +66,22 @@ const MainLayout = ({ children }) => {
     }
   }, [isSidebarCollapsed]);
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [theme]);
-
-
   return (
-    <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
+    // The 'dark' class on <html> is handled by ThemeProvider.
+    // bg- and text- colors here should use Tailwind's dark: prefix for variations.
+    // For now, assuming CSS variables handle dark mode theming.
+    <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)] dark:bg-gray-900 dark:text-gray-100">
       <Header
         isSidebarCollapsed={isSidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
-        currentTheme={theme}
-        toggleTheme={toggleTheme}
+        currentTheme={theme} // from context
+        toggleTheme={toggleTheme} // from context
       />
       <div className="flex">
         <Sidebar isSidebarCollapsed={isSidebarCollapsed} />
-        <main className={`flex-1 p-6 pt-8 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
+        <main
+          className={`flex-1 p-6 pt-8 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}
+        >
           {children}
         </main>
       </div>
@@ -105,9 +94,7 @@ const PagePlaceholder = ({ title }) => {
   return (
     <div className="text-center py-16">
       <h1 className="text-3xl font-bold text-primary-light mb-4">{title}</h1>
-      <p className="text-gray-300">
-        Esta página será implementada em breve.
-      </p>
+      <p className="text-gray-300">Esta página será implementada em breve.</p>
     </div>
   );
 };
@@ -256,18 +243,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminSecurityLayout>
-                      <AdminSecurityPage /> {/* This now renders an <Outlet /> */}
+                      <AdminSecurityPage />{' '}
+                      {/* This now renders an <Outlet /> */}
                     </AdminSecurityLayout>
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<SecurityOverview />} /> {/* Default for /admin/security */}
+                <Route index element={<SecurityOverview />} />{' '}
+                {/* Default for /admin/security */}
                 <Route path="overview" element={<SecurityOverview />} />
                 <Route path="honeypots" element={<SecurityHoneypots />} />
-                <Route path="threat-analytics" element={<SecurityThreatAnalytics />} />
+                <Route
+                  path="threat-analytics"
+                  element={<SecurityThreatAnalytics />}
+                />
                 <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
               </Route>
-
 
               {/* Página 404 */}
               <Route
@@ -275,9 +266,16 @@ function App() {
                 element={
                   <div className="flex items-center justify-center min-h-screen bg-[var(--bg-color)]">
                     <div className="text-center">
-                      <h1 className="text-6xl font-bold text-[var(--color-primary)]">404</h1>
-                      <p className="text-2xl text-gray-300 mt-4">Página não encontrada</p>
-                      <a href="/" className="mt-6 inline-block px-6 py-3 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors">
+                      <h1 className="text-6xl font-bold text-[var(--color-primary)]">
+                        404
+                      </h1>
+                      <p className="text-2xl text-gray-300 mt-4">
+                        Página não encontrada
+                      </p>
+                      <a
+                        href="/"
+                        className="mt-6 inline-block px-6 py-3 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
+                      >
                         Voltar para o início
                       </a>
                     </div>

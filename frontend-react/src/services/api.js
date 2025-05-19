@@ -1,12 +1,41 @@
+/* eslint-env browser */
 import axios from 'axios';
 
 // Cria uma instância do axios com configurações padrão
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '',
+  baseURL: import.meta.env.VITE_API_URL || '',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Função para ler cookie
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+// Adiciona um interceptor de requisição para incluir o token CSRF
+api.interceptors.request.use(
+  (config) => {
+    const protectedMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+    if (protectedMethods.includes(config.method.toUpperCase())) {
+      const csrfToken = getCookie('csrfToken'); // Nome do cookie definido no backend
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+      } else {
+        console.warn(
+          'CSRF token não encontrado no cookie. A requisição pode falhar.'
+        );
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Adiciona um interceptor para tratar erros globalmente
 api.interceptors.response.use(

@@ -18,21 +18,31 @@
 
   /* Card/Panel colors from .verde-escuro theme */
   --panel-bg: #223322; /* From .verde-escuro-base */
-  --card-border-color: rgba(212, 180, 85, 0.3); /* From .verde-escuro-theme-modern --border-color */
+  --card-border-color: rgba(
+    212,
+    180,
+    85,
+    0.3
+  ); /* From .verde-escuro-theme-modern --border-color */
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* From .verde-escuro-theme-modern */
 
   /* Form input colors from .verde-escuro theme */
   --input-bg: #223322; /* Similar to --panel-bg or --bg-color-secondary */
-  --input-border-color: rgba(212, 180, 85, 0.3); /* Similar to --card-border-color */
+  --input-border-color: rgba(
+    212,
+    180,
+    85,
+    0.3
+  ); /* Similar to --card-border-color */
   --input-focus-border-color: var(--color-primary);
   --placeholder-color: #81c784; /* A light green, as per old theme */
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #1a2a1a; /* --bg-color from .verde-escuro-base */
@@ -41,22 +51,26 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-primary-dark, #1a2a1a); /* Using a fallback if --selection-bg is not defined */
+  background-color: var(
+    --color-primary-dark,
+    #1a2a1a
+  ); /* Using a fallback if --selection-bg is not defined */
   color: var(--text-color, #ffffff);
 }
 
 /* Ensure links and other elements adapt if they don't use Tailwind text color utilities */
 a {
-  color: var(--color-secondary); /* Using the new secondary color for links by default */
+  color: var(
+    --color-secondary
+  ); /* Using the new secondary color for links by default */
 }
 a:hover {
   color: #e0c577; /* Lighter shade of secondary for hover */
 }
 
-
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 /* Animações */
@@ -147,15 +161,22 @@ code {
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover-bg, #718096); /* fallback: gray-500 */
+    background: var(
+      --scrollbar-thumb-hover-bg,
+      #718096
+    ); /* fallback: gray-500 */
   }
 
   /* Selection color */
   ::selection {
-    background-color: var(--selection-bg, #4a90e2); /* fallback: a pleasant blue */
+    background-color: var(
+      --selection-bg,
+      #4a90e2
+    ); /* fallback: a pleasant blue */
     color: var(--selection-color, white);
   }
-  ::-moz-selection { /* Firefox */
+  ::-moz-selection {
+    /* Firefox */
     background-color: var(--selection-bg, #4a90e2);
     color: var(--selection-color, white);
   }
@@ -172,273 +193,248 @@ code {
       display: none !important;
     }
     /* Ensure dark theme overrides are removed for print */
-    .dark, [data-theme="dark"], .dark body, [data-theme="dark"] body {
+    .dark,
+    [data-theme='dark'],
+    .dark body,
+    [data-theme='dark'] body {
       background-color: white !important;
       color: black !important;
     }
-    .dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400 {
+    .dark .text-gray-100,
+    .dark .text-gray-200,
+    .dark .text-gray-300,
+    .dark .text-gray-400 {
       color: black !important;
     }
-    .dark .bg-gray-800, .dark .bg-gray-700, .dark .bg-gray-900 {
+    .dark .bg-gray-800,
+    .dark .bg-gray-700,
+    .dark .bg-gray-900 {
       background-color: white !important;
     }
-    .dark .border-gray-700, .dark .border-gray-600 {
+    .dark .border-gray-700,
+    .dark .border-gray-600 {
       border-color: #e5e7eb !important; /* light gray border */
     }
-  }
+
+    /* Additional print styles that were previously outside this block */
+    header,
+    .sidebar,
+    .sidebar-overlay,
+    nav,
+    /* .no-print, /* Already defined above */
+    .btn,
+    button,
+    .mobile-toggle,
+    footer,
+    .actions-bar,
+    .filter-controls,
+    #mobile-sidebar-toggle,
+    .profile-menu,
+    .tournament-actions {
+      display: none !important;
+    }
+
+    .container,
+    .container-fluid,
+    main,
+    .content-wrapper {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      float: none !important;
+    }
+
+    .bracket-container {
+      width: 100% !important;
+      overflow: visible !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .bracket {
+      transform: scale(0.9) !important;
+      transform-origin: top left !important;
+      margin-bottom: 20pt !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .bracket-round {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .bracket-match {
+      border: 1pt solid #000 !important;
+      margin: 5pt 0 !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .bracket-match-player {
+      border-bottom: 1pt solid #000 !important;
+      padding: 3pt !important;
+    }
+
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin-bottom: 20pt !important;
+    }
+
+    table,
+    th,
+    td {
+      border: 1pt solid #000 !important;
+    }
+
+    th,
+    td {
+      padding: 5pt !important;
+      text-align: left !important;
+    }
+
+    thead {
+      display: table-header-group !important;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    @page {
+      margin: 2cm;
+    }
+
+    h1 {
+      font-size: 24pt !important;
+      margin-bottom: 20pt !important;
+      text-align: center !important;
+    }
+
+    h2 {
+      font-size: 18pt !important;
+      margin-bottom: 10pt !important;
+    }
+
+    h3 {
+      font-size: 14pt !important;
+      margin-bottom: 8pt !important;
+    }
+
+    .tournament-info {
+      margin-bottom: 20pt !important;
+      text-align: center !important;
+    }
+
+    .tournament-name {
+      font-size: 20pt !important;
+      font-weight: bold !important;
+      margin-bottom: 5pt !important;
+    }
+
+    .tournament-date {
+      font-size: 14pt !important;
+      margin-bottom: 5pt !important;
+    }
+
+    .tournament-location {
+      font-size: 12pt !important;
+      margin-bottom: 15pt !important;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    a,
+    a:visited {
+      text-decoration: underline;
+    }
+
+    a[href]:after {
+      content: ' (' attr(href) ')';
+      font-size: 90%;
+    }
+
+    a[href^='#']:after,
+    a[href^='javascript:']:after {
+      content: '';
+    }
+
+    img {
+      max-width: 100% !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .bracket-connector {
+      border-color: #000 !important;
+    }
+
+    .bracket-match-winner {
+      font-weight: bold !important;
+      background-color: #f0f0f0 !important;
+    }
+
+    .bracket-match-score {
+      font-weight: bold !important;
+    }
+
+    .print-footer {
+      display: block !important;
+      position: fixed !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      text-align: center !important;
+      font-size: 9pt !important;
+      border-top: 1pt solid #000 !important;
+      padding-top: 5pt !important;
+    }
+
+    .print-header {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      width: 100% !important;
+      text-align: center !important;
+      font-size: 9pt !important;
+      border-bottom: 1pt solid #000 !important;
+      padding-bottom: 5pt !important;
+    }
+
+    .print-logo {
+      display: block !important;
+      text-align: center !important;
+      margin-bottom: 15pt !important;
+    }
+
+    .print-logo img {
+      height: 60pt !important;
+      width: auto !important;
+    }
+  } /* End of @media print */
 
   /* Bracket Connector Styles (from old brackets.css) */
   .bracket-connector {
     position: absolute;
-    /* right: -30px; */ /* This will be handled by Tailwind positioning relative to the match card */
-    width: 30px; /* Adjust as needed or make dynamic */
+    width: 30px;
     border-top-width: 2px;
-    border-color: var(--card-border-color, #4a5568); /* Default to a gray, can be themed */
+    border-color: var(--card-border-color, #4a5568);
   }
 
-  .bracket-connector-horizontal { /* The main horizontal line from a match */
+  .bracket-connector-horizontal {
     height: 2px;
     background-color: var(--card-border-color, #4a5568);
   }
 
-  .bracket-connector-vertical { /* The vertical line connecting two horizontal lines */
+  .bracket-connector-vertical {
     width: 2px;
     background-color: var(--card-border-color, #4a5568);
   }
-
-  /* These specific top/bottom might be too complex without JS for positioning */
-  /* .bracket-connector-top {
-    top: 50%;
-    height: 50%;
-    border-right-width: 2px;
-  }
-
-  .bracket-connector-bottom {
-    top: 0;
-    height: 50%;
-    border-bottom-width: 2px;
-    border-right-width: 2px;
-  } */
-
-}
-
-  body {
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12pt;
-    width: 100%;
-  }
-
-  /* Esconder elementos desnecessários para impressão */
-  header,
-  .sidebar,
-  .sidebar-overlay,
-  nav,
-  .no-print,
-  .btn,
-  button,
-  .mobile-toggle,
-  footer,
-  .actions-bar,
-  .filter-controls,
-  #mobile-sidebar-toggle,
-  .profile-menu,
-  .tournament-actions {
-    display: none !important;
-  }
-
-  /* Layout para impressão */
-  .container,
-  .container-fluid,
-  main,
-  .content-wrapper {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    float: none !important;
-  }
-
-  /* Ajustes para o chaveamento */
-  .bracket-container {
-    width: 100% !important;
-    overflow: visible !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .bracket {
-    transform: scale(0.9) !important;
-    transform-origin: top left !important;
-    margin-bottom: 20pt !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .bracket-round {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .bracket-match {
-    border: 1pt solid #000 !important;
-    margin: 5pt 0 !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .bracket-match-player {
-    border-bottom: 1pt solid #000 !important;
-    padding: 3pt !important;
-  }
-
-  /* Ajustes para tabelas */
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    margin-bottom: 20pt !important;
-  }
-
-  table, th, td {
-    border: 1pt solid #000 !important;
-  }
-
-  th, td {
-    padding: 5pt !important;
-    text-align: left !important;
-  }
-
-  thead {
-    display: table-header-group !important;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Cabeçalho e rodapé da página */
-  @page {
-    margin: 2cm;
-  }
-
-  h1 {
-    font-size: 24pt !important;
-    margin-bottom: 20pt !important;
-    text-align: center !important;
-  }
-
-  h2 {
-    font-size: 18pt !important;
-    margin-bottom: 10pt !important;
-  }
-
-  h3 {
-    font-size: 14pt !important;
-    margin-bottom: 8pt !important;
-  }
-
-  /* Informações do torneio */
-  .tournament-info {
-    margin-bottom: 20pt !important;
-    text-align: center !important;
-  }
-
-  .tournament-name {
-    font-size: 20pt !important;
-    font-weight: bold !important;
-    margin-bottom: 5pt !important;
-  }
-
-  .tournament-date {
-    font-size: 14pt !important;
-    margin-bottom: 5pt !important;
-  }
-
-  .tournament-location {
-    font-size: 12pt !important;
-    margin-bottom: 15pt !important;
-  }
-
-  /* Quebras de página */
-  .page-break {
-    page-break-before: always;
-    break-before: page;
-  }
-
-  /* Links */
-  a, a:visited {
-    text-decoration: underline;
-  }
-
-  a[href]:after {
-    content: " (" attr(href) ")";
-    font-size: 90%;
-  }
-
-  a[href^="#"]:after,
-  a[href^="javascript:"]:after {
-    content: "";
-  }
-
-  /* Imagens */
-  img {
-    max-width: 100% !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Ajustes específicos para o chaveamento */
-  .bracket-connector {
-    border-color: #000 !important;
-  }
-
-  .bracket-match-winner {
-    font-weight: bold !important;
-    background-color: #f0f0f0 !important;
-  }
-
-  .bracket-match-score {
-    font-weight: bold !important;
-  }
-
-  /* Rodapé da página impressa */
-  .print-footer {
-    display: block !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    text-align: center !important;
-    font-size: 9pt !important;
-    border-top: 1pt solid #000 !important;
-    padding-top: 5pt !important;
-  }
-
-  /* Cabeçalho da página impressa */
-  .print-header {
-    display: block !important;
-    position: fixed !important;
-    top: 0 !important;
-    width: 100% !important;
-    text-align: center !important;
-    font-size: 9pt !important;
-    border-bottom: 1pt solid #000 !important;
-    padding-bottom: 5pt !important;
-  }
-
-  /* Ajustes para o logo */
-  .print-logo {
-    display: block !important;
-    text-align: center !important;
-    margin-bottom: 15pt !important;
-  }
-
-  .print-logo img {
-    height: 60pt !important;
-    width: auto !important;
-  }
-}
+} /* End of @layer components */
 
 /* Custom Scrollbar Styles from frontend/css/base/style.css */
 ::-webkit-scrollbar {

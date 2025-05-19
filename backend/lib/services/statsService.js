@@ -42,6 +42,25 @@ function calculateTopPlayersDb(players, scores) {
     .slice(0, 5); // Limita aos top 5
 }
 
+// _scores parameter was unused
+function calculatePlayerPerformanceDb(players) {
+  const performanceData = players.map((player) => {
+    const total = player.games_played || 0;
+    const wins = player.wins || 0;
+    // Calcula losses se não estiver explicitamente definido
+    const losses = player.losses !== undefined ? player.losses : total - wins;
+
+    return {
+      name: player.name,
+      wins,
+      losses,
+      winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
+    };
+  });
+
+  return performanceData.sort((a, b) => b.winRate - a.winRate).slice(0, 10); // Limita aos top 10 por winRate
+}
+
 function calculateCommonScoresDb(scores) {
   const scorePatterns = {};
 
@@ -58,25 +77,6 @@ function calculateCommonScoresDb(scores) {
   return Object.entries(scorePatterns)
     .map(([pattern, count]) => ({ pattern, count }))
     .sort((a, b) => b.count - a.count);
-}
-
-function calculatePlayerPerformanceDb(players, _scores) {
-  // _scores não é usado atualmente
-  const performanceData = players.map((player) => {
-    const total = player.games_played || 0;
-    const wins = player.wins || 0;
-    // Calcula losses se não estiver explicitamente definido
-    const losses = player.losses !== undefined ? player.losses : total - wins;
-
-    return {
-      name: player.name,
-      wins,
-      losses,
-      winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
-    };
-  });
-
-  return performanceData.sort((a, b) => b.winRate - a.winRate).slice(0, 10); // Limita aos top 10 por winRate
 }
 
 function calculatePlayerStatsDb(playerName, playerData, playerScores) {

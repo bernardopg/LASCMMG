@@ -4,8 +4,8 @@ const { program } = require('commander');
 const {
   initializeDatabase,
   testDatabaseConnection,
-  migrateDataFromJson,
 } = require('./lib/db/db-init'); // Caminho corrigido
+// migrateDataFromJson was removed from db-init.js
 
 program
   .version('1.0.0')
@@ -14,14 +14,7 @@ program
   )
   .option('-i, --init', 'Inicializar o banco de dados')
   .option('-t, --test', 'Testar a conexão com o banco de dados')
-  .option(
-    '-m, --migrate',
-    'Migrar dados dos arquivos JSON para o banco de dados SQLite'
-  )
-  .option(
-    '-T, --tournament <id>',
-    'ID do torneio específico para migrar (usado com --migrate)'
-  )
+  // Migrate option removed as migrateDataFromJson is discontinued
   .option(
     '-d, --data-dir <path>',
     'Diretório para armazenar o banco de dados',
@@ -33,61 +26,47 @@ const options = program.opts();
 
 async function main() {
   try {
-    if (!options.init && !options.test && !options.migrate) {
+    if (!options.init && !options.test) {
+      // Removed options.migrate
       program.help();
       return;
     }
 
     if (options.init) {
       await initializeDatabase();
+      // eslint-disable-next-line no-console
       console.log('Banco de dados inicializado com sucesso.');
     }
 
     if (options.test) {
       const testResult = await testDatabaseConnection();
       if (testResult) {
+        // eslint-disable-next-line no-console
         console.log('Teste de conexão bem-sucedido!');
       } else {
+        // eslint-disable-next-line no-console
         console.error('Teste de conexão falhou!');
         process.exit(1);
       }
     }
 
-    if (options.migrate) {
-      if (!options.init) {
-        await initializeDatabase();
-      }
+    // Migration logic removed as migrateDataFromJson is discontinued
 
-      const tournamentId = options.tournament || null;
-      if (tournamentId) {
-        console.log(`Migrando dados apenas para o torneio ${tournamentId}...`);
-      } else {
-        console.log('Migrando dados para todos os torneios...');
-      }
-
-      const migrationStats = await migrateDataFromJson(tournamentId);
-
-      console.log(`Torneios importados: ${migrationStats.tournamentsImported}`);
-      console.log(`Jogadores importados: ${migrationStats.playersImported}`);
-      console.log(`Pontuações importadas: ${migrationStats.scoresImported}`);
-
-      if (migrationStats.errors.length > 0) {
-        migrationStats.errors.forEach((error, index) => {
-          console.log(`Erro ${index + 1}: ${error}`);
-        });
-      }
-    }
-
+    // eslint-disable-next-line no-console
     console.log('Operações concluídas com sucesso.');
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Erro durante a execução do script:');
+    // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
   }
 }
 
 main().catch((err) => {
+  // eslint-disable-next-line no-console
   console.error('Erro fatal:');
+  // eslint-disable-next-line no-console
   console.error(err);
   process.exit(1);
 });

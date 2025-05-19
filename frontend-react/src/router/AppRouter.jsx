@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
 
@@ -77,47 +82,74 @@ const AppRouter = () => {
         {/* Rota raiz */}
         <Route
           path="/"
-          element={<Layout><Home /></Layout>}
+          element={
+            <Layout>
+              <Home />
+            </Layout>
+          }
         />
 
         {/* Rotas públicas */}
         <Route
           path="/login"
-          element={<Layout><Login /></Layout>}
+          element={
+            <Layout>
+              <Login />
+            </Layout>
+          }
         />
         <Route
           path="/chaveamento"
-          element={<Layout><Chaveamento /></Layout>}
+          element={
+            <Layout>
+              <Chaveamento />
+            </Layout>
+          }
         />
         <Route
           path="/placares"
-          element={<Layout><Placares /></Layout>}
+          element={
+            <Layout>
+              <Placares />
+            </Layout>
+          }
         />
         <Route
           path="/estatisticas"
-          element={<Layout><Estatisticas /></Layout>}
+          element={
+            <Layout>
+              <Estatisticas />
+            </Layout>
+          }
         />
         <Route
           path="/jogadores"
-          element={<Layout><Jogadores /></Layout>}
+          element={
+            <Layout>
+              <Jogadores />
+            </Layout>
+          }
         />
         <Route
           path="/busca"
-          element={<Layout><Busca /></Layout>}
+          element={
+            <Layout>
+              <Busca />
+            </Layout>
+          }
         />
 
         {/* Rota de logout - redireciona para a home */}
-        <Route
-          path="/logout"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="/logout" element={<Navigate to="/" replace />} />
 
         {/* Rotas administrativas protegidas */}
         <Route
           path="/admin"
           element={
             <AdminRoute>
-              <Layout><Dashboard /></Layout>
+              <Layout>
+                <Dashboard />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -125,7 +157,9 @@ const AppRouter = () => {
           path="/admin/torneios"
           element={
             <AdminRoute>
-              <Layout><TorneiosList /></Layout>
+              <Layout>
+                <TorneiosList />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -133,7 +167,9 @@ const AppRouter = () => {
           path="/admin/torneios/novo"
           element={
             <AdminRoute>
-              <Layout><TorneioForm /></Layout>
+              <Layout>
+                <TorneioForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -141,7 +177,9 @@ const AppRouter = () => {
           path="/admin/torneios/:id"
           element={
             <AdminRoute>
-              <Layout><TorneioForm /></Layout>
+              <Layout>
+                <TorneioForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -149,7 +187,9 @@ const AppRouter = () => {
           path="/admin/jogadores"
           element={
             <AdminRoute>
-              <Layout><JogadoresList /></Layout>
+              <Layout>
+                <JogadoresList />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -157,7 +197,9 @@ const AppRouter = () => {
           path="/admin/jogadores/novo"
           element={
             <AdminRoute>
-              <Layout><JogadorForm /></Layout>
+              <Layout>
+                <JogadorForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -165,7 +207,9 @@ const AppRouter = () => {
           path="/admin/jogadores/:id"
           element={
             <AdminRoute>
-              <Layout><JogadorForm /></Layout>
+              <Layout>
+                <JogadorForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -173,7 +217,9 @@ const AppRouter = () => {
           path="/admin/partidas"
           element={
             <AdminRoute>
-              <Layout><PartidasList /></Layout>
+              <Layout>
+                <PartidasList />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -181,7 +227,9 @@ const AppRouter = () => {
           path="/admin/partidas/nova"
           element={
             <AdminRoute>
-              <Layout><PartidaForm /></Layout>
+              <Layout>
+                <PartidaForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -189,7 +237,9 @@ const AppRouter = () => {
           path="/admin/partidas/:id"
           element={
             <AdminRoute>
-              <Layout><PartidaForm /></Layout>
+              <Layout>
+                <PartidaForm />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -197,7 +247,9 @@ const AppRouter = () => {
           path="/admin/configuracoes"
           element={
             <AdminRoute>
-              <Layout><Configuracoes /></Layout>
+              <Layout>
+                <Configuracoes />
+              </Layout>
             </AdminRoute>
           }
         />
@@ -205,7 +257,11 @@ const AppRouter = () => {
         {/* Rota para página não encontrada */}
         <Route
           path="*"
-          element={<Layout><PaginaNaoEncontrada /></Layout>}
+          element={
+            <Layout>
+              <PaginaNaoEncontrada />
+            </Layout>
+          }
         />
       </Routes>
     </Router>

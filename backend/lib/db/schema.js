@@ -12,6 +12,7 @@ function addColumnIfNotExistsSync(db, tableName, columnName, columnDef) {
   const columnExists = rows.some((row) => row.name === columnName);
 
   if (columnExists) {
+    // eslint-disable-next-line no-console
     console.log(`Coluna '${columnName}' já existe na tabela '${tableName}'`);
     return false;
   }
@@ -19,9 +20,11 @@ function addColumnIfNotExistsSync(db, tableName, columnName, columnDef) {
   const alterSql = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDef};`;
   try {
     db.exec(alterSql);
+    // eslint-disable-next-line no-console
     console.log(`Coluna '${columnName}' adicionada à tabela '${tableName}'`);
     return true;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(
       `Erro ao adicionar coluna '${columnName}' à tabela '${tableName}':`,
       err.message
@@ -31,6 +34,7 @@ function addColumnIfNotExistsSync(db, tableName, columnName, columnDef) {
 }
 
 function runMigrations() {
+  // eslint-disable-next-line no-console
   console.log('Executando migrações do banco de dados...');
   const db = getSyncConnection(); // Obter conexão síncrona
 
@@ -81,10 +85,12 @@ function runMigrations() {
     // TODO: Considerar uma migração para remover as colunas antigas de 'scores'
     // (winner, player1, player2, tournament_id) e popular winner_id a partir de winner se necessário.
 
+    // eslint-disable-next-line no-console
     console.log(
       'Migrações do banco de dados verificadas/executadas com sucesso.'
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Erro durante as migrações do banco de dados:', error);
     throw error;
   }

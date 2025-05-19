@@ -203,16 +203,20 @@ router.post(
       });
     }
   }
-});
+);
 
 // Rota para obter detalhes de um torneio específico
 router.get('/:tournamentId', async (req, res) => {
   const { tournamentId } = req.params;
   if (!isValidTournamentId(tournamentId)) {
-    logger.warn('TournamentsRoute', 'ID de torneio inválido em GET /:tournamentId.', {
-      tournamentId,
-      requestId: req.id,
-    });
+    logger.warn(
+      'TournamentsRoute',
+      'ID de torneio inválido em GET /:tournamentId.',
+      {
+        tournamentId,
+        requestId: req.id,
+      }
+    );
     return res
       .status(400)
       .json({ success: false, message: 'ID de torneio inválido.' });
@@ -229,9 +233,6 @@ router.get('/:tournamentId', async (req, res) => {
         .status(404)
         .json({ success: false, message: 'Torneio não encontrado.' });
     }
-    // O state_json pode ser grande, decidir se retorna aqui ou em /state
-    // Por ora, retornando sem o state_json completo para leveza.
-    // O frontend pode fazer uma chamada separada para /state se precisar do JSON completo.
     const { state_json, ...tournamentDetails } = tournament;
     res.json({ success: true, tournament: tournamentDetails });
   } catch (error) {
@@ -481,7 +482,6 @@ router.post(
   async (req, res) => {
     const { tournamentId } = req.params;
     let playersToImport = [];
-    let validationErrors = [];
     let message = '';
 
     if (!isValidTournamentId(tournamentId)) {
@@ -585,7 +585,6 @@ router.post(
   async (req, res) => {
     const { tournamentId } = req.params;
     const playersData = req.body.players;
-    let sanitizedPlayers = [];
     let validationErrors = [];
     let message = '';
 
@@ -612,7 +611,7 @@ router.post(
       });
     }
 
-    sanitizedPlayers = playersData
+    const sanitizedPlayers = playersData
       .map((p) => ({
         name: p.PlayerName || p.name,
         nickname: p.Nickname || p.nickname || '',
@@ -728,113 +727,6 @@ router.get('/:tournamentId/scores', async (req, res) => {
       success: false,
       message: errorMessage,
     });
-  }
-});
-
-router.post('/scores', authMiddleware, async (req, res) => {
-  const {
-    tournamentId,
-    matchId,
-    player1Score,
-    player2Score,
-    winnerId,
-    stateMatchKey,
-  } = req.body;
-
-  if (!isValidTournamentId(tournamentId)) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'ID de torneio inválido.' });
-  }
-  if (!stateMatchKey) {
-    return res.status(400).json({
-      success: false,
-      message: 'Chave da partida (stateMatchKey) não fornecida.',
-    });
-  }
-
-  try {
-    const tournament = await tournamentModel.getTournamentById(tournamentId);
-    if (!tournament) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Torneio não encontrado.' });
-    }
-
-    let state = tournament.state_json
-      ? JSON.parse(tournament.state_json)
-      : { matches: {} };
-
-    const scoreData = {
-      tournament_id: tournamentId,
-      match_id: matchId,
-      player1_score: parseInt(player1Score, 10),
-      player2_score: parseInt(player2Score, 10),
-      winner_id: winnerId,
-    };
-    const savedScore = await scoreModel.addScore(scoreData);
-
-    if (state && state.matches && state.matches[stateMatchKey]) {
-      state.matches[stateMatchKey].score = [
-        savedScore.player1_score,
-        savedScore.player2_score,
-      ];
-      state.matches[stateMatchKey].winner = savedScore.winner_id;
-
-      await tournamentModel.updateTournamentState(
-        tournamentId,
-        JSON.stringify(state)
-      );
-
-      logger.info(
-        'TournamentsRoute',
-        `Placar salvo e chaveamento atualizado para partida ${stateMatchKey} do torneio ${tournamentId}.`,
-        {
-          tournamentId,
-          matchNumber: stateMatchKey,
-          scoreId: savedScore.id,
-          requestId: req.id,
-        }
-      );
-      res.json({
-        success: true,
-        message: 'Placar salvo e chaveamento atualizado!',
-        score: savedScore,
-        newState: state,
-      });
-    } else {
-      logger.warn(
-        'TournamentsRoute',
-        `Partida ${stateMatchKey} (match_id DB: ${matchId}) não encontrada no state_json do torneio ${tournamentId} para atualização do chaveamento. Placar salvo.`,
-        {
-          tournamentId,
-          matchNumber: stateMatchKey,
-          dbMatchId: matchId,
-          scoreId: savedScore.id,
-          requestId: req.id,
-        }
-      );
-      res.json({
-        success: true,
-        message:
-          'Placar salvo, mas partida não encontrada no estado do chaveamento para atualização automática.',
-        score: savedScore,
-      });
-    }
-  } catch (error) {
-    logger.error(
-      'TournamentsRoute',
-      'Erro ao salvar placar e atualizar chaveamento (DB):',
-      {
-        error,
-        tournamentIdFromReq: tournamentId,
-        body: req.body,
-        requestId: req.id,
-      }
-    );
-    res
-      .status(500)
-      .json({ success: false, message: 'Erro interno ao salvar placar.' });
   }
 });
 
@@ -1461,18 +1353,18 @@ router.patch(
         message: 'ID/Chave da partida não fornecido.',
       });
     }
-    if (
-      typeof player1Score === 'undefined' ||
-      typeof player2Score === 'undefined' ||
-      typeof winnerId === 'undefined'
-    ) {
+
+    const p1Score =
+      player1Score !== undefined ? parseInt(player1Score, 10) : null;
+    const p2Score =
+      player2Score !== undefined ? parseInt(player2Score, 10) : null;
+
+    if ((p1Score === null || p2Score === null) && winnerId === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'Dados do placar e vencedor são obrigatórios.',
+        message: 'Placar ou vencedor deve ser fornecido.',
       });
     }
-    const p1Score = parseInt(player1Score, 10);
-    const p2Score = parseInt(player2Score, 10);
 
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
@@ -1487,7 +1379,24 @@ router.patch(
 
       if (state.matches && state.matches[routeMatchId]) {
         state.matches[routeMatchId].score = [p1Score, p2Score];
-        state.matches[routeMatchId].winner = winnerId;
+        let winnerPlayerIndex = null;
+        if (winnerId !== null && winnerId !== undefined) {
+          const matchPlayers = state.matches[routeMatchId].players;
+          if (
+            matchPlayers &&
+            matchPlayers[0] &&
+            matchPlayers[0].db_id === winnerId
+          ) {
+            winnerPlayerIndex = 0;
+          } else if (
+            matchPlayers &&
+            matchPlayers[1] &&
+            matchPlayers[1].db_id === winnerId
+          ) {
+            winnerPlayerIndex = 1;
+          }
+        }
+        state.matches[routeMatchId].winner = winnerPlayerIndex;
 
         await tournamentModel.updateTournamentState(
           tournamentId,
@@ -1496,17 +1405,18 @@ router.patch(
 
         logger.info(
           'TournamentsRoute',
-          `Vencedor da partida ${routeMatchId} do torneio ${tournamentId} definido como ${winnerId}. Chaveamento atualizado.`,
+          `Vencedor/placar da partida ${routeMatchId} do torneio ${tournamentId} atualizado. Chaveamento atualizado.`,
           {
             tournamentId,
             matchNumber: routeMatchId,
             winnerId,
+            winnerPlayerIndex,
             requestId: req.id,
           }
         );
         res.json({
           success: true,
-          message: 'Vencedor da partida atualizado com sucesso.',
+          message: 'Vencedor/placar da partida atualizado com sucesso.',
           newState: state,
         });
       } else {
@@ -1518,12 +1428,185 @@ router.patch(
     } catch (error) {
       logger.error(
         'TournamentsRoute',
-        `Erro ao atualizar vencedor para partida ${routeMatchId} do torneio ${tournamentId} (DB):`,
+        `Erro ao atualizar vencedor/placar para partida ${routeMatchId} do torneio ${tournamentId} (DB):`,
         { error, tournamentId, matchNumber: routeMatchId, requestId: req.id }
       );
       res.status(500).json({
         success: false,
-        message: 'Erro ao atualizar vencedor da partida (DB).',
+        message: 'Erro ao atualizar vencedor/placar da partida (DB).',
+      });
+    }
+  }
+);
+
+const {
+  calculateTopPlayersDb,
+  calculateCommonScoresDb,
+  calculatePlayerPerformanceDb,
+  calculatePlayerStatsDb,
+} = require('../lib/services/statsService');
+const matchModel = require('../lib/models/matchModel');
+
+router.get('/:tournamentId/stats', authMiddleware, async (req, res) => {
+  const { tournamentId } = req.params;
+  const reqId = req.id;
+
+  if (!isValidTournamentId(tournamentId)) {
+    logger.warn(
+      { reqId, tournamentId, path: req.originalUrl },
+      'Tentativa de acesso com ID de torneio inválido para estatísticas.'
+    );
+    return res.status(400).json({
+      success: false,
+      message: 'ID de torneio inválido',
+    });
+  }
+
+  try {
+    const tournament = await tournamentModel.getTournamentById(tournamentId);
+    if (!tournament) {
+      logger.warn(
+        { reqId, tournamentId, path: req.originalUrl },
+        'Torneio não encontrado para estatísticas.'
+      );
+      return res
+        .status(404)
+        .json({ success: false, message: 'Torneio não encontrado' });
+    }
+
+    const playersResult = await playerModel.getPlayersByTournamentId(
+      tournamentId,
+      { limit: -1 }
+    );
+    const players = playersResult.players;
+
+    const scoresResult = await scoreModel.getScoresByTournamentId(
+      tournamentId,
+      { limit: -1 }
+    );
+    const scores = scoresResult.scores;
+
+    const matchesResult = await matchModel.getMatchesByTournamentId(
+      tournamentId,
+      { limit: -1 }
+    );
+    const matches = matchesResult.matches;
+
+    const completedMatchesCount = scores.length;
+
+    const stats = {
+      tournamentInfo: {
+        name: tournament.name,
+        bracketType: tournament.bracket_type,
+        totalPlayers: players.length,
+        totalMatches: matches.length,
+        completedMatches: completedMatchesCount,
+        status: tournament.status,
+        date: tournament.date,
+      },
+      topPlayers: calculateTopPlayersDb(players, scores),
+      commonScores: calculateCommonScoresDb(scores),
+      playerPerformance: calculatePlayerPerformanceDb(players, scores),
+    };
+    logger.info(
+      { reqId, tournamentId, path: req.originalUrl },
+      `Estatísticas do torneio ${tournamentId} recuperadas com sucesso`
+    );
+    res.json({ success: true, stats });
+  } catch (error) {
+    logger.error(
+      { reqId, tournamentId, err: error, path: req.originalUrl },
+      `Erro ao buscar estatísticas do torneio ${tournamentId} (DB)`
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao calcular estatísticas do torneio',
+    });
+  }
+});
+
+router.get(
+  '/:tournamentId/players/:playerName/stats',
+  authMiddleware,
+  async (req, res) => {
+    const { tournamentId, playerName: routePlayerName } = req.params;
+    const playerName = decodeURIComponent(routePlayerName);
+    const reqId = req.id;
+
+    if (!isValidTournamentId(tournamentId) || !playerName) {
+      logger.warn(
+        { reqId, tournamentId, playerName, path: req.originalUrl },
+        'Tentativa de acesso com ID de torneio ou nome de jogador ausente para estatísticas.'
+      );
+      return res.status(400).json({
+        success: false,
+        message: 'ID de torneio e nome do jogador são obrigatórios',
+      });
+    }
+
+    try {
+      const player = await playerModel.getPlayerByNameInTournament(
+        tournamentId,
+        playerName
+      );
+      if (!player) {
+        logger.warn(
+          { reqId, tournamentId, playerName, path: req.originalUrl },
+          'Jogador não encontrado no torneio para estatísticas.'
+        );
+        return res.status(404).json({
+          success: false,
+          message: 'Jogador não encontrado neste torneio',
+        });
+      }
+
+      const scoresResult = await scoreModel.getScoresByTournamentId(
+        tournamentId,
+        { limit: -1, includeDeleted: false }
+      );
+      const allScoresInTournament = scoresResult.scores;
+
+      const playerScores = allScoresInTournament.filter((score) => {
+        return score.player1_id === player.id || score.player2_id === player.id;
+      });
+
+      const playerStats = calculatePlayerStatsDb(
+        playerName,
+        player,
+        playerScores
+      );
+
+      logger.info(
+        { reqId, tournamentId, playerName, path: req.originalUrl },
+        `Estatísticas do jogador ${playerName} no torneio ${tournamentId} recuperadas com sucesso`
+      );
+      res.json({
+        success: true,
+        player: {
+          id: player.id,
+          name: player.name,
+          nickname: player.nickname || '',
+          gender: player.gender,
+          skill_level: player.skill_level,
+          gamesPlayed: playerStats.gamesPlayed,
+          wins: playerStats.wins,
+          losses: playerStats.losses,
+        },
+        stats: {
+          matchHistory: playerStats.matches,
+          winRate: playerStats.winRate,
+          averageScoreDifference: playerStats.averageScoreDifference,
+          opponentStats: playerStats.opponentStats,
+        },
+      });
+    } catch (error) {
+      logger.error(
+        { reqId, tournamentId, playerName, err: error, path: req.originalUrl },
+        `Erro ao buscar estatísticas do jogador ${playerName} (DB)`
+      );
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao calcular estatísticas do jogador',
       });
     }
   }

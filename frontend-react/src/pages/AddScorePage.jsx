@@ -6,11 +6,11 @@ import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import { useNavigate } from 'react-router-dom';
 
-
 const AddScorePage = () => {
   const [players, setPlayers] = useState([]);
   const { showMessage } = useMessage();
-  const { currentTournament, refreshCurrentTournamentDetails } = useTournament(); // Get current tournament and a way to refresh
+  const { currentTournament, refreshCurrentTournamentDetails } =
+    useTournament(); // Get current tournament and a way to refresh
   const navigate = useNavigate();
 
   const fetchPlayersData = useCallback(async () => {
@@ -23,7 +23,10 @@ const AddScorePage = () => {
       setPlayers(fetchedPlayers || []);
     } catch (error) {
       console.error('Erro ao carregar jogadores:', error);
-      showMessage(`Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`, 'error');
+      showMessage(
+        `Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`,
+        'error'
+      );
       setPlayers([]);
     }
   }, [currentTournament?.id, showMessage]);
@@ -66,7 +69,8 @@ const AddScorePage = () => {
       .test(
         'one-player-must-win',
         'Um jogador deve ter placar 2 se o outro não tiver, ou os placares devem ser diferentes (ex: 2x0, 2x1, 1x0).',
-        function (value) { // value is score2
+        function (value) {
+          // value is score2
           const { score1 } = this.parent;
           // Ensure scores are numbers for comparison
           const s1 = Number(score1);
@@ -78,7 +82,7 @@ const AddScorePage = () => {
 
           // This case implies s1 < 2, s2 < 2, and s1 === s2 (e.g. 0-0, 1-1), which is invalid if neither reached 2.
           // Or one score is not a number yet.
-          if ( (s1 < 2 && s2 < 2 && s1 === s2) ) return false;
+          if (s1 < 2 && s2 < 2 && s1 === s2) return false;
 
           return true; // Default to true if conditions not met, allowing other validations to catch NaN etc.
         }
@@ -104,21 +108,28 @@ const AddScorePage = () => {
       await saveScore(payload);
       showMessage('Placar adicionado com sucesso!', 'success');
       resetForm();
-      if (refreshCurrentTournamentDetails) { // If context provides a way to refresh bracket/details
+      if (refreshCurrentTournamentDetails) {
+        // If context provides a way to refresh bracket/details
         refreshCurrentTournamentDetails();
       }
       // Optionally navigate to scores page or bracket page
       // navigate(`/scores?tournament=${currentTournament.id}`);
     } catch (error) {
       console.error('Erro ao adicionar placar:', error);
-      showMessage(`Erro ao adicionar placar: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`, 'error');
+      showMessage(
+        `Erro ao adicionar placar: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`,
+        'error'
+      );
     }
     setSubmitting(false);
   };
 
   return (
     <div className="p-4 md:p-6">
-      <h2 id="add-score-heading" className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
+      <h2
+        id="add-score-heading"
+        className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6"
+      >
         Adicionar Novo Placar
       </h2>
       <div className="card card-form bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 md:p-8">
@@ -131,7 +142,10 @@ const AddScorePage = () => {
             <Form className="form space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="form-group">
-                  <label htmlFor="player1" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="player1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Jogador 1:
                   </label>
                   <Field
@@ -142,15 +156,27 @@ const AddScorePage = () => {
                   >
                     <option value="">Selecione Jogador 1</option>
                     {players.map((player) => (
-                      <option key={player.id || player.name} value={player.name}>
-                        {player.nickname ? `${player.name} (${player.nickname})` : player.name}
+                      <option
+                        key={player.id || player.name}
+                        value={player.name}
+                      >
+                        {player.nickname
+                          ? `${player.name} (${player.nickname})`
+                          : player.name}
                       </option>
                     ))}
                   </Field>
-                  <ErrorMessage name="player1_name" component="div" className="text-red-500 text-xs mt-1" />
+                  <ErrorMessage
+                    name="player1_name"
+                    component="div"
+                    className="text-red-500 dark:text-red-400 text-xs mt-1"
+                  />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="score1" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="score1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Placar Jogador 1:
                   </label>
                   <Field
@@ -159,35 +185,54 @@ const AddScorePage = () => {
                     name="score1"
                     min="0"
                     max="2"
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                     aria-label="Placar do jogador 1"
                   />
-                  <ErrorMessage name="score1" component="div" className="text-red-500 text-xs mt-1" />
+                  <ErrorMessage
+                    name="score1"
+                    component="div"
+                    className="text-red-500 dark:text-red-400 text-xs mt-1"
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="form-group">
-                  <label htmlFor="player2" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="player2"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Jogador 2:
                   </label>
                   <Field
                     as="select"
                     id="player2_name"
                     name="player2_name"
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                   >
                     <option value="">Selecione Jogador 2</option>
                     {players.map((player) => (
-                      <option key={player.id || player.name} value={player.name}>
-                        {player.nickname ? `${player.name} (${player.nickname})` : player.name}
+                      <option
+                        key={player.id || player.name}
+                        value={player.name}
+                      >
+                        {player.nickname
+                          ? `${player.name} (${player.nickname})`
+                          : player.name}
                       </option>
                     ))}
                   </Field>
-                  <ErrorMessage name="player2_name" component="div" className="text-red-500 text-xs mt-1" />
+                  <ErrorMessage
+                    name="player2_name"
+                    component="div"
+                    className="text-red-500 dark:text-red-400 text-xs mt-1"
+                  />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="score2" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="score2"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Placar Jogador 2:
                   </label>
                   <Field
@@ -196,22 +241,29 @@ const AddScorePage = () => {
                     name="score2"
                     min="0"
                     max="2"
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                     aria-label="Placar do jogador 2"
                   />
-                  <ErrorMessage name="score2" component="div" className="text-red-500 text-xs mt-1" />
+                  <ErrorMessage
+                    name="score2"
+                    component="div"
+                    className="text-red-500 dark:text-red-400 text-xs mt-1"
+                  />
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="round" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="round"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Rodada:
                 </label>
                 <Field
                   as="select"
                   id="round"
                   name="round"
-                  className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                  className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Selecione a rodada</option>
                   <option value="Round 1">Round 1</option>
@@ -220,7 +272,11 @@ const AddScorePage = () => {
                   <option value="Semifinais">Semifinais</option>
                   <option value="Final">Final</option>
                 </Field>
-                <ErrorMessage name="round" component="div" className="text-red-500 text-xs mt-1" />
+                <ErrorMessage
+                  name="round"
+                  component="div"
+                  className="text-red-500 dark:text-red-400 text-xs mt-1"
+                />
               </div>
 
               <div className="form-actions flex justify-end space-x-3 pt-4">

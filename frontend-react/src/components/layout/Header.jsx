@@ -1,11 +1,23 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { FaBars, FaTimes, FaChevronLeft, FaChevronRight, FaSun, FaMoon } from 'react-icons/fa'; // Added Theme icons
+import {
+  FaBars,
+  FaTimes,
+  FaChevronLeft,
+  FaChevronRight,
+  FaSun,
+  FaMoon,
+} from 'react-icons/fa'; // Added Theme icons
 import { useAuth } from '../../context/AuthContext';
 import TournamentSelector from '../common/TournamentSelector';
 
-const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggleTheme }) => {
+const Header = ({
+  isSidebarCollapsed,
+  toggleSidebarCollapse,
+  currentTheme,
+  toggleTheme,
+}) => {
   const { currentUser, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -22,20 +34,33 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
   // };
 
   return (
-    <Disclosure as="nav" className="bg-[var(--panel-bg)] shadow-md border-b border-[var(--card-border-color)]">
+    <Disclosure
+      as="nav"
+      className="bg-[var(--panel-bg)] shadow-md border-b border-[var(--card-border-color)]"
+    >
       {({ open }) => (
         <>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
-              <div className="flex items-center"> {/* Ensure items-center for the button */}
+              <div className="flex items-center">
+                {' '}
+                {/* Ensure items-center for the button */}
                 {/* Desktop Sidebar Toggle Button */}
                 <div className="hidden md:flex items-center mr-4">
                   <button
                     onClick={toggleSidebarCollapse}
                     className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                    aria-label={isSidebarCollapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+                    aria-label={
+                      isSidebarCollapsed
+                        ? 'Expandir menu lateral'
+                        : 'Recolher menu lateral'
+                    }
                   >
-                    {isSidebarCollapsed ? <FaChevronRight className="h-5 w-5" /> : <FaChevronLeft className="h-5 w-5" />}
+                    {isSidebarCollapsed ? (
+                      <FaChevronRight className="h-5 w-5" />
+                    ) : (
+                      <FaChevronLeft className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
                 <div className="flex-shrink-0 flex items-center">
@@ -91,13 +116,23 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                 <button
                   onClick={toggleTheme}
                   className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white mr-3"
-                  aria-label={currentTheme === 'dark' ? "Ativar modo claro" : "Ativar modo escuro"}
+                  aria-label={
+                    currentTheme === 'dark'
+                      ? 'Ativar modo claro'
+                      : 'Ativar modo escuro'
+                  }
                 >
-                  {currentTheme === 'dark' ? <FaSun className="h-5 w-5" /> : <FaMoon className="h-5 w-5" />}
+                  {currentTheme === 'dark' ? (
+                    <FaSun className="h-5 w-5" />
+                  ) : (
+                    <FaMoon className="h-5 w-5" />
+                  )}
                 </button>
 
                 {/* Menu do perfil */}
-                <Menu as="div" className="relative"> {/* Removed ml-3 as theme toggle has mr-3 */}
+                <Menu as="div" className="relative">
+                  {' '}
+                  {/* Removed ml-3 as theme toggle has mr-3 */}
                   <div>
                     <Menu.Button className="bg-[var(--panel-bg)] rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--panel-bg)] focus:ring-[var(--color-secondary)]">
                       <span className="sr-only">Abrir menu do usuário</span>
@@ -121,7 +156,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                           <Link
                             to="/profile"
                             className={`${
-                              active ? 'bg-[var(--color-primary-dark)] text-white' : 'text-gray-200'
+                              active
+                                ? 'bg-[var(--color-primary-dark)] text-white'
+                                : 'text-gray-200'
                             } block px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
                           >
                             Meu Perfil
@@ -133,7 +170,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                           <Link
                             to="/settings"
                             className={`${
-                              active ? 'bg-[var(--color-primary-dark)] text-white' : 'text-gray-200'
+                              active
+                                ? 'bg-[var(--color-primary-dark)] text-white'
+                                : 'text-gray-200'
                             } block px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
                           >
                             Configurações
@@ -145,7 +184,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                           <button
                             onClick={handleLogout}
                             className={`${
-                              active ? 'bg-[var(--color-primary-dark)] text-white' : 'text-gray-200'
+                              active
+                                ? 'bg-[var(--color-primary-dark)] text-white'
+                                : 'text-gray-200'
                             } block w-full text-left px-4 py-2 text-sm hover:bg-[var(--color-primary-dark)] hover:text-white rounded-md`}
                           >
                             Sair
@@ -162,12 +203,36 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                 <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-[var(--color-primary-dark)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Abrir menu principal</span>
                   {open ? (
-                    <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="block h-6 w-6"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   ) : (
-                    <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    <svg
+                      className="block h-6 w-6"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
                     </svg>
                   )}
                 </Disclosure.Button>
@@ -179,25 +244,42 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
           <Disclosure.Panel className="sm:hidden border-t border-[var(--card-border-color)]">
             <div className="pt-2 pb-3 space-y-1">
               {/* Adjusted for dark theme */}
-              <Link to="/" className="bg-[var(--color-primary-dark)] border-[var(--color-primary)] text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+              <Link
+                to="/"
+                className="bg-[var(--color-primary-dark)] border-[var(--color-primary)] text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+              >
                 Dashboard
               </Link>
-              <Link to="/tournaments" className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+              <Link
+                to="/tournaments"
+                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+              >
                 Torneios
               </Link>
-              <Link to="/players" className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+              <Link
+                to="/players"
+                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+              >
                 Jogadores
               </Link>
-              <Link to="/brackets" className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+              <Link
+                to="/brackets"
+                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+              >
                 Chaves
               </Link>
-              <Link to="/stats" className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+              <Link
+                to="/stats"
+                className="border-transparent text-gray-300 hover:bg-gray-700 hover:border-gray-600 hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+              >
                 Estatísticas
               </Link>
             </div>
 
             {/* Torneios no mobile */}
-            <div className="pt-2 px-3 pb-3"> {/* Added pb-3 for spacing */}
+            <div className="pt-2 px-3 pb-3">
+              {' '}
+              {/* Added pb-3 for spacing */}
               <TournamentSelector /> {/* Use the new selector here as well */}
             </div>
 
@@ -209,15 +291,25 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, currentTheme, toggl
                   </div>
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium text-gray-200">{currentUser?.name || 'Usuário'}</div>
-                  <div className="text-sm font-medium text-gray-400">{currentUser?.email || ''}</div>
+                  <div className="text-base font-medium text-gray-200">
+                    {currentUser?.name || 'Usuário'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-400">
+                    {currentUser?.email || ''}
+                  </div>
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <Link to="/profile" className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
+                >
                   Meu Perfil
                 </Link>
-                <Link to="/settings" className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">
+                <Link
+                  to="/settings"
+                  className="block px-4 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
+                >
                   Configurações
                 </Link>
                 <button

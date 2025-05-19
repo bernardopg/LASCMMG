@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /**
  * Favicon Generator
  * Gera um favicon simples para o site

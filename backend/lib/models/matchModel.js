@@ -31,30 +31,27 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
 
   const { limit, offset, orderBy = 'match_number', order = 'ASC' } = options;
 
-  const allowedOrderFields = [
-    'id',
-    'match_number',
-    'round',
-    'player1_id',
-    'player2_id',
-    'scheduled_at',
-    'next_match',
-    'next_loser_match',
-    'bracket',
-    'created_at',
-    'updated_at',
-  ];
-  const allowedOrderDirections = ['ASC', 'DESC'];
+  // Whitelist and map orderBy fields to actual column names
+  const columnMap = {
+    id: 'id',
+    match_number: 'match_number',
+    round: 'round',
+    player1_id: 'player1_id',
+    player2_id: 'player2_id',
+    scheduled_at: 'scheduled_at',
+    next_match: 'next_match',
+    next_loser_match: 'next_loser_match',
+    bracket: 'bracket',
+    created_at: 'created_at',
+    updated_at: 'updated_at',
+    player1_name: 'player1_name', // Alias from JOIN
+    player2_name: 'player2_name', // Alias from JOIN
+  };
 
-  let effectiveOrderBy = 'match_number';
-  if (allowedOrderFields.includes(orderBy)) {
-    effectiveOrderBy = orderBy;
-  }
-
-  let effectiveOrder = 'ASC';
-  if (allowedOrderDirections.includes(order.toUpperCase())) {
-    effectiveOrder = order.toUpperCase();
-  }
+  const effectiveOrderBy = columnMap[orderBy] || 'match_number'; // Default to 'match_number'
+  const effectiveOrder = ['ASC', 'DESC'].includes(order.toUpperCase())
+    ? order.toUpperCase()
+    : 'ASC';
 
   let sql = `
     SELECT m.*,
@@ -64,8 +61,10 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
     LEFT JOIN players p1 ON m.player1_id = p1.id
     LEFT JOIN players p2 ON m.player2_id = p2.id
     WHERE m.tournament_id = ?
-    ORDER BY m.${effectiveOrderBy} ${effectiveOrder}
+    ORDER BY ${effectiveOrderBy.includes('.') ? effectiveOrderBy : `m."${effectiveOrderBy}"`} ${effectiveOrder}
   `;
+  // If effectiveOrderBy is an alias like 'player1_name', it doesn't need table prefix.
+  // Otherwise, prefix with 'm.' and quote.
   const params = [tournamentId];
   const countSql =
     'SELECT COUNT(*) as total FROM matches WHERE tournament_id = ?';

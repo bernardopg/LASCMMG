@@ -43,6 +43,7 @@ try {
   // no servidor (applyDatabaseMigrations) ou scripts de setup.
   // initializeDatabase(); // Removido daqui
 } catch (err) {
+  // eslint-disable-next-line no-console
   console.error('Error opening database with better-sqlite3:', err.message);
   throw err;
 }

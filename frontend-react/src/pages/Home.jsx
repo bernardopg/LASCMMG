@@ -5,7 +5,11 @@ import { FaUsers, FaListOl, FaTrophy, FaArrowRight } from 'react-icons/fa';
 
 const Home = () => {
   const { tournaments, currentTournament, loading } = useTournament();
-  const [stats, setStats] = useState({ players: 0, matches: 0, tournaments: 0 });
+  const [stats, setStats] = useState({
+    players: 0,
+    matches: 0,
+    tournaments: 0,
+  });
 
   // Carregar estatísticas gerais (simulação)
   useEffect(() => {
@@ -16,7 +20,7 @@ const Home = () => {
         setStats({
           players: 128,
           matches: 210,
-          tournaments: tournaments?.length || 0
+          tournaments: tournaments?.length || 0,
         });
       }, 1000);
     };
@@ -34,7 +38,8 @@ const Home = () => {
           </h1>
           <p className="text-gray-700 mb-6 max-w-xl">
             Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
-            Acompanhe resultados, estatísticas e chaveamentos dos torneios em andamento.
+            Acompanhe resultados, estatísticas e chaveamentos dos torneios em
+            andamento.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link to="/chaveamento" className="btn btn-primary">
@@ -64,7 +69,9 @@ const Home = () => {
             {loading ? (
               <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{stats.players}</p>
+              <p className="text-3xl font-bold text-gray-800">
+                {stats.players}
+              </p>
             )}
             <p className="text-gray-500 mt-1">Cadastrados no sistema</p>
           </div>
@@ -79,7 +86,9 @@ const Home = () => {
             {loading ? (
               <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{stats.matches}</p>
+              <p className="text-3xl font-bold text-gray-800">
+                {stats.matches}
+              </p>
             )}
             <p className="text-gray-500 mt-1">Disputadas até o momento</p>
           </div>
@@ -94,7 +103,9 @@ const Home = () => {
             {loading ? (
               <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{stats.tournaments}</p>
+              <p className="text-3xl font-bold text-gray-800">
+                {stats.tournaments}
+              </p>
             )}
             <p className="text-gray-500 mt-1">Registrados na plataforma</p>
           </div>
@@ -109,17 +120,23 @@ const Home = () => {
             <div className="p-6 pb-4 bg-primary bg-opacity-5 border-b border-primary border-opacity-20">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold text-primary">{currentTournament.name}</h3>
-                  <p className="text-gray-600 mt-1">{currentTournament.location}</p>
+                  <h3 className="text-xl font-semibold text-primary">
+                    {currentTournament.name}
+                  </h3>
+                  <p className="text-gray-600 mt-1">
+                    {currentTournament.location}
+                  </p>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className={`badge ${
-                    currentTournament.status === 'active'
-                      ? 'badge-success'
-                      : currentTournament.status === 'upcoming'
-                        ? 'badge-info'
-                        : 'badge-warning'
-                  }`}>
+                  <span
+                    className={`badge ${
+                      currentTournament.status === 'active'
+                        ? 'badge-success'
+                        : currentTournament.status === 'upcoming'
+                          ? 'badge-info'
+                          : 'badge-warning'
+                    }`}
+                  >
                     {currentTournament.status === 'active'
                       ? 'Em andamento'
                       : currentTournament.status === 'upcoming'
@@ -127,7 +144,8 @@ const Home = () => {
                         : 'Concluído'}
                   </span>
                   <p className="text-sm text-gray-500 mt-2">
-                    {currentTournament.startDate} até {currentTournament.endDate}
+                    {currentTournament.startDate} até{' '}
+                    {currentTournament.endDate}
                   </p>
                 </div>
               </div>
@@ -138,19 +156,27 @@ const Home = () => {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">{currentTournament.players}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {currentTournament.players}
+                  </span>
                   <p className="text-sm text-gray-500">Jogadores</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">{Math.ceil(currentTournament.players / 2)}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {Math.ceil(currentTournament.players / 2)}
+                  </span>
                   <p className="text-sm text-gray-500">Partidas</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">{currentTournament.categories.length}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {currentTournament.categories.length}
+                  </span>
                   <p className="text-sm text-gray-500">Categorias</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">{Math.floor(Math.log2(currentTournament.players))}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {Math.floor(Math.log2(currentTournament.players))}
+                  </span>
                   <p className="text-sm text-gray-500">Rodadas</p>
                 </div>
               </div>
@@ -171,14 +197,17 @@ const Home = () => {
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Todos os Torneios</h2>
-          <Link to="/tournaments" className="text-primary hover:text-primary-dark text-sm inline-flex items-center">
+          <Link
+            to="/tournaments"
+            className="text-primary hover:text-primary-dark text-sm inline-flex items-center"
+          >
             Ver todos <FaArrowRight className="ml-1 w-4 h-4" />
           </Link>
         </div>
 
         {loading ? (
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="card p-6 animate-pulse">
                 <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -188,24 +217,33 @@ const Home = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {tournaments.map(tournament => (
-              <div key={tournament.id} className="card p-6 hover:shadow-md transition-shadow">
+            {tournaments.map((tournament) => (
+              <div
+                key={tournament.id}
+                className="card p-6 hover:shadow-md transition-shadow"
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-medium mb-1">{tournament.name}</h3>
-                    <p className="text-gray-600 text-sm">{tournament.location}</p>
+                    <h3 className="text-lg font-medium mb-1">
+                      {tournament.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {tournament.location}
+                    </p>
                     <p className="text-gray-500 text-xs mt-1">
                       {tournament.startDate} - {tournament.endDate}
                     </p>
                   </div>
                   <div className="flex items-center">
-                    <span className={`badge mr-3 ${
-                      tournament.status === 'active'
-                        ? 'badge-success'
-                        : tournament.status === 'upcoming'
-                          ? 'badge-info'
-                          : 'badge-warning'
-                    }`}>
+                    <span
+                      className={`badge mr-3 ${
+                        tournament.status === 'active'
+                          ? 'badge-success'
+                          : tournament.status === 'upcoming'
+                            ? 'badge-info'
+                            : 'badge-warning'
+                      }`}
+                    >
                       {tournament.status === 'active'
                         ? 'Em andamento'
                         : tournament.status === 'upcoming'

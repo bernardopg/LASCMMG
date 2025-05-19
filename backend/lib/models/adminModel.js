@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto'); // Added crypto import
 const { runAsync, getOneAsync } = require('../db/database');
 const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
 const { logger } = require('../logger/logger');

@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }) => {
 
         if (storedUser && storedToken) {
           // Configurar token de autenticação no axios
-          axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          axios.defaults.headers.common['Authorization'] =
+            `Bearer ${storedToken}`;
 
           // Verificar se o token ainda é válido
           const response = await axios.get('/api/auth/verify');
@@ -152,11 +153,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!currentUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;
