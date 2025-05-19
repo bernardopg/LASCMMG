@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react'; // Added useState
 import { Link } from 'react-router-dom';
 import AdminPlayersTable from '../components/admin/AdminPlayersTable';
 import AdminScoresTable from '../components/admin/AdminScoresTable';
-import AdminTrashTable from '../components/admin/AdminTrashTable'; // Import the new component
+import AdminTrashTable from '../components/admin/AdminTrashTable';
+import ImportPlayersModal from '../components/admin/ImportPlayersModal'; // Import the modal
+// import { useTournament } from '../context/TournamentContext'; // If tournamentId is needed for import
 
 const AdminDashboardPage = () => {
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  // const { selectedTournament } = useTournament(); // Example: get selected tournament for context
+
+  const handleOpenImportModal = () => setIsImportModalOpen(true);
+  const handleCloseImportModal = () => setIsImportModalOpen(false);
+
+  const handleImportSuccess = () => {
+    // Potentially refresh player list or show a success message
+    console.log('Player import successful, refresh data if needed.');
+    handleCloseImportModal();
+  };
+
   return (
     <div className="p-4 md:p-6">
       <div className="admin-header mb-6">
@@ -23,7 +37,7 @@ const AdminDashboardPage = () => {
               Gerenciamento de Jogadores
             </h3>
             <button
-              onClick={() => alert('Funcionalidade de Importar Jogadores a ser implementada.')}
+              onClick={handleOpenImportModal}
               className="btn btn-outline btn-sm"
             >
               Importar Jogadores
@@ -31,6 +45,13 @@ const AdminDashboardPage = () => {
           </div>
           <AdminPlayersTable />
         </div>
+
+        <ImportPlayersModal
+          isOpen={isImportModalOpen}
+          onClose={handleCloseImportModal}
+          onImportSuccess={handleImportSuccess}
+          // tournamentId={selectedTournament?.id} // Pass tournamentId if modal needs it
+        />
 
         <div className="admin-card bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">

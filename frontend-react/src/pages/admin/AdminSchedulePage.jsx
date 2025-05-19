@@ -1,28 +1,82 @@
-import React from 'react';
-import { FaCalendarAlt } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaCalendarAlt, FaListUl, FaFilter } from 'react-icons/fa';
 
 const AdminSchedulePage = () => {
+  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+  // Placeholder data - replace with actual data fetching
+  const unscheduledMatches = [
+    { id: 'm101', round: 'Rodada 1', player1: 'Jogador A', player2: 'Jogador B', tournament: 'Torneio Principal' },
+    { id: 'm102', round: 'Rodada 1', player1: 'Jogador C', player2: 'Jogador D', tournament: 'Torneio Principal' },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-100">Gerenciar Agendamento de Partidas</h1>
-        {/* Add buttons or filters here if needed in the future */}
-      </div>
-
-      <div className="card p-6 md:p-8">
-        <div className="text-center py-10">
-          <FaCalendarAlt size={48} className="mx-auto text-gray-500 mb-4" />
-          <h2 className="text-xl font-semibold text-gray-300 mb-2">
-            Gerenciamento de Agendamento (Em Desenvolvimento)
-          </h2>
-          <p className="text-gray-400">
-            Esta seção permitirá visualizar e ajustar datas e horários das partidas de um torneio.
-          </p>
-          <p className="text-gray-500 mt-2">
-            Funcionalidades futuras incluirão um calendário interativo e a capacidade de notificar jogadores sobre alterações.
-          </p>
+        <div className="flex items-center space-x-2">
+          <button className="btn btn-outline btn-sm flex items-center">
+            <FaFilter className="mr-2" /> Filtrar Torneio
+          </button>
+          <div className="tabs tabs-boxed bg-gray-700">
+            <button
+              className={`tab ${viewMode === 'calendar' ? 'tab-active !bg-primary' : 'text-gray-300'}`}
+              onClick={() => setViewMode('calendar')}
+            >
+              <FaCalendarAlt className="mr-2" /> Calendário
+            </button>
+            <button
+              className={`tab ${viewMode === 'list' ? 'tab-active !bg-primary' : 'text-gray-300'}`}
+              onClick={() => setViewMode('list')}
+            >
+              <FaListUl className="mr-2" /> Lista
+            </button>
+          </div>
         </div>
       </div>
+
+      {viewMode === 'calendar' && (
+        <div className="card p-6 md:p-8">
+          <div className="text-center py-10">
+            <FaCalendarAlt size={48} className="mx-auto text-gray-500 mb-4" />
+            <h2 className="text-xl font-semibold text-gray-300 mb-2">
+              Visualização de Calendário (Em Desenvolvimento)
+            </h2>
+            <p className="text-gray-400">
+              Um calendário interativo para arrastar e soltar partidas será implementado aqui.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {viewMode === 'list' && (
+        <div className="space-y-6">
+          <div className="card p-6">
+            <h3 className="text-lg font-semibold text-gray-200 mb-3">Partidas Não Agendadas</h3>
+            {unscheduledMatches.length > 0 ? (
+              <ul className="divide-y divide-gray-700">
+                {unscheduledMatches.map(match => (
+                  <li key={match.id} className="py-3 flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-medium text-gray-100">
+                        {match.player1} vs {match.player2} ({match.round})
+                      </p>
+                      <p className="text-xs text-gray-400">{match.tournament}</p>
+                    </div>
+                    <button className="btn btn-primary btn-sm">Agendar</button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400 text-sm">Nenhuma partida não agendada.</p>
+            )}
+          </div>
+          {/* Placeholder for Scheduled Matches List */}
+          <div className="card p-6">
+            <h3 className="text-lg font-semibold text-gray-200 mb-3">Partidas Agendadas</h3>
+            <p className="text-gray-400 text-sm">Lista de partidas já agendadas aparecerá aqui...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
