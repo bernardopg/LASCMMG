@@ -15,5 +15,16 @@ describe('Smoke Test', () => {
     cy.contains('Login - LASCMMG'); // Check for text on the login page
   });
 
+  it('should navigate to the admin dashboard page', () => {
+    // This test might require mocking authentication or setting a token in a real scenario.
+    // For a smoke test, we'll just try to visit and check for an element.
+    // If not authenticated, it should redirect to /login or show an error.
+    // For now, let's assume direct navigation for structure check.
+    cy.visit('/admin');
+    // Check for a common element on the admin dashboard
+    // If it redirects to login, this check might fail or need adjustment.
+    cy.contains('Painel Administrativo');
+  });
+
   // Add more basic navigation or critical path tests here
 });
