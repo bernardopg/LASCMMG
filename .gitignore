@@ -66,3 +66,6 @@ coverage/
 # Ignorar arquivos de configuração locais
 *.local.js
 *.local.json
+
+# Ignorar arquivos de relatório de texto
+*.txt
