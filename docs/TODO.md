@@ -37,7 +37,7 @@
   - Análise de bundle com `rollup-plugin-visualizer` (Configurado).
   - Code splitting granular (React.lazy, Suspense) para componentes pesados ou rotas menos acessadas (Aplicado a AdminDashboard, BracketPage, CreateTournamentPage, AdminTournamentListPage).
   - Virtualização de listas longas (jogadores, placares) se gargalos de performance forem identificados.
-- [ ] 💡 **Progressive Web App (PWA) Enhancements**
+- [ ] 🚧 **Progressive Web App (PWA) Enhancements** (Basic setup done, further optimization pending)
   - Configurar e otimizar Service Worker com `vite-plugin-pwa`.
   - Melhorar funcionalidade offline básica e caching de assets.
 
