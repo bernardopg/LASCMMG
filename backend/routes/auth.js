@@ -2,6 +2,8 @@ const express = require('express');
 const adminModel = require('../lib/models/adminModel');
 const router = express.Router();
 const { logger } = require('../lib/logger/logger');
+const { validateRequest, adminLoginSchema, changePasswordSchema } = require('../lib/utils/validationUtils'); // Import validation utilities
+const { authMiddleware } = require('../lib/middleware/authMiddleware'); // Import authMiddleware
 
 const rateLimit = require('express-rate-limit');
 const loginLimiter = rateLimit({
@@ -15,28 +17,31 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/login', loginLimiter, async (req, res) => {
+router.post('/login', loginLimiter, validateRequest(adminLoginSchema), async (req, res) => {
+  // Validation is now handled by validateRequest middleware using adminLoginSchema
+  // req.body will contain validated and potentially sanitized data.
   const { username, password } = req.body;
 
-  if (
-    !username ||
-    !password ||
-    typeof username !== 'string' ||
-    typeof password !== 'string'
-  ) {
-    logger.warn(
-      {
-        message: 'Tentativa de login com dados inválidos.',
-        username,
-        requestId: req.id,
-        ip: req.ip,
-      },
-      'Tentativa de login com dados inválidos.'
-    );
-    return res
-      .status(400)
-      .json({ success: false, message: 'Usuário e senha são obrigatórios.' });
-  }
+  // Basic presence check can be removed as Joi handles 'required'
+  // if (
+  //   !username ||
+  //   !password ||
+  //   typeof username !== 'string' ||
+  //   typeof password !== 'string'
+  // ) {
+  //   logger.warn(
+  //     {
+  //       message: 'Tentativa de login com dados inválidos.',
+  //       username,
+  //       requestId: req.id,
+  //       ip: req.ip,
+  //     },
+  //     'Tentativa de login com dados inválidos.'
+  //   );
+  //   return res
+  //     .status(400)
+  //     .json({ success: false, message: 'Usuário e senha são obrigatórios.' });
+  // }
 
   try {
     const authResult = await adminModel.authenticateAdmin(username, password);
@@ -78,32 +83,49 @@ router.post('/login', loginLimiter, async (req, res) => {
   }
 });
 
-router.post('/change-password', async (req, res) => {
+router.post('/change-password', authMiddleware, validateRequest(changePasswordSchema), async (req, res) => {
+  // authMiddleware ensures user is authenticated.
+  // validateRequest ensures body has username, currentPassword, newPassword with correct formats.
   const { username, currentPassword, newPassword } = req.body;
 
-  if (
-    !username ||
-    !currentPassword ||
-    !newPassword ||
-    typeof username !== 'string' ||
-    typeof currentPassword !== 'string' ||
-    typeof newPassword !== 'string'
-  ) {
+  // It's generally good practice for a user to only be able to change their own password.
+  // The `username` in the body should match `req.user.username` from the token.
+  if (req.user.username !== username) {
     logger.warn(
-      {
-        message: 'Tentativa de alterar senha com dados inválidos.',
-        username,
-        requestId: req.id,
-        ip: req.ip,
-      },
-      'Tentativa de alterar senha com dados inválidos.'
+      'AuthRoutes',
+      `Tentativa de alterar senha para usuário diferente do autenticado. Autenticado: ${req.user.username}, Alvo: ${username}`,
+      { requestId: req.id, ip: req.ip }
     );
-    return res.status(400).json({
+    return res.status(403).json({
       success: false,
-      message:
-        'Usuário, senha atual e nova senha (como strings) são obrigatórios.',
+      message: 'Não autorizado a alterar a senha de outro usuário.',
     });
   }
+
+  // Manual validation can be removed
+  // if (
+  //   !username ||
+  //   !currentPassword ||
+  //   !newPassword ||
+  //   typeof username !== 'string' ||
+  //   typeof currentPassword !== 'string' ||
+  //   typeof newPassword !== 'string'
+  // ) {
+  //   logger.warn(
+  //     {
+  //       message: 'Tentativa de alterar senha com dados inválidos.',
+  //       username,
+  //       requestId: req.id,
+  //       ip: req.ip,
+  //     },
+  //     'Tentativa de alterar senha com dados inválidos.'
+  //   );
+  //   return res.status(400).json({
+  //     success: false,
+  //     message:
+  //       'Usuário, senha atual e nova senha (como strings) são obrigatórios.',
+  //   });
+  // }
 
   try {
     const result = await adminModel.changePassword(
@@ -149,7 +171,7 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-const { authMiddleware } = require('../lib/middleware/authMiddleware');
+// authMiddleware is already imported at the top
 
 // Rota para obter informações do usuário logado (baseado no token)
 router.get('/me', authMiddleware, async (req, res) => {

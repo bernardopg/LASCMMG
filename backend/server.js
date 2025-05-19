@@ -19,6 +19,7 @@ const {
 } = require('./lib/config/config');
 const { globalErrorHandler } = require('./lib/middleware/errorHandler');
 const { applyDatabaseMigrations } = require('./lib/db/db-init');
+const { connectToRedis } = require('./lib/db/redisClient'); // Import Redis connection
 const { logger, httpLogger } = require('./lib/logger/logger');
 
 const app = express();
@@ -238,6 +239,7 @@ const tournamentRoutes = require('./routes/tournaments.js');
 const securityRoutes = require('./routes/security.js');
 const adminRoutes = require('./routes/admin'); // Novo router para admin
 const scoresRoutes = require('./routes/scores'); // Novo router para scores
+const playerRoutes = require('./routes/player'); // Import player routes
 // const statsRoutes = require('./routes/stats'); // Removido pois as rotas foram movidas
 const { checkDbConnection } = require('./lib/db/database');
 
@@ -246,6 +248,7 @@ app.use('/api/tournaments', tournamentRoutes); // Agora inclui as rotas de estat
 app.use('/api/system', securityRoutes);
 app.use('/api/admin', adminRoutes); // Montar as rotas de admin
 app.use('/api/scores', scoresRoutes); // Montar as rotas de scores
+app.use('/api/players', playerRoutes); // Mount player routes
 // app.use('/api/stats', statsRoutes); // Removido pois as rotas foram movidas
 
 app.get('/ping', (req, res) => {
@@ -336,6 +339,7 @@ app.get('*', (req, res, next) => {
 async function startServer() {
   try {
     await applyDatabaseMigrations();
+    await connectToRedis(); // Initialize Redis connection
     const server = app.listen(port, () => {
       logger.info(`Servidor rodando em http://localhost:${port}`);
     });

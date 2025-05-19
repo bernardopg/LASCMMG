@@ -82,8 +82,11 @@ function runMigrations() {
       'completed_at',
       'TEXT DEFAULT CURRENT_TIMESTAMP'
     );
-    // TODO: Considerar uma migração para remover as colunas antigas de 'scores'
-    // (winner, player1, player2, tournament_id) e popular winner_id a partir de winner se necessário.
+    // As colunas antigas 'winner', 'player1', 'player2' (nomes) e 'tournament_id' (redundante)
+    // da tabela 'scores' são consideradas obsoletas.
+    // Uma migração de dados para popular 'winner_id' a partir de 'winner' (se aplicável e se 'winner' continha IDs)
+    // e para remover essas colunas de bancos de dados existentes seria uma tarefa separada.
+    // Para novas instalações, o schema em db-init.js já não inclui essas colunas antigas.
 
     // eslint-disable-next-line no-console
     console.log(

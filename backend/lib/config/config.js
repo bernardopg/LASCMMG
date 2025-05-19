@@ -95,6 +95,9 @@ if (!COOKIE_SECRET) {
   }
 }
 
+// Configurações do Redis
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+
 // Exportar configurações
 module.exports = {
   NODE_ENV,
@@ -105,4 +108,5 @@ module.exports = {
   JWT_SECRET,
   JWT_EXPIRATION,
   COOKIE_SECRET, // Adicionado
+  REDIS_URL,
 };

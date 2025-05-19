@@ -101,6 +101,7 @@ Este guia detalha o processo de implantação do Sistema de Gerenciamento de Tor
       ```bash
       node scripts/initialize_admin.js --username admin --password suaSenhaSuperForte
       ```
+    - **⚠️ IMPORTANTE (Segurança):** Após a primeira inicialização bem-sucedida do backend e a confirmação de que o administrador pode fazer login, o arquivo `admin_credentials.json` (se você o criou manualmente para o script `initialize_admin.js` ou se o script o gerou) **DEVE ser removido ou movido para um local seguro fora do diretório da aplicação acessível pela web.** A presença contínua deste arquivo no servidor de produção é um risco de segurança, pois ele contém o hash da senha do administrador. O sistema é projetado para migrar essas credenciais para o banco de dados na primeira oportunidade.
 
 ## 🏗️ Build para Produção
 

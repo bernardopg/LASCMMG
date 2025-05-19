@@ -122,6 +122,7 @@ Acesso restrito a administradores. Navegue para `/admin` após o login.
 
 - **Login:** Acesse a rota `/login`. Insira seu nome de usuário e senha.
 - **Logout:** No menu de perfil (canto superior direito), clique em "Sair".
+- **Nota Importante de Segurança para Administradores (Configuração Inicial):** Se você está configurando o sistema pela primeira vez e utilizou o script `scripts/initialize_admin.js` ou um arquivo `admin_credentials.json` para criar o primeiro administrador, é crucial que, após o primeiro login bem-sucedido e a confirmação de que o sistema está funcionando, este arquivo `admin_credentials.json` (se existir na raiz do projeto) seja **removido ou movido para um local seguro fora do servidor**. O sistema migra essas credenciais para o banco de dados, e manter o arquivo original no servidor representa um risco de segurança.
 
 ### Navegação no Painel Admin
 

@@ -3,8 +3,18 @@ const router = express.Router();
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const playerModel = require('../lib/models/playerModel');
 const scoreModel = require('../lib/models/scoreModel');
-const tournamentModel = require('../lib/models/tournamentModel'); // For trash items related to tournaments
+const tournamentModel = require('../lib/models/tournamentModel');
 const { logger } = require('../lib/logger/logger');
+const {
+  validateRequest,
+  playerSchema,
+  optionalPlayerIdSchema, // For routes like PUT/DELETE /players/:playerId
+  scoreIdParamSchema,    // For routes like PUT/DELETE /scores/:scoreId
+  scoreUpdateSchema,
+  trashItemSchema,
+  // Schemas for query params if needed for GET routes (e.g., pagination, filters)
+  // For now, GET routes will not have Joi validation unless specified.
+} = require('../lib/utils/validationUtils');
 
 // Middleware to ensure only admins can access these routes
 const ensureAdmin = (req, res, next) => {
@@ -30,16 +40,17 @@ const ensureAdmin = (req, res, next) => {
   }
 };
 
-router.use(authMiddleware); // All admin routes require authentication
-router.use(ensureAdmin); // All admin routes require admin role
+router.use(authMiddleware);
+router.use(ensureAdmin);
 
 // == PLAYER MANAGEMENT ==
+// GET /players - Query params validation could be added if complex
 router.get('/players', async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
-    // TODO: Implement sortBy, order, and filters based on playerModel capabilities
-    // const { sortBy, order, ...filters } = req.query;
+    // sortBy, order, and filters are passed from query to playerModel.
+    // playerModel.getAllPlayers should handle these.
 
     // For now, using a generic getAllPlayers. This might need adjustment
     // if playerModel.getAllPlayers doesn't support pagination/filtering directly
@@ -76,27 +87,13 @@ router.get('/players', async (req, res) => {
   }
 });
 
-router.post('/players', async (req, res) => {
-  const { name, nickname = '', gender, skill_level } = req.body;
-  if (!name || typeof name !== 'string' || name.trim().length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'Nome do jogador é obrigatório.' });
-  }
+router.post('/players', validateRequest({ body: playerSchema.body }), async (req, res) => {
+  // playerData is validated by playerSchema
+  const playerData = req.body;
   try {
-    // Note: adminModel.addPlayer might be more appropriate if it's a global player
-    // playerModel.addPlayer was for adding to a specific tournament.
-    // For now, assuming a global player creation or playerModel needs a more generic add.
-    // Let's assume playerModel.createGlobalPlayer or similar exists or needs to be created.
-    // For simplicity, using a placeholder for actual creation logic.
-    // This needs to be connected to a proper model function.
-    const newPlayer = await playerModel.createPlayer({
-      // Placeholder for actual model function
-      name: name.trim(),
-      nickname: nickname.trim(),
-      gender,
-      skill_level,
-    });
+    // Assuming createGlobalPlayer is the intended function for admin creation
+    // or playerModel.addPlayer if a tournament_id context is implicitly managed or not required for admin creation
+    const newPlayer = await playerModel.createGlobalPlayer(playerData);
     logger.info(
       'AdminPlayersRoute',
       `Novo jogador criado (admin): ${newPlayer.name}`,
@@ -123,11 +120,11 @@ router.post('/players', async (req, res) => {
   }
 });
 
-router.put('/players/:playerId', async (req, res) => {
-  const { playerId } = req.params;
-  const playerData = req.body;
+router.put('/players/:playerId', validateRequest({ params: optionalPlayerIdSchema.params, body: playerSchema.body }), async (req, res) => {
+  const { playerId } = req.params; // Validated
+  const playerData = req.body; // Validated
   try {
-    const updatedPlayer = await playerModel.updatePlayer(playerId, playerData); // Assumes playerModel.updatePlayer exists
+    const updatedPlayer = await playerModel.updatePlayer(playerId, playerData);
     if (!updatedPlayer) {
       return res
         .status(404)
@@ -155,11 +152,11 @@ router.put('/players/:playerId', async (req, res) => {
   }
 });
 
-router.delete('/players/:playerId', async (req, res) => {
-  const { playerId } = req.params;
-  const permanent = req.query.permanent === 'true';
+router.delete('/players/:playerId', validateRequest({ params: optionalPlayerIdSchema.params }), async (req, res) => {
+  const { playerId } = req.params; // Validated
+  const permanent = req.query.permanent === 'true'; // Query params can also be validated if needed
   try {
-    const success = await playerModel.deletePlayer(playerId, permanent); // Assumes playerModel.deletePlayer handles soft/hard delete
+    const success = await playerModel.deletePlayer(playerId, permanent);
     if (!success) {
       return res.status(404).json({
         success: false,
@@ -188,12 +185,13 @@ router.delete('/players/:playerId', async (req, res) => {
 });
 
 // == SCORE MANAGEMENT ==
+// GET /scores - Query params validation could be added
 router.get('/scores', async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
-    // TODO: Implement sortBy, order, and filters based on scoreModel capabilities
-    // const { sortBy, order, ...filters } = req.query;
+    // sortBy, order, and filters are passed from query to scoreModel.
+    // scoreModel.getAllScores should handle these.
 
     // Assuming scoreModel.getAllScores supports pagination and filtering
     const { scores, total } = await scoreModel.getAllScores({
@@ -226,14 +224,11 @@ router.get('/scores', async (req, res) => {
   }
 });
 
-router.put('/scores/:scoreId', async (req, res) => {
-  const { scoreId } = req.params;
-  const scoreData = req.body;
+router.put('/scores/:scoreId', validateRequest({ params: scoreIdParamSchema.params, body: scoreUpdateSchema.body }), async (req, res) => {
+  const { scoreId } = req.params; // Validated
+  const scoreData = req.body; // Validated
   try {
-    // Ensure tournament_id is not accidentally changed or is validated if present
-    // delete scoreData.tournament_id;
-
-    const updatedScore = await scoreModel.updateScore(scoreId, scoreData); // Assumes scoreModel.updateScore exists
+    const updatedScore = await scoreModel.updateScore(scoreId, scoreData);
     if (!updatedScore) {
       return res
         .status(404)
@@ -260,11 +255,11 @@ router.put('/scores/:scoreId', async (req, res) => {
   }
 });
 
-router.delete('/scores/:scoreId', async (req, res) => {
-  const { scoreId } = req.params;
+router.delete('/scores/:scoreId', validateRequest({ params: scoreIdParamSchema.params }), async (req, res) => {
+  const { scoreId } = req.params; // Validated
   const permanent = req.query.permanent === 'true';
   try {
-    const success = await scoreModel.deleteScore(scoreId, permanent); // Assumes scoreModel.deleteScore handles soft/hard delete
+    const success = await scoreModel.deleteScore(scoreId, permanent);
     if (!success) {
       return res.status(404).json({
         success: false,
@@ -293,6 +288,7 @@ router.delete('/scores/:scoreId', async (req, res) => {
 });
 
 // == TRASH MANAGEMENT ==
+// GET /trash - Query params (page, limit, type) could be validated
 router.get('/trash', async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -402,13 +398,9 @@ router.get('/trash', async (req, res) => {
   }
 });
 
-router.post('/trash/restore', async (req, res) => {
-  const { itemId, itemType } = req.body;
-  if (!itemId || !itemType) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'itemId e itemType são obrigatórios.' });
-  }
+router.post('/trash/restore', validateRequest(trashItemSchema), async (req, res) => {
+  const { itemId, itemType } = req.body; // Validated
+  // Manual check for itemId and itemType can be removed
 
   try {
     let success = false;
@@ -418,12 +410,9 @@ router.post('/trash/restore', async (req, res) => {
       success = await scoreModel.restoreScore(itemId);
     } else if (itemType === 'tournament') {
       success = await tournamentModel.restoreTournament(itemId);
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Tipo de item inválido para restauração.',
-      });
     }
+    // Joi validation already ensures itemType is one of the valid ones,
+    // so the 'else' case for invalid itemType is handled by the validator.
 
     if (success) {
       logger.info(
@@ -458,13 +447,9 @@ router.post('/trash/restore', async (req, res) => {
   }
 });
 
-router.delete('/trash/item', async (req, res) => {
-  const { itemId, itemType } = req.body;
-  if (!itemId || !itemType) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'itemId e itemType são obrigatórios.' });
-  }
+router.delete('/trash/item', validateRequest(trashItemSchema), async (req, res) => {
+  const { itemId, itemType } = req.body; // Validated
+  // Manual check for itemId and itemType can be removed
 
   try {
     let success = false;
@@ -474,12 +459,8 @@ router.delete('/trash/item', async (req, res) => {
       success = await scoreModel.deleteScore(itemId, true); // true for permanent
     } else if (itemType === 'tournament') {
       success = await tournamentModel.deleteTournament(itemId, true); // true for permanent
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Tipo de item inválido para exclusão permanente.',
-      });
     }
+    // Joi validation handles invalid itemType
 
     if (success) {
       logger.info(

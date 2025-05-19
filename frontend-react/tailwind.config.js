@@ -9,9 +9,11 @@ module.exports = {
         primary: {
           // Modern Green from --primary-color: #2e9d3a;
           DEFAULT: '#2e9d3a',
-          dark: '#24803e', // from --primary-hover
-          light: '#54c160', // from --focus-ring-color (example light shade)
-          50: '#f0fdf4', // Placeholder, generate proper shades later
+          dark: '#24803e',
+          light: '#54c160',
+          'banner-light': '#e6f5ee', // Very light green for light theme banners
+          'banner-dark': '#14532d',  // Very dark green for dark theme banners (adjust as needed)
+          50: '#f0fdf4',
           100: '#dcfce7',
           200: '#bbf7d0',
           300: '#86efac',

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTournament } from '../../context/TournamentContext';
 
 const TournamentSelector = () => {
-  const { tournaments, currentTournament, setCurrentTournamentId, loading } =
+  const { tournaments, currentTournament, selectTournament, loading } =
     useTournament();
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,30 +13,27 @@ const TournamentSelector = () => {
     const queryParams = new URLSearchParams(location.search);
     const urlTournamentId = queryParams.get('tournament');
 
-    if (urlTournamentId && tournaments.find((t) => t.id === urlTournamentId)) {
-      if (!currentTournament || currentTournament.id !== urlTournamentId) {
-        setCurrentTournamentId(urlTournamentId);
+    if (urlTournamentId && tournaments.find((t) => t.id.toString() === urlTournamentId)) {
+      if (!currentTournament || currentTournament.id.toString() !== urlTournamentId) {
+        selectTournament(urlTournamentId);
       }
-    } else if (tournaments.length > 0 && !currentTournament) {
-      // Default to the first tournament if none selected and no valid URL param
-      // Or, if a currentTournament is already set by context, respect that.
-      // This logic might need refinement based on desired default behavior.
-      // For now, if no currentTournament and tournaments exist, pick the first.
-      // setCurrentTournamentId(tournaments[0].id);
-      // navigate(`?tournament=${tournaments[0].id}`, { replace: true });
     }
+    // A lógica de seleção de torneio padrão/inicial (localStorage ou primeiro da lista)
+    // já é tratada dentro do TournamentContext.jsx ao chamar loadTournaments.
+    // Não é necessário duplicar ou conflitar com essa lógica aqui.
+    // Este useEffect agora apenas sincroniza com o parâmetro da URL, se presente e válido.
   }, [
     tournaments,
     location.search,
-    setCurrentTournamentId,
+    selectTournament, // Alterado de setCurrentTournamentId
     currentTournament,
-    navigate,
+    // navigate, // navigate não precisa estar aqui se não for usado no efeito
   ]);
 
   const handleTournamentChange = (event) => {
     const newTournamentId = event.target.value;
     if (newTournamentId) {
-      setCurrentTournamentId(newTournamentId);
+      selectTournament(newTournamentId); // Alterado de setCurrentTournamentId
       navigate(`?tournament=${newTournamentId}`, { replace: true });
       // Data loading for the new tournament will be handled by pages observing currentTournament
     }

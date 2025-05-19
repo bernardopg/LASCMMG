@@ -1,180 +1,143 @@
 const crypto = require('crypto');
 const { JWT_SECRET } = require('../config/config');
-
-// Armazenamento de tokens para validação
-// Em uma aplicação em cluster, seria necessário usar Redis ou similar
-const tokenStore = new Map();
-let tokenCleanupTimer = null;
+const { getClient } = require('../db/redisClient'); // Import Redis client
+const { logger } = require('../logger/logger'); // Assuming logger is in this path
 
 // Configurações
 const CSRF_CONFIG = {
-  // Tempo de validade do token em segundos (30 minutos)
-  tokenValidity: 30 * 60,
-
-  // Nome do header que deve conter o token
+  tokenValidity: 30 * 60, // Tempo de validade do token em segundos (30 minutos)
   headerName: 'X-CSRF-Token',
-
-  // Nome do cookie onde o token pode ser armazenado (alternativa ao header)
   cookieName: 'csrfToken',
-
-  // Métodos HTTP que exigem proteção CSRF (que modificam o estado do servidor)
   protectedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
+  redisKeyPrefix: 'csrf:',
 };
 
-function generateToken(userId) {
-  // Gerar valor aleatório
+async function generateToken(userId) {
+  const redis = await getClient();
+  if (!redis) {
+    logger.error('CSRFMiddleware', 'Cliente Redis não disponível para gerar token CSRF.');
+    throw new Error('Serviço indisponível no momento.');
+  }
+
   const randomBytes = crypto.randomBytes(32).toString('hex');
-
-  // Adicionar timestamp para verificar validade
   const timestamp = Date.now();
-
-  // Criar assinatura baseada nos dados e no segredo JWT
   const data = `${userId}-${randomBytes}-${timestamp}`;
-  const signature = crypto
-    .createHmac('sha256', JWT_SECRET)
-    .update(data)
-    .digest('hex');
-
-  // Criar token completo
+  const signature = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('hex');
   const token = `${randomBytes}.${timestamp}.${signature}`;
 
-  // Armazenar token com dados de usuário e expiração
-  tokenStore.set(token, {
-    userId,
-    timestamp,
-    expires: timestamp + CSRF_CONFIG.tokenValidity * 1000,
-  });
+  const tokenData = JSON.stringify({ userId, timestamp });
+  const redisKey = `${CSRF_CONFIG.redisKeyPrefix}${token}`;
 
-  // Limpar tokens expirados periodicamente
-  cleanExpiredTokens(); // Limpeza imediata também é bom
-
-  // Iniciar timer de limpeza se não estiver ativo
-  if (!tokenCleanupTimer && tokenStore.size > 0) {
-    // Inicia apenas se houver tokens
-    tokenCleanupTimer = setInterval(
-      cleanExpiredTokens,
-      (CSRF_CONFIG.tokenValidity * 1000) / 2
-    ); // Limpa na metade do tempo de validade
+  try {
+    await redis.set(redisKey, tokenData, {
+      EX: CSRF_CONFIG.tokenValidity, // Define o tempo de expiração em segundos
+    });
+  } catch (error) {
+    logger.error('CSRFMiddleware', 'Erro ao salvar token CSRF no Redis:', { error: error.message, token });
+    throw new Error('Erro ao gerar token de segurança.');
   }
 
   return token;
 }
 
-function verifyToken(token, userId) {
-  if (!token || !userId) {
+async function verifyToken(token, userId) {
+  if (!token || !userId) return false;
+
+  const redis = await getClient();
+  if (!redis) {
+    logger.error('CSRFMiddleware', 'Cliente Redis não disponível para verificar token CSRF.');
+    // Fallback or throw error depending on desired behavior if Redis is down
     return false;
   }
 
-  // Verificar se o token existe no armazenamento
-  const tokenData = tokenStore.get(token);
-
-  if (!tokenData) {
+  const redisKey = `${CSRF_CONFIG.redisKeyPrefix}${token}`;
+  let tokenDataString;
+  try {
+    tokenDataString = await redis.get(redisKey);
+  } catch (error) {
+    logger.error('CSRFMiddleware', 'Erro ao buscar token CSRF do Redis:', { error: error.message, token });
     return false;
   }
 
-  // Verificar se o token pertence ao usuário correto
-  if (tokenData.userId !== userId) {
+  if (!tokenDataString) return false;
+
+  let storedData;
+  try {
+    storedData = JSON.parse(tokenDataString);
+  } catch (error) {
+    logger.error('CSRFMiddleware', 'Erro ao parsear dados do token CSRF do Redis:', { error: error.message, tokenDataString });
     return false;
   }
 
-  // Verificar se o token expirou
-  if (Date.now() > tokenData.expires) {
-    // Remover token expirado
-    tokenStore.delete(token);
-    return false;
-  }
+  if (storedData.userId !== userId) return false;
 
-  // Validar assinatura
+  // Timestamp check is implicitly handled by Redis TTL, but signature check is still crucial
   const parts = token.split('.');
-  if (parts.length !== 3) {
-    return false;
+  if (parts.length !== 3) return false;
+
+  const [retrievedRandomBytes, retrievedTimestamp] = parts;
+  // Ensure the timestamp from the token matches the one stored (though Redis TTL is primary for expiry)
+  if (parseInt(retrievedTimestamp, 10) !== storedData.timestamp) {
+      logger.warn('CSRFMiddleware', 'Timestamp do token CSRF não corresponde ao armazenado.', { token, storedData });
+      return false;
   }
 
-  const [randomBytes, timestamp] = parts;
-  const data = `${userId}-${randomBytes}-${timestamp}`;
-  const expectedSignature = crypto
-    .createHmac('sha256', JWT_SECRET)
-    .update(data)
-    .digest('hex');
+  const dataToVerify = `${userId}-${retrievedRandomBytes}-${retrievedTimestamp}`;
+  const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(dataToVerify).digest('hex');
 
   return parts[2] === expectedSignature;
 }
 
-function cleanExpiredTokens() {
-  const now = Date.now();
-  for (const [token, data] of tokenStore.entries()) {
-    if (now > data.expires) {
-      tokenStore.delete(token);
-    }
-  }
-  // if (removedCount > 0) { // Mantendo o comentário original para referência, mas a variável foi removida
-  //   console.log(`CSRF Token Cleanup: Removed ${removedCount} expired tokens.`);
-  // }
+// No longer needed with Redis TTL: cleanExpiredTokens, tokenStore, tokenCleanupTimer
 
-  // Parar o timer se não houver mais tokens para limpar (para economizar recursos)
-  if (tokenStore.size === 0 && tokenCleanupTimer) {
-    clearInterval(tokenCleanupTimer);
-    tokenCleanupTimer = null;
-    // console.log('CSRF Token Cleanup: Store is empty, timer stopped.');
-  }
-}
-
-function csrfProvider(req, res, next) {
-  // Verificar se o usuário está autenticado
+async function csrfProvider(req, res, next) {
   const userId = req.user?.username || 'anonymous';
+  let token;
+  try {
+    token = await generateToken(userId);
+  } catch (error) {
+    // Error already logged in generateToken
+    return res.status(503).json({ success: false, message: 'Erro ao gerar token de segurança. Tente novamente.' });
+  }
 
-  // Gerar o token
-  const token = generateToken(userId);
-
-  // Incluir o token nos headers da resposta
   res.set(CSRF_CONFIG.headerName, token);
-
-  // Opcionalmente definir um cookie (útil para formulários HTML)
-  // Tornar o cookie acessível ao JavaScript do cliente para que ele possa ser lido e enviado no header X-CSRF-Token.
-  // A proteção CSRF ainda é mantida porque o servidor compara o token do cookie com o token do header.
   res.cookie(CSRF_CONFIG.cookieName, token, {
-    httpOnly: false, // Permitir que o JavaScript do cliente leia este cookie
+    httpOnly: false,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
     maxAge: CSRF_CONFIG.tokenValidity * 1000,
   });
-
-  // Disponibilizar o token no objeto de resposta para templates
   res.locals.csrfToken = token;
-
   next();
 }
 
-function csrfProtection(req, res, next) {
-  // Não verificar para métodos que não modificam recursos
+async function csrfProtection(req, res, next) {
   if (!CSRF_CONFIG.protectedMethods.includes(req.method)) {
     return next();
   }
 
-  // Obter o token do header ou cookie
-  const token =
-    req.headers[CSRF_CONFIG.headerName.toLowerCase()] ||
-    req.cookies[CSRF_CONFIG.cookieName];
-
-  // Obter o ID do usuário
+  const token = req.headers[CSRF_CONFIG.headerName.toLowerCase()] || req.cookies[CSRF_CONFIG.cookieName];
   const userId = req.user?.username || 'anonymous';
+  let isValid;
 
-  // Verificar se o token é válido
-  if (!token || !verifyToken(token, userId)) {
-    return res.status(403).json({
-      success: false,
-      message:
-        'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
-    });
+  try {
+    isValid = await verifyToken(token, userId);
+  } catch (error) {
+    // Error already logged in verifyToken if Redis related
+    return res.status(503).json({ success: false, message: 'Erro ao verificar token de segurança. Tente novamente.' });
   }
 
-  // Token é válido, prosseguir
+  if (!isValid) {
+    return res.status(403).json({
+      success: false,
+      message: 'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
+    });
+  }
   next();
 }
 
 module.exports = {
-  generateToken,
-  verifyToken,
+  // generateToken and verifyToken are now async, primarily for internal use by the middleware
   csrfProvider,
   csrfProtection,
   CSRF_CONFIG,

@@ -1,453 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Cores Primárias (Verde LASCMMG - alinhado com tailwind.config.js) */
   --color-primary: #2e9d3a;
+  --color-primary-light: #54c160; /* Usado em btn-outline hover, pode ser ajustado */
   --color-primary-dark: #24803e;
+
+  /* Cor Secundária (Dourado LASCMMG - alinhado com tailwind.config.js) */
   --color-secondary: #d4b455;
+  --color-secondary-light: #e0c577; /* Para hover de links */
+  --color-secondary-dark: #c0a140;
+
+  /* Cores de Status (Consistente com tailwind.config.js) */
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
   --color-info: #3b82f6;
 
-  /* Scrollbar colors from .verde-escuro-base theme */
-  --scrollbar-track: #101c10;
-  --scrollbar-thumb: #4a6a4a;
-  --scrollbar-thumb-hover: #5c7a5c;
+  /* Cores Neutras (Escala de Cinza para tema escuro e claro) */
+  /* Estes podem ser usados por componentes customizados ou como fallbacks.
+     Tailwind já oferece uma paleta de cinzas (gray, slate, etc.) que será usada primariamente. */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
 
-  /* Card/Panel colors from .verde-escuro theme */
-  --panel-bg: #223322; /* From .verde-escuro-base */
-  --card-border-color: rgba(
-    212,
-    180,
-    85,
-    0.3
-  ); /* From .verde-escuro-theme-modern --border-color */
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* From .verde-escuro-theme-modern */
+  /* Cores específicas do Tema Escuro (predominante) */
+  --body-bg-dark: #1a2a1a; /* Verde muito escuro, quase preto */
+  --body-text-dark: #ffffff;
+  --panel-bg-dark: #223322; /* Verde escuro para painéis/cards */
+  --input-bg-dark: #223322;
+  --card-border-color-dark: rgba(212, 180, 85, 0.3); /* Dourado translúcido */
+  --input-border-color-dark: rgba(212, 180, 85, 0.3);
+  --input-focus-border-color-dark: var(--color-primary);
+  --placeholder-color-dark: #81c784; /* Verde claro para placeholder */
+  --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
 
-  /* Form input colors from .verde-escuro theme */
-  --input-bg: #223322; /* Similar to --panel-bg or --bg-color-secondary */
-  --input-border-color: rgba(
-    212,
-    180,
-    85,
-    0.3
-  ); /* Similar to --card-border-color */
-  --input-focus-border-color: var(--color-primary);
-  --placeholder-color: #81c784; /* A light green, as per old theme */
+  /* Cores para Scrollbar (Tema Escuro) */
+  --scrollbar-track-dark: #101c10;
+  --scrollbar-thumb-dark: #4a6a4a;
+  --scrollbar-thumb-hover-dark: #5c7a5c;
+
+  /* Cores para Seleção de Texto */
+  --selection-bg: var(--color-primary-dark);
+  --selection-text: var(--body-text-dark);
 }
 
-body {
-  margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+/* Estilos base para HTML e Body */
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #1a2a1a; /* --bg-color from .verde-escuro-base */
-  color: #ffffff; /* --text-color from .verde-escuro-theme-modern */
-  scroll-behavior: smooth;
-}
-
-::selection {
-  background-color: var(
-    --color-primary-dark,
-    #1a2a1a
-  ); /* Using a fallback if --selection-bg is not defined */
-  color: var(--text-color, #ffffff);
-}
-
-/* Ensure links and other elements adapt if they don't use Tailwind text color utilities */
-a {
-  color: var(
-    --color-secondary
-  ); /* Using the new secondary color for links by default */
-}
-a:hover {
-  color: #e0c577; /* Lighter shade of secondary for hover */
-}
-
-code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-
-/* Animações */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  body {
+    @apply bg-gray-100 text-gray-900; /* Default para light mode */
+    @apply dark:bg-[var(--body-bg-dark)] dark:text-[var(--body-text-dark)];
+    margin: 0;
+    overflow-x: hidden; /* Evita scroll horizontal desnecessário */
+  }
+
+  /* Estilos de cabeçalho responsivos */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium dark:text-gray-100;
+  }
+  h1 { @apply text-2xl md:text-3xl; }
+  h2 { @apply text-xl md:text-2xl; }
+  h3 { @apply text-lg md:text-xl; }
+
+  /* Estilos de link padrão */
+  a {
+    @apply text-[var(--color-secondary)] hover:text-[var(--color-secondary-light)];
+    @apply dark:text-[var(--color-secondary)] dark:hover:text-[var(--color-secondary-light)];
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    @apply dark:text-gray-300;
+  }
+
+  /* Seleção de texto */
+  ::selection {
+    background-color: var(--selection-bg);
+    color: var(--selection-text);
+  }
+  ::-moz-selection { /* Firefox */
+    background-color: var(--selection-bg);
+    color: var(--selection-text);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-/* Estilizações personalizadas - extensões do Tailwind */
+/* Componentes customizados */
 @layer components {
+  /* Botões */
   .btn {
-    @apply px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors;
   }
-
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary text-white hover:bg-opacity-90 focus:ring-secondary;
+    @apply bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] focus:ring-[var(--color-primary)];
   }
   .btn-primary:disabled {
-    @apply bg-primary-dark opacity-50 cursor-not-allowed;
+    @apply bg-[var(--color-primary-dark)] opacity-50 cursor-not-allowed;
   }
-  .btn-secondary {
-    @apply bg-gray-500 hover:bg-gray-600 text-white;
+  .btn-secondary { /* Adaptado para ser mais neutro e funcionar em ambos os temas */
+    @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500;
+    @apply dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-400;
   }
   .btn-secondary:disabled {
-    @apply bg-gray-400 opacity-50 cursor-not-allowed;
+    @apply bg-gray-400 opacity-50 cursor-not-allowed dark:bg-gray-500;
   }
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white;
+    @apply bg-[var(--color-danger)] text-white hover:opacity-80 focus:ring-[var(--color-danger)];
   }
-  .btn-outline {
-    @apply bg-transparent hover:bg-primary-light text-primary font-semibold hover:text-white border border-primary hover:border-transparent;
+  .btn-outline { /* Adaptado para tema escuro */
+    @apply bg-transparent text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-white hover:border-transparent font-semibold;
+    @apply dark:text-[var(--color-primary-light)] dark:border-[var(--color-primary-light)] dark:hover:bg-[var(--color-primary-dark)] dark:hover:text-white;
   }
   .btn-outline:disabled {
-    @apply bg-transparent text-primary-dark opacity-50 border-primary-dark cursor-not-allowed;
+    @apply bg-transparent text-opacity-50 border-opacity-50 cursor-not-allowed;
+    @apply dark:text-[var(--color-primary-dark)] dark:opacity-50 dark:border-[var(--color-primary-dark)];
   }
+  .btn-sm { @apply px-3 py-1 text-sm; }
+  .btn-lg { @apply px-6 py-3; }
 
-  /* Forms */
+  /* Formulários */
   .input {
-    @apply block w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--input-border-color)] rounded-md text-sm shadow-sm placeholder-gray-400 dark:placeholder-gray-500
-    focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500
-    disabled:bg-gray-500 disabled:border-gray-200 disabled:shadow-none
-    dark:text-gray-100;
+    @apply block w-full px-3 py-2 rounded-md text-sm shadow-sm;
+    @apply bg-white border-gray-300 placeholder-gray-400 text-gray-900; /* Light mode */
+    @apply dark:bg-[var(--input-bg-dark)] dark:border-[var(--input-border-color-dark)] dark:placeholder-[var(--placeholder-color-dark)] dark:text-gray-100; /* Dark mode */
+    @apply focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)];
+    @apply dark:focus:ring-[var(--input-focus-border-color-dark)] dark:focus:border-[var(--input-focus-border-color-dark)];
+    @apply disabled:bg-gray-200 disabled:border-gray-300 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:border-gray-600;
   }
   .label {
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+  }
+  .error-message {
+    @apply text-[var(--color-danger)] text-xs mt-1;
+  }
+
+  /* Cards */
+  .card {
+    @apply rounded-lg shadow-sm overflow-hidden;
+    @apply bg-white border border-gray-200; /* Light mode */
+    @apply dark:bg-[var(--panel-bg-dark)] dark:border-[var(--card-border-color-dark)] dark:shadow-[var(--card-shadow-dark)]; /* Dark mode */
+  }
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+  }
+  .card-body {
+    @apply p-6;
+  }
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700;
   }
 
   /* Badges */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
-  .badge-primary {
-    @apply bg-primary-100 text-primary-800 dark:bg-primary-700 dark:text-primary-100;
-  }
-  .badge-error {
-    @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100;
-  }
+  .badge-primary { @apply bg-primary-100 text-primary-800 dark:bg-[var(--color-primary-dark)] dark:text-primary-100; } /* Tailwind color names or CSS vars */
+  .badge-success { @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100; }
+  .badge-warning { @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100; }
+  .badge-error { @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100; }
+  .badge-info { @apply bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100; }
 
-  /* Error messages for forms */
-  .error-message {
-    @apply text-red-500 text-xs mt-1;
-  }
 
-  /* Custom scrollbar (optional, but nice for dark theme) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-bg, #2d3748); /* fallback: gray-800 */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb-bg, #4a5568); /* fallback: gray-600 */
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(
-      --scrollbar-thumb-hover-bg,
-      #718096
-    ); /* fallback: gray-500 */
-  }
+  /* Scrollbar (WebKit) */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--color-gray-100, #f1f1f1); dark:background: var(--scrollbar-track-dark, #101c10); }
+  ::-webkit-scrollbar-thumb { background: var(--color-gray-400, #888); border-radius: 5px; dark:background: var(--scrollbar-thumb-dark, #4a6a4a); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-gray-500, #555); dark:background: var(--scrollbar-thumb-hover-dark, #5c7a5c); }
 
-  /* Selection color */
-  ::selection {
-    background-color: var(
-      --selection-bg,
-      #4a90e2
-    ); /* fallback: a pleasant blue */
-    color: var(--selection-color, white);
-  }
-  ::-moz-selection {
-    /* Firefox */
-    background-color: var(--selection-bg, #4a90e2);
-    color: var(--selection-color, white);
-  }
-
-  /* Print-specific styles */
+  /* Estilos de Impressão Detalhados */
   @media print {
     body {
       background-color: white !important;
       color: black !important;
-      -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
-      color-adjust: exact !important; /* Standard */
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      font-family: 'Times New Roman', Times, serif !important; /* Fonte serifada para impressão */
     }
-    .no-print {
+    .no-print, header, .sidebar, .sidebar-overlay, nav, .btn, button, .mobile-toggle, footer, .actions-bar, .filter-controls, #mobile-sidebar-toggle, .profile-menu, .tournament-actions {
       display: none !important;
     }
-    /* Ensure dark theme overrides are removed for print */
-    .dark,
-    [data-theme='dark'],
-    .dark body,
-    [data-theme='dark'] body {
+    .dark, [data-theme='dark'], .dark body, [data-theme='dark'] body {
       background-color: white !important;
       color: black !important;
     }
-    .dark .text-gray-100,
-    .dark .text-gray-200,
-    .dark .text-gray-300,
-    .dark .text-gray-400 {
+    .dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400,
+    .dark .text-\[var\(--body-text-dark\)\] { /* Captura texto que usa a variável dark */
       color: black !important;
     }
-    .dark .bg-gray-800,
-    .dark .bg-gray-700,
-    .dark .bg-gray-900 {
+    .dark .bg-gray-800, .dark .bg-gray-700, .dark .bg-gray-900,
+    .dark .bg-\[var\(--panel-bg-dark\)\], .dark .bg-\[var\(--body-bg-dark\)\] { /* Captura backgrounds que usam variáveis dark */
       background-color: white !important;
     }
-    .dark .border-gray-700,
-    .dark .border-gray-600 {
-      border-color: #e5e7eb !important; /* light gray border */
+    .dark .border-gray-700, .dark .border-gray-600,
+    .dark .border-\[var\(--card-border-color-dark\)\] { /* Captura bordas que usam variáveis dark */
+      border-color: #ccc !important; /* Cinza claro para bordas na impressão */
     }
-
-    /* Additional print styles that were previously outside this block */
-    header,
-    .sidebar,
-    .sidebar-overlay,
-    nav,
-    /* .no-print, /* Already defined above */
-    .btn,
-    button,
-    .mobile-toggle,
-    footer,
-    .actions-bar,
-    .filter-controls,
-    #mobile-sidebar-toggle,
-    .profile-menu,
-    .tournament-actions {
-      display: none !important;
+    .container, .container-fluid, main, .content-wrapper, .p-4, .p-6, .md\:p-6 {
+      width: 100% !important; margin: 0 !important; padding: 0.5cm !important; float: none !important;
     }
+    .bracket-container { width: 100% !important; overflow: visible !important; page-break-inside: avoid; }
+    .bracket { transform: scale(0.85) !important; transform-origin: top left !important; margin-bottom: 15pt !important; page-break-inside: avoid; }
+    .bracket-round, .bracket-match { page-break-inside: avoid; }
+    .bracket-match { border: 1pt solid #000 !important; margin: 4pt 0 !important; }
+    .bracket-match-player { border-bottom: 1pt solid #000 !important; padding: 2pt !important; }
+    table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 15pt !important; }
+    table, th, td { border: 1pt solid #000 !important; }
+    th, td { padding: 4pt !important; text-align: left !important; }
+    thead { display: table-header-group !important; }
+    tr { page-break-inside: avoid; }
+    @page { margin: 1.5cm; } /* Margens da página de impressão */
+    h1, h2, h3 { text-align: left !important; margin-bottom: 10pt !important; }
+    h1 { font-size: 18pt !important; }
+    h2 { font-size: 14pt !important; }
+    h3 { font-size: 12pt !important; }
+    .tournament-info { margin-bottom: 15pt !important; text-align: left !important; }
+    .tournament-name { font-size: 16pt !important; font-weight: bold !important; margin-bottom: 4pt !important; }
+    .tournament-date, .tournament-location { font-size: 11pt !important; margin-bottom: 4pt !important; }
+    .page-break { page-break-before: always; }
+    a { text-decoration: none; color: black !important; }
+    a[href]:after { content: " (" attr(href) ")"; font-size: 90%; color: #555 !important; }
+    a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+    img { max-width: 100% !important; page-break-inside: avoid; }
+    .bracket-connector { border-color: #000 !important; }
+    .bracket-match-winner { font-weight: bold !important; background-color: #eee !important; }
+    .bracket-match-score { font-weight: bold !important; }
+    .print-logo img { max-height: 50pt !important; width: auto !important; margin-bottom: 10pt; }
+  } /* Fim @media print */
 
-    .container,
-    .container-fluid,
-    main,
-    .content-wrapper {
-      width: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      float: none !important;
-    }
-
-    .bracket-container {
-      width: 100% !important;
-      overflow: visible !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    .bracket {
-      transform: scale(0.9) !important;
-      transform-origin: top left !important;
-      margin-bottom: 20pt !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    .bracket-round {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    .bracket-match {
-      border: 1pt solid #000 !important;
-      margin: 5pt 0 !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    .bracket-match-player {
-      border-bottom: 1pt solid #000 !important;
-      padding: 3pt !important;
-    }
-
-    table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin-bottom: 20pt !important;
-    }
-
-    table,
-    th,
-    td {
-      border: 1pt solid #000 !important;
-    }
-
-    th,
-    td {
-      padding: 5pt !important;
-      text-align: left !important;
-    }
-
-    thead {
-      display: table-header-group !important;
-    }
-
-    tr {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    @page {
-      margin: 2cm;
-    }
-
-    h1 {
-      font-size: 24pt !important;
-      margin-bottom: 20pt !important;
-      text-align: center !important;
-    }
-
-    h2 {
-      font-size: 18pt !important;
-      margin-bottom: 10pt !important;
-    }
-
-    h3 {
-      font-size: 14pt !important;
-      margin-bottom: 8pt !important;
-    }
-
-    .tournament-info {
-      margin-bottom: 20pt !important;
-      text-align: center !important;
-    }
-
-    .tournament-name {
-      font-size: 20pt !important;
-      font-weight: bold !important;
-      margin-bottom: 5pt !important;
-    }
-
-    .tournament-date {
-      font-size: 14pt !important;
-      margin-bottom: 5pt !important;
-    }
-
-    .tournament-location {
-      font-size: 12pt !important;
-      margin-bottom: 15pt !important;
-    }
-
-    .page-break {
-      page-break-before: always;
-      break-before: page;
-    }
-
-    a,
-    a:visited {
-      text-decoration: underline;
-    }
-
-    a[href]:after {
-      content: ' (' attr(href) ')';
-      font-size: 90%;
-    }
-
-    a[href^='#']:after,
-    a[href^='javascript:']:after {
-      content: '';
-    }
-
-    img {
-      max-width: 100% !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    .bracket-connector {
-      border-color: #000 !important;
-    }
-
-    .bracket-match-winner {
-      font-weight: bold !important;
-      background-color: #f0f0f0 !important;
-    }
-
-    .bracket-match-score {
-      font-weight: bold !important;
-    }
-
-    .print-footer {
-      display: block !important;
-      position: fixed !important;
-      bottom: 0 !important;
-      width: 100% !important;
-      text-align: center !important;
-      font-size: 9pt !important;
-      border-top: 1pt solid #000 !important;
-      padding-top: 5pt !important;
-    }
-
-    .print-header {
-      display: block !important;
-      position: fixed !important;
-      top: 0 !important;
-      width: 100% !important;
-      text-align: center !important;
-      font-size: 9pt !important;
-      border-bottom: 1pt solid #000 !important;
-      padding-bottom: 5pt !important;
-    }
-
-    .print-logo {
-      display: block !important;
-      text-align: center !important;
-      margin-bottom: 15pt !important;
-    }
-
-    .print-logo img {
-      height: 60pt !important;
-      width: auto !important;
-    }
-  } /* End of @media print */
-
-  /* Bracket Connector Styles (from old brackets.css) */
+  /* Estilos para Conectores de Chaveamento */
   .bracket-connector {
     position: absolute;
-    width: 30px;
+    width: 30px; /* Ajustável */
     border-top-width: 2px;
-    border-color: var(--card-border-color, #4a5568);
+    border-color: var(--card-border-color-dark, #4a5568); /* Cor da borda do card no tema escuro */
   }
-
   .bracket-connector-horizontal {
     height: 2px;
-    background-color: var(--card-border-color, #4a5568);
+    background-color: var(--card-border-color-dark, #4a5568);
   }
-
   .bracket-connector-vertical {
     width: 2px;
-    background-color: var(--card-border-color, #4a5568);
+    background-color: var(--card-border-color-dark, #4a5568);
   }
-} /* End of @layer components */
+} /* Fim @layer components */
 
-/* Custom Scrollbar Styles from frontend/css/base/style.css */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track, #101c10); /* Fallback color */
-}
-::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, #4a6a4a); /* Fallback color */
-  border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover, #5c7a5c); /* Fallback color */
+/* Utilitários de Animação */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeInAnimation 0.3s ease-out forwards;
+  }
+  .animate-fade-out {
+    animation: fadeOutAnimation 0.3s ease-in-out forwards;
+  }
+
+  @keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeOutAnimation {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+  }
 }

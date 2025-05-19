@@ -10,7 +10,12 @@ const playerModel = require('../lib/models/playerModel');
 const matchModel = require('../lib/models/matchModel');
 const scoreModel = require('../lib/models/scoreModel');
 const { logger } = require('../lib/logger/logger');
-
+const {
+  validateRequest,
+  honeypotConfigSchema,
+  manualBlockIpSchema,
+  ipAddressParamSchema,
+} = require('../lib/utils/validationUtils'); // Import Joi validation utilities
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const { readJsonFile } = require('../lib/utils/fileUtils');
 const honeypot = require('../lib/middleware/honeypot'); // Import the honeypot module
@@ -158,10 +163,16 @@ function checkDiskSpace() {
 // This can be expanded to include more overview data if needed.
 router.get('/security/overview-stats', authMiddleware, async (req, res) => {
   try {
-    const honeypotLogs = await readJsonFile(HONEYPOT_LOG_PATH, []);
+    let honeypotLogs = await readJsonFile(HONEYPOT_LOG_PATH, []);
+    const MAX_LOGS_TO_PROCESS = 10000; // Limit processing to the last N entries for performance
+
+    if (honeypotLogs.length > MAX_LOGS_TO_PROCESS) {
+      logger.warn('SecurityRoute', `Honeypot log file is large (${honeypotLogs.length} entries). Processing last ${MAX_LOGS_TO_PROCESS} for overview stats.`);
+      honeypotLogs = honeypotLogs.slice(-MAX_LOGS_TO_PROCESS);
+    }
 
     const overviewStats = {
-      totalHoneypotEvents: honeypotLogs.length,
+      totalHoneypotEvents: honeypotLogs.length, // This will be MAX_LOGS_TO_PROCESS if truncated
       uniqueHoneypotIps: new Set(honeypotLogs.map((log) => log.ip)).size,
       honeypotEventTypes: {},
       honeypotTopIps: {},
@@ -201,7 +212,8 @@ router.get('/security/overview-stats', authMiddleware, async (req, res) => {
 
     overviewStats.honeypotTopIps = sortedTopHoneypotIps;
 
-    // TODO: Add more data to overviewStats if available from other security modules
+    // The overviewStats currently focuses on honeypot activity.
+    // Additional security module data can be added here if/when those modules are implemented.
 
     res.json({
       success: true,
@@ -239,10 +251,15 @@ router.get('/security/honeypot-config', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/security/honeypot-config', authMiddleware, async (req, res) => {
-  const { detectionThreshold, blockDurationHours, ipWhitelist } = req.body;
+router.post('/security/honeypot-config', authMiddleware, validateRequest(honeypotConfigSchema), async (req, res) => {
+  // req.body is validated by honeypotConfigSchema
+  const { threshold, block_duration_hours, whitelist_ips } = req.body;
   try {
+    // Pass validated and potentially renamed keys to updateSettings
     const success = await honeypot.updateSettings({
+      detectionThreshold: threshold, // Map from schema key to internal key if different
+      blockDurationHours: block_duration_hours,
+      ipWhitelist: whitelist_ips,
       detectionThreshold,
       blockDurationHours,
       ipWhitelist,
@@ -307,13 +324,10 @@ router.get('/security/blocked-ips', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/security/blocked-ips', authMiddleware, async (req, res) => {
+router.post('/security/blocked-ips', authMiddleware, validateRequest(manualBlockIpSchema), async (req, res) => {
+  // req.body is validated by manualBlockIpSchema
   const { ipAddress, durationHours, reason } = req.body;
-  if (!ipAddress) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'Endereço IP é obrigatório.' });
-  }
+  // if (!ipAddress) { ... } // This check is handled by Joi
   try {
     const success = await honeypot.manualBlockIP(
       ipAddress,
@@ -354,8 +368,9 @@ router.post('/security/blocked-ips', authMiddleware, async (req, res) => {
 router.delete(
   '/security/blocked-ips/:ipAddress',
   authMiddleware,
+  validateRequest(ipAddressParamSchema), // Validate ipAddress in params
   async (req, res) => {
-    const { ipAddress } = req.params;
+    const { ipAddress } = req.params; // Validated
     try {
       const success = await honeypot.unblockIP(ipAddress);
       if (success) {

@@ -4,39 +4,47 @@ import { useTournament } from '../context/TournamentContext';
 import { FaUsers, FaListOl, FaTrophy, FaArrowRight } from 'react-icons/fa';
 
 const Home = () => {
-  const { tournaments, currentTournament, loading } = useTournament();
-  const [stats, setStats] = useState({
-    players: 0,
-    matches: 0,
+  const { tournaments, currentTournament, loading: tournamentsLoading } = useTournament(); // Renamed loading for clarity
+  const [generalStats, setGeneralStats] = useState({
+    players: 0, // Needs API: GET /api/stats/total-players or similar
+    matches: 0, // Needs API: GET /api/stats/total-matches or similar
     tournaments: 0,
   });
+  const [statsLoading, setStatsLoading] = useState(true);
 
-  // Carregar estatísticas gerais (simulação)
+  // Carregar estatísticas gerais
   useEffect(() => {
-    // Simulação de chamada à API para obter estatísticas
-    const fetchStats = async () => {
-      // Em um aplicativo real, faríamos uma chamada à API aqui
-      setTimeout(() => {
-        setStats({
-          players: 128,
-          matches: 210,
-          tournaments: tournaments?.length || 0,
+    const fetchGeneralStats = async () => {
+      setStatsLoading(true);
+      // Simulação - Substituir por chamadas reais à API
+      // Ex: const totalPlayers = await api.getTotalPlayers();
+      // Ex: const totalMatches = await api.getTotalMatches();
+      setTimeout(() => { // Simulação de delay da API
+        setGeneralStats({
+          players: 128, // Placeholder
+          matches: 210, // Placeholder
+          tournaments: tournaments?.length || 0, // Este é real
         });
-      }, 1000);
+        setStatsLoading(false);
+      }, 800);
     };
 
-    fetchStats();
-  }, [tournaments]);
+    if (tournaments && tournaments.length > 0) {
+      // Atualiza o número de torneios assim que o contexto os carrega
+      setGeneralStats(prev => ({ ...prev, tournaments: tournaments.length }));
+    }
+    fetchGeneralStats(); // Chama para buscar/simular outros stats
+  }, [tournaments]); // Depende de 'tournaments' para atualizar a contagem de torneios
 
   return (
     <div className="space-y-8">
       {/* Banner principal */}
-      <section className="bg-primary-light rounded-lg p-8 relative overflow-hidden">
+      <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-primary mb-2">
+          <h1 className="text-3xl font-bold text-primary-dark dark:text-primary-light mb-2">
             Liga Amadora Sul-Campista de Mari-Mari-Gomes
           </h1>
-          <p className="text-gray-700 mb-6 max-w-xl">
+          <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-xl">
             Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
             Acompanhe resultados, estatísticas e chaveamentos dos torneios em
             andamento.
@@ -69,45 +77,45 @@ const Home = () => {
             {loading ? (
               <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {stats.players}
+              <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                {generalStats.players}
               </p>
             )}
-            <p className="text-gray-500 mt-1">Cadastrados no sistema</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Cadastrados (simulado)</p>
           </div>
 
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Partidas</h3>
-              <span className="bg-green-100 text-green-800 p-2 rounded-full">
+              <span className="bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-100 p-2 rounded-full">
                 <FaListOl className="w-5 h-5" />
               </span>
             </div>
-            {loading ? (
-              <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
+            {statsLoading ? (
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {stats.matches}
+              <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                {generalStats.matches}
               </p>
             )}
-            <p className="text-gray-500 mt-1">Disputadas até o momento</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Disputadas (simulado)</p>
           </div>
 
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Torneios</h3>
-              <span className="bg-yellow-100 text-yellow-800 p-2 rounded-full">
+              <span className="bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 p-2 rounded-full">
                 <FaTrophy className="w-5 h-5" />
               </span>
             </div>
-            {loading ? (
-              <div className="h-8 bg-gray-200 animate-pulse rounded"></div>
+            {tournamentsLoading ? ( // Use tournamentsLoading for this specific stat
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {stats.tournaments}
+              <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                {generalStats.tournaments}
               </p>
             )}
-            <p className="text-gray-500 mt-1">Registrados na plataforma</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Registrados na plataforma</p>
           </div>
         </div>
       </section>
@@ -123,61 +131,51 @@ const Home = () => {
                   <h3 className="text-xl font-semibold text-primary">
                     {currentTournament.name}
                   </h3>
-                  <p className="text-gray-600 mt-1">
-                    {currentTournament.location}
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    {currentTournament.description?.substring(0,100) || 'Sem descrição detalhada.'} {/* Using description as location is not standard */}
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
                   <span
                     className={`badge ${
-                      currentTournament.status === 'active'
+                      currentTournament.status === 'Em Andamento' // Match backend status strings
                         ? 'badge-success'
-                        : currentTournament.status === 'upcoming'
+                        : currentTournament.status === 'Pendente'
                           ? 'badge-info'
-                          : 'badge-warning'
+                          : 'badge-warning' // For 'Concluído', 'Cancelado'
                     }`}
                   >
-                    {currentTournament.status === 'active'
-                      ? 'Em andamento'
-                      : currentTournament.status === 'upcoming'
-                        ? 'Próximo'
-                        : 'Concluído'}
+                    {currentTournament.status || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {currentTournament.startDate} até{' '}
-                    {currentTournament.endDate}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    Data: {currentTournament.date ? new Date(currentTournament.date).toLocaleDateString('pt-BR') : 'N/A'}
+                    {/* endDate is not a standard field */}
                   </p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <div className="mb-4">
-                <p className="text-gray-700">{currentTournament.description}</p>
+                <p className="text-gray-700 dark:text-gray-300">{currentTournament.rules || 'Regras não especificadas.'}</p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {/* Adjusted to 3 cols */}
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">
-                    {currentTournament.players}
+                  <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {currentTournament.num_players_expected || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500">Jogadores</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Jogadores Esperados</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">
-                    {Math.ceil(currentTournament.players / 2)}
+                  <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {currentTournament.bracket_type?.replace('-', ' ') || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500">Partidas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tipo de Chave</p>
                 </div>
                 <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">
-                    {currentTournament.categories.length}
+                  <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {currentTournament.entry_fee !== null && currentTournament.entry_fee !== undefined ? `R$ ${currentTournament.entry_fee.toFixed(2)}` : 'Grátis'}
                   </span>
-                  <p className="text-sm text-gray-500">Categorias</p>
-                </div>
-                <div className="text-center">
-                  <span className="text-lg font-bold text-gray-800">
-                    {Math.floor(Math.log2(currentTournament.players))}
-                  </span>
-                  <p className="text-sm text-gray-500">Rodadas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Taxa de Inscrição</p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">

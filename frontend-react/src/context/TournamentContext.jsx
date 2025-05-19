@@ -256,6 +256,29 @@ export const TournamentProvider = ({ children }) => {
     loadTournaments();
   }, []);
 
+  // Função para recarregar/atualizar os detalhes do torneio atual
+  const refreshCurrentTournament = async () => {
+    if (!currentTournament?.id) {
+      return; // Nenhum torneio atual para recarregar
+    }
+    try {
+      setLoading(true); // Pode usar um loading state específico se preferir
+      const response = await axios.get(`/api/tournaments/${currentTournament.id}`);
+      setCurrentTournament(response.data); // Atualiza o torneio atual com os dados mais recentes
+      // Atualizar também na lista geral de torneios, caso algo tenha mudado lá
+      setTournaments(prev =>
+        prev.map(t => t.id === currentTournament.id ? response.data : t)
+      );
+      setError(null);
+    } catch (err) {
+      console.error('Erro ao recarregar detalhes do torneio:', err);
+      setError(err.response?.data?.message || 'Falha ao recarregar detalhes do torneio');
+      // Não limpar currentTournament aqui, pode ser um erro temporário
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Valor fornecido pelo context
   const value = {
     tournaments,
@@ -270,6 +293,7 @@ export const TournamentProvider = ({ children }) => {
     getTournamentPlayers,
     getTournamentBrackets,
     exportTournament,
+    refreshCurrentTournament, // Adicionar a nova função ao contexto
   };
 
   return (

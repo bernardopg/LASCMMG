@@ -4,59 +4,30 @@ const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const scoreModel = require('../lib/models/scoreModel');
 const tournamentModel = require('../lib/models/tournamentModel');
 const { logger } = require('../lib/logger/logger');
-const { isValidTournamentId } = require('../lib/utils/validationUtils'); // Assuming a validation util file
+// isValidTournamentId will be handled by Joi schema if tournamentId is part of a schema
+const { validateRequest, newScoreSchema } = require('../lib/utils/validationUtils');
 
 // POST /api/scores - Create a new score
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, validateRequest(newScoreSchema), async (req, res) => {
+  // Validation handled by newScoreSchema
   const {
-    tournamentId, // Expected in body for this general endpoint
-    matchId, // Expected in body
-    // player1Id, // Unused
-    // player2Id, // Unused
+    tournamentId,
+    matchId,
     player1Score,
     player2Score,
     winnerId,
-    stateMatchKey, // Key for updating bracket state in tournament's state_json
-  } = req.body;
+    stateMatchKey,
+  } = req.body; // req.body is validated
 
-  if (!tournamentId || !isValidTournamentId(tournamentId)) {
-    logger.warn(
-      'ScoresRoute',
-      'ID de torneio inválido ou ausente em POST /api/scores.',
-      { body: req.body, requestId: req.id }
-    );
-    return res
-      .status(400)
-      .json({ success: false, message: 'ID de torneio inválido ou ausente.' });
-  }
-  if (
-    matchId === undefined ||
-    player1Score === undefined ||
-    player2Score === undefined
-  ) {
-    logger.warn(
-      'ScoresRoute',
-      'Dados de score incompletos em POST /api/scores.',
-      { body: req.body, requestId: req.id }
-    );
-    return res.status(400).json({
-      success: false,
-      message: 'matchId, player1Score e player2Score são obrigatórios.',
-    });
-  }
-  if (!stateMatchKey) {
-    logger.warn('ScoresRoute', 'stateMatchKey ausente em POST /api/scores.', {
-      body: req.body,
-      requestId: req.id,
-    });
-    return res.status(400).json({
-      success: false,
-      message:
-        'Chave da partida (stateMatchKey) não fornecida para atualização do chaveamento.',
-    });
-  }
+  // Manual checks can be removed as Joi handles them
+  // if (!tournamentId || !isValidTournamentId(tournamentId)) { ... }
+  // if ( matchId === undefined || ... ) { ... }
+  // if (!stateMatchKey) { ... }
 
   try {
+    // isValidTournamentId check can be part of a more specific Joi schema for tournamentId if needed,
+    // or rely on database foreign key constraints / model checks.
+    // For now, assuming newScoreSchema's tournamentId validation is sufficient for format.
     const tournament = await tournamentModel.getTournamentById(tournamentId);
     if (!tournament) {
       logger.warn(

@@ -56,9 +56,9 @@ const SecurityHoneypots = () => {
     threshold: Yup.number()
       .required('Limite é obrigatório')
       .min(1, 'Mínimo 1')
-      .max(20, 'Máximo 20')
+      .max(100, 'Máximo 100') // Increased max based on Joi schema in validationUtils
       .integer(),
-    blockDurationHours: Yup.number()
+    block_duration_hours: Yup.number() // Changed from blockDurationHours
       .required('Duração é obrigatória')
       .min(1, 'Mínimo 1 hora')
       .max(720, 'Máximo 720 horas (30 dias)')
@@ -81,9 +81,10 @@ const SecurityHoneypots = () => {
 
   const handleSaveConfig = async (values, { setSubmitting }) => {
     try {
+      // Values sent to API should match Joi schema and backend expectations
       await updateHoneypotConfig({
         threshold: values.threshold,
-        block_duration_hours: values.blockDurationHours, // Ensure backend expects this key
+        block_duration_hours: values.block_duration_hours, // Changed from values.blockDurationHours
         whitelist_ips: values.whitelist
           .split('\n')
           .map((ip) => ip.trim())
@@ -148,9 +149,9 @@ const SecurityHoneypots = () => {
         {config ? (
           <Formik
             initialValues={{
-              threshold: config.threshold || 3,
-              blockDurationHours: config.block_duration_hours || 6,
-              whitelist: (config.whitelist_ips || []).join('\n'),
+              threshold: config.threshold || 5, // Default from currentSettings in honeypot.js
+              block_duration_hours: config.block_duration_hours || 24, // Default from currentSettings
+              whitelist: (config.whitelist_ips || ['127.0.0.1', '::1']).join('\n'), // Default from currentSettings
             }}
             validationSchema={validationSchema}
             onSubmit={handleSaveConfig}
@@ -174,21 +175,21 @@ const SecurityHoneypots = () => {
                     className="error-message"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Número de acessos a honeypots antes de bloquear um IP.
+                    Número de acessos a honeypots (em {config.activityWindowMinutes || 60} min) antes de bloquear um IP. (1-100)
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="blockDurationHours" className="label">
+                  <label htmlFor="block_duration_hours" className="label"> {/* Changed htmlFor */}
                     Duração do Bloqueio (horas)
                   </label>
                   <Field
                     type="number"
-                    name="blockDurationHours"
-                    id="blockDurationHours"
+                    name="block_duration_hours" /* Changed name */
+                    id="block_duration_hours" /* Changed id */
                     className="input mt-1"
                   />
                   <ErrorMessage
-                    name="blockDurationHours"
+                    name="block_duration_hours" /* Changed name */
                     component="div"
                     className="error-message"
                   />

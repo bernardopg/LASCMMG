@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 const AddScorePage = () => {
   const [players, setPlayers] = useState([]);
   const { showMessage } = useMessage();
-  const { currentTournament, refreshCurrentTournamentDetails } =
-    useTournament(); // Get current tournament and a way to refresh
+  const { currentTournament, refreshCurrentTournament } = // Changed refreshCurrentTournamentDetails to refreshCurrentTournament
+    useTournament();
   const navigate = useNavigate();
 
   const fetchPlayersData = useCallback(async () => {
@@ -108,9 +108,9 @@ const AddScorePage = () => {
       await saveScore(payload);
       showMessage('Placar adicionado com sucesso!', 'success');
       resetForm();
-      if (refreshCurrentTournamentDetails) {
+      if (refreshCurrentTournament) { // Changed refreshCurrentTournamentDetails to refreshCurrentTournament
         // If context provides a way to refresh bracket/details
-        refreshCurrentTournamentDetails();
+        refreshCurrentTournament();
       }
       // Optionally navigate to scores page or bracket page
       // navigate(`/scores?tournament=${currentTournament.id}`);
