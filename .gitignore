@@ -23,9 +23,7 @@ dist/
 # SQLite e bancos de dados
 *.sqlite
 *.sqlite-journal
-# data/*.sqlite # Covered by data/ below
-# data/*.sqlite-journal # Covered by data/ below
-data/ # Ignore all contents of the data directory, including .sqlite, .sqlite-journal, and potentially other files
+data/
 
 # Logs e auditoria
 *.log
