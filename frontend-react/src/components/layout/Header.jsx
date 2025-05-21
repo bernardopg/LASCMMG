@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../common/NotificationBell';
 import TournamentSelector from '../common/TournamentSelector';
 
 const Header = ({
@@ -127,6 +128,11 @@ const Header = ({
                   <TournamentSelector />
                 </div>
 
+                {/* Sino de notificações */}
+                <div className="mr-3">
+                  <NotificationBell />
+                </div>
+
                 {/* Theme Toggle Button */}
                 <button
                   onClick={toggleTheme}
@@ -171,8 +177,8 @@ const Header = ({
                           <Link
                             to="/profile"
                             className={`${active
-                                ? 'bg-primary-dark text-white'
-                                : 'text-gray-700 dark:text-gray-200'
+                              ? 'bg-primary-dark text-white'
+                              : 'text-gray-700 dark:text-gray-200'
                               } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Meu Perfil
@@ -184,8 +190,8 @@ const Header = ({
                           <Link
                             to="/settings"
                             className={`${active
-                                ? 'bg-primary-dark text-white'
-                                : 'text-gray-700 dark:text-gray-200'
+                              ? 'bg-primary-dark text-white'
+                              : 'text-gray-700 dark:text-gray-200'
                               } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Configurações
@@ -197,8 +203,8 @@ const Header = ({
                           <button
                             onClick={handleLogout}
                             className={`${active
-                                ? 'bg-primary-dark text-white'
-                                : 'text-gray-700 dark:text-gray-200'
+                              ? 'bg-primary-dark text-white'
+                              : 'text-gray-700 dark:text-gray-200'
                               } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Sair

@@ -39,6 +39,7 @@
     "pino-http": "^10.4.0",
     "proper-lockfile": "^4.1.2",
     "redis": "^5.0.1",
+    "socket.io": "^4.8.1",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {

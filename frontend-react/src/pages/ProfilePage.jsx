@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useState } from 'react';
+import { FaKey, FaSave, FaUserCircle } from 'react-icons/fa';
+import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { FaUserCircle, FaKey, FaSave } from 'react-icons/fa';
 import api from '../services/api'; // For direct API call
 
 const ChangePasswordSchema = Yup.object().shape({
@@ -21,11 +21,11 @@ const ChangePasswordSchema = Yup.object().shape({
 });
 
 const ProfilePage = () => {
-  const { user, setUser } = useAuth(); // Assuming setUser updates the auth context if needed
+  const { currentUser, updateCurrentUser } = useAuth(); // Usando currentUser do AuthContext
   const { showSuccess, showError } = useMessage();
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
-  if (!user) {
+  if (!currentUser) {
     return (
       <div className="px-4 py-8 text-center"> {/* Removed container mx-auto */}
         <p>Carregando informações do usuário...</p>
@@ -38,7 +38,7 @@ const ProfilePage = () => {
     try {
       // The API expects username, currentPassword, newPassword
       const payload = {
-        username: user.username, // Get username from the authenticated user context
+        username: currentUser.username, // Get username from the authenticated user context
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       };
@@ -65,13 +65,13 @@ const ProfilePage = () => {
           <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
             <FaUserCircle className="text-5xl text-primary dark:text-primary-light mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-1">
-              {user.name || user.username}
+              {currentUser.name || currentUser.username}
             </h2>
             <p className="text-sm text-center text-gray-500 dark:text-gray-400 mb-4">
-              Role: {user.role}
+              Role: {currentUser.role}
             </p>
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              <p><strong>Username:</strong> {user.username}</p>
+              <p><strong>Username:</strong> {currentUser.username}</p>
               {/* Add more user details here if available and desired */}
             </div>
           </div>

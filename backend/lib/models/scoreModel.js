@@ -5,6 +5,7 @@ const {
   transactionAsync,
 } = require('../db/database');
 const { logger } = require('../logger/logger');
+const notificationService = require('../services/notificationService'); // Importar serviço de notificações
 
 // Helper to add is_deleted filter for scores
 const addScoreIsDeletedFilter = (
@@ -65,7 +66,7 @@ async function getScoresByMatchId(matchId, includeDeleted = false) {
 }
 
 async function addScore(scoreData) {
-  const { match_id, player1_score, player2_score, winner_id } = scoreData;
+  const { match_id, player1_score, player2_score, winner_id, tournament_id } = scoreData;
   if (
     match_id === undefined ||
     player1_score === undefined ||
@@ -87,7 +88,22 @@ async function addScore(scoreData) {
       player2_score,
       winner_id || null,
     ]);
-    return await getScoreById(result.lastInsertRowid);
+
+    const addedScore = await getScoreById(result.lastInsertRowid);
+
+    // Enviar notificação sobre novo placar adicionado
+    if (addedScore && tournament_id) {
+      notificationService.sendTournamentNotification(tournament_id, 'score_added', {
+        tournamentId: tournament_id,
+        matchId: match_id,
+        scoreId: addedScore.id,
+        player1Score: player1_score,
+        player2Score: player2_score,
+        winnerId: winner_id
+      });
+    }
+
+    return addedScore;
   } catch (err) {
     logger.error(
       { component: 'ScoreModel', err, scoreData },
@@ -145,7 +161,37 @@ async function updateScore(scoreId, scoreData) {
       }
       return null;
     }
-    return await getScoreById(scoreId);
+
+    const updatedScore = await getScoreById(scoreId);
+
+    // Buscar informações do match para obter o tournament_id
+    if (updatedScore) {
+      try {
+        // Consulta para buscar o tournament_id relacionado a este score
+        const matchQuery = `
+          SELECT m.tournament_id
+          FROM matches m
+          WHERE m.id = ?
+        `;
+        const matchInfo = await getOneAsync(matchQuery, [updatedScore.match_id]);
+
+        if (matchInfo && matchInfo.tournament_id) {
+          notificationService.sendTournamentNotification(matchInfo.tournament_id, 'score_updated', {
+            tournamentId: matchInfo.tournament_id,
+            matchId: updatedScore.match_id,
+            scoreId: scoreId,
+            updates: scoreData
+          });
+        }
+      } catch (queryErr) {
+        logger.error(
+          { component: 'ScoreModel', err: queryErr, scoreId },
+          `Erro ao buscar tournament_id para enviar notificação de atualização de score.`
+        );
+      }
+    }
+
+    return updatedScore;
   } catch (err) {
     logger.error(
       { component: 'ScoreModel', err, scoreId, scoreData },
@@ -162,11 +208,41 @@ async function deleteScore(scoreId, permanent = false) {
   if (permanent) {
     const sql = 'DELETE FROM scores WHERE id = ?';
     try {
+      // Obter informações do score antes de excluí-lo permanentemente
+      const score = await getScoreById(scoreId, true);
+
       const result = await runAsync(sql, [scoreId]);
       logger.info(
         { component: 'ScoreModel', scoreId },
         `Score ${scoreId} excluído permanentemente.`
       );
+
+      // Se o score existia, notificar a exclusão
+      if (score) {
+        try {
+          // Consulta para buscar o tournament_id relacionado a este score
+          const matchQuery = `
+            SELECT m.tournament_id
+            FROM matches m
+            WHERE m.id = ?
+          `;
+          const matchInfo = await getOneAsync(matchQuery, [score.match_id]);
+
+          if (matchInfo && matchInfo.tournament_id) {
+            notificationService.sendTournamentNotification(matchInfo.tournament_id, 'score_deleted', {
+              tournamentId: matchInfo.tournament_id,
+              matchId: score.match_id,
+              scoreId: scoreId
+            });
+          }
+        } catch (queryErr) {
+          logger.error(
+            { component: 'ScoreModel', err: queryErr, scoreId },
+            `Erro ao buscar tournament_id para enviar notificação de exclusão de score.`
+          );
+        }
+      }
+
       return result.changes > 0;
     } catch (err) {
       logger.error(

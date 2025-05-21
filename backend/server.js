@@ -9,6 +9,8 @@ const xss = require('xss-clean');
 const csrfMiddleware = require('./lib/middleware/csrfMiddleware');
 const honeypot = require('./lib/middleware/honeypot');
 const fs = require('fs').promises;
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const {
   PORT: envPort,
   NODE_ENV,
@@ -23,6 +25,18 @@ const { logger, httpLogger } = require('./lib/logger/logger');
 
 const app = express();
 const port = envPort || 3000;
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: NODE_ENV === 'production' ? CORS_ORIGIN : '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true
+  }
+});
+
+// Inicializa o serviço de notificações com o Socket.IO
+const notificationService = require('./lib/services/notificationService');
+notificationService.init(io);
 
 app.use((req, res, next) => {
   let requestId = req.headers['x-request-id'];
@@ -54,19 +68,19 @@ app.use(
     contentSecurityPolicy:
       NODE_ENV === 'production'
         ? {
-            directives: {
-              defaultSrc: ["'self'"],
-              scriptSrc: ["'self'"],
-              styleSrc: ["'self'"],
-              imgSrc: ["'self'", 'data:'],
-              connectSrc: ["'self'"],
-              fontSrc: ["'self'"],
-              objectSrc: ["'none'"],
-              frameAncestors: ["'none'"],
-              baseUri: ["'self'"],
-              formAction: ["'self'"],
-            },
-          }
+          directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'"],
+            imgSrc: ["'self'", 'data:'],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            frameAncestors: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+          },
+        }
         : false,
   })
 );
@@ -367,7 +381,7 @@ async function startServer() {
   try {
     await applyDatabaseMigrations();
     await connectToRedis(); // Initialize Redis connection
-    const server = app.listen(port, () => {
+    const server = httpServer.listen(port, () => {
       logger.info(`Servidor rodando em http://localhost:${port}`);
     });
 

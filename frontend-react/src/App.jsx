@@ -13,6 +13,7 @@ import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ThemeContext from './context/ThemeContext';
 import { TournamentProvider } from './context/TournamentContext';
 import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
@@ -169,288 +170,290 @@ function App() {
   return (
     <AuthProvider>
       <MessageProvider>
-        <TournamentProvider>
-          <Router>
-            <AppContentWrapper />
-            <MessageContainer />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Home />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/scores"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ScoresPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/match/:matchId/add-score"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AddScorePage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/tournaments"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <TournamentsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/players/:playerId"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <PlayerProfilePage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/players/create"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CreatePlayerPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/players/edit/:playerId"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <EditPlayerPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/tournaments/:tournamentId"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <TournamentDetailPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/players"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <PlayersPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/brackets"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <BracketPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/stats"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <StatsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <SettingsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminDashboardPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/tournaments"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminTournamentListPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/users"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminUserManagementPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/schedule"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminSchedulePage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/match-schedule"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminMatchSchedulePage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/tournaments/create"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CreateTournamentPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/players"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <PlayersPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/reports"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminReportsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/activity-log"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AdminActivityLogPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/add-score"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <AddScoreLandingPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/tournaments/edit/:tournamentId"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <EditTournamentPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/tournaments/manage/:tournamentId"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ManageTournamentPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/security"
-                element={
-                  <ProtectedRoute>
-                    <AdminSecurityLayout>
-                      <Suspense fallback={<PageLoadingFallback />}>
-                        <AdminSecurityPage />
-                      </Suspense>
-                    </AdminSecurityLayout>
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<SecurityOverview />} />
-                <Route path="overview" element={<SecurityOverview />} />
-                <Route path="honeypots" element={<SecurityHoneypots />} />
+        <NotificationProvider>
+          <TournamentProvider>
+            <Router>
+              <AppContentWrapper />
+              <MessageContainer />
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<RegisterPage />} />
                 <Route
-                  path="threat-analytics"
-                  element={<SecurityThreatAnalytics />}
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Home />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
                 />
-                <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
-              </Route>
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ProfilePage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Router>
-        </TournamentProvider>
+                <Route
+                  path="/scores"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ScoresPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/match/:matchId/add-score"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AddScorePage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/tournaments"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <TournamentsPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/players/:playerId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PlayerProfilePage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/players/create"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <CreatePlayerPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/players/edit/:playerId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <EditPlayerPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/tournaments/:tournamentId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <TournamentDetailPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/players"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PlayersPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/brackets"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <BracketPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/stats"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <StatsPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SettingsPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminDashboardPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tournaments"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminTournamentListPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/users"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminUserManagementPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/schedule"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminSchedulePage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/match-schedule"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminMatchSchedulePage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tournaments/create"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <CreateTournamentPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/players"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PlayersPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/reports"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminReportsPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/activity-log"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminActivityLogPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/add-score"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AddScoreLandingPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tournaments/edit/:tournamentId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <EditTournamentPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tournaments/manage/:tournamentId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ManageTournamentPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/security"
+                  element={
+                    <ProtectedRoute>
+                      <AdminSecurityLayout>
+                        <Suspense fallback={<PageLoadingFallback />}>
+                          <AdminSecurityPage />
+                        </Suspense>
+                      </AdminSecurityLayout>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<SecurityOverview />} />
+                  <Route path="overview" element={<SecurityOverview />} />
+                  <Route path="honeypots" element={<SecurityHoneypots />} />
+                  <Route
+                    path="threat-analytics"
+                    element={<SecurityThreatAnalytics />}
+                  />
+                  <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
+                </Route>
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ProfilePage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Router>
+          </TournamentProvider>
+        </NotificationProvider>
       </MessageProvider>
     </AuthProvider>
   );

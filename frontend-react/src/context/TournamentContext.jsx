@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import api from '../services/api';
+import { useNotification } from './NotificationContext';
 
 const TournamentContext = createContext();
 
@@ -37,6 +38,9 @@ export const TournamentProvider = ({ children }) => {
   // Controle para evitar carregamentos duplicados
   const loadTournamentsAttempted = useRef(false);
   const pendingRequests = useRef(new Map());
+
+  // Sistema de notificações
+  const { subscribeTournament, unsubscribeTournament } = useNotification();
 
   // Função para controlar solicitações concorrentes
   const controlRequest = useCallback(async (key, requestFn) => {
@@ -109,6 +113,21 @@ export const TournamentProvider = ({ children }) => {
     });
   }, [controlRequest, filterCriteria]);
 
+  // Observar mudanças no torneio atual para se inscrever nas notificações
+  useEffect(() => {
+    // Quando o torneio atual muda, inscrever-se nas notificações desse torneio
+    if (currentTournament) {
+      subscribeTournament(currentTournament.id.toString());
+    }
+
+    // Limpar inscrição quando o componente for desmontado ou o torneio mudar
+    return () => {
+      if (currentTournament) {
+        unsubscribeTournament(currentTournament.id.toString());
+      }
+    };
+  }, [currentTournament, subscribeTournament, unsubscribeTournament]);
+
   // Função para aplicar filtros
   const applyFilters = useCallback((tournamentsList, criteria) => {
     let filtered = [...tournamentsList];
@@ -156,11 +175,15 @@ export const TournamentProvider = ({ children }) => {
     if (tournament) {
       setCurrentTournament(tournament);
       localStorage.setItem('currentTournamentId', tournament.id.toString());
+
+      // Inscrever-se nas notificações deste torneio
+      subscribeTournament(tournament.id.toString());
+
       return tournament;
     }
 
     return null;
-  }, [tournaments]);
+  }, [tournaments, subscribeTournament]);
 
   const createTournament = useCallback(async (tournamentData) => {
     return controlRequest('createTournament', async () => {

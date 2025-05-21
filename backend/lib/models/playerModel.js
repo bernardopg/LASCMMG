@@ -6,6 +6,7 @@ const {
 } = require('../db/database');
 const { logger } = require('../logger/logger');
 const auditLogger = require('../logger/auditLogger'); // Ensure auditLogger is imported if used
+const notificationService = require('../services/notificationService'); // Importar serviço de notificações
 
 // Helper to add is_deleted filter
 const addIsDeletedFilter = (sql, params, includeDeleted = false) => {
@@ -154,7 +155,20 @@ async function addPlayer(playerData) {
       gender || null,
       skill_level || null,
     ]);
-    return await getPlayerById(result.lastInsertRowid);
+
+    const player = await getPlayerById(result.lastInsertRowid);
+
+    // Enviar notificação sobre novo jogador adicionado ao torneio
+    if (player) {
+      notificationService.sendTournamentNotification(tournament_id, 'player_added', {
+        tournamentId: tournament_id,
+        playerId: player.id,
+        playerName: name,
+        playerNickname: nickname
+      });
+    }
+
+    return player;
   } catch (err) {
     if (
       err.message.includes(
@@ -297,6 +311,7 @@ async function updatePlayer(playerId, playerData) {
       }
       return null;
     }
+
     auditLogger.logAction(
       'SYSTEM', // Or an admin user ID
       'PLAYER_UPDATE',
@@ -304,7 +319,20 @@ async function updatePlayer(playerId, playerData) {
       playerId.toString(),
       { updatedFields: fieldsToUpdate.map(f => f.split(' =')[0]), ipAddress: ipAddress || 'unknown' }
     );
-    return await getPlayerById(playerId);
+
+    const updatedPlayer = await getPlayerById(playerId);
+
+    // Enviar notificação sobre atualização de jogador
+    if (updatedPlayer && updatedPlayer.tournament_id) {
+      notificationService.sendTournamentNotification(updatedPlayer.tournament_id, 'player_updated', {
+        tournamentId: updatedPlayer.tournament_id,
+        playerId: playerId,
+        playerName: updatedPlayer.name,
+        updates: playerData
+      });
+    }
+
+    return updatedPlayer;
   } catch (err) {
     if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
       logger.warn(
@@ -329,6 +357,9 @@ async function deletePlayer(playerId, permanent = false) {
   if (permanent) {
     const sql = 'DELETE FROM players WHERE id = ?';
     try {
+      // Obter informações do jogador antes de removê-lo
+      const player = await getPlayerById(playerId, true);
+
       const result = await runAsync(sql, [playerId]);
       logger.info(
         { component: 'PlayerModel', playerId },
@@ -336,6 +367,16 @@ async function deletePlayer(playerId, permanent = false) {
       );
       // Audit log for permanent deletion
       auditLogger.logAction('SYSTEM', 'PLAYER_HARD_DELETE', 'player', playerId.toString(), {});
+
+      // Enviar notificação sobre remoção permanente do jogador
+      if (player && player.tournament_id) {
+        notificationService.sendTournamentNotification(player.tournament_id, 'player_removed', {
+          tournamentId: player.tournament_id,
+          playerId: playerId,
+          playerName: player.name
+        });
+      }
+
       return result.changes > 0;
     } catch (err) {
       logger.error(
@@ -348,6 +389,9 @@ async function deletePlayer(playerId, permanent = false) {
     const sql =
       'UPDATE players SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)';
     try {
+      // Obter informações do jogador antes de desativá-lo
+      const player = await getPlayerById(playerId);
+
       const result = await runAsync(sql, [playerId]);
       if (result.changes > 0) {
         logger.info(
@@ -355,6 +399,16 @@ async function deletePlayer(playerId, permanent = false) {
           `Jogador ${playerId} movido para a lixeira (soft delete).`
         );
         auditLogger.logAction('SYSTEM', 'PLAYER_SOFT_DELETE', 'player', playerId.toString(), {});
+
+        // Enviar notificação sobre desativação do jogador
+        if (player && player.tournament_id) {
+          notificationService.sendTournamentNotification(player.tournament_id, 'player_deactivated', {
+            tournamentId: player.tournament_id,
+            playerId: playerId,
+            playerName: player.name
+          });
+        }
+
         return true;
       }
       const existing = await getPlayerById(playerId, true);
@@ -817,7 +871,7 @@ async function assignPlayerToTournament(playerId, tournamentId, ipAddress = 'unk
       throw new Error(`Jogador ${playerId} já está atribuído a outro torneio (${player.tournament_id}).`);
     }
     if (player.tournament_id === tournamentId) {
-       logger.info(
+      logger.info(
         { component: 'PlayerModel', playerId, tournamentId },
         `Jogador ${playerId} já está atribuído a este torneio ${tournamentId}. Nenhuma alteração feita.`
       );

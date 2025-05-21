@@ -5,6 +5,7 @@ const {
   transactionAsync,
 } = require('../db/database'); // Atualizado para database
 const { logger } = require('../logger/logger'); // Importar logger
+const notificationService = require('../services/notificationService'); // Importar serviço de notificações
 
 // Helper to add is_deleted filter for tournaments
 const addTournamentIsDeletedFilter = (
@@ -159,7 +160,18 @@ async function createTournament(tournament) {
         db.prepare(sqlInsertOrReplaceState).run(id, state_json);
       }
     });
-    return await getTournamentById(id);
+
+    const createdTournament = await getTournamentById(id);
+
+    // Enviar notificação sobre novo torneio criado
+    notificationService.sendGlobalNotification('tournament_created', {
+      tournamentId: id,
+      name,
+      date,
+      status
+    });
+
+    return createdTournament;
   } catch (err) {
     logger.error(
       { component: 'TournamentModel', err, tournamentData: tournament },
@@ -218,7 +230,50 @@ async function updateTournament(id, data) {
       }
       return null;
     }
-    return await getTournamentById(id);
+
+    const updatedTournament = await getTournamentById(id);
+
+    // Enviar notificação sobre atualização do torneio
+    if (updatedTournament) {
+      // Extrair apenas os campos que foram atualizados
+      const updatedFields = updates.reduce((acc, update) => {
+        acc[update.field] = update.value;
+        return acc;
+      }, {});
+
+      notificationService.sendTournamentNotification(id, 'tournament_updated', {
+        tournamentId: id,
+        updates: updatedFields,
+        tournament: updatedTournament
+      });
+
+      // Se o status foi alterado, enviar uma notificação específica sobre isso
+      if (data.status) {
+        notificationService.sendTournamentNotification(id, 'status_changed', {
+          tournamentId: id,
+          newStatus: data.status,
+          previousStatus: updatedTournament.status !== data.status ? updatedTournament.status : null
+        });
+
+        // Se o torneio foi marcado como "Em Andamento", enviar notificação global
+        if (data.status === 'Em Andamento') {
+          notificationService.sendGlobalNotification('tournament_started', {
+            tournamentId: id,
+            name: updatedTournament.name,
+            date: updatedTournament.date
+          });
+        }
+        // Se o torneio foi marcado como "Concluído", enviar notificação global
+        else if (data.status === 'Concluído') {
+          notificationService.sendGlobalNotification('tournament_completed', {
+            tournamentId: id,
+            name: updatedTournament.name
+          });
+        }
+      }
+    }
+
+    return updatedTournament;
   } catch (err) {
     logger.error(
       { component: 'TournamentModel', err, id, data },
@@ -235,6 +290,9 @@ async function deleteTournament(id, permanent = false) {
 
   if (permanent) {
     try {
+      // Obter informações do torneio antes de excluí-lo
+      const tournamentInfo = await getTournamentById(id, true);
+
       await transactionAsync((transactionDb) => {
         transactionDb
           .prepare('DELETE FROM tournament_state WHERE tournament_id = ?')
@@ -252,10 +310,20 @@ async function deleteTournament(id, permanent = false) {
           .run(id);
         transactionDb.prepare('DELETE FROM tournaments WHERE id = ?').run(id);
       });
+
       logger.info(
         { component: 'TournamentModel', id },
         `Torneio ${id} e dados associados excluídos permanentemente.`
       );
+
+      // Enviar notificação sobre exclusão permanente do torneio
+      if (tournamentInfo) {
+        notificationService.sendGlobalNotification('tournament_deleted', {
+          tournamentId: id,
+          name: tournamentInfo.name
+        });
+      }
+
       return true;
     } catch (err) {
       logger.error(
@@ -271,12 +339,29 @@ async function deleteTournament(id, permanent = false) {
       WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)
     `;
     try {
+      // Obter informações do torneio antes de marcá-lo como excluído
+      const tournamentInfo = await getTournamentById(id);
+
       const result = await runAsync(sql, [id]);
       if (result.changes > 0) {
         logger.info(
           { component: 'TournamentModel', id },
           `Torneio ${id} movido para a lixeira (soft delete) e status definido como Cancelado.`
         );
+
+        // Enviar notificação sobre cancelamento/exclusão suave do torneio
+        if (tournamentInfo) {
+          notificationService.sendTournamentNotification(id, 'tournament_cancelled', {
+            tournamentId: id,
+            name: tournamentInfo.name
+          });
+
+          notificationService.sendGlobalNotification('tournament_cancelled', {
+            tournamentId: id,
+            name: tournamentInfo.name
+          });
+        }
+
         return true;
       }
       const existing = await getTournamentById(id, true);
