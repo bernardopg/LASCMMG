@@ -83,7 +83,9 @@ describe('MatchCard component', () => {
 
   it('highlights the winner', () => {
     render(<MatchCard match={mockMatch} />);
-    const player1Display = screen.getByText('Jogador 1').closest('.player-display'); // Assuming PlayerDisplay has this class
+    const player1Display = screen
+      .getByText('Jogador 1')
+      .closest('.player-display'); // Assuming PlayerDisplay has this class
     // This test needs PlayerDisplay to add a specific class or attribute for winners.
     // For example, if PlayerDisplay adds 'font-bold' or 'text-green-400' to winner.
     // expect(player1Display).toHaveClass('font-bold'); // Example assertion
@@ -91,7 +93,9 @@ describe('MatchCard component', () => {
 
   it('displays match date and time', () => {
     render(<MatchCard match={mockMatch} />);
-    expect(screen.getByText(formatMatchDateTime(mockMatch.dateTime))).toBeInTheDocument();
+    expect(
+      screen.getByText(formatMatchDateTime(mockMatch.dateTime))
+    ).toBeInTheDocument();
   });
 
   it('displays BYE status correctly', () => {

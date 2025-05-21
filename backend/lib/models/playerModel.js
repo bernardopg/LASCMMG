@@ -5,6 +5,7 @@ const {
   transactionAsync,
 } = require('../db/database');
 const { logger } = require('../logger/logger');
+const auditLogger = require('../logger/auditLogger'); // Ensure auditLogger is imported if used
 
 // Helper to add is_deleted filter
 const addIsDeletedFilter = (sql, params, includeDeleted = false) => {
@@ -31,7 +32,6 @@ async function getPlayersByTournamentId(tournamentId, options = {}) {
     includeDeleted = false,
   } = options;
 
-  // Whitelist and map orderBy fields to actual column names
   const columnMap = {
     id: 'id',
     name: 'name',
@@ -39,13 +39,11 @@ async function getPlayersByTournamentId(tournamentId, options = {}) {
     games_played: 'games_played',
     wins: 'wins',
     losses: 'losses',
-    // 'score': 'score', // 'score' is not a direct column, handle if it's a calculated field or alias
     gender: 'gender',
     skill_level: 'skill_level',
-    // Add other valid sortable columns here
   };
 
-  const effectiveOrderBy = columnMap[orderBy] || 'name'; // Default to 'name' if invalid
+  const effectiveOrderBy = columnMap[orderBy] || 'name';
   const effectiveOrder = ['ASC', 'DESC'].includes(order.toUpperCase())
     ? order.toUpperCase()
     : 'ASC';
@@ -66,8 +64,7 @@ async function getPlayersByTournamentId(tournamentId, options = {}) {
   let countSql = filteredCount.sql;
   let countParams = filteredCount.params;
 
-  // Use the sanitized column name in ORDER BY
-  sql += ` ORDER BY "${effectiveOrderBy}" ${effectiveOrder}`; // Enclose column name in double quotes for safety
+  sql += ` ORDER BY "${effectiveOrderBy}" ${effectiveOrder}`;
 
   if (limit !== undefined && limit !== -1 && limit !== null) {
     sql += ' LIMIT ?';
@@ -84,9 +81,8 @@ async function getPlayersByTournamentId(tournamentId, options = {}) {
     return { players, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao buscar jogadores para o torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err }
+      { component: 'PlayerModel', err, tournamentId },
+      `Erro ao buscar jogadores para o torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -106,9 +102,8 @@ async function getPlayerById(playerId, includeDeleted = false) {
     return await getOneAsync(sql, params);
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao buscar jogador com ID ${playerId}: ${err.message}`,
-      { playerId, error: err }
+      { component: 'PlayerModel', err, playerId },
+      `Erro ao buscar jogador com ID ${playerId}.`
     );
     throw err;
   }
@@ -131,17 +126,15 @@ async function getPlayerByNameInTournament(
     return await getOneAsync(sql, params);
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao buscar jogador "${playerName}" no torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, playerName, error: err }
+      { component: 'PlayerModel', err, tournamentId, playerName },
+      `Erro ao buscar jogador "${playerName}" no torneio ${tournamentId}.`
     );
     throw err;
   }
 }
 
 async function addPlayer(playerData) {
-  // For adding player to a specific tournament
-  const { tournament_id, name, nickname, gender, skill_level } = playerData;
+  const { tournament_id, name, nickname, email, gender, skill_level } = playerData; // Added email
   if (!tournament_id || !name) {
     throw new Error(
       'ID do torneio e nome do jogador são obrigatórios para addPlayer.'
@@ -149,14 +142,15 @@ async function addPlayer(playerData) {
   }
 
   const sql = `
-    INSERT INTO players (tournament_id, name, nickname, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
-    VALUES (?, ?, ?, 0, 0, 0, ?, ?, 0, NULL)
+    INSERT INTO players (tournament_id, name, nickname, email, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
+    VALUES (?, ?, ?, ?, 0, 0, 0, ?, ?, 0, NULL)
   `;
   try {
     const result = await runAsync(sql, [
       tournament_id,
       name,
       nickname || null,
+      email || null, // Added email
       gender || null,
       skill_level || null,
     ]);
@@ -165,77 +159,82 @@ async function addPlayer(playerData) {
     if (
       err.message.includes(
         'UNIQUE constraint failed: players.tournament_id, players.name'
-      ) // Assuming is_deleted=0 is part of unique index or handled by app logic
+      ) || err.message.includes('UNIQUE constraint failed: players.email')
     ) {
       logger.warn(
-        'PlayerModel',
-        `Tentativa de adicionar jogador duplicado (não excluído): ${name} no torneio ${tournament_id}`,
-        { name, tournament_id }
+        { component: 'PlayerModel', name, tournament_id, email },
+        `Tentativa de adicionar jogador duplicado (não excluído): ${name} (email: ${email}) no torneio ${tournament_id}.`
       );
       throw new Error(
-        `Jogador "${name}" (não excluído) já existe neste torneio.`
+        `Jogador "${name}" ou email "${email}" (não excluído) já existe neste torneio.`
       );
     }
-    logger.error('PlayerModel', 'Erro ao adicionar jogador:', {
-      error: err,
-      playerData,
-    });
+    logger.error(
+      { component: 'PlayerModel', err, playerData },
+      'Erro ao adicionar jogador.'
+    );
     throw err;
   }
 }
 
 async function createGlobalPlayer(playerData) {
-  // For creating a player not initially tied to a tournament
-  const { name, nickname, gender, skill_level } = playerData;
+  const { name, nickname, email, gender, skill_level, ipAddress } = playerData; // Added email and ipAddress
   if (!name) {
     throw new Error('Nome do jogador é obrigatório.');
   }
 
   const sql = `
-    INSERT INTO players (name, nickname, games_played, wins, losses, gender, skill_level, tournament_id, is_deleted, deleted_at)
-    VALUES (?, ?, 0, 0, 0, ?, ?, NULL, 0, NULL)
+    INSERT INTO players (name, nickname, email, gender, skill_level, tournament_id, deleted_at)
+    VALUES (?, ?, ?, ?, ?, NULL, NULL)
   `;
+  // games_played, wins, losses, score, is_deleted will use their database DEFAULT 0 values.
   try {
     const result = await runAsync(sql, [
       name,
       nickname || null,
+      email || null,
       gender || null,
       skill_level || null,
     ]);
-    return await getPlayerById(result.lastInsertRowid);
+    const playerId = result.lastInsertRowid;
+    // Audit logging for global player creation
+    auditLogger.logAction(
+        'SYSTEM', // Or an admin user ID if available
+        'GLOBAL_PLAYER_CREATE',
+        'player',
+        playerId.toString(),
+        { name, nickname, email, ipAddress: ipAddress || 'unknown' }
+    );
+    return await getPlayerById(playerId);
   } catch (err) {
-    // Assuming a global UNIQUE constraint on name (or name+nickname) for non-deleted global players
-    if (err.message.includes('UNIQUE constraint failed')) {
+    if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
+         logger.warn(
+            { component: 'PlayerModel', name, email },
+            `Tentativa de adicionar jogador global duplicado (email existente): ${email}.`
+          );
+        throw new Error(`Um jogador com o email "${email}" já existe globalmente.`);
+    } else if (err.message.includes('UNIQUE constraint failed')) { // General unique constraint
       logger.warn(
-        'PlayerModel',
-        `Tentativa de adicionar jogador global duplicado (não excluído): ${name}`,
-        { name }
+        { component: 'PlayerModel', name },
+        `Tentativa de adicionar jogador global duplicado (não excluído): ${name}.`
       );
       throw new Error(
         `Jogador "${name}" (ou apelido) já existe globalmente e não está excluído.`
       );
     }
-    logger.error('PlayerModel', 'Erro ao adicionar jogador global:', {
-      error: err,
-      playerData,
-    });
+    logger.error(
+      { component: 'PlayerModel', err, playerData },
+      'Erro ao adicionar jogador global.'
+    );
     throw err;
   }
 }
 
-/**
- * Atualiza os dados de um jogador
- * @param {number} playerId ID do jogador
- * @param {object} playerData Dados a serem atualizados (name, nickname, games_played, wins, losses, gender, skill_level)
- * @returns {Promise<object|null>} Jogador atualizado ou null se não encontrado
- */
 async function updatePlayer(playerId, playerData) {
   if (!playerId) {
     throw new Error('ID do jogador não fornecido');
   }
-  // Explicitly exclude is_deleted and deleted_at from direct update via this function
-  const { name, nickname, games_played, wins, losses, gender, skill_level } =
-    playerData;
+  const { name, nickname, email, games_played, wins, losses, gender, skill_level, ipAddress } = playerData; // Added email and ipAddress
   const fieldsToUpdate = [];
   const values = [];
 
@@ -246,6 +245,10 @@ async function updatePlayer(playerId, playerData) {
   if (nickname !== undefined) {
     fieldsToUpdate.push('nickname = ?');
     values.push(nickname);
+  }
+  if (email !== undefined) { // Add email to update
+    fieldsToUpdate.push('email = ?');
+    values.push(email);
   }
   if (games_played !== undefined) {
     fieldsToUpdate.push('games_played = ?');
@@ -269,39 +272,50 @@ async function updatePlayer(playerId, playerData) {
   }
 
   if (fieldsToUpdate.length === 0) {
-    return await getPlayerById(playerId); // Will respect soft-delete status
+    return await getPlayerById(playerId);
   }
 
-  fieldsToUpdate.push('updated_at = CURRENT_TIMESTAMP'); // Always update timestamp
+  fieldsToUpdate.push('updated_at = CURRENT_TIMESTAMP');
 
   const sql = `
     UPDATE players
     SET ${fieldsToUpdate.join(', ')}
     WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)
-  `; // Only update non-deleted players
+  `;
   values.push(playerId);
 
   try {
     const result = await runAsync(sql, values);
     if (result.changes === 0) {
-      // Check if player exists but is deleted
       const existing = await getPlayerById(playerId, true);
       if (existing && existing.is_deleted) {
         logger.warn(
-          'PlayerModel',
-          `Tentativa de atualizar jogador ${playerId} que está na lixeira.`,
-          { playerId }
+          { component: 'PlayerModel', playerId },
+          `Tentativa de atualizar jogador ${playerId} que está na lixeira.`
         );
-        return null; // Or throw error
+        return null;
       }
-      return null; // Not found or no changes made
+      return null;
     }
+     auditLogger.logAction(
+        'SYSTEM', // Or an admin user ID
+        'PLAYER_UPDATE',
+        'player',
+        playerId.toString(),
+        { updatedFields: fieldsToUpdate.map(f => f.split(' =')[0]), ipAddress: ipAddress || 'unknown' }
+    );
     return await getPlayerById(playerId);
   } catch (err) {
+     if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
+        logger.warn(
+            { component: 'PlayerModel', playerId, email },
+            `Falha ao atualizar jogador ${playerId}: email "${email}" já existe.`
+        );
+        throw new Error(`O email "${email}" já está em uso por outro jogador.`);
+    }
     logger.error(
-      'PlayerModel',
-      `Erro ao atualizar jogador ${playerId}: ${err.message}`,
-      { playerId, playerData, error: err }
+      { component: 'PlayerModel', err, playerId, playerData },
+      `Erro ao atualizar jogador ${playerId}.`
     );
     throw err;
   }
@@ -313,58 +327,53 @@ async function deletePlayer(playerId, permanent = false) {
   }
 
   if (permanent) {
-    // Hard delete
     const sql = 'DELETE FROM players WHERE id = ?';
     try {
       const result = await runAsync(sql, [playerId]);
       logger.info(
-        'PlayerModel',
-        `Jogador ${playerId} excluído permanentemente.`,
-        { playerId }
+        { component: 'PlayerModel', playerId },
+        `Jogador ${playerId} excluído permanentemente.`
       );
+      // Audit log for permanent deletion
+      auditLogger.logAction('SYSTEM', 'PLAYER_HARD_DELETE', 'player', playerId.toString(), {});
       return result.changes > 0;
     } catch (err) {
       logger.error(
-        'PlayerModel',
-        `Erro ao remover permanentemente o jogador ${playerId}: ${err.message}`,
-        { playerId, error: err }
+        { component: 'PlayerModel', err, playerId },
+        `Erro ao remover permanentemente o jogador ${playerId}.`
       );
       throw err;
     }
   } else {
-    // Soft delete
     const sql =
       'UPDATE players SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)';
     try {
       const result = await runAsync(sql, [playerId]);
       if (result.changes > 0) {
         logger.info(
-          'PlayerModel',
-          `Jogador ${playerId} movido para a lixeira (soft delete).`,
-          { playerId }
+          { component: 'PlayerModel', playerId },
+          `Jogador ${playerId} movido para a lixeira (soft delete).`
         );
+        auditLogger.logAction('SYSTEM', 'PLAYER_SOFT_DELETE', 'player', playerId.toString(), {});
         return true;
       }
-      const existing = await getPlayerById(playerId, true); // Check if it exists, even if deleted
+      const existing = await getPlayerById(playerId, true);
       if (existing && existing.is_deleted) {
         logger.info(
-          'PlayerModel',
-          `Jogador ${playerId} já estava na lixeira. Nenhuma alteração.`,
-          { playerId }
+          { component: 'PlayerModel', playerId },
+          `Jogador ${playerId} já estava na lixeira. Nenhuma alteração.`
         );
         return true;
       }
       logger.warn(
-        'PlayerModel',
-        `Jogador ${playerId} não encontrado para soft delete ou já estava excluído.`,
-        { playerId }
+        { component: 'PlayerModel', playerId },
+        `Jogador ${playerId} não encontrado para soft delete ou já estava excluído.`
       );
       return false;
     } catch (err) {
       logger.error(
-        'PlayerModel',
-        `Erro ao mover jogador ${playerId} para a lixeira: ${err.message}`,
-        { playerId, error: err }
+        { component: 'PlayerModel', err, playerId },
+        `Erro ao mover jogador ${playerId} para a lixeira.`
       );
       throw err;
     }
@@ -372,7 +381,6 @@ async function deletePlayer(playerId, permanent = false) {
 }
 
 async function deletePlayersByTournamentId(tournamentId, permanent = false) {
-  // Added permanent flag
   if (!tournamentId) {
     throw new Error('ID do torneio não fornecido');
   }
@@ -384,18 +392,22 @@ async function deletePlayersByTournamentId(tournamentId, permanent = false) {
       'UPDATE players SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE tournament_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)';
   }
   try {
+    // TODO: Audit log for batch deletion might be needed if it's a common admin action
     const result = await runAsync(sql, [tournamentId]);
     logger.info(
-      'PlayerModel',
-      `${result.changes} jogadores do torneio ${tournamentId} ${permanent ? 'excluídos permanentemente' : 'movidos para lixeira'}.`,
-      { tournamentId, count: result.changes, permanent }
+      {
+        component: 'PlayerModel',
+        tournamentId,
+        count: result.changes,
+        permanent,
+      },
+      `${result.changes} jogadores do torneio ${tournamentId} ${permanent ? 'excluídos permanentemente' : 'movidos para lixeira'}.`
     );
     return result.changes;
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao ${permanent ? 'remover permanentemente jogadores' : 'mover jogadores para lixeira'} do torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err, permanent }
+      { component: 'PlayerModel', err, tournamentId, permanent },
+      `Erro ao ${permanent ? 'remover permanentemente jogadores' : 'mover jogadores para lixeira'} do torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -414,16 +426,16 @@ async function importPlayers(tournamentId, playersArray) {
 
   await transactionAsync((db) => {
     const selectPlayerSql =
-      'SELECT id, name, nickname, gender, skill_level, is_deleted FROM players WHERE tournament_id = ? AND name = ?';
+      'SELECT id, name, nickname, email, gender, skill_level, is_deleted FROM players WHERE tournament_id = ? AND name = ?';
     const insertPlayerSql = `
-      INSERT INTO players (tournament_id, name, nickname, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
-      VALUES (?, ?, ?, 0, 0, 0, ?, ?, 0, NULL)
-    `;
+      INSERT INTO players (tournament_id, name, nickname, email, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
+      VALUES (?, ?, ?, ?, 0, 0, 0, ?, ?, 0, NULL)
+    `; // Added email
     const updatePlayerSql = `
       UPDATE players
-      SET nickname = ?, gender = ?, skill_level = ?, is_deleted = 0, deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+      SET nickname = ?, email = ?, gender = ?, skill_level = ?, is_deleted = 0, deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `;
+    `; // Added email
 
     const selectStmt = db.prepare(selectPlayerSql);
     const insertStmt = db.prepare(insertPlayerSql);
@@ -447,41 +459,33 @@ async function importPlayers(tournamentId, playersArray) {
             existingPlayer.is_deleted === 0 ||
             existingPlayer.is_deleted === null
           ) {
-            // Player exists and is not deleted, skip.
             logger.warn(
-              'PlayerModel',
-              `Jogador "${playerData.name}" (não excluído) já existe no torneio ${tournamentId} e foi ignorado na importação.`,
-              { playerName: playerData.name, tournamentId }
+              {
+                component: 'PlayerModel',
+                playerName: playerData.name,
+                tournamentId,
+              },
+              `Jogador "${playerData.name}" (não excluído) já existe no torneio ${tournamentId} e foi ignorado na importação.`
             );
             continue;
           } else {
-            // Player exists but is soft-deleted, restore and update.
             const info = updateStmt.run(
               playerData.nickname || existingPlayer.nickname || null,
+              playerData.email || existingPlayer.email || null, // Added email
               playerData.gender || existingPlayer.gender || null,
               playerData.skill_level || existingPlayer.skill_level || null,
               existingPlayer.id
             );
             if (info.changes > 0) {
               importedCount++;
-              logger.info(
-                'PlayerModel',
-                `Jogador "${playerData.name}" restaurado e atualizado no torneio ${tournamentId} via importação.`,
-                { playerName: playerData.name, tournamentId }
-              );
-            } else {
-              // This case should ideally not happen if selectStmt found a soft-deleted player.
-              errors.push(
-                `Falha ao restaurar/atualizar jogador soft-deletado "${playerData.name}".`
-              );
             }
           }
         } else {
-          // Player does not exist, insert.
           const info = insertStmt.run(
             tournamentId,
             playerData.name,
             playerData.nickname || null,
+            playerData.email || null, // Added email
             playerData.gender || null,
             playerData.skill_level || null
           );
@@ -490,10 +494,9 @@ async function importPlayers(tournamentId, playersArray) {
           }
         }
       } catch (error) {
-        // Catch UNIQUE constraint for inserts, other errors for updates/inserts
         if (error.message.includes('UNIQUE constraint failed')) {
           errors.push(
-            `Jogador "${playerData.name}" já existe neste torneio (erro de constraint ao tentar inserir).`
+            `Jogador "${playerData.name}" ou email "${playerData.email}" já existe neste torneio.`
           );
         } else {
           errors.push(
@@ -501,9 +504,8 @@ async function importPlayers(tournamentId, playersArray) {
           );
         }
         logger.error(
-          'PlayerModel',
-          `Erro durante importação do jogador ${playerData.name} para torneio ${tournamentId}`,
-          { error, playerData }
+          { component: 'PlayerModel', err: error, playerData, tournamentId },
+          `Erro durante importação do jogador ${playerData.name} para torneio ${tournamentId}.`
         );
       }
     }
@@ -523,9 +525,8 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
   const errors = [];
 
   await transactionAsync((db) => {
-    // Fetch current players (including soft-deleted ones to handle restoration)
     const getAllPlayersSql =
-      'SELECT id, name, nickname, gender, skill_level, is_deleted FROM players WHERE tournament_id = ?';
+      'SELECT id, name, nickname, email, gender, skill_level, is_deleted FROM players WHERE tournament_id = ?'; // Added email
     const currentPlayersStmt = db.prepare(getAllPlayersSql);
     const currentPlayersList = currentPlayersStmt.all(tournamentId);
     const currentPlayersMap = new Map(
@@ -536,14 +537,14 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
     let processedCount = 0;
 
     const insertPlayerSql = `
-      INSERT INTO players (tournament_id, name, nickname, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NULL)
-    `;
+      INSERT INTO players (tournament_id, name, nickname, email, games_played, wins, losses, gender, skill_level, is_deleted, deleted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NULL)
+    `; // Added email
     const updatePlayerSql = `
       UPDATE players
-      SET nickname = ?, gender = ?, skill_level = ?, games_played = ?, wins = ?, losses = ?, is_deleted = 0, deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+      SET nickname = ?, email = ?, gender = ?, skill_level = ?, games_played = ?, wins = ?, losses = ?, is_deleted = 0, deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `;
+    `; // Added email
     const insertStmt = db.prepare(insertPlayerSql);
     const updateStmt = db.prepare(updatePlayerSql);
 
@@ -557,6 +558,7 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
       }
 
       const nickname = newPlayerData.Nickname || newPlayerData.nickname || null;
+      const email = newPlayerData.email || null; // Added email
       const gender = newPlayerData.gender || null;
       const skill_level = newPlayerData.skill_level || null;
       const gamesPlayed = newPlayerData.GamesPlayed || 0;
@@ -567,9 +569,9 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
 
       try {
         if (existingPlayer) {
-          // Player exists, update them (and restore if soft-deleted)
           updateStmt.run(
             nickname,
+            email, // Added email
             gender,
             skill_level,
             gamesPlayed,
@@ -579,17 +581,12 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
           );
           playersToKeepIds.add(existingPlayer.id);
           processedCount++;
-          logger.info(
-            'PlayerModel',
-            `Jogador "${name}" atualizado/restaurado no torneio ${tournamentId}.`,
-            { name, tournamentId }
-          );
         } else {
-          // Player does not exist, insert them
           const info = insertStmt.run(
             tournamentId,
             name,
             nickname,
+            email, // Added email
             gamesPlayed,
             wins,
             losses,
@@ -597,8 +594,6 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
             skill_level
           );
           if (info.changes > 0) {
-            // It's harder to get the ID here without another query,
-            // but we know one was added.
             processedCount++;
           }
         }
@@ -606,56 +601,27 @@ async function replacePlayerListForTournament(tournamentId, newPlayersArray) {
         errors.push(
           `Erro ao processar jogador "${name}" para o torneio ${tournamentId}: ${error.message}`
         );
-        logger.error(
-          'PlayerModel',
-          `Erro ao processar jogador ${name} em replacePlayerListForTournament`,
-          { error, name, tournamentId }
-        );
       }
     }
 
-    // Soft-delete players that were in the DB but not in newPlayersArray
     const softDeleteStmt = db.prepare(
       'UPDATE players SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)'
     );
-    let softDeletedCount = 0;
     for (const currentPlayer of currentPlayersList) {
       if (
         !playersToKeepIds.has(currentPlayer.id) &&
         (currentPlayer.is_deleted === 0 || currentPlayer.is_deleted === null)
       ) {
-        try {
-          const info = softDeleteStmt.run(currentPlayer.id);
-          if (info.changes > 0) {
-            softDeletedCount++;
-          }
-        } catch (error) {
-          errors.push(
-            `Erro ao soft-deletar jogador "${currentPlayer.name}" (ID: ${currentPlayer.id}): ${error.message}`
-          );
-          logger.error(
-            'PlayerModel',
-            `Erro ao soft-deletar jogador ${currentPlayer.name} em replacePlayerListForTournament`,
-            { error, player: currentPlayer }
-          );
-        }
+        softDeleteStmt.run(currentPlayer.id);
       }
     }
-    if (softDeletedCount > 0) {
-      logger.info(
-        'PlayerModel',
-        `${softDeletedCount} jogadores antigos movidos para a lixeira no torneio ${tournamentId}.`,
-        { softDeletedCount, tournamentId }
-      );
-    }
-    addedCount = processedCount; // This now represents players added or updated/restored
+    addedCount = processedCount;
   });
 
   if (errors.length > 0) {
     logger.error(
-      'PlayerModel',
-      'Erros durante replacePlayerListForTournament:',
-      { tournamentId, errors }
+      { component: 'PlayerModel', tournamentId, errors },
+      'Erros durante replacePlayerListForTournament.'
     );
   }
   return { count: addedCount, errors };
@@ -671,11 +637,11 @@ async function getAllPlayers(options = {}) {
     includeDeleted = false,
   } = options;
 
-  // Whitelist and map sortBy fields to actual column names
   const columnMap = {
     id: 'id',
     name: 'name',
     nickname: 'nickname',
+    email: 'email', // Added email
     games_played: 'games_played',
     wins: 'wins',
     losses: 'losses',
@@ -685,18 +651,17 @@ async function getAllPlayers(options = {}) {
     created_at: 'created_at',
     updated_at: 'updated_at',
     is_deleted: 'is_deleted',
-    // Add other valid sortable columns here
   };
 
-  const effectiveOrderBy = columnMap[sortBy] || 'name'; // Default to 'name' if invalid
+  const effectiveOrderBy = columnMap[sortBy] || 'name';
   const effectiveOrder = ['ASC', 'DESC'].includes(order.toUpperCase())
     ? order.toUpperCase()
     : 'ASC';
 
   let sql = `SELECT * FROM players`;
   let countSql = `SELECT COUNT(*) as total FROM players`;
-  const queryParams = []; // For the main query
-  const countQueryParams = []; // For the count query
+  const queryParams = [];
+  const countQueryParams = [];
 
   let whereClauses = [];
 
@@ -715,6 +680,11 @@ async function getAllPlayers(options = {}) {
       queryParams.push(`%${filters.nickname}%`);
       countQueryParams.push(`%${filters.nickname}%`);
     }
+     if (filters.email && typeof filters.email === 'string') { // Added email filter
+      whereClauses.push('email LIKE ?');
+      queryParams.push(`%${filters.email}%`);
+      countQueryParams.push(`%${filters.email}%`);
+    }
     if (filters.tournament_id) {
       whereClauses.push('tournament_id = ?');
       queryParams.push(filters.tournament_id);
@@ -731,11 +701,9 @@ async function getAllPlayers(options = {}) {
       countQueryParams.push(filters.skill_level);
     }
     if (filters.is_deleted !== undefined) {
-      // Explicitly filter by is_deleted if provided
-      // This overrides the includeDeleted flag for this specific filter
       whereClauses = whereClauses.filter(
         (clause) => !clause.includes('is_deleted')
-      ); // Remove default if any
+      );
       whereClauses.push('is_deleted = ?');
       queryParams.push(filters.is_deleted ? 1 : 0);
       countQueryParams.push(filters.is_deleted ? 1 : 0);
@@ -747,10 +715,8 @@ async function getAllPlayers(options = {}) {
     countSql += ` WHERE ${whereClauses.join(' AND ')}`;
   }
 
-  // Use the sanitized column name in ORDER BY
-  sql += ` ORDER BY "${effectiveOrderBy}" ${effectiveOrder}`; // Enclose column name in double quotes
+  sql += ` ORDER BY "${effectiveOrderBy}" ${effectiveOrder}`;
 
-  // Create a new array for the final query with pagination params
   const finalQueryParams = [...queryParams];
 
   if (limit !== undefined && limit !== -1 && limit !== null) {
@@ -763,14 +729,13 @@ async function getAllPlayers(options = {}) {
   }
 
   try {
-    const players = await queryAsync(sql, finalQueryParams); // Use finalQueryParams
+    const players = await queryAsync(sql, finalQueryParams);
     const totalResult = await getOneAsync(countSql, countQueryParams);
     return { players, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao buscar todos os jogadores: ${err.message}`,
-      { error: err }
+      { component: 'PlayerModel', err },
+      `Erro ao buscar todos os jogadores.`
     );
     throw err;
   }
@@ -786,55 +751,40 @@ async function countPlayers(includeDeleted = false) {
     const row = await getOneAsync(sql, params);
     return row ? row.count : 0;
   } catch (err) {
-    logger.error('PlayerModel', 'Erro ao contar jogadores:', { error: err });
+    logger.error(
+      { component: 'PlayerModel', err },
+      'Erro ao contar jogadores.'
+    );
     throw err;
   }
 }
-
-module.exports = {
-  getPlayersByTournamentId,
-  getPlayerById,
-  getPlayerByNameInTournament,
-  addPlayer,
-  createGlobalPlayer,
-  updatePlayer,
-  deletePlayer,
-  deletePlayersByTournamentId,
-  importPlayers,
-  replacePlayerListForTournament,
-  countPlayers,
-  getAllPlayers,
-  // restorePlayer will be exported in the final module.exports block
-};
 
 async function restorePlayer(playerId) {
   if (!playerId) {
     throw new Error('ID do jogador não fornecido para restauração.');
   }
-  // Set is_deleted to 0 and clear deleted_at
   const sql =
     'UPDATE players SET is_deleted = 0, deleted_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND is_deleted = 1';
   try {
     const result = await runAsync(sql, [playerId]);
     if (result.changes > 0) {
-      logger.info('PlayerModel', `Jogador ${playerId} restaurado da lixeira.`, {
-        playerId,
-      });
+      logger.info(
+        { component: 'PlayerModel', playerId },
+        `Jogador ${playerId} restaurado da lixeira.`
+      );
+      auditLogger.logAction('SYSTEM', 'PLAYER_RESTORE', 'player', playerId.toString(), {});
       return true;
     }
     logger.warn(
-      'PlayerModel',
-      `Jogador ${playerId} não encontrado na lixeira ou não precisou de restauração.`,
-      { playerId }
+      { component: 'PlayerModel', playerId },
+      `Jogador ${playerId} não encontrado na lixeira ou não precisou de restauração.`
     );
-    // Check if player exists and is not deleted already
     const player = await getPlayerById(playerId);
-    return !!player; // Return true if player exists and is not deleted
+    return !!player;
   } catch (err) {
     logger.error(
-      'PlayerModel',
-      `Erro ao restaurar jogador ${playerId} da lixeira: ${err.message}`,
-      { playerId, error: err }
+      { component: 'PlayerModel', err, playerId },
+      `Erro ao restaurar jogador ${playerId} da lixeira.`
     );
     throw err;
   }
@@ -853,5 +803,5 @@ module.exports = {
   replacePlayerListForTournament,
   countPlayers,
   getAllPlayers,
-  restorePlayer, // Added restorePlayer
+  restorePlayer,
 };

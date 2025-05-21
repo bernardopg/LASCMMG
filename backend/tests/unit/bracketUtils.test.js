@@ -28,7 +28,7 @@ describe('Bracket Utilities', () => {
       // The content of refArray (and originalArray) should be shuffled
       // This test is more about observing behavior than strict requirement,
       // as the function is typically called with a copied array ([...players]).
-      expect(refArray.sort()).toEqual([1,2,3,4,5].sort()); // Still contains same elements
+      expect(refArray.sort()).toEqual([1, 2, 3, 4, 5].sort()); // Still contains same elements
       // It's hard to assert it's *different* from original order without many runs or mocking Math.random
     });
 

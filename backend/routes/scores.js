@@ -3,121 +3,172 @@ const router = express.Router();
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const scoreModel = require('../lib/models/scoreModel');
 const tournamentModel = require('../lib/models/tournamentModel');
+const matchModel = require('../lib/models/matchModel'); // Import matchModel
 const { logger } = require('../lib/logger/logger');
 // isValidTournamentId will be handled by Joi schema if tournamentId is part of a schema
-const { validateRequest, newScoreSchema } = require('../lib/utils/validationUtils');
+const {
+  validateRequest,
+  newScoreSchema,
+} = require('../lib/utils/validationUtils');
 
 // POST /api/scores - Create a new score
-router.post('/', authMiddleware, validateRequest(newScoreSchema), async (req, res) => {
-  // Validation handled by newScoreSchema
-  const {
-    tournamentId,
-    matchId,
-    player1Score,
-    player2Score,
-    winnerId,
-    stateMatchKey,
-  } = req.body; // req.body is validated
+router.post(
+  '/',
+  authMiddleware,
+  validateRequest(newScoreSchema),
+  async (req, res) => {
+    // Validation handled by newScoreSchema
+    const {
+      tournamentId,
+      matchId,
+      player1Score,
+      player2Score,
+      winnerId,
+      stateMatchKey,
+    } = req.body; // req.body is validated
 
-  // Manual checks can be removed as Joi handles them
-  // if (!tournamentId || !isValidTournamentId(tournamentId)) { ... }
-  // if ( matchId === undefined || ... ) { ... }
-  // if (!stateMatchKey) { ... }
+    try {
+      const tournament = await tournamentModel.getTournamentById(tournamentId);
+      if (!tournament) {
+        logger.warn(
+          { component: 'ScoresRoute', tournamentId, requestId: req.id }, // Standardized logger
+          `Torneio ${tournamentId} não encontrado em POST /api/scores.`
+        );
+        return res
+          .status(404)
+          .json({ success: false, message: 'Torneio não encontrado.' });
+      }
 
-  try {
-    // isValidTournamentId check can be part of a more specific Joi schema for tournamentId if needed,
-    // or rely on database foreign key constraints / model checks.
-    // For now, assuming newScoreSchema's tournamentId validation is sufficient for format.
-    const tournament = await tournamentModel.getTournamentById(tournamentId);
-    if (!tournament) {
-      logger.warn(
-        'ScoresRoute',
-        `Torneio ${tournamentId} não encontrado em POST /api/scores.`,
-        { tournamentId, requestId: req.id }
-      );
-      return res
-        .status(404)
-        .json({ success: false, message: 'Torneio não encontrado.' });
-    }
+      // Ensure match exists within the tournament
+      const match = await matchModel.getMatchById(matchId);
+      if (!match || match.tournament_id !== tournamentId) {
+        logger.warn(
+          {
+            component: 'ScoresRoute',
+            matchId,
+            tournamentId,
+            requestId: req.id,
+          },
+          `Partida ${matchId} não encontrada ou não pertence ao torneio ${tournamentId} em POST /api/scores.`
+        );
+        return res.status(404).json({
+          success: false,
+          message: 'Partida não encontrada ou não pertence ao torneio.',
+        });
+      }
 
-    // Ensure match exists within the tournament (optional, depends on how robust matchId is)
-    // const match = await matchModel.getMatchById(matchId);
-    // if (!match || match.tournament_id !== tournamentId) {
-    //   return res.status(404).json({ success: false, message: 'Partida não encontrada ou não pertence ao torneio.' });
-    // }
+      const scoreData = {
+        tournament_id: tournamentId,
+        match_id: matchId,
+        player1_score: parseInt(player1Score, 10),
+        player2_score: parseInt(player2Score, 10),
+        winner_id: winnerId || null,
+      };
 
-    const scoreData = {
-      tournament_id: tournamentId, // For logging or if model needs it explicitly
-      match_id: matchId,
-      player1_score: parseInt(player1Score, 10),
-      player2_score: parseInt(player2Score, 10),
-      winner_id: winnerId || null, // winnerId can be null if not determined by scores alone
-    };
+      const savedScore = await scoreModel.addScore(scoreData);
 
-    const savedScore = await scoreModel.addScore(scoreData);
+      // Update tournament state (bracket)
+      try {
+        let state = tournament.state_json
+          ? JSON.parse(tournament.state_json)
+          : { matches: {} };
 
-    // Update tournament state (bracket)
-    let state = tournament.state_json
-      ? JSON.parse(tournament.state_json)
-      : { matches: {} };
-    if (state && state.matches && state.matches[stateMatchKey]) {
-      state.matches[stateMatchKey].score = [
-        savedScore.player1_score,
-        savedScore.player2_score,
-      ];
-      state.matches[stateMatchKey].winner = savedScore.winner_id; // winner_id from savedScore might be more reliable
+        if (
+          state &&
+          typeof state === 'object' &&
+          state.matches &&
+          state.matches[stateMatchKey]
+        ) {
+          state.matches[stateMatchKey].score = [
+            savedScore.player1_score,
+            savedScore.player2_score,
+          ];
 
-      await tournamentModel.updateTournamentState(
-        tournamentId,
-        JSON.stringify(state)
-      );
+          let determinedWinnerId = savedScore.winner_id;
+          if (determinedWinnerId === null && match) {
+            if (savedScore.player1_score > savedScore.player2_score) {
+              determinedWinnerId = match.player1_id;
+            } else if (savedScore.player2_score > savedScore.player1_score) {
+              determinedWinnerId = match.player2_id;
+            }
+          }
+          state.matches[stateMatchKey].winner = determinedWinnerId;
 
-      logger.info(
-        'ScoresRoute',
-        `Placar salvo e chaveamento atualizado para partida ${stateMatchKey} do torneio ${tournamentId} via /api/scores.`,
-        {
-          scoreId: savedScore.id,
-          tournamentId,
-          matchId,
-          stateMatchKey,
-          requestId: req.id,
+          await tournamentModel.updateTournamentState(
+            tournamentId,
+            JSON.stringify(state)
+          );
+
+          logger.info(
+            {
+              component: 'ScoresRoute',
+              scoreId: savedScore.id,
+              tournamentId,
+              matchId,
+              stateMatchKey,
+              requestId: req.id,
+            }, // Standardized logger
+            `Placar salvo e chaveamento atualizado para partida ${stateMatchKey} do torneio ${tournamentId} via /api/scores.`
+          );
+          res.status(201).json({
+            success: true,
+            message: 'Placar salvo e chaveamento atualizado!',
+            score: savedScore,
+            newState: state,
+          });
+        } else {
+          logger.warn(
+            {
+              component: 'ScoresRoute',
+              scoreId: savedScore.id,
+              tournamentId,
+              matchId,
+              stateMatchKey,
+              requestId: req.id,
+            }, // Standardized logger
+            `Partida ${stateMatchKey} (match_id DB: ${matchId}) não encontrada no state_json do torneio ${tournamentId} para atualização do chaveamento via /api/scores. Placar salvo.`
+          );
+          res.status(201).json({
+            success: true,
+            message:
+              'Placar salvo, mas partida não encontrada no estado do chaveamento para atualização automática.',
+            score: savedScore,
+          });
         }
-      );
-      res.status(201).json({
-        success: true,
-        message: 'Placar salvo e chaveamento atualizado!',
-        score: savedScore,
-        newState: state,
-      });
-    } else {
-      logger.warn(
-        'ScoresRoute',
-        `Partida ${stateMatchKey} (match_id DB: ${matchId}) não encontrada no state_json do torneio ${tournamentId} para atualização do chaveamento via /api/scores. Placar salvo.`,
+      } catch (stateError) {
+        logger.error(
+          {
+            component: 'ScoresRoute',
+            err: stateError,
+            tournamentId,
+            stateMatchKey,
+            requestId: req.id,
+          }, // Standardized logger
+          `Erro ao atualizar o estado do torneio ${tournamentId} após salvar placar para partida ${stateMatchKey}. Placar salvo.`
+        );
+        res.status(201).json({
+          success: true,
+          message:
+            'Placar salvo, mas ocorreu um erro ao atualizar o estado do chaveamento.',
+          score: savedScore,
+          stateUpdateError: stateError.message,
+        });
+      }
+    } catch (error) {
+      logger.error(
         {
-          scoreId: savedScore.id,
-          tournamentId,
-          matchId,
-          stateMatchKey,
+          component: 'ScoresRoute',
+          err: error,
+          body: req.body,
           requestId: req.id,
-        }
-      );
-      res.status(201).json({
-        success: true,
-        message:
-          'Placar salvo, mas partida não encontrada no estado do chaveamento para atualização automática.',
-        score: savedScore,
-      });
+        },
+        'Erro ao salvar placar via /api/scores.'
+      ); // Standardized logger
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro interno ao salvar placar.' });
     }
-  } catch (error) {
-    logger.error('ScoresRoute', 'Erro ao salvar placar via /api/scores:', {
-      error,
-      body: req.body,
-      requestId: req.id,
-    });
-    res
-      .status(500)
-      .json({ success: false, message: 'Erro interno ao salvar placar.' });
   }
-});
+);
 
 module.exports = router;

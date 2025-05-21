@@ -13,26 +13,29 @@ const Login = () => {
 
   // Esquema de validação com Yup
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().email('Email inválido').required('Email é obrigatório'),
+    email: Yup.string() // Changed back to email
+      .email('Email inválido')
+      .required('Email é obrigatório'),
     password: Yup.string()
-      .min(6, 'A senha deve ter pelo menos 6 caracteres')
+      .min(8, 'A senha deve ter pelo menos 8 caracteres')
+      .matches(/[a-z]/, 'Deve conter uma letra minúscula')
+      .matches(/[A-Z]/, 'Deve conter uma letra maiúscula')
+      .matches(/[0-9]/, 'Deve conter um número')
+      .matches(/[!@#$%^&*]/, 'Deve conter um caractere especial')
       .required('Senha é obrigatória'),
   });
 
-  // Valores iniciais para facilitar o teste
+  // Valores iniciais
   const initialValues = {
-    email: process.env.NODE_ENV === 'development' ? 'admin@example.com' : '',
-    password: process.env.NODE_ENV === 'development' ? 'Admin123!' : '',
+    email: '', // Changed back to email
+    password: '',
   };
 
   // Função de submit do formulário
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setIsLoading(true);
-
-      // A validação de email é feita pelo Yup.
-      // O AuthContext.login lida com a transformação para 'username' se necessário.
-      // Não é preciso 'cleanEmail' aqui.
+      // AuthContext.login expects email as the first argument
       await login(values.email, values.password);
       showSuccess('Login realizado com sucesso!');
       navigate('/');
@@ -40,8 +43,8 @@ const Login = () => {
       console.error('Erro no login:', error);
       showError(
         error.response?.data?.message || // Priorizar mensagem do backend
-        error.message || // Mensagem de erro do JS (ex: rede)
-        'Falha na autenticação. Verifique suas credenciais.' // Fallback
+          error.message || // Mensagem de erro do JS (ex: rede)
+          'Falha na autenticação. Verifique suas credenciais.' // Fallback
       );
     } finally {
       setIsLoading(false);
@@ -62,7 +65,8 @@ const Login = () => {
             Login - LASCMMG
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sistema de gerenciamento de torneios da Liga Academica de Sinuca - CMMG
+            Sistema de gerenciamento de torneios da Liga Academica de Sinuca -
+            CMMG
           </p>
         </div>
 
@@ -75,29 +79,39 @@ const Login = () => {
             <Form className="mt-8 space-y-6">
               {/* Removed -space-y-px to allow space for labels */}
               <div className="rounded-md shadow-sm">
-                <div className="mb-4"> {/* Added margin for spacing */}
-                  <label htmlFor="email" className="label mb-1"> {/* Use .label class */}
+                <div className="mb-4">
+                  {' '}
+                  {/* Added margin for spacing */}
+                  <label htmlFor="email" className="label mb-1">
+                    {' '}
+                    {/* Changed htmlFor and text to email */}{' '}
+                    {/* Use .label class */}
                     Email
                   </label>
                   <Field
                     id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email && touched.email
+                    name="email" // Changed name to email
+                    type="email" // Changed type to email
+                    autoComplete="email" // Changed autoComplete
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                      errors.email && touched.email // Changed to email
                         ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
                         : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                      } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
-                    placeholder="Email"
+                    } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
+                    placeholder="Endereço de email" // Changed placeholder
                   />
                   <ErrorMessage
-                    name="email"
+                    name="email" // Changed to email
                     component="div"
                     className="error-message"
                   />
                 </div>
-                <div className="mb-4"> {/* Added margin for spacing */}
-                  <label htmlFor="password" className="label mb-1"> {/* Use .label class */}
+                <div className="mb-4">
+                  {' '}
+                  {/* Added margin for spacing */}
+                  <label htmlFor="password" className="label mb-1">
+                    {' '}
+                    {/* Use .label class */}
                     Senha
                   </label>
                   <Field
@@ -105,10 +119,11 @@ const Login = () => {
                     name="password"
                     type="password"
                     autoComplete="current-password"
-                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password && touched.password
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${
+                      errors.password && touched.password
                         ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
                         : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                      } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
+                    } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
                     placeholder="Senha"
                   />
                   <ErrorMessage
@@ -149,9 +164,10 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${(isSubmitting || isLoading) &&
+                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${
+                    (isSubmitting || isLoading) &&
                     'opacity-70 cursor-not-allowed'
-                    }`}
+                  }`}
                 >
                   {isLoading || isSubmitting ? (
                     <svg
@@ -210,6 +226,15 @@ const Login = () => {
             </div>
           </div>
         </div>
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Não tem uma conta?{' '}
+          <Link
+            to="/register"
+            className="font-medium text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
+          >
+            Crie uma agora
+          </Link>
+        </p>
       </div>
     </div>
   );

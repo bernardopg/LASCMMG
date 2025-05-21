@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const { JWT_SECRET } = require('../config/config');
+const { CSRF_SECRET } = require('../config/config'); // Use dedicated CSRF_SECRET
 const { getClient } = require('../db/redisClient'); // Import Redis client
-const { logger } = require('../logger/logger'); // Assuming logger is in this path
+const { logger } = require('../logger/logger');
 
 // Configurações
 const CSRF_CONFIG = {
@@ -15,15 +15,21 @@ const CSRF_CONFIG = {
 async function generateToken(userId) {
   const redis = await getClient();
   if (!redis) {
-    logger.error('CSRFMiddleware', 'Cliente Redis não disponível para gerar token CSRF.');
+    logger.error(
+      { component: 'CSRFMiddleware' },
+      'Cliente Redis não disponível para gerar token CSRF.'
+    );
     throw new Error('Serviço indisponível no momento.');
   }
 
-  const randomBytes = crypto.randomBytes(32).toString('hex');
+  const randomBytesValue = crypto.randomBytes(32).toString('hex'); // Renamed for clarity
   const timestamp = Date.now();
-  const data = `${userId}-${randomBytes}-${timestamp}`;
-  const signature = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('hex');
-  const token = `${randomBytes}.${timestamp}.${signature}`;
+  const data = `${userId}-${randomBytesValue}-${timestamp}`;
+  const signature = crypto
+    .createHmac('sha256', CSRF_SECRET) // Use CSRF_SECRET
+    .update(data)
+    .digest('hex');
+  const token = `${randomBytesValue}.${timestamp}.${signature}`;
 
   const tokenData = JSON.stringify({ userId, timestamp });
   const redisKey = `${CSRF_CONFIG.redisKeyPrefix}${token}`;
@@ -32,8 +38,11 @@ async function generateToken(userId) {
     await redis.set(redisKey, tokenData, {
       EX: CSRF_CONFIG.tokenValidity, // Define o tempo de expiração em segundos
     });
-  } catch (error) {
-    logger.error('CSRFMiddleware', 'Erro ao salvar token CSRF no Redis:', { error: error.message, token });
+  } catch (e) {
+    logger.error(
+      { component: 'CSRFMiddleware', err: e, token },
+      'Erro ao salvar token CSRF no Redis.'
+    );
     throw new Error('Erro ao gerar token de segurança.');
   }
 
@@ -45,7 +54,10 @@ async function verifyToken(token, userId) {
 
   const redis = await getClient();
   if (!redis) {
-    logger.error('CSRFMiddleware', 'Cliente Redis não disponível para verificar token CSRF.');
+    logger.error(
+      { component: 'CSRFMiddleware' },
+      'Cliente Redis não disponível para verificar token CSRF.'
+    );
     // Fallback or throw error depending on desired behavior if Redis is down
     return false;
   }
@@ -54,8 +66,11 @@ async function verifyToken(token, userId) {
   let tokenDataString;
   try {
     tokenDataString = await redis.get(redisKey);
-  } catch (error) {
-    logger.error('CSRFMiddleware', 'Erro ao buscar token CSRF do Redis:', { error: error.message, token });
+  } catch (e) {
+    logger.error(
+      { component: 'CSRFMiddleware', err: e, token },
+      'Erro ao buscar token CSRF do Redis.'
+    );
     return false;
   }
 
@@ -64,8 +79,11 @@ async function verifyToken(token, userId) {
   let storedData;
   try {
     storedData = JSON.parse(tokenDataString);
-  } catch (error) {
-    logger.error('CSRFMiddleware', 'Erro ao parsear dados do token CSRF do Redis:', { error: error.message, tokenDataString });
+  } catch (e) {
+    logger.error(
+      { component: 'CSRFMiddleware', err: e, tokenDataString },
+      'Erro ao parsear dados do token CSRF do Redis.'
+    );
     return false;
   }
 
@@ -78,12 +96,18 @@ async function verifyToken(token, userId) {
   const [retrievedRandomBytes, retrievedTimestamp] = parts;
   // Ensure the timestamp from the token matches the one stored (though Redis TTL is primary for expiry)
   if (parseInt(retrievedTimestamp, 10) !== storedData.timestamp) {
-      logger.warn('CSRFMiddleware', 'Timestamp do token CSRF não corresponde ao armazenado.', { token, storedData });
-      return false;
+    logger.warn(
+      { component: 'CSRFMiddleware', token, storedData },
+      'Timestamp do token CSRF não corresponde ao armazenado.'
+    );
+    return false;
   }
 
   const dataToVerify = `${userId}-${retrievedRandomBytes}-${retrievedTimestamp}`;
-  const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(dataToVerify).digest('hex');
+  const expectedSignature = crypto
+    .createHmac('sha256', CSRF_SECRET) // Use CSRF_SECRET
+    .update(dataToVerify)
+    .digest('hex');
 
   return parts[2] === expectedSignature;
 }
@@ -95,9 +119,13 @@ async function csrfProvider(req, res, next) {
   let token;
   try {
     token = await generateToken(userId);
-  } catch (error) {
+  } catch {
+    // Removed _e
     // Error already logged in generateToken
-    return res.status(503).json({ success: false, message: 'Erro ao gerar token de segurança. Tente novamente.' });
+    return res.status(503).json({
+      success: false,
+      message: 'Erro ao gerar token de segurança. Tente novamente.',
+    });
   }
 
   res.set(CSRF_CONFIG.headerName, token);
@@ -113,8 +141,14 @@ async function csrfProvider(req, res, next) {
 
 async function csrfProtection(req, res, next) {
   // Allow CSRF bypass for testing purposes
-  if (req.originalUrl === '/api/auth/login' || req.originalUrl === '/api/login') {
-    logger.warn('CSRFMiddleware', `CSRF protection SKIPPED for login route: ${req.originalUrl}`);
+  if (
+    req.originalUrl === '/api/auth/login' ||
+    req.originalUrl === '/api/login'
+  ) {
+    logger.warn(
+      { component: 'CSRFMiddleware', skippedRoute: req.originalUrl },
+      `CSRF protection SKIPPED for login route: ${req.originalUrl}`
+    );
     return next();
   }
 
@@ -122,21 +156,28 @@ async function csrfProtection(req, res, next) {
     return next();
   }
 
-  const token = req.headers[CSRF_CONFIG.headerName.toLowerCase()] || req.cookies[CSRF_CONFIG.cookieName];
+  const token =
+    req.headers[CSRF_CONFIG.headerName.toLowerCase()] ||
+    req.cookies[CSRF_CONFIG.cookieName];
   const userId = req.user?.username || 'anonymous';
   let isValid;
 
   try {
     isValid = await verifyToken(token, userId);
-  } catch (error) {
+  } catch {
+    // Removed _e
     // Error already logged in verifyToken if Redis related
-    return res.status(503).json({ success: false, message: 'Erro ao verificar token de segurança. Tente novamente.' });
+    return res.status(503).json({
+      success: false,
+      message: 'Erro ao verificar token de segurança. Tente novamente.',
+    });
   }
 
   if (!isValid) {
     return res.status(403).json({
       success: false,
-      message: 'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
+      message:
+        'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
     });
   }
   next();

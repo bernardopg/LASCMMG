@@ -16,9 +16,8 @@ async function getMatchById(matchId) {
     return await getOneAsync(sql, [matchId]);
   } catch (err) {
     logger.error(
-      'MatchModel',
-      `Erro ao buscar partida com ID ${matchId}: ${err.message}`,
-      { matchId, error: err }
+      { component: 'MatchModel', err, matchId },
+      `Erro ao buscar partida com ID ${matchId}.`
     );
     throw err;
   }
@@ -84,9 +83,8 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
     return { matches, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
     logger.error(
-      'MatchModel',
-      `Erro ao buscar partidas para o torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err }
+      { component: 'MatchModel', err, tournamentId },
+      `Erro ao buscar partidas para o torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -132,10 +130,10 @@ async function createMatch(matchData) {
     ]);
     return await getMatchById(result.lastInsertRowid); // Corrigido para lastInsertRowid
   } catch (err) {
-    logger.error('MatchModel', 'Erro ao criar partida:', {
-      error: err,
-      matchData,
-    });
+    logger.error(
+      { component: 'MatchModel', err, matchData },
+      'Erro ao criar partida.'
+    );
     throw err;
   }
 }
@@ -197,6 +195,8 @@ async function updateMatch(matchId, matchData) {
     return getMatchById(matchId);
   }
 
+  fieldsToUpdate.push('updated_at = CURRENT_TIMESTAMP'); // Ensure updated_at is set
+
   const sql = `
     UPDATE matches
     SET ${fieldsToUpdate.join(', ')}
@@ -212,9 +212,8 @@ async function updateMatch(matchId, matchData) {
     return await getMatchById(matchId);
   } catch (err) {
     logger.error(
-      'MatchModel',
-      `Erro ao atualizar partida ${matchId}: ${err.message}`,
-      { matchId, matchData, error: err }
+      { component: 'MatchModel', err, matchId, matchData },
+      `Erro ao atualizar partida ${matchId}.`
     );
     throw err;
   }
@@ -235,9 +234,8 @@ async function deleteMatchesByTournamentId(tournamentId) {
     return result.changes;
   } catch (err) {
     logger.error(
-      'MatchModel',
-      `Erro ao remover partidas do torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err }
+      { component: 'MatchModel', err, tournamentId },
+      `Erro ao remover partidas do torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -400,9 +398,8 @@ async function createMatchesBulk(tournamentId, matchesDataArray) {
         }
       } catch (err) {
         logger.error(
-          'MatchModel',
-          'Erro ao criar partida em lote (dentro da transação):',
-          { error: err, matchData }
+          { component: 'MatchModel', err, matchData },
+          'Erro ao criar partida em lote (dentro da transação).'
         );
         errors.push({ matchData, error: err.message });
       }
@@ -418,7 +415,7 @@ async function countMatches() {
     const row = await getOneAsync(sql);
     return row ? row.count : 0;
   } catch (err) {
-    logger.error('MatchModel', 'Erro ao contar partidas:', { error: err });
+    logger.error({ component: 'MatchModel', err }, 'Erro ao contar partidas.');
     throw err;
   }
 }

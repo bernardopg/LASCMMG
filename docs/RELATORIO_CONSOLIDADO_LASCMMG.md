@@ -20,11 +20,11 @@ O backend é construído com Node.js/Express e SQLite, apresentando uma estrutur
 
 ### A. Pontos Fortes do Backend
 
-* **Estrutura Modular:** Clara separação de responsabilidades (rotas, models, middlewares, services, utils).
-* **Segurança:** Implementação de JWT, CSRF, XSS, Helmet, rate limiting e um sistema de honeypot.
-* **Logging Abrangente:** Uso de Pino para logging estruturado e um `auditLogger` dedicado para ações administrativas.
-* **Banco de Dados:** Uso de `better-sqlite3` com modo WAL habilitado e um sistema de migração de schema.
-* **Gerenciamento de Admin:** Funcionalidade de migração de credenciais de admin a partir de um arquivo JSON para o banco de dados.
+- **Estrutura Modular:** Clara separação de responsabilidades (rotas, models, middlewares, services, utils).
+- **Segurança:** Implementação de JWT, CSRF, XSS, Helmet, rate limiting e um sistema de honeypot.
+- **Logging Abrangente:** Uso de Pino para logging estruturado e um `auditLogger` dedicado para ações administrativas.
+- **Banco de Dados:** Uso de `better-sqlite3` com modo WAL habilitado e um sistema de migração de schema.
+- **Gerenciamento de Admin:** Funcionalidade de migração de credenciais de admin a partir de um arquivo JSON para o banco de dados.
 
 ### B. Problemas Identificados e Falhas Potenciais no Backend
 
@@ -66,16 +66,16 @@ O frontend foi reconstruído com React, Vite e Tailwind CSS, resultando em uma i
 
 ### A. Pontos Fortes do Frontend
 
-* **Stack Moderna:** React 18, Vite, Tailwind CSS, React Router v6, Formik/Yup, Axios, Chart.js, Headless UI.
-* **Estrutura Organizada:** Boa separação em `components`, `context`, `pages`, `services`.
-* **Gerenciamento de Estado com Context API:** `AuthContext`, `MessageContext`, `ThemeContext`, `TournamentContext` bem implementados.
-* **Roteamento Claro:** Uso de `ProtectedRoute` e layouts aninhados.
-* **Tematização (Dark Mode):** Implementação robusta com persistência.
-* **Componentes Reutilizáveis:** Boa componentização em `common` e `layout`.
-* **Formulários:** Uso consistente de Formik/Yup para validação.
-* **Estilização:** Tailwind CSS bem utilizado, com componentes customizados em `@layer` e excelentes estilos de impressão.
-* **Interação com API:** `services/api.js` centraliza chamadas Axios com interceptors para CSRF e erros.
-* **Acessibilidade (A11y):** Considerações iniciais boas (ARIA, foco em mensagens).
+- **Stack Moderna:** React 18, Vite, Tailwind CSS, React Router v6, Formik/Yup, Axios, Chart.js, Headless UI.
+- **Estrutura Organizada:** Boa separação em `components`, `context`, `pages`, `services`.
+- **Gerenciamento de Estado com Context API:** `AuthContext`, `MessageContext`, `ThemeContext`, `TournamentContext` bem implementados.
+- **Roteamento Claro:** Uso de `ProtectedRoute` e layouts aninhados.
+- **Tematização (Dark Mode):** Implementação robusta com persistência.
+- **Componentes Reutilizáveis:** Boa componentização em `common` e `layout`.
+- **Formulários:** Uso consistente de Formik/Yup para validação.
+- **Estilização:** Tailwind CSS bem utilizado, com componentes customizados em `@layer` e excelentes estilos de impressão.
+- **Interação com API:** `services/api.js` centraliza chamadas Axios com interceptors para CSRF e erros.
+- **Acessibilidade (A11y):** Considerações iniciais boas (ARIA, foco em mensagens).
 
 ### B. Problemas Identificados e Falhas Potenciais no Frontend
 
@@ -113,11 +113,11 @@ A documentação na pasta `docs/` é abrangente e, em geral, bem atualizada para
 
 ### A. Pontos Fortes da Documentação
 
-* **Abrangência:** Cobre padrões de codificação, deploy, manual do usuário, escalabilidade, TODOs e troubleshooting.
-* **Clareza:** A maioria dos guias é clara e detalhada.
-* **Atualização para React/Vite:** Documentos refletem a modernização do frontend.
-* **`SCALING.md`:** Boa identificação de desafios e roadmap.
-* **`TODO.md`:** Bem organizado e detalhado.
+- **Abrangência:** Cobre padrões de codificação, deploy, manual do usuário, escalabilidade, TODOs e troubleshooting.
+- **Clareza:** A maioria dos guias é clara e detalhada.
+- **Atualização para React/Vite:** Documentos refletem a modernização do frontend.
+- **`SCALING.md`:** Boa identificação de desafios e roadmap.
+- **`TODO.md`:** Bem organizado e detalhado.
 
 ### B. Pontos de Melhoria/Observações na Documentação
 
@@ -138,104 +138,102 @@ A seguir, uma lista consolidada de ações recomendadas, categorizadas por prior
 ### 🔴 Prioridade Crítica (Resolver Imediatamente)
 
 - [x] 🛡️ **[Backend]** Proteger/Remover `admin_credentials.json` pós-setup. (Ação manual do admin do sistema durante deploy, documentado).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Mitiga risco crítico de exposição de credenciais de administrador.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Mitiga risco crítico de exposição de credenciais de administrador._
 - [x] 🛡️ **[Backend]** Implementar validação de entrada robusta para todas as APIs (corpos de requisição, parâmetros). (Validação de query params adicionada para rotas GET de admin, tournaments, players, security. Validação de body/params com Joi já existia em várias rotas POST/PUT/DELETE. Revisão completa ainda recomendada).
-    - **Dificuldade:** Média
-    - *Justificativa: Previne dados malformados, crashes e vulnerabilidades. Usar Joi ou Zod.*
+  - **Dificuldade:** Média
+  - _Justificativa: Previne dados malformados, crashes e vulnerabilidades. Usar Joi ou Zod._
 - [x] 🛡️ **[Backend]** Proteger rota `POST /auth/change-password` com `authMiddleware`. (Verificado, já implementado).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Garante que apenas usuários autenticados tentem alterar senhas.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Garante que apenas usuários autenticados tentem alterar senhas._
 - [x] 🎨 **[Frontend]** Consolidar CSS Global: Escolher entre `index.css` e `styles/global.css`. Unificar definições de tema e variáveis, alinhando com `tailwind.config.js`. (Realizado: `styles/global.css` não existe, `App.css` limpo, `index.css` refatorado para usar mais classes Tailwind e variáveis específicas do tema escuro movidas para `tailwind.config.js`).
-    - **Dificuldade:** Média
-    - *Justificativa: Evita conflitos, reduz CSS, melhora manutenibilidade e consistência visual.*
+  - **Dificuldade:** Média
+  - _Justificativa: Evita conflitos, reduz CSS, melhora manutenibilidade e consistência visual._
 - [x] 🧩 **[Frontend]** Alinhar `TournamentContext`: Corrigir uso de `setCurrentTournamentId` para `selectTournament`. Clarificar/implementar `refreshCurrentTournamentDetails`. (Verificado: `selectTournament` é usado corretamente. `refreshCurrentTournament` está implementado. Endpoints da API no contexto foram corrigidos).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Garante funcionalidade correta do seletor de torneios e atualização de dados.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Garante funcionalidade correta do seletor de torneios e atualização de dados._
 - [x] 🛡️ **[Backend]** Adicionar validação de tipo/tamanho para upload de `playersFile` em `routes/tournaments.js`. (Verificado, já implementado com Multer).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Previne uploads maliciosos e DoS.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Previne uploads maliciosos e DoS._
 
 ### 🟠 Prioridade Alta (Resolver em Breve)
 
 - [x] 📈 **[Backend/Infra]** Transicionar armazenamentos em memória (CSRF, rate limit, honeypot) para um armazenamento persistente compartilhado (ex: Redis). (Verificado no TODO.md e código que Redis já é usado para estes).
-    - **Dificuldade:** Alta
-    - *Justificativa: Essencial para escalabilidade e consistência em deployments multi-instância.*
+  - **Dificuldade:** Alta
+  - _Justificativa: Essencial para escalabilidade e consistência em deployments multi-instância._
 - [ ] ⚙️ **[Backend]** Concluir implementação da rota `POST /:tournamentId/generate-bracket`. (Não verificado/corrigido nesta rodada).
-    - **Dificuldade:** Média
-    - *Justificativa: Corrige funcionalidade crítica de geração de chaveamento.*
+  - **Dificuldade:** Média
+  - _Justificativa: Corrige funcionalidade crítica de geração de chaveamento._
 - [ ] 📝 **[Geral]** Revisar e resolver todos os comentários `// TODO:` no código-base (Backend e Frontend). (Parcialmente feito, alguns TODOs foram abordados indiretamente, como na `AddScorePage`).
-    - **Dificuldade:** Média (depende da quantidade e complexidade dos TODOs)
-    - *Justificativa: Limpa dívida técnica e completa tarefas pendentes.*
+  - **Dificuldade:** Média (depende da quantidade e complexidade dos TODOs)
+  - _Justificativa: Limpa dívida técnica e completa tarefas pendentes._
 - [x] 🔗 **[Frontend/Backend]** Verificar e Implementar Endpoints de API Faltantes/Planejados (ex: registro, perfil, exportação, API de chaveamento específica se `getTournamentDetails` não for suficiente). (Funcionalidade de exportação comentada no frontend. API de chaveamento (`/state`) verificada e corrigida no frontend. Registro/Perfil não abordados).
-    - **Dificuldade:** Média
-    - *Justificativa: Garante suporte do backend para todas as funcionalidades do frontend.*
+  - **Dificuldade:** Média
+  - _Justificativa: Garante suporte do backend para todas as funcionalidades do frontend._
 - [x] ✨ **[Frontend]** Finalizar Funcionalidades Placeholder (ex: `SecurityThreatAnalytics`, dados reais no `HomePage`). (Dados reais para estatísticas gerais no `HomePage` implementados. `SecurityThreatAnalytics` ainda é placeholder).
-    - **Dificuldade:** Média
-    - *Justificativa: Completa a experiência do usuário e funcionalidades.*
+  - **Dificuldade:** Média
+  - _Justificativa: Completa a experiência do usuário e funcionalidades._
 - [x] 🔄 **[Frontend/Backend]** Garantir Consistência de Dados entre Frontend e Backend (ex: campos do `currentTournament` no `HomePage`, `match_id` no `AddScorePage`). (Campos do `HomePage` corrigidos. `match_id` no `AddScorePage` destacado com TODO, validação de placar generalizada).
-    - **Dificuldade:** Média
-    - *Justificativa: Previne erros de integração e comportamento inesperado.*
+  - **Dificuldade:** Média
+  - _Justificativa: Previne erros de integração e comportamento inesperado._
 - [x] 🎨 **[Frontend]** Estilização do `HomePage`: Alinhar banner e cards com o tema escuro e componentes globais. Definir `bg-primary-light`. (Corrigido).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Melhora a consistência visual.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Melhora a consistência visual._
 - [ ] 📈 **[Backend]** Refatorar processamento de `honeypot_activity.log` para `/security/overview-stats` para evitar ler o arquivo inteiro. (Não abordado).
-    - **Dificuldade:** Média
-    - *Justificativa: Melhora performance da página de estatísticas de segurança.*
+  - **Dificuldade:** Média
+  - _Justificativa: Melhora performance da página de estatísticas de segurança._
 
 ### 🟡 Prioridade Média (Resolver Conforme Recursos Permitirem)
 
 - [ ] ♿ **[Frontend]** Realizar auditoria de acessibilidade (A11y) mais profunda (labels visíveis, contraste, navegação por teclado).
-    - **Dificuldade:** Média
-    - *Justificativa: Torna a aplicação mais inclusiva.*
+  - **Dificuldade:** Média
+  - _Justificativa: Torna a aplicação mais inclusiva._
 - [ ] 🎨 **[Frontend]** Implementar solução robusta para linhas conectoras do chaveamento.
-    - **Dificuldade:** Alta
-    - *Justificativa: Melhora significativamente a UX da visualização de chaveamentos.*
-- [ ] 🛠️ **[Backend]** Consolidar função `isValidTournamentId` (remover duplicata de `routes/tournaments.js`).
-       - **Dificuldade:** Baixa
-       - *Justificativa: Reduz duplicação de código.*
+  - **Dificuldade:** Alta
+  - _Justificativa: Melhora significativamente a UX da visualização de chaveamentos._
+- [ ] 🛠️ **[Backend]** Consolidar função `isValidTournamentId` (remover duplicata de `routes/tournaments.js`). - **Dificuldade:** Baixa - _Justificativa: Reduz duplicação de código._
 - [ ] ⚙️ **[Backend]** Centralizar todos os parâmetros configuráveis em `config.js` ou variáveis de ambiente.
-    - **Dificuldade:** Baixa
-    - *Justificativa: Melhora gerenciamento de configurações.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Melhora gerenciamento de configurações._
 - [ ] 🧪 **[Geral]** Revisar e aprimorar testes unitários/integração (Backend: `bracketUtils.js`, models complexos; Frontend: componentes chave).
-    - **Dificuldade:** Média
-    - *Justificativa: Melhora confiabilidade do código.*
+  - **Dificuldade:** Média
+  - _Justificativa: Melhora confiabilidade do código._
 - [ ] 🧩 **[Backend/Frontend]** Desacoplar submissão de placares da manipulação direta do `state_json` do chaveamento.
-    - **Dificuldade:** Média
-    - *Justificativa: Melhora modularidade. Considerar eventos ou camada de serviço.*
+  - **Dificuldade:** Média
+  - _Justificativa: Melhora modularidade. Considerar eventos ou camada de serviço._
 - [ ] 🗃️ **[Backend]** Clarificar e impor tratamento de `tournament_id` para jogadores "globais".
-    - **Dificuldade:** Baixa
-    - *Justificativa: Garante integridade dos dados.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Garante integridade dos dados._
 - [ ] 🎨 **[Frontend]** Remover código CSS legado/não utilizado de `App.css`. Clarificar uso de `Layout.jsx`. (Verificado: `App.css` está limpo, `Layout.jsx` não existe, `MainLayout` é usado).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Limpeza e clareza da base de código.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Limpeza e clareza da base de código._
 - [ ] 📚 **[Documentação]** Padronizar framework de teste frontend (Vitest) e atualizar documentos. (Vitest já é usado no frontend).
-    - **Dificuldade:** Baixa
-    - *Justificativa: Consistência na documentação.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Consistência na documentação._
 - [ ] 📚 **[Documentação]** Adicionar screenshots ao `MANUAL_USUARIO.md`. (Não abordado).
-    - **Dificuldade:** Média
-    - *Justificativa: Melhora significativamente a usabilidade do manual.*
+  - **Dificuldade:** Média
+  - _Justificativa: Melhora significativamente a usabilidade do manual._
 
 ### 🟢 Prioridade Baixa (Considerar para Melhorias Futuras)
 
 - [ ] ⚡ **[Frontend]** Otimização de performance para listas/tabelas muito grandes (considerar server-side para `ScoresPage` se necessário).
-    - **Dificuldade:** Média
-    - *Justificativa: Mantém a aplicação responsiva com grandes volumes de dados.*
+  - **Dificuldade:** Média
+  - _Justificativa: Mantém a aplicação responsiva com grandes volumes de dados._
 - [x] 🔗 **[Frontend]** Modificar interceptor de API para usar `navigate` do React Router em vez de `window.location.href` em erros 401. (Corrigido).
-    - **Dificuldade:** Média
-    - *Justificativa: Melhora UX em SPAs.*
+  - **Dificuldade:** Média
+  - _Justificativa: Melhora UX em SPAs._
 - [ ] 📈 **[Backend]** Profiling de performance das queries de banco de dados sob carga. (Não abordado).
-    - **Dificuldade:** Média
-    - *Justificativa: Identificar e otimizar gargalos proativamente.*
+  - **Dificuldade:** Média
+  - _Justificativa: Identificar e otimizar gargalos proativamente._
 - [ ] 🪵 **[Backend]** Implementar solução de logging mais sofisticada para `honeypot_activity.log` se o volume se tornar muito alto.
-    - **Dificuldade:** Média
-    - *Justificativa: Escalabilidade do logging do honeypot.*
+  - **Dificuldade:** Média
+  - _Justificativa: Escalabilidade do logging do honeypot._
 - [ ] 📚 **[Documentação]** Gerar documentação da API (Swagger/OpenAPI).
-    - **Dificuldade:** Média
-    - *Justificativa: Facilita desenvolvimento e integração.*
+  - **Dificuldade:** Média
+  - _Justificativa: Facilita desenvolvimento e integração._
 - [ ] 📚 **[Documentação]** Depreciar/integrar `OLD_DEPLOYMENT.MD`.
-    - **Dificuldade:** Baixa
-    - *Justificativa: Evita confusão na documentação de deploy.*
+  - **Dificuldade:** Baixa
+  - _Justificativa: Evita confusão na documentação de deploy._
 
 ---
 

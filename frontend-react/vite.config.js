@@ -32,7 +32,9 @@ export default defineConfig({
                 {
                   handlerDidError: async () => {
                     // Fallback to offline.html if network fails or times out
-                    return await caches.match('/offline.html') || Response.error();
+                    return (
+                      (await caches.match('/offline.html')) || Response.error()
+                    );
                   },
                 },
               ],
@@ -56,11 +58,11 @@ export default defineConfig({
                     //   headers: { 'Content-Type': 'application/json' }
                     // });
                     return Response.error(); // Or just let it fail if no specific offline API response is needed
-                  }
-                }
-              ]
-            }
-          }
+                  },
+                },
+              ],
+            },
+          },
         ],
       },
       manifest: {
@@ -88,7 +90,7 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
-          }
+          },
         ],
       },
     }),

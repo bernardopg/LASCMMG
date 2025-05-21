@@ -1,6 +1,6 @@
 # Padrões de Codificação - LASCMMG (Versão React com Vite)
 
-[⬅ Voltar ao README Principal](README.md)
+[⬅ Voltar ao README Principal](../README.md)
 
 ## Índice
 
@@ -46,9 +46,7 @@ A formatação é automatizada para garantir consistência.
 ### Automação de Formatação e Linting
 
 - **Prettier:** Garante a formatação consistente. Configuração em `.prettierrc.json` na raiz do projeto.
-- **ESLint:** Analisa o código JavaScript/TypeScript.
-  - Backend: Configuração em `eslint.config.mjs` (raiz do projeto).
-  - Frontend (React com Vite): Configuração em `frontend-react/eslint.config.js` (ou `frontend-react/.eslintrc.cjs` dependendo da configuração do Vite).
+- **ESLint:** Analisa o código JavaScript/TypeScript. A configuração principal e unificada para todo o projeto (backend e frontend) está em `eslint.config.mjs` na raiz do projeto.
 - **rollup-plugin-visualizer (Frontend/Vite):** Para análise do tamanho do bundle de produção. Configurado em `frontend-react/vite.config.js`.
 
 **Comandos Úteis:**

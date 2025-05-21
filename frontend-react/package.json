@@ -27,11 +27,6 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

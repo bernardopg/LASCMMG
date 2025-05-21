@@ -6,37 +6,58 @@ import {
   Routes,
   useNavigate,
 } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { MessageProvider } from './context/MessageContext';
-import { TournamentProvider } from './context/TournamentContext';
-import api from './services/api';
 import MessageContainer from './components/common/MessageContainer';
+import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
+import Footer from './components/layout/Footer'; // Import Footer
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
-import Login from './pages/Login';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { MessageProvider } from './context/MessageContext';
+import ThemeContext from './context/ThemeContext';
+import { TournamentProvider } from './context/TournamentContext';
 import AddScorePage from './pages/AddScorePage';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import RegisterPage from './pages/RegisterPage'; // Import RegisterPage
+import NotFoundPage from './pages/NotFound';
 import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
+import TournamentsPage from './pages/TournamentsPage';
+import TournamentDetailPage from './pages/TournamentDetailPage';
+import PlayerProfilePage from './pages/PlayerProfilePage'; // Import PlayerProfilePage
 import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage';
-import PlayersPage from './pages/admin/PlayersPage';
+import PlayersPage from './pages/admin/PlayersPage'; // Already imported
 import SettingsPage from './pages/admin/SettingsPage';
-import Home from './pages/Home';
-import NotFoundPage from './pages/NotFound';
+import AdminPlaceholderPage from './pages/admin/AdminPlaceholderPage';
+import ProfilePage from './pages/ProfilePage';
+import EditTournamentPage from './pages/admin/EditTournamentPage';
+import ManageTournamentPage from './pages/admin/ManageTournamentPage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminActivityLogPage from './pages/admin/AdminActivityLogPage';
+import CreatePlayerPage from './pages/admin/CreatePlayerPage';
+import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
 import SecurityOverview from './pages/admin/security/SecurityOverview';
 import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
-import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
-import ThemeContext from './context/ThemeContext';
+import api from './services/api'; // storeCsrfToken import removed
 
 // Lazy loaded pages
 const BracketPage = React.lazy(() => import('./pages/BracketPage'));
-const AdminDashboardPage = React.lazy(() => import('./pages/admin/Dashboard')); // Corrigido caminho
-const CreateTournamentPage = React.lazy(() => import('./pages/admin/CreateTournamentPage'));
-const AdminTournamentListPage = React.lazy(() => import('./pages/admin/AdminTournamentListPage'));
-const AdminSchedulePage = React.lazy(() => import('./pages/admin/AdminSchedulePage'));
-const AdminUserManagementPage = React.lazy(() => import('./pages/admin/AdminUserManagementPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/admin/Dashboard'));
+const CreateTournamentPage = React.lazy(
+  () => import('./pages/admin/CreateTournamentPage')
+);
+const AdminTournamentListPage = React.lazy(
+  () => import('./pages/admin/AdminTournamentListPage')
+);
+const AdminSchedulePage = React.lazy(
+  () => import('./pages/admin/AdminSchedulePage')
+);
+const AdminUserManagementPage = React.lazy(
+  () => import('./pages/admin/AdminUserManagementPage')
+);
 
 // Loading fallback component for Suspense
 const PageLoadingFallback = () => (
@@ -45,10 +66,9 @@ const PageLoadingFallback = () => (
   </div>
 );
 
-// Componente wrapper para lidar com o evento de não autorizado e buscar CSRF token
+// Componente wrapper para lidar com o evento de não autorizado
 const AppContentWrapper = () => {
   const navigate = useNavigate();
-  const csrfFetchAttempted = React.useRef(false); // Usar ref para controlar a busca
 
   useEffect(() => {
     const handleUnauthorized = () => {
@@ -60,28 +80,12 @@ const AppContentWrapper = () => {
 
     window.addEventListener('unauthorized', handleUnauthorized);
 
-    // Fetch CSRF token only once when the app loads
-    if (!csrfFetchAttempted.current) {
-      csrfFetchAttempted.current = true; // Marcar como tentado imediatamente
-      api.get('/api/csrf-token')
-        .then(response => {
-          console.log('CSRF token endpoint contacted successfully.');
-          // O token é gerenciado por cookies, não precisa ser armazenado no estado aqui.
-        })
-        .catch(error => {
-          console.error('Error fetching CSRF token on app load:', error);
-          // Do not reset csrfFetchAttempted.current to false here.
-          // If the first attempt fails (e.g. due to rate limit),
-          // we don't want to immediately retry on a quick re-render.
-        });
-    }
-
     return () => {
       window.removeEventListener('unauthorized', handleUnauthorized);
     };
-  }, [navigate]); // Dependência apenas em navigate
+  }, [navigate]);
 
-  return null; // Este componente não renderiza UI diretamente
+  return null;
 };
 
 // Layout principal
@@ -110,7 +114,7 @@ const MainLayout = ({ children }) => {
   }, [isSidebarCollapsed]);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100"> {/* Tailwind classes para tema */}
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
       <Header
         isSidebarCollapsed={isSidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
@@ -120,11 +124,15 @@ const MainLayout = ({ children }) => {
       <div className="flex">
         <Sidebar isSidebarCollapsed={isSidebarCollapsed} />
         <main
-          className={`flex-1 p-6 pt-8 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}
+          className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-56'}`}
         >
-          <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+          {/* This inner div provides top padding to clear the fixed header. Pages handle their own L/R/B padding. */}
+          <div className="pt-20"> {/* Header is h-16 (4rem=64px). pt-20 (5rem=80px) gives a bit of space. */}
+            <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+          </div>
         </main>
       </div>
+      <Footer />
     </div>
   );
 };
@@ -159,7 +167,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  // O useEffect para buscar o token CSRF foi movido para AppContentWrapper
   return (
     <AuthProvider>
       <MessageProvider>
@@ -169,6 +176,7 @@ function App() {
             <MessageContainer />
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route
                 path="/"
                 element={
@@ -190,7 +198,7 @@ function App() {
                 }
               />
               <Route
-                path="/add-score"
+                path="/match/:matchId/add-score"
                 element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -204,7 +212,37 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <PagePlaceholder title="Gerenciamento de Torneios" />
+                      <TournamentsPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/players/:playerId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <PlayerProfilePage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/players/create"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <CreatePlayerPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tournaments/:tournamentId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <TournamentDetailPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -259,7 +297,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              {/* Admin Tournament List Page */}
               <Route
                 path="/admin/tournaments"
                 element={
@@ -295,9 +332,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <React.Suspense fallback={<PageLoadingFallback />}>
-                        <AdminMatchSchedulePage />
-                      </React.Suspense>
+                      <AdminMatchSchedulePage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -308,6 +343,66 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <CreateTournamentPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/players"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <PlayersPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AdminReportsPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/activity-log"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AdminActivityLogPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/add-score"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <AddScoreLandingPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/tournaments/edit/:tournamentId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <EditTournamentPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/tournaments/manage/:tournamentId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <ManageTournamentPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -327,15 +422,23 @@ function App() {
                 <Route index element={<SecurityOverview />} />
                 <Route path="overview" element={<SecurityOverview />} />
                 <Route path="honeypots" element={<SecurityHoneypots />} />
-                <Route path="threat-analytics" element={<SecurityThreatAnalytics />} />
+                <Route
+                  path="threat-analytics"
+                  element={<SecurityThreatAnalytics />}
+                />
                 <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
               </Route>
               <Route
-                path="*"
+                path="/profile"
                 element={
-                  <NotFoundPage />
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <ProfilePage />
+                    </MainLayout>
+                  </ProtectedRoute>
                 }
               />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Router>
         </TournamentProvider>

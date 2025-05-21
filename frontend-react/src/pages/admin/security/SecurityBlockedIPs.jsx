@@ -26,9 +26,11 @@ const SecurityBlockedIPs = () => {
         setBlockedIps(data.blocked_ips || data.items || []); // Adapt to actual API response key
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
-      } catch (error) {
-        showError( // Corrigido
-          `Erro ao carregar IPs bloqueados: ${error.message || 'Erro desconhecido'}`
+      } catch (err) {
+        // Changed error to err
+        showError(
+          // Corrigido
+          `Erro ao carregar IPs bloqueados: ${err.message || 'Erro desconhecido'}`
         );
         setBlockedIps([]);
       } finally {
@@ -50,9 +52,11 @@ const SecurityBlockedIPs = () => {
         await unblockIp(ipAddress);
         showSuccess(`IP ${ipAddress} desbloqueado com sucesso.`); // Corrigido
         fetchBlockedIps(currentPage);
-      } catch (error) {
-        showError( // Corrigido
-          `Erro ao desbloquear IP: ${error.message || 'Erro desconhecido'}`
+      } catch (err) {
+        // Changed error to err
+        showError(
+          // Corrigido
+          `Erro ao desbloquear IP: ${err.message || 'Erro desconhecido'}`
         );
       }
     }
@@ -81,9 +85,11 @@ const SecurityBlockedIPs = () => {
       showSuccess(`IP ${values.ip_address} bloqueado manualmente.`); // Corrigido
       fetchBlockedIps(currentPage); // Refresh list
       resetForm();
-    } catch (error) {
-      showError( // Corrigido
-        `Erro ao bloquear IP: ${error.message || 'Erro desconhecido'}`
+    } catch (err) {
+      // Changed error to err
+      showError(
+        // Corrigido
+        `Erro ao bloquear IP: ${err.message || 'Erro desconhecido'}`
       );
     } finally {
       setSubmitting(false);
@@ -110,7 +116,10 @@ const SecurityBlockedIPs = () => {
             <Form className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="ip_address" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="ip_address"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Endereço IP
                   </label>
                   <Field
@@ -127,7 +136,10 @@ const SecurityBlockedIPs = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="duration_hours" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="duration_hours"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Duração (horas)
                   </label>
                   <Field
@@ -143,7 +155,10 @@ const SecurityBlockedIPs = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="reason" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="reason"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Motivo
                   </label>
                   <Field
@@ -166,7 +181,8 @@ const SecurityBlockedIPs = () => {
                   className="btn btn-danger" // btn e btn-danger devem ser responsivos ao tema
                   disabled={isSubmitting || !dirty || !isValid}
                 >
-                  <FaPlusCircle className="inline mr-2" /> {/* Considerar FaBan para bloquear */}
+                  <FaPlusCircle className="inline mr-2" />{' '}
+                  {/* Considerar FaBan para bloquear */}
                   {isSubmitting ? 'Bloqueando...' : 'Bloquear IP'}
                 </button>
               </div>
@@ -196,15 +212,11 @@ const SecurityBlockedIPs = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary dark:border-primary-light mx-auto"></div>
           </div>
         )}
-        {/* TODO: A variável 'error' não está definida no escopo de renderização, apenas dentro de fetchBlockedIps.
-            Para exibir erros aqui, seria necessário um estado para o erro de fetch.
-            Por ora, a mensagem de erro é mostrada via useMessage.
-        */}
-        {/* {!loading && errorApi && (
-          <p className="text-red-500 dark:text-red-400 text-center py-4">
-            Erro ao carregar IPs: {errorApi.message}
-          </p>
-        )} */}
+        {error && (
+          <div className="text-red-500 dark:text-red-400 text-sm mb-4">
+            {error}
+          </div>
+        )}
         {!loading && (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
@@ -239,7 +251,10 @@ const SecurityBlockedIPs = () => {
                   </tr>
                 ) : (
                   blockedIps.map((ipInfo) => (
-                    <tr key={ipInfo.ip_address} className="hover:bg-gray-50 dark:hover:bg-slate-700">
+                    <tr
+                      key={ipInfo.ip_address}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-700"
+                    >
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                         <code>{ipInfo.ip_address}</code>
                       </td>
@@ -258,7 +273,8 @@ const SecurityBlockedIPs = () => {
                           className="text-green-500 hover:text-green-400 dark:text-green-400 dark:hover:text-green-300"
                           title="Desbloquear IP"
                         >
-                          <FaTrashAlt /> {/* Alterado para FaTrashAlt ou FaLockOpen */}
+                          <FaTrashAlt />{' '}
+                          {/* Alterado para FaTrashAlt ou FaLockOpen */}
                         </button>
                       </td>
                     </tr>

@@ -1,20 +1,42 @@
 import { useEffect, useState, useRef } from 'react';
-import { FaChartBar, FaClock, FaCog, FaInfoCircle, FaListOl, FaPlus, FaPlusCircle, FaTrophy, FaUsers } from 'react-icons/fa';
+import {
+  FaChartBar,
+  FaClock,
+  FaCog,
+  FaInfoCircle,
+  FaListOl,
+  FaPlus,
+  FaPlusCircle,
+  FaTrophy,
+  FaUsers,
+} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
-import { getAdminPlayers, getAdminScores, getTournaments } from '../../services/api';
+import {
+  getAdminPlayers,
+  getAdminScores,
+  getTournaments,
+} from '../../services/api';
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => (
   <div className="stat-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
     <div className="flex items-start">
-      <div className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100 dark:bg-${color}-700 dark:bg-opacity-50`}>
-        <span className={`text-${color}-600 dark:text-${color}-300 text-2xl`}>{icon}</span>
+      <div
+        className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100 dark:bg-${color}-700 dark:bg-opacity-50`}
+      >
+        <span className={`text-${color}-600 dark:text-${color}-300 text-2xl`}>
+          {icon}
+        </span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
-        <p className="text-2xl font-semibold mt-1 text-gray-800 dark:text-gray-100">{value}</p>
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {title}
+        </h3>
+        <p className="text-2xl font-semibold mt-1 text-gray-800 dark:text-gray-100">
+          {value}
+        </p>
       </div>
     </div>
   </div>
@@ -22,9 +44,15 @@ const StatCard = ({ title, value, icon, color = 'primary' }) => (
 
 const ActionCard = ({ title, description, icon, to, buttonText }) => (
   <div className="action-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col h-full">
-    <div className="icon-wrapper mb-4 text-primary dark:text-primary-light text-3xl">{icon}</div>
-    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
-    <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">{description}</p>
+    <div className="icon-wrapper mb-4 text-primary dark:text-primary-light text-3xl">
+      {icon}
+    </div>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">
+      {title}
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+      {description}
+    </p>
     <Link
       to={to}
       className="btn btn-outline btn-primary mt-auto" // Using global button styles
@@ -46,7 +74,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (fetchDashboardDataAttempted.current && process.env.NODE_ENV === 'development') { // Check if already attempted in dev
+      if (
+        fetchDashboardDataAttempted.current &&
+        import.meta.env.MODE === 'development' // Use Vite's way to access env variables
+      ) {
+        // Check if already attempted in dev
         return;
       }
       fetchDashboardDataAttempted.current = true; // Mark as attempted
@@ -58,16 +90,28 @@ const Dashboard = () => {
         const playersResp = await getAdminPlayers({ limit: 1 });
         const scoresResp = await getAdminScores({ limit: 1 });
 
-        const totalTournaments = tournamentsData?.tournaments?.length || tournamentsData?.length || 0;
+        const totalTournaments =
+          tournamentsData?.tournaments?.length || tournamentsData?.length || 0;
         const totalPlayers = playersResp?.total || playersResp?.totalCount || 0;
         const totalMatches = scoresResp?.total || scoresResp?.totalCount || 0;
 
         const pendingMatches = 0;
 
-        const recentScoresData = await getAdminScores({ limit: 5, sortBy: 'timestamp', order: 'desc' });
-        const recentPlayersData = await getAdminPlayers({ limit: 5, sortBy: 'createdAt', order: 'desc' });
-        const recentTournamentsData = await getTournaments({ limit: 5, sortBy: 'createdAt', order: 'desc' });
-
+        const recentScoresData = await getAdminScores({
+          limit: 5,
+          sortBy: 'timestamp',
+          order: 'desc',
+        });
+        const recentPlayersData = await getAdminPlayers({
+          limit: 5,
+          sortBy: 'createdAt',
+          order: 'desc',
+        });
+        const recentTournamentsData = await getTournaments({
+          limit: 5,
+          sortBy: 'createdAt',
+          order: 'desc',
+        });
 
         const activity = [];
 
@@ -95,7 +139,8 @@ const Dashboard = () => {
           });
         }
 
-        const tournamentsForActivity = recentTournamentsData?.tournaments || recentTournamentsData || [];
+        const tournamentsForActivity =
+          recentTournamentsData?.tournaments || recentTournamentsData || [];
         if (tournamentsForActivity.length) {
           tournamentsForActivity.slice(0, 5).forEach((tournament) => {
             activity.push({
@@ -109,7 +154,12 @@ const Dashboard = () => {
         }
 
         activity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        setStats({ totalPlayers, totalMatches, pendingMatches, totalTournaments });
+        setStats({
+          totalPlayers,
+          totalMatches,
+          pendingMatches,
+          totalTournaments,
+        });
         setRecentActivity(activity.slice(0, 10));
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
@@ -141,11 +191,16 @@ const Dashboard = () => {
   // Obter ícone com base no tipo de atividade
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'match': return <FaListOl className="w-5 h-5" />;
-      case 'player': return <FaUsers className="w-5 h-5" />;
-      case 'tournament': return <FaTrophy className="w-5 h-5" />;
-      case 'system': return <FaCog className="w-5 h-5" />;
-      default: return <FaInfoCircle className="w-5 h-5" />;
+      case 'match':
+        return <FaListOl className="w-5 h-5" />;
+      case 'player':
+        return <FaUsers className="w-5 h-5" />;
+      case 'tournament':
+        return <FaTrophy className="w-5 h-5" />;
+      case 'system':
+        return <FaCog className="w-5 h-5" />;
+      default:
+        return <FaInfoCircle className="w-5 h-5" />;
     }
   };
 
@@ -168,7 +223,8 @@ const Dashboard = () => {
 
   return (
     <div className="page-admin-dashboard py-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
-      <div className="container mx-auto px-4">
+      {/* Removed container mx-auto, kept px-4. MainLayout provides some padding already. */}
+      <div className="px-4">
         <div className="dashboard-header mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
@@ -182,11 +238,17 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-4 md:mt-0 flex gap-2">
-            <Link to="/admin/reports" className="btn btn-outline btn-white text-sm">
-              <FaChartBar className="w-4 h-4 mr-2" />
-              Relatórios
-            </Link>
-              <Link to="/admin/tournaments/create" className="btn btn-primary text-sm">
+              <Link
+                to="/admin/reports"
+                className="btn btn-outline btn-white text-sm"
+              >
+                <FaChartBar className="w-4 h-4 mr-2" />
+                Relatórios
+              </Link>
+              <Link
+                to="/admin/tournaments/create"
+                className="btn btn-primary text-sm"
+              >
                 <FaPlus className="w-4 h-4 mr-2" />
                 Novo Torneio
               </Link>
@@ -285,7 +347,9 @@ const Dashboard = () => {
                               {getActivityIcon(activity.type)}
                             </div>
                             <div className="flex-grow">
-                              <div className="mb-1 text-gray-800 dark:text-gray-100">{activity.description}</div>
+                              <div className="mb-1 text-gray-800 dark:text-gray-100">
+                                {activity.description}
+                              </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-between">
                                 <div>
                                   <span className="mr-2">

@@ -1,14 +1,14 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import {
   FaBars,
-  FaTimes,
   FaChevronLeft,
   FaChevronRight,
-  FaSun,
   FaMoon,
-} from 'react-icons/fa'; // Added Theme icons
+  FaSun,
+  FaTimes,
+} from 'react-icons/fa';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import TournamentSelector from '../common/TournamentSelector';
 
@@ -28,8 +28,6 @@ const Header = ({
     }
   };
 
-  // const handleChangeTournament = (e) => { // Logic moved to TournamentSelector
-  // };
 
   return (
     <Disclosure
@@ -71,37 +69,56 @@ const Header = ({
                   </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  {/* Adjusted for dark theme */}
-                  <Link
+                  <NavLink
                     to="/"
-                    className="border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" // Active link
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                    }
                   >
                     Dashboard
-                  </Link>
-                  <Link
+                  </NavLink>
+                  <NavLink
                     to="/tournaments"
-                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                    }
                   >
                     Torneios
-                  </Link>
-                  <Link
+                  </NavLink>
+                  <NavLink
                     to="/players"
-                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                    }
                   >
                     Jogadores
-                  </Link>
-                  <Link
+                  </NavLink>
+                  <NavLink
                     to="/brackets"
-                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                    }
                   >
                     Chaves
-                  </Link>
-                  <Link
+                  </NavLink>
+                  <NavLink
                     to="/stats"
-                    className="border-transparent text-gray-500 dark:text-gray-300 hover:border-secondary dark:hover:border-secondary-dark hover:text-secondary dark:hover:text-secondary-light inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                    }
                   >
                     Estatísticas
-                  </Link>
+                  </NavLink>
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -153,11 +170,10 @@ const Header = ({
                         {({ active }) => (
                           <Link
                             to="/profile"
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-primary-dark text-white'
                                 : 'text-gray-700 dark:text-gray-200'
-                            } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
+                              } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Meu Perfil
                           </Link>
@@ -167,11 +183,10 @@ const Header = ({
                         {({ active }) => (
                           <Link
                             to="/settings"
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-primary-dark text-white'
                                 : 'text-gray-700 dark:text-gray-200'
-                            } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
+                              } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Configurações
                           </Link>
@@ -181,11 +196,10 @@ const Header = ({
                         {({ active }) => (
                           <button
                             onClick={handleLogout}
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-primary-dark text-white'
                                 : 'text-gray-700 dark:text-gray-200'
-                            } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
+                              } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md`}
                           >
                             Sair
                           </button>
@@ -213,21 +227,66 @@ const Header = ({
           {/* Painel mobile */}
           <Disclosure.Panel className="sm:hidden border-t border-gray-200 dark:border-slate-700">
             <div className="pt-2 pb-3 space-y-1">
-              <Disclosure.Button as={Link} to="/" className="bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                Dashboard
-              </Disclosure.Button>
-              <Disclosure.Button as={Link} to="/tournaments" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                Torneios
-              </Disclosure.Button>
-              <Disclosure.Button as={Link} to="/players" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                Jogadores
-              </Disclosure.Button>
-              <Disclosure.Button as={Link} to="/brackets" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                Chaves
-              </Disclosure.Button>
-              <Disclosure.Button as={Link} to="/stats" className="border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                Estatísticas
-              </Disclosure.Button>
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                }
+              >
+                {({ isActive }) => ( // NavLink can take a function as children to access isActive
+                  <Disclosure.Button as="span">Dashboard</Disclosure.Button>
+                )}
+              </NavLink>
+              <NavLink
+                to="/tournaments"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                }
+              >
+                {({ isActive }) => (
+                  <Disclosure.Button as="span">Torneios</Disclosure.Button>
+                )}
+              </NavLink>
+              <NavLink
+                to="/players"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                }
+              >
+                {({ isActive }) => (
+                  <Disclosure.Button as="span">Jogadores</Disclosure.Button>
+                )}
+              </NavLink>
+              <NavLink
+                to="/brackets"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                }
+              >
+                {({ isActive }) => (
+                  <Disclosure.Button as="span">Chaves</Disclosure.Button>
+                )}
+              </NavLink>
+              <NavLink
+                to="/stats"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                }
+              >
+                {({ isActive }) => (
+                  <Disclosure.Button as="span">Estatísticas</Disclosure.Button>
+                )}
+              </NavLink>
             </div>
 
             {/* Torneios no mobile */}
@@ -252,13 +311,25 @@ const Header = ({
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <Disclosure.Button as={Link} to="/profile" className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
+                <Disclosure.Button
+                  as={Link}
+                  to="/profile"
+                  className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md"
+                >
                   Meu Perfil
                 </Disclosure.Button>
-                <Disclosure.Button as={Link} to="/settings" className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
+                <Disclosure.Button
+                  as={Link}
+                  to="/settings"
+                  className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md"
+                >
                   Configurações
                 </Disclosure.Button>
-                <Disclosure.Button as="button" onClick={handleLogout} className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md">
+                <Disclosure.Button
+                  as="button"
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md"
+                >
                   Sair
                 </Disclosure.Button>
               </div>

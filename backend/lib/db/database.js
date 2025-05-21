@@ -13,29 +13,33 @@ try {
   const dataDir = DB_CONFIG.dataDir;
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
-    logger.info('Database', `Diretório de dados criado em: ${dataDir}`);
+    logger.info(
+      { component: 'Database' },
+      `Diretório de dados criado em: ${dataDir}`
+    );
   }
 
   // Configurar verbose logging apenas em desenvolvimento se logQueries for true
   const verboseLogger =
     DB_CONFIG.logQueries && NODE_ENV === 'development'
-      ? (message) => logger.debug('SQLITE_VERBOSE', message) // Usar logger.debug para verbose
+      ? (message) => logger.debug({ component: 'SQLITE_VERBOSE' }, message) // Usar logger.debug para verbose
       : undefined;
 
   db = new BetterSqlite3(DB_PATH, { verbose: verboseLogger });
   logger.info(
-    'Database',
+    { component: 'Database' },
     'Conectado ao banco de dados SQLite usando better-sqlite3.'
   );
 
   // Habilitar modo WAL
   try {
     db.pragma('journal_mode = WAL');
-    logger.info('Database', 'Modo WAL do SQLite habilitado.');
+    logger.info({ component: 'Database' }, 'Modo WAL do SQLite habilitado.');
   } catch (walErr) {
-    logger.error('Database', 'Falha ao habilitar modo WAL para SQLite:', {
-      error: walErr,
-    });
+    logger.error(
+      { component: 'Database', err: walErr },
+      'Falha ao habilitar modo WAL para SQLite.'
+    );
   }
 
   // A inicialização do esquema (criação de tabelas, migrações)
@@ -58,9 +62,8 @@ function checkDbConnection() {
     };
   } catch (err) {
     logger.error(
-      'Database',
-      'Falha na verificação de saúde do banco de dados:',
-      { error: err }
+      { component: 'Database', err },
+      'Falha na verificação de saúde do banco de dados.'
     );
     return {
       status: 'error',
@@ -96,7 +99,8 @@ function initializeDatabase() {
       rules TEXT, -- Adicionado
       is_deleted INTEGER DEFAULT 0, -- Added for soft delete
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      deleted_at TEXT -- Added for soft delete timestamp
     );
   `;
 
@@ -109,18 +113,22 @@ function initializeDatabase() {
   const createPlayersTable = `
     CREATE TABLE IF NOT EXISTS players (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tournament_id TEXT NOT NULL,
+      tournament_id TEXT, -- Made nullable for global players
       name TEXT NOT NULL,
       nickname TEXT,
-      games_played INTEGER DEFAULT 0,
-      wins INTEGER DEFAULT 0,
+      email TEXT UNIQUE, -- Added email, make it unique for global players
+      games_played INTEGER DEFAULT 0, -- These stats are per tournament, might be less relevant for global
+      wins INTEGER DEFAULT 0,       -- Consider moving to a tournament_participants table later
       losses INTEGER DEFAULT 0,
       score INTEGER DEFAULT 0,
       gender TEXT,
       skill_level TEXT,
-      is_deleted INTEGER DEFAULT 0, -- Added for soft delete
-      FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
-      UNIQUE (tournament_id, name)
+      is_deleted INTEGER DEFAULT 0,
+      deleted_at TEXT, -- Added for soft delete timestamp
+      FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
+      -- UNIQUE (tournament_id, name) -- Removed for now, needs careful thought for global vs tournament players
+      -- TODO: Add appropriate UNIQUE constraints for global players (e.g., name or email)
+      -- and for tournament players (e.g., tournament_id + global_player_id if using separate global table)
     );
   `;
 
@@ -128,16 +136,14 @@ function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS scores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       match_id INTEGER NOT NULL, -- FK para matches.id
-      -- tournament_id TEXT NOT NULL, -- Removido por redundância, match_id já vincula ao torneio
-      round TEXT, -- Pode ser útil manter para denormalização ou se scores podem existir sem match_number
+      round TEXT,
       player1_score INTEGER,
       player2_score INTEGER,
       winner_id INTEGER, -- ID do jogador vencedor, FK para players.id
-      -- player1 TEXT, -- Removido, informações dos jogadores vêm de matches->players
-      -- player2 TEXT, -- Removido
-      -- winner TEXT,  -- Removido, usar winner_id
-      timestamp TEXT, -- Mantido, pode ser o timestamp do evento de score
+      timestamp TEXT,
       completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      is_deleted INTEGER DEFAULT 0,
+      deleted_at TEXT,
       FOREIGN KEY (match_id) REFERENCES matches (id) ON DELETE CASCADE,
       FOREIGN KEY (winner_id) REFERENCES players (id) ON DELETE SET NULL
     );
@@ -213,13 +219,14 @@ function initializeDatabase() {
     db.exec(createPlayersNameIndex); // Execute new index
 
     logger.info(
-      'Database',
+      { component: 'Database' },
       'Tabelas e índices do banco de dados inicializados/verificados.'
     );
   } catch (err) {
-    logger.error('Database', 'Erro ao inicializar tabelas ou índices:', {
-      error: err,
-    });
+    logger.error(
+      { component: 'Database', err },
+      'Erro ao inicializar tabelas ou índices.'
+    );
     throw err; // Relançar o erro para que a aplicação não inicie com DB inconsistente
   }
 }
@@ -232,7 +239,10 @@ function initializeDatabase() {
  */
 function getSyncConnection() {
   if (!db || !db.open) {
-    logger.error('Database', 'Instância DB não está disponível ou aberta!');
+    logger.error(
+      { component: 'Database' },
+      'Instância DB não está disponível ou aberta!'
+    );
     throw new Error('Conexão com banco de dados não estabelecida.');
   }
   return db;
@@ -246,12 +256,13 @@ function closeSyncConnection() {
     try {
       db.close();
       if (NODE_ENV !== 'production' && NODE_ENV !== 'test') {
-        logger.info('Database', 'Conexão SQLite fechada.');
+        logger.info({ component: 'Database' }, 'Conexão SQLite fechada.');
       }
     } catch (err) {
-      logger.error('Database', 'Erro ao fechar conexão SQLite:', {
-        error: err,
-      });
+      logger.error(
+        { component: 'Database', err },
+        'Erro ao fechar conexão SQLite.'
+      );
     }
   }
 }
@@ -324,9 +335,10 @@ function transactionAsync(actions) {
       const result = transaction();
       resolve(result);
     } catch (err) {
-      logger.error('Database', 'Erro na transação assíncrona (wrapper):', {
-        error: err,
-      });
+      logger.error(
+        { component: 'Database', err },
+        'Erro na transação assíncrona (wrapper).'
+      );
       reject(err);
     }
   });
@@ -347,13 +359,10 @@ function querySync(sql, params = []) {
       : stmt.all(params);
     return result;
   } catch (err) {
-    logger.error('Database', 'Erro ao executar query síncrona:', {
-      sql,
-      params,
-      error_message: err.message,
-      error_stack: err.stack,
-      error_object: err,
-    });
+    logger.error(
+      { component: 'Database', sql, params, err },
+      'Erro ao executar query síncrona.'
+    );
     throw err;
   }
 }
@@ -373,13 +382,10 @@ function getOneSync(sql, params = []) {
       : stmt.get(params);
     return result || null;
   } catch (err) {
-    logger.error('Database', 'Erro ao executar getOne síncrono:', {
-      sql,
-      params,
-      error_message: err.message,
-      error_stack: err.stack,
-      error_object: err,
-    });
+    logger.error(
+      { component: 'Database', sql, params, err },
+      'Erro ao executar getOne síncrono.'
+    );
     throw err;
   }
 }
@@ -400,13 +406,10 @@ function runSync(sql, params = []) {
       changes: info.changes,
     };
   } catch (err) {
-    logger.error('Database', 'Erro ao executar run síncrono:', {
-      sql,
-      params,
-      error_message: err.message,
-      error_stack: err.stack,
-      error_object: err,
-    });
+    logger.error(
+      { component: 'Database', sql, params, err },
+      'Erro ao executar run síncrono.'
+    );
     throw err;
   }
 }
@@ -424,7 +427,7 @@ function transactionSync(actions) {
     const result = transaction();
     return result;
   } catch (err) {
-    logger.error('Database', 'Erro na transação síncrona:', { error: err });
+    logger.error({ component: 'Database', err }, 'Erro na transação síncrona.');
     throw err;
   }
 }

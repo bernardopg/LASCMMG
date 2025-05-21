@@ -26,11 +26,7 @@
   "theme_color": "#2e9d3a",
   "background_color": "#1a2a1a",
   "orientation": "portrait",
-  "categories": [
-    "sports",
-    "utilities",
-    "productivity"
-  ],
+  "categories": ["sports", "utilities", "productivity"],
   "lang": "pt-BR",
   "dir": "ltr",
   "prefer_related_applications": false,

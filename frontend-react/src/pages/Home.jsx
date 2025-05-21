@@ -5,7 +5,11 @@ import { useTournament } from '../context/TournamentContext';
 import api from '../services/api';
 
 const Home = () => {
-  const { tournaments, currentTournament, loading: tournamentsLoading } = useTournament();
+  const {
+    tournaments,
+    currentTournament,
+    loading: tournamentsLoading,
+  } = useTournament();
   const [generalStats, setGeneralStats] = useState({
     players: 0,
     matches: 0,
@@ -30,11 +34,19 @@ const Home = () => {
             tournaments: stats.tournaments?.total || 0,
           });
         } else {
-          setGeneralStats({ players: 0, matches: 0, tournaments: tournaments?.length || 0 });
+          setGeneralStats({
+            players: 0,
+            matches: 0,
+            tournaments: tournaments?.length || 0,
+          });
         }
       } catch (err) {
-        console.error("Erro ao buscar estatísticas gerais:", err);
-        setGeneralStats({ players: 0, matches: 0, tournaments: tournaments?.length || 0 });
+        console.error('Erro ao buscar estatísticas gerais:', err);
+        setGeneralStats({
+          players: 0,
+          matches: 0,
+          tournaments: tournaments?.length || 0,
+        });
       }
       setStatsLoading(false);
     };
@@ -47,7 +59,8 @@ const Home = () => {
       <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-8 relative overflow-hidden">
         <div className="relative z-10">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-            Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG
+            Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica
+            de Sinuca da CMMG
           </h1>
           <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-xl">
             Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
@@ -55,10 +68,10 @@ const Home = () => {
             andamento.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link to="/chaveamento" className="btn btn-primary">
+            <Link to="/brackets" className="btn btn-primary">
               Ver Chaveamentos
             </Link>
-            <Link to="/estatisticas" className="btn btn-outline">
+            <Link to="/stats" className="btn btn-outline">
               Estatísticas
             </Link>
           </div>
@@ -117,7 +130,9 @@ const Home = () => {
                 {generalStats.tournaments}
               </p>
             )}
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Registrados na plataforma</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Registrados na plataforma
+            </p>
           </div>
         </div>
       </section>
@@ -134,55 +149,77 @@ const Home = () => {
                     {currentTournament.name}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    {currentTournament.description?.substring(0, 100) || 'Sem descrição detalhada.'}
+                    {currentTournament.description?.substring(0, 100) ||
+                      'Sem descrição detalhada.'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
                   <span
-                    className={`badge ${currentTournament.status === 'Em Andamento'
-                      ? 'badge-success'
-                      : currentTournament.status === 'Pendente'
-                        ? 'badge-info'
-                        : 'badge-warning'
-                      }`}
+                    className={`badge ${
+                      currentTournament.status === 'Em Andamento'
+                        ? 'badge-success'
+                        : currentTournament.status === 'Pendente'
+                          ? 'badge-info'
+                          : 'badge-warning'
+                    }`}
                   >
                     {currentTournament.status || 'N/A'}
                   </span>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                    Data: {currentTournament.date ? new Date(currentTournament.date).toLocaleDateString('pt-BR') : 'N/A'}
+                    Data:{' '}
+                    {currentTournament.date
+                      ? new Date(currentTournament.date).toLocaleDateString(
+                          'pt-BR'
+                        )
+                      : 'N/A'}
                   </p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <div className="mb-4">
-                <p className="text-gray-700 dark:text-gray-300">{currentTournament.rules || 'Regras não especificadas.'}</p>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {currentTournament.rules || 'Regras não especificadas.'}
+                </p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.num_players_expected || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Jogadores Esperados</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Jogadores Esperados
+                  </p>
                 </div>
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.bracket_type?.replace('-', ' ') || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Tipo de Chave</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Tipo de Chave
+                  </p>
                 </div>
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
-                    {currentTournament.entry_fee !== null && currentTournament.entry_fee !== undefined ? `R$ ${currentTournament.entry_fee.toFixed(2)}` : 'Grátis'}
+                    {currentTournament.entry_fee !== null &&
+                    currentTournament.entry_fee !== undefined
+                      ? `R$ ${currentTournament.entry_fee.toFixed(2)}`
+                      : 'Grátis'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Taxa de Inscrição</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Taxa de Inscrição
+                  </p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
-                <Link to="/chaveamento" className="btn btn-outline btn-sm">
+                <Link to="/brackets" className="btn btn-outline btn-sm">
+                  {' '}
+                  {/* Corrected link */}
                   Ver Chaveamento
                 </Link>
-                <Link to="/placares" className="btn btn-primary btn-sm">
+                <Link to="/scores" className="btn btn-primary btn-sm">
+                  {' '}
+                  {/* Corrected link */}
                   Placares
                 </Link>
               </div>
@@ -225,21 +262,29 @@ const Home = () => {
                       {tournament.name || 'Torneio Sem Nome'}
                     </h3>
                     <p className="text-gray-600 text-sm truncate max-w-xs">
-                      {tournament.description?.substring(0, 70) || 'Sem descrição.'}
-                      {tournament.description && tournament.description.length > 70 ? '...' : ''}
+                      {tournament.description?.substring(0, 70) ||
+                        'Sem descrição.'}
+                      {tournament.description &&
+                      tournament.description.length > 70
+                        ? '...'
+                        : ''}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
-                      Data: {tournament.date ? new Date(tournament.date).toLocaleDateString('pt-BR') : 'N/A'}
+                      Data:{' '}
+                      {tournament.date
+                        ? new Date(tournament.date).toLocaleDateString('pt-BR')
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="flex items-center">
                     <span
-                      className={`badge mr-3 ${tournament.status === 'Em Andamento'
-                        ? 'badge-success'
-                        : tournament.status === 'Pendente'
-                          ? 'badge-info'
-                          : 'badge-warning'
-                        }`}
+                      className={`badge mr-3 ${
+                        tournament.status === 'Em Andamento'
+                          ? 'badge-success'
+                          : tournament.status === 'Pendente'
+                            ? 'badge-info'
+                            : 'badge-warning'
+                      }`}
                     >
                       {tournament.status || 'N/A'}
                     </span>

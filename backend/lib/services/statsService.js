@@ -42,8 +42,8 @@ function calculateTopPlayersDb(players, scores) {
     .slice(0, 5); // Limita aos top 5
 }
 
-// _scores parameter was unused
 function calculatePlayerPerformanceDb(players) {
+  // _scores parameter removed
   const performanceData = players.map((player) => {
     const total = player.games_played || 0;
     const wins = player.wins || 0;

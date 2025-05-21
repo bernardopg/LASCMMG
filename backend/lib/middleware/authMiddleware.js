@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
+const { JWT_SECRET } = require('../config/config'); // Removed JWT_EXPIRATION
 const { logger } = require('../logger/logger');
 const { getClient } = require('../db/redisClient'); // Import Redis client
 
@@ -36,7 +36,11 @@ async function trackFailedAttempt(username) {
     }
     return attempts;
   } catch (error) {
-    logger.error('AuthMiddleware', `Erro ao rastrear tentativa de login falha para ${username} no Redis:`, { error: error.message });
+    logger.error(
+      'AuthMiddleware',
+      `Erro ao rastrear tentativa de login falha para ${username} no Redis:`,
+      { error: error.message }
+    );
   }
 }
 
@@ -48,9 +52,16 @@ async function isUserLockedOut(username) {
   const key = `${AUTH_CONFIG.redisFailedAttemptsPrefix}${username.toLowerCase()}`;
   try {
     const attempts = await redis.get(key);
-    return attempts && parseInt(attempts, 10) >= AUTH_CONFIG.failedLoginAttemptsLockout;
+    return (
+      attempts &&
+      parseInt(attempts, 10) >= AUTH_CONFIG.failedLoginAttemptsLockout
+    );
   } catch (error) {
-    logger.error('AuthMiddleware', `Erro ao verificar bloqueio de usuário ${username} no Redis:`, { error: error.message });
+    logger.error(
+      'AuthMiddleware',
+      `Erro ao verificar bloqueio de usuário ${username} no Redis:`,
+      { error: error.message }
+    );
     return false; // Fail safe: assume not locked out
   }
 }
@@ -64,7 +75,11 @@ async function clearFailedAttempts(username) {
   try {
     await redis.del(key);
   } catch (error) {
-    logger.error('AuthMiddleware', `Erro ao limpar tentativas de login falhas para ${username} no Redis:`, { error: error.message });
+    logger.error(
+      'AuthMiddleware',
+      `Erro ao limpar tentativas de login falhas para ${username} no Redis:`,
+      { error: error.message }
+    );
   }
 }
 
@@ -87,7 +102,11 @@ async function blacklistToken(token, decodedToken) {
     await redis.set(key, 'blacklisted', { EX: expiresInSeconds });
     return true;
   } catch (error) {
-    logger.error('AuthMiddleware', 'Erro ao adicionar token à blacklist no Redis:', { error: error.message });
+    logger.error(
+      'AuthMiddleware',
+      'Erro ao adicionar token à blacklist no Redis:',
+      { error: error.message }
+    );
     return false;
   }
 }
@@ -102,24 +121,40 @@ async function isTokenBlacklisted(token) {
     const result = await redis.get(key);
     return result === 'blacklisted';
   } catch (error) {
-    logger.error('AuthMiddleware', 'Erro ao verificar token na blacklist do Redis:', { error: error.message });
+    logger.error(
+      'AuthMiddleware',
+      'Erro ao verificar token na blacklist do Redis:',
+      { error: error.message }
+    );
     return false; // Fail safe
   }
 }
 
-
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  const token =
+    authHeader && authHeader.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : null;
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Token de autenticação não fornecido.' });
+    return res.status(401).json({
+      success: false,
+      message: 'Token de autenticação não fornecido.',
+    });
   }
 
   try {
     if (await isTokenBlacklisted(token)) {
-      logger.warn('AuthMiddleware', 'Tentativa de uso de token na blacklist.', { token_prefix: token.substring(0, 10), requestId: req.id, ip: req.ip });
-      return res.status(401).json({ success: false, message: 'Token inválido ou expirado (revogado).' });
+      logger.warn('AuthMiddleware', 'Tentativa de uso de token na blacklist.', {
+        token_prefix: token.substring(0, 10),
+        requestId: req.id,
+        ip: req.ip,
+      });
+      return res.status(401).json({
+        success: false,
+        message: 'Token inválido ou expirado (revogado).',
+      });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -132,11 +167,19 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    logger.warn('AuthMiddleware', 'Falha na verificação do token JWT:', { error: error.message, requestId: req.id, ip: req.ip });
+    logger.warn('AuthMiddleware', 'Falha na verificação do token JWT:', {
+      error: error.message,
+      requestId: req.id,
+      ip: req.ip,
+    });
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Token expirado.' });
+      return res
+        .status(401)
+        .json({ success: false, message: 'Token expirado.' });
     }
-    return res.status(401).json({ success: false, message: 'Token inválido ou malformado.' });
+    return res
+      .status(401)
+      .json({ success: false, message: 'Token inválido ou malformado.' });
   }
 };
 

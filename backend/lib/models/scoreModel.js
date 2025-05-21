@@ -36,9 +36,8 @@ async function getScoreById(scoreId, includeDeleted = false) {
     return await getOneAsync(sql, params);
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao buscar score com ID ${scoreId}: ${err.message}`,
-      { scoreId, error: err }
+      { component: 'ScoreModel', err, scoreId },
+      `Erro ao buscar score com ID ${scoreId}.`
     );
     throw err;
   }
@@ -58,9 +57,8 @@ async function getScoresByMatchId(matchId, includeDeleted = false) {
     return await queryAsync(sql, params);
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao buscar scores para a partida ${matchId}: ${err.message}`,
-      { matchId, error: err }
+      { component: 'ScoreModel', err, matchId },
+      `Erro ao buscar scores para a partida ${matchId}.`
     );
     throw err;
   }
@@ -91,10 +89,10 @@ async function addScore(scoreData) {
     ]);
     return await getScoreById(result.lastInsertRowid);
   } catch (err) {
-    logger.error('ScoreModel', 'Erro ao adicionar score:', {
-      error: err,
-      scoreData,
-    });
+    logger.error(
+      { component: 'ScoreModel', err, scoreData },
+      'Erro ao adicionar score.'
+    );
     throw err;
   }
 }
@@ -140,9 +138,8 @@ async function updateScore(scoreId, scoreData) {
       const existing = await getScoreById(scoreId, true);
       if (existing && existing.is_deleted) {
         logger.warn(
-          'ScoreModel',
-          `Tentativa de atualizar score ${scoreId} que está na lixeira.`,
-          { scoreId }
+          { component: 'ScoreModel', scoreId },
+          `Tentativa de atualizar score ${scoreId} que está na lixeira.`
         );
         return null;
       }
@@ -151,9 +148,8 @@ async function updateScore(scoreId, scoreData) {
     return await getScoreById(scoreId);
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao atualizar score ${scoreId}: ${err.message}`,
-      { scoreId, scoreData, error: err }
+      { component: 'ScoreModel', err, scoreId, scoreData },
+      `Erro ao atualizar score ${scoreId}.`
     );
     throw err;
   }
@@ -167,15 +163,15 @@ async function deleteScore(scoreId, permanent = false) {
     const sql = 'DELETE FROM scores WHERE id = ?';
     try {
       const result = await runAsync(sql, [scoreId]);
-      logger.info('ScoreModel', `Score ${scoreId} excluído permanentemente.`, {
-        scoreId,
-      });
+      logger.info(
+        { component: 'ScoreModel', scoreId },
+        `Score ${scoreId} excluído permanentemente.`
+      );
       return result.changes > 0;
     } catch (err) {
       logger.error(
-        'ScoreModel',
-        `Erro ao excluir permanentemente score ${scoreId}: ${err.message}`,
-        { scoreId, error: err }
+        { component: 'ScoreModel', err, scoreId },
+        `Erro ao excluir permanentemente score ${scoreId}.`
       );
       throw err;
     }
@@ -186,30 +182,28 @@ async function deleteScore(scoreId, permanent = false) {
       const result = await runAsync(sql, [scoreId]);
       if (result.changes > 0) {
         logger.info(
-          'ScoreModel',
-          `Score ${scoreId} movido para a lixeira (soft delete).`,
-          { scoreId }
+          { component: 'ScoreModel', scoreId },
+          `Score ${scoreId} movido para a lixeira (soft delete).`
         );
         return true;
       }
       const existing = await getScoreById(scoreId, true);
       if (existing && existing.is_deleted) {
-        logger.info('ScoreModel', `Score ${scoreId} já estava na lixeira.`, {
-          scoreId,
-        });
+        logger.info(
+          { component: 'ScoreModel', scoreId },
+          `Score ${scoreId} já estava na lixeira.`
+        );
         return true;
       }
       logger.warn(
-        'ScoreModel',
-        `Score ${scoreId} não encontrado para soft delete ou já estava excluído.`,
-        { scoreId }
+        { component: 'ScoreModel', scoreId },
+        `Score ${scoreId} não encontrado para soft delete ou já estava excluído.`
       );
       return false;
     } catch (err) {
       logger.error(
-        'ScoreModel',
-        `Erro ao mover score ${scoreId} para a lixeira: ${err.message}`,
-        { scoreId, error: err }
+        { component: 'ScoreModel', err, scoreId },
+        `Erro ao mover score ${scoreId} para a lixeira.`
       );
       throw err;
     }
@@ -305,9 +299,8 @@ async function getScoresByTournamentId(tournamentId, options = {}) {
     return { scores, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao buscar scores para o torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err }
+      { component: 'ScoreModel', err, tournamentId },
+      `Erro ao buscar scores para o torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -336,16 +329,19 @@ async function deleteScoresByTournamentId(tournamentId, permanent = false) {
   try {
     const result = await runAsync(sql, [tournamentId]);
     logger.info(
-      'ScoreModel',
-      `${result.changes} scores do torneio ${tournamentId} ${permanent ? 'excluídos permanentemente' : 'movidos para lixeira'}.`,
-      { tournamentId, count: result.changes, permanent }
+      {
+        component: 'ScoreModel',
+        tournamentId,
+        count: result.changes,
+        permanent,
+      },
+      `${result.changes} scores do torneio ${tournamentId} ${permanent ? 'excluídos permanentemente' : 'movidos para lixeira'}.`
     );
     return result.changes;
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao ${permanent ? 'deletar permanentemente scores' : 'mover scores para lixeira'} do torneio ${tournamentId}: ${err.message}`,
-      { tournamentId, error: err, permanent }
+      { component: 'ScoreModel', err, tournamentId, permanent },
+      `Erro ao ${permanent ? 'deletar permanentemente scores' : 'mover scores para lixeira'} do torneio ${tournamentId}.`
     );
     throw err;
   }
@@ -396,9 +392,12 @@ async function importScores(tournamentId, scoresData) {
           const existingScore = getExistingScoreStmt.get(matchDbId);
           if (existingScore) {
             logger.warn(
-              'ScoreModel',
-              `Score para partida ${matchDbId} (match_number ${scoreJson.matchId}) já existe e não foi sobrescrito.`,
-              { matchDbId, matchNumber: scoreJson.matchId }
+              {
+                component: 'ScoreModel',
+                matchDbId,
+                matchNumber: scoreJson.matchId,
+              },
+              `Score para partida ${matchDbId} (match_number ${scoreJson.matchId}) já existe e não foi sobrescrito.`
             );
             continue;
           }
@@ -431,53 +430,34 @@ async function importScores(tournamentId, scoresData) {
     });
   } catch (transactionError) {
     logger.error(
-      'ScoreModel',
-      `Erro na transação de importScores para torneio ${tournamentId}:`,
-      { tournamentId, error: transactionError }
+      { component: 'ScoreModel', err: transactionError, tournamentId },
+      `Erro na transação de importScores para torneio ${tournamentId}.`
     );
     errors.push(`Erro geral na transação: ${transactionError.message}`);
   }
 
   if (errors.length > 0) {
     logger.warn(
-      'ScoreModel',
-      `Erros durante a importação de scores para o torneio ${tournamentId}.`,
-      { tournamentId, errors }
+      { component: 'ScoreModel', tournamentId, errors },
+      `Erros durante a importação de scores para o torneio ${tournamentId}.`
     );
   }
   return { count: importedCount, errors };
 }
 
 async function countScores(includeDeleted = false) {
-  // Temporarily remove is_deleted filter to avoid "no such column" error
-  // This assumes that for system stats, all scores (including soft-deleted) should be counted.
-  // If only non-deleted scores should be counted, the database schema needs to be fixed.
-  let sql = 'SELECT COUNT(*) as count FROM scores';
-  const params = [];
-
-  // Original code that caused the error:
-  // let { sql, params } = addScoreIsDeletedFilter(
-  //   'SELECT COUNT(*) as count FROM scores s', // Original had 's' alias
-  //   [],
-  //   includeDeleted
-  // );
-
-  // If we decide to re-enable filtering and the schema is fixed,
-  // the query should be: 'SELECT COUNT(*) as count FROM scores s'
-  // and addScoreIsDeletedFilter should be called as above.
-  // For now, if includeDeleted is false (the default for countScores call in security.js),
-  // and we want to respect it WITHOUT the filter helper due to schema issue:
-  if (!includeDeleted) {
-    // This part would still fail if is_deleted column doesn't exist.
-    // sql += ' WHERE (is_deleted = 0 OR is_deleted IS NULL)';
-    // So, for now, we count all scores regardless of includeDeleted.
-  }
+  let { sql, params } = addScoreIsDeletedFilter(
+    'SELECT COUNT(*) as count FROM scores s', // Added alias 's'
+    [],
+    includeDeleted,
+    's' // Pass alias to helper
+  );
 
   try {
     const row = await getOneAsync(sql, params);
     return row ? row.count : 0;
   } catch (err) {
-    logger.error('ScoreModel', 'Erro ao contar scores:', { error: err });
+    logger.error({ component: 'ScoreModel', err }, 'Erro ao contar scores.');
     throw err;
   }
 }
@@ -618,9 +598,8 @@ async function getAllScores(options = {}) {
     return { scores, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao buscar todos os scores: ${err.message}`,
-      { error: err, filters }
+      { component: 'ScoreModel', err, filters },
+      `Erro ao buscar todos os scores.`
     );
     throw err;
   }
@@ -637,9 +616,58 @@ module.exports = {
   importScores,
   countScores,
   getAllScores,
-  // restoreScore will be exported in the final module.exports block
+  restoreScore, // Added restoreScore
 };
 
+// This function is already defined below, ensure it's the one being used or remove redundancy if it's defined twice.
+// async function restoreScore(scoreId) {
+//   if (!scoreId) {
+//     throw new Error('ID do score não fornecido para restauração.');
+//   }
+//   // Set is_deleted to 0 and clear deleted_at
+//   // Also update completed_at or add an updated_at if schema changes
+//   const sql =
+//     'UPDATE scores SET is_deleted = 0, deleted_at = NULL, completed_at = CURRENT_TIMESTAMP WHERE id = ? AND is_deleted = 1';
+//   try {
+//     const result = await runAsync(sql, [scoreId]);
+//     if (result.changes > 0) {
+//       logger.info('ScoreModel', `Score ${scoreId} restaurado da lixeira.`, {
+//         scoreId,
+//       });
+//       return true;
+//     }
+//     logger.warn(
+//       'ScoreModel',
+//       `Score ${scoreId} não encontrado na lixeira ou não precisou de restauração.`,
+//       { scoreId }
+//     );
+//     const score = await getScoreById(scoreId); // Check if it exists and is not deleted
+//     return !!score;
+//   } catch (err) {
+//     logger.error(
+//       'ScoreModel',
+//       `Erro ao restaurar score ${scoreId} da lixeira: ${err.message}`,
+//       { scoreId, error: err }
+//     );
+//     throw err;
+//   }
+// }
+
+// module.exports = {
+//   getScoreById,
+//   getScoresByMatchId,
+//   addScore,
+//   updateScore,
+//   deleteScore,
+//   getScoresByTournamentId,
+//   deleteScoresByTournamentId,
+//   importScores,
+//   countScores,
+//   getAllScores,
+//   restoreScore, // Added restoreScore
+// };
+
+// The actual restoreScore function definition is below
 async function restoreScore(scoreId) {
   if (!scoreId) {
     throw new Error('ID do score não fornecido para restauração.');
@@ -665,24 +693,11 @@ async function restoreScore(scoreId) {
     return !!score;
   } catch (err) {
     logger.error(
-      'ScoreModel',
-      `Erro ao restaurar score ${scoreId} da lixeira: ${err.message}`,
-      { scoreId, error: err }
+      { component: 'ScoreModel', err, scoreId },
+      `Erro ao restaurar score ${scoreId} da lixeira.`
     );
     throw err;
   }
 }
 
-module.exports = {
-  getScoreById,
-  getScoresByMatchId,
-  addScore,
-  updateScore,
-  deleteScore,
-  getScoresByTournamentId,
-  deleteScoresByTournamentId,
-  importScores,
-  countScores,
-  getAllScores,
-  restoreScore, // Added restoreScore
-};
+// module.exports is defined once at the top now.

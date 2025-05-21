@@ -24,10 +24,12 @@ const AdminMatchSchedulePage = () => {
       const res = await api.get(`/api/tournaments/${tournamentId}/state`);
       const state = res.data;
       // Extrai partidas do state.matches
-      const matchesArr = Object.entries(state.matches || {}).map(([matchId, match]) => ({
-        matchId,
-        ...match,
-      }));
+      const matchesArr = Object.entries(state.matches || {}).map(
+        ([matchId, match]) => ({
+          matchId,
+          ...match,
+        })
+      );
       setMatches(matchesArr);
     } catch (err) {
       setError('Erro ao carregar partidas do torneio.');
@@ -66,15 +68,18 @@ const AdminMatchSchedulePage = () => {
   // Busca partidas ao selecionar torneio
   useEffect(() => {
     fetchMatches();
-    // eslint-disable-next-line
   }, [tournamentId]);
 
   return (
     <div className="py-8">
-      <h1 className="text-2xl font-bold mb-4 text-primary">Agendamento de Partidas (Admin)</h1>
+      <h1 className="text-2xl font-bold mb-4 text-primary">
+        Agendamento de Partidas (Admin)
+      </h1>
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
         <label className="block mb-4">
-          <span className="text-gray-700 dark:text-gray-200">ID do Torneio:</span>
+          <span className="text-gray-700 dark:text-gray-200">
+            ID do Torneio:
+          </span>
           <input
             type="text"
             className="input mt-1 block w-full"
@@ -113,7 +118,9 @@ const AdminMatchSchedulePage = () => {
                       .map((p) => p?.name || 'A definir')
                       .join(' vs ')}
                   </td>
-                  <td className="border px-2 py-1">{match.roundName || match.round}</td>
+                  <td className="border px-2 py-1">
+                    {match.roundName || match.round}
+                  </td>
                   <td className="border px-2 py-1">
                     <input
                       type="datetime-local"
@@ -128,7 +135,9 @@ const AdminMatchSchedulePage = () => {
                     <button
                       className="btn btn-success"
                       disabled={saving}
-                      onClick={() => saveSchedule(match.matchId, match.schedule)}
+                      onClick={() =>
+                        saveSchedule(match.matchId, match.schedule)
+                      }
                     >
                       Salvar
                     </button>
@@ -139,7 +148,9 @@ const AdminMatchSchedulePage = () => {
           </table>
         )}
         {matches.length === 0 && !loading && (
-          <p className="text-gray-500">Nenhuma partida encontrada para o torneio.</p>
+          <p className="text-gray-500">
+            Nenhuma partida encontrada para o torneio.
+          </p>
         )}
       </div>
     </div>

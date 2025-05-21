@@ -30,11 +30,12 @@ const ScoresPage = () => {
         getScores(currentTournament.id),
         getPlayers(currentTournament.id), // Or a general getPlayers() if not tournament specific for filters
       ]);
-      setScores(fetchedScores || []);
-      setAllPlayers(fetchedPlayers || []);
+      setScores(fetchedScores?.scores || []); // Correctly extract the scores array
+      setAllPlayers(fetchedPlayers?.players || []); // Assuming players API also returns { players: [] }
     } catch (error) {
       console.error('Erro ao carregar placares ou jogadores:', error);
-      showError( // Corrigido para showError
+      showError(
+        // Corrigido para showError
         `Erro ao carregar dados: ${error.message || 'Erro desconhecido'}`
       );
       setScores([]);

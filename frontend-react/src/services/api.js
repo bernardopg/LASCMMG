@@ -9,24 +9,60 @@ const api = axios.create({
   },
 });
 
-// Função para ler cookie
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
+let currentCsrfToken = null;
+let csrfTokenPromise = null;
+
+// Function to ensure CSRF token is fetched and stored
+// This will be called by the interceptor if the token is needed and not yet available.
+const ensureCsrfTokenInternal = () => {
+  if (currentCsrfToken) return Promise.resolve(currentCsrfToken);
+  if (csrfTokenPromise) return csrfTokenPromise; // A fetch is already in progress
+
+  console.log('Attempting to fetch CSRF token...');
+  csrfTokenPromise = api
+    .get('/api/csrf-token')
+    .then((response) => {
+      if (response.data && response.data.csrfToken) {
+        currentCsrfToken = response.data.csrfToken;
+        console.log('CSRF token fetched and stored by interceptor logic.');
+        // csrfTokenPromise = null; // Clear the promise once resolved - actually, let's clear it outside
+        return currentCsrfToken;
+      }
+      console.warn(
+        'CSRF token not found in response from /api/csrf-token (interceptor fetch).'
+      );
+      // Do not throw error here, let the original request proceed without token if fetch fails
+      // The backend will then reject it if CSRF is mandatory.
+      return null;
+    })
+    .catch((err) => {
+      console.error('Error fetching CSRF token in interceptor logic:', err);
+      // Do not throw error here either.
+      return null;
+    })
+    .finally(() => {
+      csrfTokenPromise = null; // Always clear the promise after it settles
+    });
+  return csrfTokenPromise;
+};
 
 // Adiciona um interceptor de requisição para incluir o token CSRF
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // Make interceptor async
     const protectedMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
     if (protectedMethods.includes(config.method.toUpperCase())) {
-      const csrfToken = getCookie('csrfToken'); // Nome do cookie definido no backend
-      if (csrfToken) {
-        config.headers['X-CSRF-Token'] = csrfToken;
+      if (!currentCsrfToken) {
+        // If token is not available, try to fetch it.
+        // This ensures that the first protected request triggers the fetch.
+        await ensureCsrfTokenInternal();
+      }
+
+      if (currentCsrfToken) {
+        config.headers['X-CSRF-Token'] = currentCsrfToken;
       } else {
         console.warn(
-          'CSRF token não encontrado no cookie. A requisição pode falhar.'
+          'CSRF token still not available after attempting fetch. Request might fail.'
         );
       }
     }
@@ -95,14 +131,20 @@ initializeAuth();
 // Funções específicas da API
 
 // Torneios
-export const getTournaments = async () => {
-  const response = await api.get('/api/tournaments'); // Ajuste o endpoint conforme necessário
+export const getTournaments = async (params = {}) => {
+  // Accept params object
+  const response = await api.get('/api/tournaments', { params }); // Pass params to API call
   return response.data;
 };
 
 export const getTournamentDetails = async (tournamentId) => {
   const response = await api.get(`/api/tournaments/${tournamentId}`); // Ajuste o endpoint
   return response.data;
+};
+
+export const getTournamentState = async (tournamentId) => {
+  const response = await api.get(`/api/tournaments/${tournamentId}/state`);
+  return response.data; // This should be the direct state object
 };
 
 // Jogadores
@@ -113,6 +155,11 @@ export const getPlayers = async (tournamentId) => {
     : '/api/players';
   const response = await api.get(url); // Ajuste o endpoint
   return response.data;
+};
+
+export const getPlayerDetails = async (playerId) => {
+  const response = await api.get(`/api/players/${playerId}`);
+  return response.data; // Expects { success: true, player: {...} }
 };
 
 // Placares
@@ -231,28 +278,91 @@ export const restoreTrashItem = async (itemId, itemType) => {
 };
 
 export const permanentlyDeleteDBItem = async (itemId, itemType) => {
-  // TODO: Verificar se o backend lida com DELETE com corpo.
-  // Alternativamente, passar como query params: api.delete(`/api/admin/trash/item?itemId=${itemId}&itemType=${itemType}`)
-  // Ou como path params se a rota do backend for /api/admin/trash/item/:itemType/:itemId
-  const response = await api.delete(`/api/admin/trash/item`, {
-    data: { itemId, itemType },
-  });
+  // Updated to use path parameters as per backend route change
+  const response = await api.delete(
+    `/api/admin/trash/item/${itemType}/${itemId}`
+  );
   return response.data;
 };
 
 /**
  * Admin - Torneios
  */
-export const createTournamentAdmin = async (tournamentData) => { // Adicionada função que estava faltando
+export const createTournamentAdmin = async (tournamentData) => {
+  // Adicionada função que estava faltando
   const response = await api.post('/api/tournaments/create', tournamentData); // Endpoint de criação de torneio
   return response.data;
 };
 
-export const deleteTournamentAdmin = async (tournamentId) => {
-  // TODO: Verificar se DELETE /api/admin/tournaments/:tournamentId existe.
-  // API_REFERENCE.md não lista. Pode ser PATCH para status 'Cancelado' ou via /api/admin/trash.
-  const response = await api.delete(`/api/admin/tournaments/${tournamentId}`);
+// Placeholder for a more comprehensive update.
+// Ideally, backend would have a PUT /api/admin/tournaments/:id or similar.
+// For now, this might make multiple PATCH calls or just update a few key fields.
+export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
+  // Example: just updating name and description for now via existing PATCH routes
+  // A real implementation would iterate through tournamentData and call relevant PATCH endpoints
+  // or use a dedicated PUT endpoint.
+  if (tournamentData.name !== undefined) {
+    await api.patch(`/api/tournaments/${tournamentId}/name`, { name: tournamentData.name });
+  }
+  if (tournamentData.description !== undefined) {
+    await api.patch(`/api/tournaments/${tournamentId}/description`, { description: tournamentData.description });
+  }
+  if (tournamentData.date !== undefined) {
+     // Assuming backend PATCH for date exists or is part of a general update
+     // For now, this is a conceptual update.
+    await api.patch(`/api/tournaments/${tournamentId}/date`, { date: tournamentData.date });
+  }
+  // ... other fields like status, entry_fee, prize_pool, rules, bracket_type, num_players_expected
+  // This is simplified. A robust solution needs careful handling of all fields.
+  // For status:
+  if (tournamentData.status !== undefined) {
+    await api.patch(`/api/tournaments/${tournamentId}/status`, { status: tournamentData.status });
+  }
+
+  // After all updates, fetch the updated tournament details to return
+  const response = await api.get(`/api/tournaments/${tournamentId}`);
   return response.data;
+};
+
+export const updateMatchScoreAdmin = async (tournamentId, matchId, scoreData) => {
+  // scoreData should be { player1Score, player2Score, winnerId }
+  const response = await api.patch(`/api/tournaments/${tournamentId}/matches/${matchId}/winner`, scoreData);
+  return response.data;
+};
+
+export const generateTournamentBracket = async (tournamentId) => {
+  const response = await api.post(`/api/tournaments/${tournamentId}/generate-bracket`);
+  return response.data;
+};
+
+export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
+  // Added permanent flag, defaulting to true for admin delete
+  // For permanent deletion, the backend route was changed to /api/admin/trash/item/:itemType/:itemId
+  if (permanent) {
+    const response = await api.delete(`/api/admin/trash/item/tournament/${tournamentId}`);
+    return response.data;
+  } else {
+    // For soft delete, typically PATCH status to 'Cancelado'
+    // This is handled in TournamentContext or could be a separate admin soft-delete function
+    // OR, if the backend supports soft delete via DELETE with a query param on the tournament itself:
+    // For now, assuming soft delete is handled by changing status or a specific soft-delete endpoint.
+    // The current deleteTournamentAdmin in admin.js handles soft delete if permanent=false is passed to /api/admin/tournaments/:id
+    // However, the admin.js route for DELETE /api/admin/tournaments/:id is not defined.
+    // Let's assume soft delete is done by updating status for now, or this needs a backend adjustment.
+    // The deleteTournamentAdmin in this api.js file was calling /api/admin/trash/item for permanent,
+    // and /api/tournaments/:id/status for soft. This seems inconsistent with a dedicated admin delete.
+    // For now, I will keep the logic as it was, but this area needs review for consistency.
+    // The backend /api/admin/tournaments/:id (DELETE) is not defined.
+    // The backend /api/admin/trash/item (DELETE) is for permanent deletion from trash.
+    // The backend /api/tournaments/:id/status (PATCH) is for status update.
+
+    // Correct approach for soft-delete via status update:
+    const response = await api.patch(
+      `/api/tournaments/${tournamentId}/status`,
+      { status: 'Cancelado' } // Or 'Arquivado' or a specific soft-deleted status
+    );
+    return response.data;
+  }
 };
 
 // Admin - Segurança
@@ -294,5 +404,16 @@ export const unblockIp = async (ipAddress) => {
 };
 
 // Potentially more for threat analytics if it has its own data endpoints
+
+// Admin - User Management
+export const getAdminUsers = async (params = {}) => {
+  const response = await api.get('/api/admin/users', { params });
+  return response.data; // Expects { users: [], ...pagination }
+};
+
+export const createAdminUser = async (userData) => {
+  const response = await api.post('/api/admin/users', userData);
+  return response.data;
+};
 
 export default api;

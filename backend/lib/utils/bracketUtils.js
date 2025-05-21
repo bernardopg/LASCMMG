@@ -353,13 +353,14 @@ function advancePlayersInBracket(
 ) {
   if (!state || !state.matches || !state.matches[completedMatchId]) {
     logger.warn(
-      'BracketUtils',
-      `[advancePlayers] Match ID ${completedMatchId} not found.`,
       {
+        component: 'BracketUtils',
+        completedMatchId,
         stateExists: !!state,
         matchesExists: !!state?.matches,
         matchExists: !!state?.matches?.[completedMatchId],
-      }
+      },
+      `[advancePlayers] Match ID ${completedMatchId} not found.`
     );
     return state;
   }
@@ -381,21 +382,20 @@ function advancePlayersInBracket(
       winnerIdx = 1;
     else {
       logger.warn(
-        'BracketUtils',
-        `[advancePlayers] Scores for match ${completedMatchId} are a draw. Cannot advance.`,
         {
+          component: 'BracketUtils',
           matchId: completedMatchId,
           scores: currentMatch.players.map((p) => p.score),
-        }
+        },
+        `[advancePlayers] Scores for match ${completedMatchId} are a draw. Cannot advance.`
       );
       return state;
     }
     currentMatch.winner = winnerIdx;
   } else {
     logger.warn(
-      'BracketUtils',
-      `[advancePlayers] Scores not set for match ${completedMatchId}. Cannot advance.`,
-      { matchId: completedMatchId }
+      { component: 'BracketUtils', matchId: completedMatchId },
+      `[advancePlayers] Scores not set for match ${completedMatchId}. Cannot advance.`
     );
     return state;
   }
@@ -431,13 +431,13 @@ function advancePlayersInBracket(
         placed = true;
       } else {
         logger.warn(
-          'BracketUtils',
-          `[advancePlayers] Could not place winner ${winnerPlayerObject.name} into next match ${nextMatchId}. Both slots are taken by other players.`,
           {
-            winner: winnerPlayerObject.name,
+            component: 'BracketUtils',
+            winnerName: winnerPlayerObject.name,
             nextMatchId,
             nextMatchPlayers: nextMatch.players,
-          }
+          },
+          `[advancePlayers] Could not place winner ${winnerPlayerObject.name} into next match ${nextMatchId}. Both slots are taken by other players.`
         );
       }
     }
@@ -467,9 +467,8 @@ function advancePlayersInBracket(
     }
   } else if (nextMatchId) {
     logger.warn(
-      'BracketUtils',
-      `[advancePlayers] Next match ID ${nextMatchId} not found in state.matches.`,
-      { nextMatchId }
+      { component: 'BracketUtils', nextMatchId },
+      `[advancePlayers] Next match ID ${nextMatchId} not found in state.matches.`
     );
   }
   if (currentMatch.bracket === 'WB' && currentMatch.nextLoserMatch) {
@@ -484,21 +483,20 @@ function advancePlayersInBracket(
           nextLoserMatch.players[loserPos] = loserPlayerObject;
         } else {
           logger.warn(
-            'BracketUtils',
-            `[advancePlayers] Could not place loser ${loserPlayerObject.name} into LB match ${nextLoserMatchId}. Both slots are taken.`,
             {
-              loser: loserPlayerObject.name,
+              component: 'BracketUtils',
+              loserName: loserPlayerObject.name,
               nextLoserMatchId,
               nextLoserMatchPlayers: nextLoserMatch.players,
-            }
+            },
+            `[advancePlayers] Could not place loser ${loserPlayerObject.name} into LB match ${nextLoserMatchId}. Both slots are taken.`
           );
         }
       }
     } else if (nextLoserMatchId) {
       logger.warn(
-        'BracketUtils',
-        `[advancePlayers] Next loser match ID ${nextLoserMatchId} not found in state.matches.`,
-        { nextLoserMatchId }
+        { component: 'BracketUtils', nextLoserMatchId },
+        `[advancePlayers] Next loser match ID ${nextLoserMatchId} not found in state.matches.`
       );
     }
   }

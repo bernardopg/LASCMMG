@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react'; // Added useCallback
 
 const MessageContext = createContext();
 
@@ -13,28 +13,28 @@ export const useMessage = () => {
 export const MessageProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
 
-  const addMessage = (text, type, timeout = 5000) => {
+  const removeMessage = useCallback((id) => {
+    setMessages((prev) => prev.filter((message) => message.id !== id));
+  }, [setMessages]); // setMessages is stable
+
+  const addMessage = useCallback((text, type, timeout = 5000) => {
     const id = Date.now().toString();
     setMessages((prev) => [...prev, { id, text, type }]);
-    setTimeout(() => {
+    const timerId = setTimeout(() => { // Store timerId to potentially clear it if needed
       removeMessage(id);
     }, timeout);
-    return id;
-  };
+    return { id, timerId }; // Return id and timerId
+  }, [setMessages, removeMessage]); // removeMessage is now a dependency
 
-  const removeMessage = (id) => {
-    setMessages((prev) => prev.filter((message) => message.id !== id));
-  };
-
-  const showInfo = (text, timeout) => addMessage(text, 'info', timeout);
-  const showSuccess = (text, timeout) => addMessage(text, 'success', timeout);
-  const showWarning = (text, timeout) => addMessage(text, 'warning', timeout);
-  const showError = (text, timeout) => addMessage(text, 'error', timeout);
+  const showInfo = useCallback((text, timeout) => addMessage(text, 'info', timeout), [addMessage]);
+  const showSuccess = useCallback((text, timeout) => addMessage(text, 'success', timeout), [addMessage]);
+  const showWarning = useCallback((text, timeout) => addMessage(text, 'warning', timeout), [addMessage]);
+  const showError = useCallback((text, timeout) => addMessage(text, 'error', timeout), [addMessage]);
 
   const value = {
     messages,
-    addMessage,
-    removeMessage,
+    // addMessage, // Expose specific show* functions instead of generic addMessage if preferred
+    // removeMessage, // removeMessage is mostly internal due to timeout
     showInfo,
     showSuccess,
     showWarning,

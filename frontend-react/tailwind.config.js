@@ -12,7 +12,7 @@ module.exports = {
           dark: '#24803e',
           light: '#54c160',
           'banner-light': '#e6f5ee', // Very light green for light theme banners
-          'banner-dark': '#14532d',  // Very dark green for dark theme banners (adjust as needed)
+          'banner-dark': '#14532d', // Very dark green for dark theme banners (adjust as needed)
           50: '#f0fdf4',
           100: '#dcfce7',
           200: '#bbf7d0',

@@ -12,9 +12,8 @@ async function readJsonFile(filePath, defaultValueIfNotFound = []) {
     } catch (dirErr) {
       if (dirErr.code === 'ENOENT') {
         logger.warn(
-          'FileUtils',
-          `Diretório para ${filePath} não existe. Retornando valor padrão.`,
-          { path: filePath, error: dirErr }
+          { component: 'FileUtils', path: filePath, err: dirErr },
+          `Diretório para ${filePath} não existe. Retornando valor padrão.`
         );
         return defaultValueIfNotFound;
       }
@@ -27,26 +26,23 @@ async function readJsonFile(filePath, defaultValueIfNotFound = []) {
   } catch (err) {
     if (err.code === 'ENOENT') {
       logger.warn(
-        'FileUtils',
-        `Arquivo não encontrado: ${filePath}. Retornando valor padrão.`,
-        { path: filePath }
+        { component: 'FileUtils', path: filePath },
+        `Arquivo não encontrado: ${filePath}. Retornando valor padrão.`
       );
       return defaultValueIfNotFound;
     }
     if (err instanceof SyntaxError) {
       logger.error(
-        'FileUtils',
-        `Erro ao analisar JSON do arquivo ${filePath}: ${err.message}`,
-        { path: filePath, error: err }
+        { component: 'FileUtils', path: filePath, err },
+        `Erro ao analisar JSON do arquivo ${filePath}.`
       );
       throw new Error(
         `Formato JSON inválido no arquivo ${path.basename(filePath)}`
       );
     }
     logger.error(
-      'FileUtils',
-      `Erro ao ler ou analisar arquivo JSON ${filePath}: ${err.message}`,
-      { path: filePath, error: err }
+      { component: 'FileUtils', path: filePath, err },
+      `Erro ao ler ou analisar arquivo JSON ${filePath}.`
     );
     throw err; // Re-throw other errors
   }
@@ -78,9 +74,8 @@ async function writeJsonFile(filePath, data) {
     );
   } catch (err) {
     logger.error(
-      'FileUtils',
-      `Erro durante operação de bloqueio ou escrita para ${filePath}: ${err.message}`,
-      { path: filePath, error: err }
+      { component: 'FileUtils', path: filePath, err },
+      `Erro durante operação de bloqueio ou escrita para ${filePath}.`
     );
 
     if (err.code === 'ENOSPC') {
@@ -101,9 +96,8 @@ async function writeJsonFile(filePath, data) {
         await release();
       } catch (unlockErr) {
         logger.error(
-          'FileUtils',
-          `Erro ao desbloquear arquivo ${filePath}: ${unlockErr.message}`,
-          { path: filePath, error: unlockErr }
+          { component: 'FileUtils', path: filePath, err: unlockErr },
+          `Erro ao desbloquear arquivo ${filePath}.`
         );
       }
     }

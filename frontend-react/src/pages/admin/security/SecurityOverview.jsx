@@ -30,7 +30,7 @@ const OverviewStatCard = ({
   icon, // Adicionado para consistência, embora não usado no design original do card
   // bgColorClass e textColorClass para controle mais fino e adaptação ao tema
   bgColorClass = 'bg-blue-500 dark:bg-blue-700',
-  textColorClass = 'text-white'
+  textColorClass = 'text-white',
 }) => (
   <div
     className={`stats-card ${bgColorClass} ${textColorClass} p-4 rounded-lg shadow`}
@@ -45,14 +45,20 @@ const ThreatsTable = ({ threats }) => {
   if (!threats || threats.length === 0) {
     return (
       <tr>
-        <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">
+        <td
+          colSpan="5"
+          className="text-center py-4 text-gray-500 dark:text-gray-400"
+        >
           Nenhuma atividade suspeita recente.
         </td>
       </tr>
     );
   }
   return threats.map((threat, index) => (
-    <tr key={threat.ip || index} className="hover:bg-gray-100 dark:hover:bg-slate-700">
+    <tr
+      key={threat.ip || index}
+      className="hover:bg-gray-100 dark:hover:bg-slate-700"
+    >
       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
         {index + 1}
       </td>
@@ -80,13 +86,19 @@ const ThreatsTable = ({ threats }) => {
 
 const ActiveHoneypotsList = ({ honeypots }) => {
   if (!honeypots || honeypots.length === 0) {
-    return <p className="text-center text-gray-500 dark:text-gray-400">Nenhum honeypot ativo.</p>;
+    return (
+      <p className="text-center text-gray-500 dark:text-gray-400">
+        Nenhum honeypot ativo.
+      </p>
+    );
   }
   return (
     <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300">
       {honeypots.map((hp, index) => (
         <li key={index}>
-          <code className="bg-gray-100 dark:bg-slate-700 p-1 rounded text-sm">{hp}</code>
+          <code className="bg-gray-100 dark:bg-slate-700 p-1 rounded text-sm">
+            {hp}
+          </code>
         </li>
       ))}
     </ul>
@@ -111,15 +123,19 @@ const AttackPatternsChartComponent = ({ patterns }) => {
         label: 'Frequência de Padrões',
         data: patterns.map((p) => p.count),
         backgroundColor: patterns.map((p) => {
-          if (p.pattern.includes('SQL_INJECTION')) return 'rgba(239, 68, 68, 0.7)'; // Corrigido para Tailwind red-500
+          if (p.pattern.includes('SQL_INJECTION'))
+            return 'rgba(239, 68, 68, 0.7)'; // Corrigido para Tailwind red-500
           if (p.pattern.includes('XSS')) return 'rgba(245, 158, 11, 0.7)'; // Corrigido para Tailwind amber-500
-          if (p.pattern.includes('PATH_TRAVERSAL')) return 'rgba(234, 179, 8, 0.7)'; // Corrigido para Tailwind yellow-500
+          if (p.pattern.includes('PATH_TRAVERSAL'))
+            return 'rgba(234, 179, 8, 0.7)'; // Corrigido para Tailwind yellow-500
           return 'rgba(59, 130, 246, 0.7)'; // Corrigido para Tailwind blue-500
         }),
         borderColor: patterns.map((p) => {
-          if (p.pattern.includes('SQL_INJECTION')) return 'rgba(239, 68, 68, 1)';
+          if (p.pattern.includes('SQL_INJECTION'))
+            return 'rgba(239, 68, 68, 1)';
           if (p.pattern.includes('XSS')) return 'rgba(245, 158, 11, 1)';
-          if (p.pattern.includes('PATH_TRAVERSAL')) return 'rgba(234, 179, 8, 1)';
+          if (p.pattern.includes('PATH_TRAVERSAL'))
+            return 'rgba(234, 179, 8, 1)';
           return 'rgba(59, 130, 246, 1)';
         }),
         borderWidth: 1,
@@ -133,21 +149,45 @@ const AttackPatternsChartComponent = ({ patterns }) => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563' }, // Adaptado
-        grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(203, 213, 225, 0.1)' : 'rgba(209, 213, 219, 0.5)' }, // Adaptado
+        ticks: {
+          color: document.documentElement.classList.contains('dark')
+            ? '#cbd5e1'
+            : '#4b5563',
+        }, // Adaptado
+        grid: {
+          color: document.documentElement.classList.contains('dark')
+            ? 'rgba(203, 213, 225, 0.1)'
+            : 'rgba(209, 213, 219, 0.5)',
+        }, // Adaptado
       },
       x: {
-        ticks: { color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563' }, // Adaptado
-        grid: { color: document.documentElement.classList.contains('dark') ? 'rgba(203, 213, 225, 0.1)' : 'rgba(209, 213, 219, 0.5)' }, // Adaptado
+        ticks: {
+          color: document.documentElement.classList.contains('dark')
+            ? '#cbd5e1'
+            : '#4b5563',
+        }, // Adaptado
+        grid: {
+          color: document.documentElement.classList.contains('dark')
+            ? 'rgba(203, 213, 225, 0.1)'
+            : 'rgba(209, 213, 219, 0.5)',
+        }, // Adaptado
       },
     },
     plugins: {
       legend: { display: false },
       tooltip: {
-        titleColor: document.documentElement.classList.contains('dark') ? '#fff': '#000', // Adaptado
-        bodyColor: document.documentElement.classList.contains('dark') ? '#fff': '#000', // Adaptado
-        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)', // Adaptado
-        borderColor: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', // Adaptado
+        titleColor: document.documentElement.classList.contains('dark')
+          ? '#fff'
+          : '#000', // Adaptado
+        bodyColor: document.documentElement.classList.contains('dark')
+          ? '#fff'
+          : '#000', // Adaptado
+        backgroundColor: document.documentElement.classList.contains('dark')
+          ? 'rgba(0,0,0,0.8)'
+          : 'rgba(255,255,255,0.9)', // Adaptado
+        borderColor: document.documentElement.classList.contains('dark')
+          ? 'rgba(255,255,255,0.2)'
+          : 'rgba(0,0,0,0.2)', // Adaptado
         borderWidth: 1,
       },
     },
@@ -168,7 +208,8 @@ const SecurityOverview = () => {
       setOverviewData(data);
     } catch (error) {
       console.error('Erro ao carregar visão geral de segurança:', error);
-      showError( // Corrigido
+      showError(
+        // Corrigido
         `Erro ao carregar dados: ${error.message || 'Erro desconhecido'}`
       );
       setOverviewData(null);
@@ -275,7 +316,9 @@ const SecurityOverview = () => {
         </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead className="bg-gray-50 dark:bg-slate-750"> {/* 750 is custom, maybe slate-700 or 800 */}
+            <thead className="bg-gray-50 dark:bg-slate-750">
+              {' '}
+              {/* 750 is custom, maybe slate-700 or 800 */}
               <tr>
                 <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   #
@@ -302,7 +345,9 @@ const SecurityOverview = () => {
       </div>
 
       <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-gray-800 dark:text-gray-100">Honeypots Ativos</h3>
+        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-gray-800 dark:text-gray-100">
+          Honeypots Ativos
+        </h3>
         <div className="p-4">
           <ActiveHoneypotsList honeypots={activeHoneypots} />
         </div>

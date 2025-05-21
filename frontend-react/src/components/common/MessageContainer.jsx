@@ -7,9 +7,16 @@ const MessageContainer = () => {
   // Focusar no alerta quando adicionado, para acessibilidade
   useEffect(() => {
     if (messages.length > 0) {
-      const latestMessage = document.querySelector('.message-item:last-child');
-      if (latestMessage) {
-        latestMessage.focus();
+      const latestMessageContainer = document.querySelector('.message-item:last-child');
+      if (latestMessageContainer) {
+        // Try to focus the close button within the latest message
+        const closeButton = latestMessageContainer.querySelector('button');
+        if (closeButton) {
+          closeButton.focus();
+        } else {
+          // Fallback to focusing the container if no button (should not happen with current structure)
+          latestMessageContainer.focus();
+        }
       }
     }
   }, [messages]);
@@ -117,7 +124,7 @@ const MessageContainer = () => {
           <div
             key={message.id}
             className={getMessageClasses(message.type)}
-            tabIndex="0"
+            // tabIndex="0" removed to fix jsx-a11y/no-noninteractive-tabindex
             role="alert"
           >
             <div className="flex">

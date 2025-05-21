@@ -1,299 +1,221 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { getPlayers, saveScore } from '../services/api'; // Import actual API functions
-import { useMessage } from '../context/MessageContext';
+import { getTournamentState, updateMatchScoreAdmin, getPlayers } from '../services/api'; // Corrected path
+import { useMessage } from '../context/MessageContext'; // Corrected path
 import { useTournament } from '../context/TournamentContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FaSpinner } from 'react-icons/fa';
 
 const AddScorePage = () => {
-  const [players, setPlayers] = useState([]);
-  const { showError, showSuccess, showInfo } = useMessage(); // Corrigido para usar funções específicas
-  const { currentTournament, refreshCurrentTournament } =
-    useTournament();
+  const { showError, showSuccess } = useMessage();
+  const { currentTournament, refreshCurrentTournament } = useTournament(); // Using currentTournament from context
   const navigate = useNavigate();
+  const { tournamentId: routeTournamentId, matchId } = useParams(); // Renamed to avoid conflict
 
-  // TODO: Esta página precisa receber matchId e, idealmente, os nomes dos jogadores da partida
-  // via props ou useParams (ex: /tournaments/:tournamentId/match/:matchId/add-score)
-  // Sem isso, não é possível associar o placar à partida correta no chaveamento.
+  const [matchDetails, setMatchDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [formInitialValues, setFormInitialValues] = useState({
+    score1: '',
+    score2: '',
+    winnerId: '', // To select winner if scores are equal or for manual override
+  });
 
-  const fetchPlayersData = useCallback(async () => {
-    if (!currentTournament?.id) {
-      setPlayers([]);
+  // Use routeTournamentId if currentTournament from context doesn't match or is not available
+  const tournamentIdToUse = currentTournament?.id === routeTournamentId ? currentTournament.id : routeTournamentId;
+
+  const fetchMatchData = useCallback(async () => {
+    if (!tournamentIdToUse || !matchId) {
+      showError('ID do torneio ou da partida ausente.');
+      setLoading(false);
       return;
     }
+    setLoading(true);
     try {
-      const fetchedPlayers = await getPlayers(currentTournament.id); // Assumindo que isso busca jogadores do torneio
-      setPlayers(fetchedPlayers || []);
+      const state = await getTournamentState(tournamentIdToUse);
+      const match = state?.matches?.[matchId];
+
+      if (match) {
+        setMatchDetails(match);
+        setFormInitialValues({
+          score1: match.score && match.score[0] !== null ? match.score[0].toString() : '',
+          score2: match.score && match.score[1] !== null ? match.score[1].toString() : '',
+          winnerId: match.winner !== null && match.players[match.winner] ? match.players[match.winner].db_id : '',
+        });
+      } else {
+        showError('Detalhes da partida não encontrados.');
+        setMatchDetails(null);
+      }
     } catch (error) {
-      console.error('Erro ao carregar jogadores:', error);
-      showError( // Corrigido
-        `Erro ao carregar jogadores: ${error.message || 'Erro desconhecido'}`
-      );
-      setPlayers([]);
+      showError(`Erro ao carregar detalhes da partida: ${error.response?.data?.message || error.message}`);
+      setMatchDetails(null);
+    } finally {
+      setLoading(false);
     }
-  }, [currentTournament?.id, showError]); // Corrigido
+  }, [tournamentIdToUse, matchId, showError]);
 
   useEffect(() => {
-    fetchPlayersData();
-  }, [fetchPlayersData]);
-
-  const initialValues = {
-    player1_name: '', // Changed to match expected backend or typical naming
-    score1: '',
-    player2_name: '', // Changed to match expected backend or typical naming
-    score2: '',
-    round: '',
-  };
+    fetchMatchData();
+  }, [fetchMatchData]);
 
   const validationSchema = Yup.object().shape({
-    player1_name: Yup.string().required('Jogador 1 é obrigatório'),
     score1: Yup.number()
       .required('Placar do Jogador 1 é obrigatório')
       .min(0, 'Placar não pode ser negativo')
       .integer('Placar deve ser um número inteiro'),
-    player2_name: Yup.string()
-      .required('Jogador 2 é obrigatório')
-      .notOneOf([Yup.ref('player1_name')], 'Jogadores não podem ser iguais'),
     score2: Yup.number()
       .required('Placar do Jogador 2 é obrigatório')
       .min(0, 'Placar não pode ser negativo')
       .integer('Placar deve ser um número inteiro'),
-      // Removidos testes customizados 'scores-cannot-be-equal-if-max' e 'one-player-must-win'
-      // A lógica de validação de vitória/formato da partida pode ser mais complexa
-      // e talvez melhor tratada no backend ou com base no tipo de torneio/partida.
-    round: Yup.string().required('Rodada é obrigatória'),
+    winnerId: Yup.string().when(['score1', 'score2'], {
+      is: (score1, score2) => Number(score1) === Number(score2),
+      then: (schema) => schema.required('Se os placares forem iguais, o vencedor deve ser selecionado manualmente.'),
+      otherwise: (schema) => schema.nullable(),
+    }),
   });
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    if (!currentTournament?.id) {
-      showError('Nenhum torneio selecionado.'); // Corrigido
+  const handleSubmit = async (values, { setSubmitting }) => {
+    if (!tournamentIdToUse || !matchId || !matchDetails) {
+      showError('Dados do torneio ou partida ausentes. Não é possível salvar.');
       setSubmitting(false);
       return;
     }
 
-    // TODO CRÍTICO: Obter matchId e stateMatchKey dinamicamente.
-    // Esta é uma implementação de placeholder e NÃO FUNCIONARÁ corretamente.
-    // A página deve ser acessada com um ID de partida, por exemplo.
-    const matchIdPlaceholder = 'placeholder_match_id'; // Exemplo: viria de useParams()
-    const stateMatchKeyPlaceholder = 'R1M1'; // Exemplo: viria dos dados da partida
-
-    if (!matchIdPlaceholder || !stateMatchKeyPlaceholder) {
-      showError('Informações da partida ausentes. Não é possível salvar o placar.'); // Corrigido
-      setSubmitting(false);
-      return;
+    let finalWinnerId = values.winnerId;
+    if (!finalWinnerId) { // If winnerId was not manually selected via a dropdown (e.g. for ties)
+      if (Number(values.score1) > Number(values.score2)) {
+        finalWinnerId = matchDetails.players[0]?.db_id;
+      } else if (Number(values.score2) > Number(values.score1)) {
+        finalWinnerId = matchDetails.players[1]?.db_id;
+      }
     }
 
-    // TODO: Mapear player_name para player_id.
-    // O backend espera player1Id e player2Id.
-    // Esta lógica precisa buscar os IDs correspondentes aos nomes selecionados.
-    const player1 = players.find(p => p.name === values.player1_name);
-    const player2 = players.find(p => p.name === values.player2_name);
-
-    if (!player1 || !player2) {
-      showError("Jogador selecionado inválido."); // Corrigido
-      setSubmitting(false);
-      return;
+    if (!finalWinnerId && Number(values.score1) === Number(values.score2)) {
+        showError('Para placares iguais, por favor, selecione manualmente o vencedor.');
+        setSubmitting(false);
+        return;
     }
-
-    // TODO: Determinar winnerId com base nos placares ou adicionar um seletor.
-    let winnerId = null;
-    if (Number(values.score1) > Number(values.score2)) {
-      winnerId = player1.id;
-    } else if (Number(values.score2) > Number(values.score1)) {
-      winnerId = player2.id;
-    } else {
-      // Empates podem não ser permitidos dependendo das regras do torneio.
-      // O backend pode ter validação para isso.
-      showError("Empates podem não ser permitidos ou o vencedor precisa ser explicitamente definido."); // Corrigido
-      setSubmitting(false);
-      return;
+    if (!finalWinnerId) {
+        showError('Não foi possível determinar o vencedor. Verifique os placares ou selecione manualmente.');
+        setSubmitting(false);
+        return;
     }
 
 
     const payload = {
-      tournamentId: currentTournament.id,
-      matchId: matchIdPlaceholder, // Usar o ID da partida real
-      player1Id: player1.id, // Usar ID do jogador
-      player2Id: player2.id, // Usar ID do jogador
       player1Score: Number(values.score1),
       player2Score: Number(values.score2),
-      winnerId: winnerId, // Enviar winnerId
-      stateMatchKey: stateMatchKeyPlaceholder, // Usar a chave real
-      round: values.round, // O backend pode usar isso para validação ou informação adicional
+      winnerId: finalWinnerId,
     };
 
     try {
-      await saveScore(payload);
-      showSuccess('Placar adicionado com sucesso!'); // Corrigido
-      resetForm();
+      // Using updateMatchScoreAdmin which should call PATCH /api/tournaments/:tournamentId/matches/:matchId/winner
+      await updateMatchScoreAdmin(tournamentIdToUse, matchId, payload);
+      showSuccess('Placar salvo com sucesso!');
       if (refreshCurrentTournament) {
-        refreshCurrentTournament();
+        refreshCurrentTournament(); // Refresh context if current tournament was updated
       }
-      // navigate(`/scores?tournament=${currentTournament.id}`);
+      fetchMatchData(); // Re-fetch match data to show updated scores/winner
+      // Consider navigating away or resetting form based on UX preference
+      // navigate(`/admin/tournaments/manage/${tournamentIdToUse}`);
     } catch (error) {
-      console.error('Erro ao adicionar placar:', error);
-      showError( // Corrigido
-        `Erro ao adicionar placar: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-      );
+      showError(`Erro ao salvar placar: ${error.response?.data?.message || error.message}`);
     }
     setSubmitting(false);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="animate-spin text-4xl text-primary" />
+      </div>
+    );
+  }
+
+  if (!matchDetails) {
+    return (
+      <div className="p-4 md:p-6 text-center">
+        <p className="text-red-500">Detalhes da partida não puderam ser carregados ou partida não encontrada.</p>
+        <button onClick={() => navigate(-1)} className="btn btn-primary mt-4">Voltar</button>
+      </div>
+    );
+  }
+
+  const player1 = matchDetails.players?.[0];
+  const player2 = matchDetails.players?.[1];
 
   return (
     <div className="p-4 md:p-6">
       <h2
         id="add-score-heading"
-        className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6"
+        className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2"
       >
-        Adicionar Novo Placar
+        Registrar Placar da Partida
       </h2>
-      <div className="card card-form bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 md:p-8">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        Torneio: {currentTournament?.name || routeTournamentId} - Rodada: {matchDetails.round || 'N/A'}
+      </p>
+      <div className="card card-form bg-white dark:bg-slate-800 shadow-xl rounded-lg p-6 md:p-8">
         <Formik
-          initialValues={initialValues}
+          initialValues={formInitialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
+          enableReinitialize // Important for pre-filling form with fetched data
         >
-          {({ isSubmitting, dirty, isValid }) => (
+          {({ isSubmitting, dirty, isValid, values }) => (
             <Form className="form space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 items-center">
                 <div className="form-group">
-                  <label
-                    htmlFor="player1"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Jogador 1:
+                  <label className="label font-semibold text-lg">
+                    {player1?.name || 'Jogador 1'}
+                    {player1?.nickname && <span className="text-xs text-gray-500"> ({player1.nickname})</span>}
                   </label>
-                  <Field
-                    as="select"
-                    id="player1_name"
-                    name="player1_name"
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Selecione Jogador 1</option>
-                    {players.map((player) => (
-                      <option
-                        key={player.id || player.name}
-                        value={player.name}
-                      >
-                        {player.nickname
-                          ? `${player.name} (${player.nickname})`
-                          : player.name}
-                      </option>
-                    ))}
-                  </Field>
-                  <ErrorMessage
-                    name="player1_name"
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
                 </div>
                 <div className="form-group">
-                  <label
-                    htmlFor="score1"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Placar Jogador 1:
-                  </label>
+                  <label htmlFor="score1" className="sr-only">Placar Jogador 1</label>
                   <Field
                     type="number"
                     id="score1"
                     name="score1"
                     min="0"
-                    // max="2" // Removido max para maior flexibilidade
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                    className="input text-center text-lg"
                     aria-label="Placar do jogador 1"
                   />
-                  <ErrorMessage
-                    name="score1"
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
+                  <ErrorMessage name="score1" component="div" className="error-message" />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="form-group">
-                  <label
-                    htmlFor="player2"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Jogador 2:
+                  <label className="label font-semibold text-lg">
+                    {player2?.name || 'Jogador 2'}
+                    {player2?.nickname && <span className="text-xs text-gray-500"> ({player2.nickname})</span>}
                   </label>
-                  <Field
-                    as="select"
-                    id="player2_name"
-                    name="player2_name"
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="">Selecione Jogador 2</option>
-                    {players.map((player) => (
-                      <option
-                        key={player.id || player.name}
-                        value={player.name}
-                      >
-                        {player.nickname
-                          ? `${player.name} (${player.nickname})`
-                          : player.name}
-                      </option>
-                    ))}
-                  </Field>
-                  <ErrorMessage
-                    name="player2_name"
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
                 </div>
                 <div className="form-group">
-                  <label
-                    htmlFor="score2"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Placar Jogador 2:
-                  </label>
+                  <label htmlFor="score2" className="sr-only">Placar Jogador 2</label>
                   <Field
                     type="number"
                     id="score2"
                     name="score2"
                     min="0"
-                    // max="2" // Removido max para maior flexibilidade
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                    className="input text-center text-lg"
                     aria-label="Placar do jogador 2"
                   />
-                  <ErrorMessage
-                    name="score2"
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
+                  <ErrorMessage name="score2" component="div" className="error-message" />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label
-                  htmlFor="round"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Rodada:
-                </label>
-                <Field
-                  as="select"
-                  id="round"
-                  name="round"
-                  className="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Selecione a rodada</option>
-                  <option value="Round 1">Round 1</option>
-                  <option value="Round 2">Round 2</option>
-                  <option value="Quartas de Final">Quartas de Final</option>
-                  <option value="Semifinais">Semifinais</option>
-                  <option value="Final">Final</option>
-                </Field>
-                <ErrorMessage
-                  name="round"
-                  component="div"
-                  className="text-red-500 dark:text-red-400 text-xs mt-1"
-                />
-              </div>
+              {/* Winner selection for ties or manual override */}
+              {(Number(values.score1) === Number(values.score2) && (player1 && player2)) && (
+                <div className="form-group pt-4">
+                  <label htmlFor="winnerId" className="label">Vencedor (em caso de empate nos pontos ou WO):</label>
+                  <Field as="select" name="winnerId" id="winnerId" className="input mt-1">
+                    <option value="">Selecione o vencedor</option>
+                    {player1 && <option value={player1.db_id}>{player1.name}</option>}
+                    {player2 && <option value={player2.db_id}>{player2.name}</option>}
+                  </Field>
+                  <ErrorMessage name="winnerId" component="div" className="error-message" />
+                </div>
+              )}
 
               <div className="form-actions flex justify-end space-x-3 pt-4">
                 <button

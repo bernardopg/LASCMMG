@@ -22,7 +22,8 @@ const SecurityHoneypots = () => {
       const data = await getHoneypotConfig();
       setConfig(data);
     } catch (error) {
-      showError( // Corrigido
+      showError(
+        // Corrigido
         `Erro ao carregar configuração de honeypots: ${error.message || 'Erro desconhecido'}`
       );
     } finally {
@@ -37,7 +38,8 @@ const SecurityHoneypots = () => {
       const data = await getSecurityOverviewStats();
       setActiveHoneypots(data.activeHoneypots || []);
     } catch (error) {
-      showError( // Corrigido
+      showError(
+        // Corrigido
         `Erro ao carregar lista de honeypots ativos: ${error.message || 'Erro desconhecido'}`
       );
     } finally {
@@ -91,7 +93,8 @@ const SecurityHoneypots = () => {
       showSuccess('Configuração de honeypots salva com sucesso!'); // Corrigido
       fetchConfig(); // Re-fetch to confirm changes
     } catch (error) {
-      showError( // Corrigido
+      showError(
+        // Corrigido
         `Erro ao salvar configuração: ${error.message || 'Erro desconhecido'}`
       );
     } finally {
@@ -120,12 +123,16 @@ const SecurityHoneypots = () => {
           <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
             {activeHoneypots.map((hp, index) => (
               <li key={index}>
-                <code className="bg-gray-200 dark:bg-slate-600 p-1 rounded text-sm">{hp}</code>
+                <code className="bg-gray-200 dark:bg-slate-600 p-1 rounded text-sm">
+                  {hp}
+                </code>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400">Nenhum honeypot ativo no momento.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            Nenhum honeypot ativo no momento.
+          </p>
         )}
         <button
           onClick={fetchActiveHoneypots}
@@ -148,7 +155,9 @@ const SecurityHoneypots = () => {
             initialValues={{
               threshold: config.threshold || 5,
               block_duration_hours: config.block_duration_hours || 24, // Padronizado
-              whitelist: (config.whitelist_ips || ['127.0.0.1', '::1']).join('\n'),
+              whitelist: (config.whitelist_ips || ['127.0.0.1', '::1']).join(
+                '\n'
+              ),
             }}
             validationSchema={validationSchema}
             onSubmit={handleSaveConfig}
@@ -157,7 +166,10 @@ const SecurityHoneypots = () => {
             {({ isSubmitting, dirty, isValid }) => (
               <Form className="space-y-6">
                 <div>
-                  <label htmlFor="threshold" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="threshold"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Limite para Bloqueio (tentativas)
                   </label>
                   <Field
@@ -172,17 +184,22 @@ const SecurityHoneypots = () => {
                     className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Número de acessos a honeypots (em {config.activityWindowMinutes || 60} min) antes de bloquear um IP. (1-100)
+                    Número de acessos a honeypots (em{' '}
+                    {config.activityWindowMinutes || 60} min) antes de bloquear
+                    um IP. (1-100)
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="block_duration_hours" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="block_duration_hours"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Duração do Bloqueio (horas)
                   </label>
                   <Field
                     type="number"
                     name="block_duration_hours" // Padronizado
-                    id="block_duration_hours"   // Padronizado
+                    id="block_duration_hours" // Padronizado
                     className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                   />
                   <ErrorMessage
@@ -195,7 +212,10 @@ const SecurityHoneypots = () => {
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="whitelist" className="label block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="whitelist"
+                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     IPs na Whitelist (um por linha)
                   </label>
                   <Field

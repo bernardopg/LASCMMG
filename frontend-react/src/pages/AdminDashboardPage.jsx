@@ -1,14 +1,13 @@
-import React, { useState } from 'react'; // Added useState
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminPlayersTable from '../components/admin/AdminPlayersTable';
 import AdminScoresTable from '../components/admin/AdminScoresTable';
 import AdminTrashTable from '../components/admin/AdminTrashTable';
-import ImportPlayersModal from '../components/admin/ImportPlayersModal'; // Import the modal
-// import { useTournament } from '../context/TournamentContext'; // If tournamentId is needed for import
+import ImportPlayersModal from '../components/admin/ImportPlayersModal';
 
 const AdminDashboardPage = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  // const { selectedTournament } = useTournament(); // Example: get selected tournament for context
+
 
   const handleOpenImportModal = () => setIsImportModalOpen(true);
   const handleCloseImportModal = () => setIsImportModalOpen(false);
@@ -50,7 +49,6 @@ const AdminDashboardPage = () => {
           isOpen={isImportModalOpen}
           onClose={handleCloseImportModal}
           onImportSuccess={handleImportSuccess}
-          // tournamentId={selectedTournament?.id} // Pass tournamentId if modal needs it
         />
 
         <div className="admin-card bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">

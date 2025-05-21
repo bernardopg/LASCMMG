@@ -11,6 +11,7 @@
 O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
 
 **Diferenciais do projeto:**
+
 - Auditoria detalhada de ações administrativas (backend).
 - Sistema de honeypot e bloqueio automático/manual de IPs.
 - Lixeira (soft delete) com restauração e exclusão permanente.
@@ -106,21 +107,20 @@ Ideal para clubes de sinuca, ligas amadoras e profissionais, e qualquer entusias
 
 - **ESLint:** Para análise estática de código e identificação de problemas.
 - **Prettier:** Para formatação automática de código, garantindo consistência.
-- **Vitest:** Framework de testes para o backend (unitários, integração).
-- **Jest & React Testing Library (ou Vitest para frontend):** Para testes de componentes e funcionalidades no frontend.
+- **Vitest:** Framework de testes para backend (unitários, integração) e frontend.
 - **rollup-plugin-visualizer:** Para análise do bundle do frontend Vite.
 - **Husky & lint-staged (Recomendado):** Para executar linters e formatadores antes dos commits.
 
 ## 🚀 Instalação e Execução
 
-Consulte o [**Guia de Deploy (DEPLOYMENT.md)**](DEPLOYMENT.md) para instruções detalhadas sobre configuração, build e implantação em ambientes de desenvolvimento e produção.
+Consulte o [**Guia de Deploy (DEPLOYMENT.md)**](docs/DEPLOYMENT.md) para instruções detalhadas sobre configuração, build e implantação em ambientes de desenvolvimento e produção.
 
 Resumidamente:
 
 1.  **Pré-requisitos:** Node.js (v18+), npm/yarn, Git, ferramentas de compilação C/C++, Servidor Redis (para funcionalidade completa).
 2.  **Clonar Repositório:** `git clone https://github.com/bernardopg/LASCMMG.git lascmmg && cd lascmmg`
 3.  **Configurar Backend:**
-    - Copie `.env.example` para `.env` e configure as variáveis (especialmente `COOKIE_SECRET`, `JWT_SECRET`, `REDIS_URL`).
+    - Copie `.env.example` para `.env` e configure as variáveis (especialmente `COOKIE_SECRET`, `JWT_SECRET`, `CSRF_SECRET`, `REDIS_URL`).
     - Instale dependências: `npm install` (inclui `joi`, `redis`).
 4.  **Configurar Frontend:**
     - Navegue para `frontend-react/`.
@@ -139,19 +139,19 @@ Resumidamente:
 
 Explore a pasta `docs/` para guias completos:
 
-- **[📄 MANUAL_USUARIO.md](MANUAL_USUARIO.md):** Guia completo sobre como utilizar todas as funcionalidades do sistema.
-- **[📜 CODING_STANDARDS.md](CODING_STANDARDS.md):** Padrões de codificação e boas práticas para desenvolvimento e contribuição.
-- **[🚀 DEPLOYMENT.md](DEPLOYMENT.md):** Instruções detalhadas para implantação em ambientes de desenvolvimento e produção.
-- **[📈 SCALING.md](SCALING.md):** Estratégias e considerações para a escalabilidade do sistema.
-- **[🔧 TROUBLESHOOTING.md](TROUBLESHOOTING.md):** Soluções para problemas comuns de instalação, configuração e execução.
-- **[📝 TODO.md](TODO.md):** Lista de tarefas, funcionalidades planejadas e melhorias futuras.
-- **[🎱 RELATORIO_CONSOLIDADO_LASCMMG.md](RELATORIO_CONSOLIDADO_LASCMMG.md):** Análise completa do sistema com recomendações.
-- **[📖 API_REFERENCE.md](API_REFERENCE.md):** Referência inicial da API.
+- **[📄 MANUAL_USUARIO.md](docs/MANUAL_USUARIO.md):** Guia completo sobre como utilizar todas as funcionalidades do sistema.
+- **[📜 CODING_STANDARDS.md](docs/CODING_STANDARDS.md):** Padrões de codificação e boas práticas para desenvolvimento e contribuição.
+- **[🚀 DEPLOYMENT.md](docs/DEPLOYMENT.md):** Instruções detalhadas para implantação em ambientes de desenvolvimento e produção.
+- **[📈 SCALING.md](docs/SCALING.md):** Estratégias e considerações para a escalabilidade do sistema.
+- **[🔧 TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md):** Soluções para problemas comuns de instalação, configuração e execução.
+- **[📝 TODO.md](docs/TODO.md):** Lista de tarefas, funcionalidades planejadas e melhorias futuras.
+- **[🎱 RELATORIO_CONSOLIDADO_LASCMMG.md](docs/RELATORIO_CONSOLIDADO_LASCMMG.md):** Análise completa do sistema com recomendações.
+- **[📖 API_REFERENCE.md](docs/API_REFERENCE.md):** Referência inicial da API.
 
 ## 🧪 Testes
 
 - **Backend (Vitest):** `npm test` ou `npm run test:watch` (na raiz do projeto).
-- **Frontend (Vitest ou Jest & React Testing Library):** `npm test` (no diretório `frontend-react/`). (Verificar `CODING_STANDARDS.md` para a escolha final do framework de teste do frontend).
+- **Frontend (Vitest):** `npm test` (no diretório `frontend-react/`).
 
 ## 📂 Estrutura de Pastas Principal
 
@@ -210,11 +210,11 @@ O sistema implementa diversas medidas de segurança, incluindo:
 - Validação de entrada de API com Joi.
 - Uso de Helmet para headers HTTP de segurança.
 - Logging detalhado de eventos e erros.
-- Hashing de senhas com bcrypt.
-- Trilha de auditoria para ações administrativas.
-- Sistema Honeypot para detecção de bots.
+  - Hashing de senhas com bcrypt.
+  - Trilha de auditoria para ações administrativas.
+  - Sistema Honeypot para detecção de bots.
 
-Consulte `CODING_STANDARDS.md` e as configurações de segurança no backend para mais detalhes.
+Consulte [CODING_STANDARDS.md](docs/CODING_STANDARDS.md) e as configurações de segurança no backend para mais detalhes.
 
 ## 🤝 Contribuição
 
@@ -222,7 +222,7 @@ Contribuições são bem-vindas! Siga os passos:
 
 1.  Faça um fork do repositório.
 2.  Crie uma branch para sua feature/correção (ex: `feature/minha-nova-feature` ou `fix/corrige-bug-xyz`).
-3.  Siga os padrões definidos em [CODING_STANDARDS.md](CODING_STANDARDS.md).
+3.  Siga os padrões definidos em [CODING_STANDARDS.md](docs/CODING_STANDARDS.md).
 4.  Escreva mensagens de commit claras e significativas, seguindo o padrão [Conventional Commits](https://www.conventionalcommits.org/).
 5.  Garanta que todos os testes e verificações de lint/formatação passem.
 6.  Abra um Pull Request (PR) detalhado para a branch `main` (ou a branch de desenvolvimento principal).

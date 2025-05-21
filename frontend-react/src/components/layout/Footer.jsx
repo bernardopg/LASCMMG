@@ -13,7 +13,9 @@ const Footer = () => {
               alt="Logo LASCMMG"
               className="footer-logo-img h-8 mr-2"
             />
-            <span className="text-gray-800 dark:text-gray-100 font-medium">LASCMMG</span>
+            <span className="text-gray-800 dark:text-gray-100 font-medium">
+              LASCMMG
+            </span>
           </div>
 
           <div className="footer-links flex flex-wrap justify-center gap-4 my-3 md:my-0">

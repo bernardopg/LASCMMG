@@ -9,7 +9,9 @@ async function createNewAdmin() {
   // Ensure DB is initialized before trying to use it.
   // This is a simplified check; in a real script, you might need more robust DB setup if run completely standalone.
   if (!db || !db.open) {
-    console.error('Database connection is not open. Ensure the main app has initialized it or initialize here.');
+    console.error(
+      'Database connection is not open. Ensure the main app has initialized it or initialize here.'
+    );
     // Attempt to initialize (basic version, might need more from server.js if complex setup)
     // This is a bit of a hack for a standalone script. Ideally, DB init is handled centrally.
     // For now, we assume the DB connection established by requiring database.js is sufficient if the main app isn't running.
@@ -22,8 +24,12 @@ async function createNewAdmin() {
     // Check if user already exists to provide a clearer message
     const existingAdmin = await adminModel.getAdminByUsername(newAdminUsername);
     if (existingAdmin) {
-      console.log(`Admin user "${newAdminUsername}" already exists with ID: ${existingAdmin.id}.`);
-      console.log('If you need to change the password, please use the application\'s change password feature or another script.');
+      console.log(
+        `Admin user "${newAdminUsername}" already exists with ID: ${existingAdmin.id}.`
+      );
+      console.log(
+        "If you need to change the password, please use the application's change password feature or another script."
+      );
     } else {
       const createdAdmin = await adminModel.createAdmin({
         username: newAdminUsername,
@@ -40,9 +46,11 @@ async function createNewAdmin() {
     console.error('Error creating admin user:');
     console.error(`  Message: ${error.message}`);
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        console.error(`  Detail: The username "${newAdminUsername}" likely already exists.`);
+      console.error(
+        `  Detail: The username "${newAdminUsername}" likely already exists.`
+      );
     } else {
-        console.error(`  Stack: ${error.stack}`);
+      console.error(`  Stack: ${error.stack}`);
     }
   } finally {
     // Only close if this script exclusively opened it.
@@ -51,8 +59,8 @@ async function createNewAdmin() {
     // If you run this while the main server is also running, this might cause issues for the server.
     // Best to run this script when the main backend server is stopped.
     if (db && db.open) {
-        console.log('Closing database connection.');
-        closeSyncConnection();
+      console.log('Closing database connection.');
+      closeSyncConnection();
     }
   }
 }

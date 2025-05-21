@@ -27,7 +27,8 @@ const BracketPage = () => {
       setTournamentState(data);
     } catch (error) {
       console.error('Erro ao carregar dados do chaveamento:', error);
-      showError( // Corrigido para showError
+      showError(
+        // Corrigido para showError
         `Erro ao carregar chaveamento: ${error.message || 'Erro desconhecido'}`
       );
       setTournamentState(null);
@@ -70,7 +71,9 @@ const BracketPage = () => {
         {loading ? (
           <div className="flex flex-col justify-center items-center py-10">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
-            <span className="ml-4 mt-4 text-gray-600 dark:text-gray-300"> {/* Ajuste de cor do texto */}
+            <span className="ml-4 mt-4 text-gray-600 dark:text-gray-300">
+              {' '}
+              {/* Ajuste de cor do texto */}
               Carregando chaveamento...
             </span>
           </div>

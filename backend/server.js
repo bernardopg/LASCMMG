@@ -9,7 +9,6 @@ const xss = require('xss-clean');
 const csrfMiddleware = require('./lib/middleware/csrfMiddleware');
 const honeypot = require('./lib/middleware/honeypot');
 const fs = require('fs').promises;
-// const serveStatic = require('serve-static'); // Unused import
 const {
   PORT: envPort,
   NODE_ENV,
@@ -96,7 +95,8 @@ const apiLimiter = rateLimit({
 app.use((req, res, next) => {
   if (
     req.path.startsWith('/api/login') ||
-    req.path.startsWith('/api/auth/login')
+    req.path.startsWith('/api/auth/login') ||
+    req.path.startsWith('/api/csrf-token') // Exclude CSRF token route from general API limiter
   ) {
     return next();
   }
@@ -204,7 +204,8 @@ const setContentTypeHeaders = (res, filePath) => {
 // Configuração de arquivos estáticos com headers adequados
 app.use(
   '/css',
-  express.static(path.join(__dirname, '../frontend-react/css'), { // Changed path
+  express.static(path.join(__dirname, '../frontend-react/css'), {
+    // Changed path
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -212,7 +213,8 @@ app.use(
 
 app.use(
   '/js',
-  express.static(path.join(__dirname, '../frontend-react/js'), { // Changed path
+  express.static(path.join(__dirname, '../frontend-react/js'), {
+    // Changed path
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -220,15 +222,20 @@ app.use(
 
 app.use(
   '/favicon.ico',
-  express.static(path.join(__dirname, '../frontend-react/public/assets/favicon.ico'), { // Changed path to public/assets
-    maxAge: oneDay * 7,
-    setHeaders: setContentTypeHeaders,
-  })
+  express.static(
+    path.join(__dirname, '../frontend-react/public/assets/favicon.ico'),
+    {
+      // Changed path to public/assets
+      maxAge: oneDay * 7,
+      setHeaders: setContentTypeHeaders,
+    }
+  )
 );
 
 app.use(
   '/assets',
-  express.static(path.join(__dirname, '../frontend-react/public/assets'), { // Changed path to public/assets
+  express.static(path.join(__dirname, '../frontend-react/public/assets'), {
+    // Changed path to public/assets
     maxAge: oneDay,
     setHeaders: setContentTypeHeaders,
   })
@@ -240,6 +247,7 @@ const securityRoutes = require('./routes/security.js');
 const adminRoutes = require('./routes/admin'); // Novo router para admin
 const scoresRoutes = require('./routes/scores'); // Novo router para scores
 const playerRoutes = require('./routes/player'); // Import player routes
+const userRoutes = require('./routes/users'); // Added for user routes
 // const statsRoutes = require('./routes/stats'); // Removido pois as rotas foram movidas
 const { checkDbConnection } = require('./lib/db/database');
 
@@ -249,6 +257,7 @@ app.use('/api/system', securityRoutes);
 app.use('/api/admin', adminRoutes); // Montar as rotas de admin
 app.use('/api/scores', scoresRoutes); // Montar as rotas de scores
 app.use('/api/players', playerRoutes); // Mount player routes
+app.use('/api/users', userRoutes); // Use the user routes
 // app.use('/api/stats', statsRoutes); // Removido pois as rotas foram movidas
 
 // Endpoint to provide CSRF token to SPA clients
@@ -259,7 +268,7 @@ app.get('/api/csrf-token', csrfMiddleware.csrfProvider, (req, res) => {
   res.status(200).json({
     success: true,
     message: 'CSRF token provided.',
-    csrfToken: res.locals.csrfToken // res.locals.csrfToken is set by csrfProvider
+    csrfToken: res.locals.csrfToken, // res.locals.csrfToken is set by csrfProvider
   });
 });
 
@@ -293,7 +302,10 @@ app.use('/api/*', (req, res) => {
 
 app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
   try {
-    const filePath = path.join(__dirname, '../frontend-react/public/admin.html'); // Changed path, assuming it's in public
+    const filePath = path.join(
+      __dirname,
+      '../frontend-react/public/admin.html'
+    ); // Changed path, assuming it's in public
     const htmlContent = await fs.readFile(filePath, 'utf-8');
     const injectedHtml = honeypot.injectFields(htmlContent);
     res.send(injectedHtml);
@@ -308,7 +320,10 @@ app.get(
   csrfMiddleware.csrfProvider,
   async (req, res, next) => {
     try {
-      const filePath = path.join(__dirname, '../frontend-react/public/admin-security.html'); // Changed path, assuming it's in public
+      const filePath = path.join(
+        __dirname,
+        '../frontend-react/public/admin-security.html'
+      ); // Changed path, assuming it's in public
       const htmlContent = await fs.readFile(filePath, 'utf-8');
       const injectedHtml = honeypot.injectFields(htmlContent);
       res.send(injectedHtml);
@@ -374,7 +389,7 @@ async function startServer() {
   }
 }
 
-startServer();
+const serverInstance = startServer(); // Capture the server instance
 
 process.on('uncaughtException', (error) => {
   logger.fatal({ err: error }, 'Erro não capturado (uncaughtException):');
@@ -389,3 +404,5 @@ process.on('unhandledRejection', (reason, promise) => {
     'Rejeição de Promise não tratada (unhandledRejection):'
   );
 });
+
+module.exports = { app, serverInstance }; // Export app and server for testing

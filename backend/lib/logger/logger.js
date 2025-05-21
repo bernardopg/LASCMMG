@@ -17,13 +17,16 @@ const transport = pino.transport({
         ignore: 'pid,hostname',
       },
     },
-    // Em produção, também podemos adicionar um transporte para arquivo, se necessário.
-    // Por exemplo, para um arquivo de log rotativo:
-    // {
-    //   level: 'info',
-    //   target: 'pino/file',
-    //   options: { destination: '/path/to/app.log', mkdir: true },
-    // },
+    // Em produção, também podemos adicionar um transporte para arquivo.
+    ...(isProduction
+      ? [
+          {
+            level: 'info',
+            target: 'pino/file',
+            options: { destination: './logs/app.log', mkdir: true },
+          },
+        ]
+      : []),
   ],
 });
 

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import apiInstance, { setAuthToken as setApiAuthToken } from '../services/api';
 
 const AuthContext = createContext();
@@ -53,17 +59,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      const cleanEmail = email.includes('@')
-        ? email.substring(0, email.indexOf('@')) + '@' + email.substring(email.indexOf('@') + 1)
-        : email;
-
+      // Call the admin login endpoint
       const response = await apiInstance.post('/api/auth/login', {
-        username: cleanEmail,
-        password
+        // Changed to admin login endpoint
+        username: email, // Pass email directly as username, backend expects email
+        password,
       });
 
-      const { admin, user, token } = response.data;
-      const userObj = user || admin;
+      // Backend /api/auth/login returns { success, message, token, admin }
+      const { admin, token } = response.data;
+      const userObj = admin; // Use the admin object as the user object
 
       localStorage.setItem('authUser', JSON.stringify(userObj));
       localStorage.setItem('authToken', token);

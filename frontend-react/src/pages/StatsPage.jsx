@@ -47,14 +47,16 @@ const StatsPage = () => {
           stats.playerPerformance.sort((a, b) => a.name.localeCompare(b.name))
         );
       } else {
-        const players = await getPlayers(currentTournament.id);
+        const playersData = await getPlayers(currentTournament.id);
+        const playersArray = playersData?.players || []; // Extract the array
         setAllPlayersForSelect(
-          players.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+          playersArray.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
         );
       }
     } catch (error) {
       console.error('Erro ao carregar estatísticas do torneio:', error);
-      showError( // Corrigido para showError
+      showError(
+        // Corrigido para showError
         `Erro ao carregar estatísticas do torneio: ${error.message}`
       );
       setTournamentStats(null);
@@ -80,7 +82,8 @@ const StatsPage = () => {
         `Erro ao carregar estatísticas do jogador ${selectedPlayerName}:`,
         error
       );
-      showError( // Corrigido para showError
+      showError(
+        // Corrigido para showError
         `Erro ao carregar estatísticas do jogador: ${error.message}`
       );
       setPlayerStats(null);

@@ -115,7 +115,9 @@ const Bracket = () => {
   };
 
   return (
-    <div className={`page-bracket pt-4 ${printMode ? 'print-mode' : ''}`}>
+    <div
+      className={`page-bracket pt-4 ${printMode ? 'print-mode print-styles-active' : ''}`}
+    >
       <div className="container mx-auto px-4">
         <div className="bracket-header mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
@@ -261,24 +263,7 @@ const Bracket = () => {
         )}
       </div>
 
-      {/* Estilos específicos para impressão */}
-      <style jsx>{`
-        @media print {
-          .print-mode .bracket-container {
-            width: 100% !important;
-            overflow: visible !important;
-          }
-
-          .print-mode .bracket-wrapper {
-            transform: none !important;
-            min-width: 100% !important;
-          }
-
-          .print-hidden {
-            display: none !important;
-          }
-        }
-      `}</style>
+      {/* Print-specific styles will be moved to a CSS file and applied via .print-styles-active */}
     </div>
   );
 };

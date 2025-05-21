@@ -14,8 +14,18 @@
   --body-text-dark: #ffffff; /* Cor de texto padrão para tema escuro */
   /* --panel-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
   /* --input-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
-  --card-border-color-dark: rgba(212, 180, 85, 0.3); /* Dourado (secondary) translúcido - Mantida por enquanto */
-  --input-border-color-dark: rgba(212, 180, 85, 0.3); /* Similar ao card-border - Mantida por enquanto */
+  --card-border-color-dark: rgba(
+    212,
+    180,
+    85,
+    0.3
+  ); /* Dourado (secondary) translúcido - Mantida por enquanto */
+  --input-border-color-dark: rgba(
+    212,
+    180,
+    85,
+    0.3
+  ); /* Similar ao card-border - Mantida por enquanto */
   /* --placeholder-color-dark: #81c784; -- Removida, usar placeholder-lasc-placeholder-dark do Tailwind */
   --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra customizada - Mantida */
 
@@ -32,8 +42,19 @@
 /* Estilos base para HTML e Body */
 @layer base {
   html {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      'Roboto',
+      'Oxygen',
+      'Ubuntu',
+      'Cantarell',
+      'Fira Sans',
+      'Droid Sans',
+      'Helvetica Neue',
+      sans-serif;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -47,12 +68,23 @@
   }
 
   /* Estilos de cabeçalho responsivos */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-medium dark:text-gray-100;
   }
-  h1 { @apply text-2xl md:text-3xl; }
-  h2 { @apply text-xl md:text-2xl; }
-  h3 { @apply text-lg md:text-xl; }
+  h1 {
+    @apply text-2xl md:text-3xl;
+  }
+  h2 {
+    @apply text-xl md:text-2xl;
+  }
+  h3 {
+    @apply text-lg md:text-xl;
+  }
 
   /* Estilos de link padrão */
   a {
@@ -61,7 +93,8 @@
   }
 
   code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family:
+      source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
     @apply dark:text-gray-300;
   }
 
@@ -70,9 +103,27 @@
     background-color: var(--selection-bg);
     color: var(--selection-text);
   }
-  ::-moz-selection { /* Firefox */
+  ::-moz-selection {
+    /* Firefox */
     background-color: var(--selection-bg);
     color: var(--selection-text);
+  }
+}
+
+/* Print-specific styles for Bracket page */
+@media print {
+  .print-styles-active .bracket-container {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .print-styles-active .bracket-wrapper {
+    transform: none !important;
+    min-width: 100% !important;
+  }
+
+  .print-styles-active .print-hidden { /* Ensure elements with .print-hidden are hidden */
+    display: none !important;
   }
 }
 
@@ -88,7 +139,8 @@
   .btn-primary:disabled {
     @apply bg-primary-dark opacity-50 cursor-not-allowed;
   }
-  .btn-secondary { /* Adaptado para ser mais neutro e funcionar em ambos os temas */
+  .btn-secondary {
+    /* Adaptado para ser mais neutro e funcionar em ambos os temas */
     @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500;
     @apply dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-400;
   }
@@ -98,7 +150,8 @@
   .btn-danger {
     @apply bg-danger text-white hover:opacity-80 focus:ring-danger;
   }
-  .btn-outline { /* Adaptado para tema escuro */
+  .btn-outline {
+    /* Adaptado para tema escuro */
     @apply bg-transparent text-primary border border-primary hover:bg-primary-light hover:text-white hover:border-transparent font-semibold;
     @apply dark:text-primary-light dark:border-primary-light dark:hover:bg-primary-dark dark:hover:text-white;
   }
@@ -106,8 +159,12 @@
     @apply bg-transparent text-opacity-50 border-opacity-50 cursor-not-allowed;
     @apply dark:text-primary-dark dark:opacity-50 dark:border-primary-dark;
   }
-  .btn-sm { @apply px-3 py-1 text-sm; }
-  .btn-lg { @apply px-6 py-3; }
+  .btn-sm {
+    @apply px-3 py-1 text-sm;
+  }
+  .btn-lg {
+    @apply px-6 py-3;
+  }
 
   /* Formulários */
   .input {
@@ -145,15 +202,27 @@
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
-  .badge-primary { @apply bg-primary-100 text-primary-800 dark:bg-primary-dark dark:text-primary-100; } /* Usando primary-dark do Tailwind */
-  .badge-success { @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100; }
-  .badge-warning { @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100; }
-  .badge-error { @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100; } /* Renomeado de badge-danger para consistência */
-  .badge-info { @apply bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100; }
-
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800 dark:bg-primary-dark dark:text-primary-100;
+  } /* Usando primary-dark do Tailwind */
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100;
+  }
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100;
+  }
+  .badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100;
+  } /* Renomeado de badge-danger para consistência */
+  .badge-info {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100;
+  }
 
   /* Scrollbar (WebKit) */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
   ::-webkit-scrollbar-track {
     @apply bg-gray-100; /* Tailwind color */
   }
@@ -180,57 +249,177 @@
       color: black !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      font-family: 'Times New Roman', Times, serif !important; /* Fonte serifada para impressão */
+      font-family:
+        'Times New Roman', Times, serif !important; /* Fonte serifada para impressão */
     }
-    .no-print, header, .sidebar, .sidebar-overlay, nav, .btn, button, .mobile-toggle, footer, .actions-bar, .filter-controls, #mobile-sidebar-toggle, .profile-menu, .tournament-actions {
+    .no-print,
+    header,
+    .sidebar,
+    .sidebar-overlay,
+    nav,
+    .btn,
+    button,
+    .mobile-toggle,
+    footer,
+    .actions-bar,
+    .filter-controls,
+    #mobile-sidebar-toggle,
+    .profile-menu,
+    .tournament-actions {
       display: none !important;
     }
-    .dark, [data-theme='dark'], .dark body, [data-theme='dark'] body {
+    .dark,
+    [data-theme='dark'],
+    .dark body,
+    [data-theme='dark'] body {
       background-color: white !important;
       color: black !important;
     }
-    .dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400,
-    .dark .text-\[var\(--body-text-dark\)\] { /* Captura texto que usa a variável dark */
+    .dark .text-gray-100,
+    .dark .text-gray-200,
+    .dark .text-gray-300,
+    .dark .text-gray-400,
+    .dark .text-\[var\(--body-text-dark\)\] {
+      /* Captura texto que usa a variável dark */
       color: black !important;
     }
-    .dark .bg-gray-800, .dark .bg-gray-700, .dark .bg-gray-900,
-    .dark .bg-\[var\(--panel-bg-dark\)\], .dark .bg-\[var\(--body-bg-dark\)\] { /* Captura backgrounds que usam variáveis dark */
+    .dark .bg-gray-800,
+    .dark .bg-gray-700,
+    .dark .bg-gray-900,
+    .dark .bg-\[var\(--panel-bg-dark\)\],
+    .dark .bg-\[var\(--body-bg-dark\)\] {
+      /* Captura backgrounds que usam variáveis dark */
       background-color: white !important;
     }
-    .dark .border-gray-700, .dark .border-gray-600,
-    .dark .border-\[var\(--card-border-color-dark\)\] { /* Captura bordas que usam variáveis dark */
+    .dark .border-gray-700,
+    .dark .border-gray-600,
+    .dark .border-\[var\(--card-border-color-dark\)\] {
+      /* Captura bordas que usam variáveis dark */
       border-color: #ccc !important; /* Cinza claro para bordas na impressão */
     }
-    .container, .container-fluid, main, .content-wrapper, .p-4, .p-6, .md\:p-6 {
-      width: 100% !important; margin: 0 !important; padding: 0.5cm !important; float: none !important;
+    .container,
+    .container-fluid,
+    main,
+    .content-wrapper,
+    .p-4,
+    .p-6,
+    .md\:p-6 {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0.5cm !important;
+      float: none !important;
     }
-    .bracket-container { width: 100% !important; overflow: visible !important; page-break-inside: avoid; }
-    .bracket { transform: scale(0.85) !important; transform-origin: top left !important; margin-bottom: 15pt !important; page-break-inside: avoid; }
-    .bracket-round, .bracket-match { page-break-inside: avoid; }
-    .bracket-match { border: 1pt solid #000 !important; margin: 4pt 0 !important; }
-    .bracket-match-player { border-bottom: 1pt solid #000 !important; padding: 2pt !important; }
-    table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 15pt !important; }
-    table, th, td { border: 1pt solid #000 !important; }
-    th, td { padding: 4pt !important; text-align: left !important; }
-    thead { display: table-header-group !important; }
-    tr { page-break-inside: avoid; }
-    @page { margin: 1.5cm; } /* Margens da página de impressão */
-    h1, h2, h3 { text-align: left !important; margin-bottom: 10pt !important; }
-    h1 { font-size: 18pt !important; }
-    h2 { font-size: 14pt !important; }
-    h3 { font-size: 12pt !important; }
-    .tournament-info { margin-bottom: 15pt !important; text-align: left !important; }
-    .tournament-name { font-size: 16pt !important; font-weight: bold !important; margin-bottom: 4pt !important; }
-    .tournament-date, .tournament-location { font-size: 11pt !important; margin-bottom: 4pt !important; }
-    .page-break { page-break-before: always; }
-    a { text-decoration: none; color: black !important; }
-    a[href]:after { content: " (" attr(href) ")"; font-size: 90%; color: #555 !important; }
-    a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
-    img { max-width: 100% !important; page-break-inside: avoid; }
-    .bracket-connector { border-color: #000 !important; }
-    .bracket-match-winner { font-weight: bold !important; background-color: #eee !important; }
-    .bracket-match-score { font-weight: bold !important; }
-    .print-logo img { max-height: 50pt !important; width: auto !important; margin-bottom: 10pt; }
+    .bracket-container {
+      width: 100% !important;
+      overflow: visible !important;
+      page-break-inside: avoid;
+    }
+    .bracket {
+      transform: scale(0.85) !important;
+      transform-origin: top left !important;
+      margin-bottom: 15pt !important;
+      page-break-inside: avoid;
+    }
+    .bracket-round,
+    .bracket-match {
+      page-break-inside: avoid;
+    }
+    .bracket-match {
+      border: 1pt solid #000 !important;
+      margin: 4pt 0 !important;
+    }
+    .bracket-match-player {
+      border-bottom: 1pt solid #000 !important;
+      padding: 2pt !important;
+    }
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin-bottom: 15pt !important;
+    }
+    table,
+    th,
+    td {
+      border: 1pt solid #000 !important;
+    }
+    th,
+    td {
+      padding: 4pt !important;
+      text-align: left !important;
+    }
+    thead {
+      display: table-header-group !important;
+    }
+    tr {
+      page-break-inside: avoid;
+    }
+    @page {
+      margin: 1.5cm;
+    } /* Margens da página de impressão */
+    h1,
+    h2,
+    h3 {
+      text-align: left !important;
+      margin-bottom: 10pt !important;
+    }
+    h1 {
+      font-size: 18pt !important;
+    }
+    h2 {
+      font-size: 14pt !important;
+    }
+    h3 {
+      font-size: 12pt !important;
+    }
+    .tournament-info {
+      margin-bottom: 15pt !important;
+      text-align: left !important;
+    }
+    .tournament-name {
+      font-size: 16pt !important;
+      font-weight: bold !important;
+      margin-bottom: 4pt !important;
+    }
+    .tournament-date,
+    .tournament-location {
+      font-size: 11pt !important;
+      margin-bottom: 4pt !important;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    a {
+      text-decoration: none;
+      color: black !important;
+    }
+    a[href]:after {
+      content: ' (' attr(href) ')';
+      font-size: 90%;
+      color: #555 !important;
+    }
+    a[href^='#']:after,
+    a[href^='javascript:']:after {
+      content: '';
+    }
+    img {
+      max-width: 100% !important;
+      page-break-inside: avoid;
+    }
+    .bracket-connector {
+      border-color: #000 !important;
+    }
+    .bracket-match-winner {
+      font-weight: bold !important;
+      background-color: #eee !important;
+    }
+    .bracket-match-score {
+      font-weight: bold !important;
+    }
+    .print-logo img {
+      max-height: 50pt !important;
+      width: auto !important;
+      margin-bottom: 10pt;
+    }
   } /* Fim @media print */
 
   /* Estilos para Conectores de Chaveamento */
@@ -260,11 +449,23 @@
   }
 
   @keyframes fadeInAnimation {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   @keyframes fadeOutAnimation {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-10px); }
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
   }
 }

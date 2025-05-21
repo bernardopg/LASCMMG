@@ -9,7 +9,7 @@ import {
   FaTrophy,
   FaUsers, // Added for Schedule
   FaUsersCog,
-  FaUserShield
+  FaUserShield,
 } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -126,10 +126,12 @@ const Sidebar = ({ isSidebarCollapsed }) => {
 
   return (
     <div
-      className={`hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+      className={`hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-56'}`}
     >
       <div className="flex flex-col w-full">
-        <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700"> {/* Tailwind classes for theme */}
+        <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
+          {' '}
+          {/* Tailwind classes for theme */}
           {/* Sidebar Header */}
           <div
             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-4'} mb-4 h-10`}
@@ -156,11 +158,12 @@ const Sidebar = ({ isSidebarCollapsed }) => {
               </Link>
             )}
           </div>
-
           <div
             className={`flex flex-col flex-grow ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}
           >
-            <nav className="flex-1 space-y-1"> {/* Removed redundant bg class */}
+            <nav className="flex-1 space-y-1">
+              {' '}
+              {/* Removed redundant bg class */}
               {menuItems.map(renderMenuItem)}
             </nav>
 
@@ -175,7 +178,8 @@ const Sidebar = ({ isSidebarCollapsed }) => {
                     LASCMMG
                   </p>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG
+                    Sistema de gerenciamento de torneios da Liga Acadêmica de
+                    Sinuca da CMMG
                   </p>
                   <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                     <p>Versão: {import.meta.env.VITE_APP_VERSION || '0.1.0'}</p>

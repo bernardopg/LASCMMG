@@ -16,7 +16,9 @@ function ensureBackupDirExists() {
 function backupDatabase() {
   ensureBackupDirExists();
   if (!fs.existsSync(DB_PATH)) {
-    console.error(`Erro: Arquivo do banco de dados não encontrado em ${DB_PATH}`);
+    console.error(
+      `Erro: Arquivo do banco de dados não encontrado em ${DB_PATH}`
+    );
     process.exit(1);
   }
 
@@ -28,7 +30,9 @@ function backupDatabase() {
     const db = new Database(DB_PATH, { readonly: true });
     db.backup(backupFilePath)
       .then(() => {
-        console.log(`Backup do banco de dados concluído com sucesso: ${backupFilePath}`);
+        console.log(
+          `Backup do banco de dados concluído com sucesso: ${backupFilePath}`
+        );
       })
       .catch((err) => {
         console.error('Erro ao fazer backup do banco de dados:', err);
@@ -43,7 +47,9 @@ function backupDatabase() {
 
 function vacuumDatabase() {
   if (!fs.existsSync(DB_PATH)) {
-    console.error(`Erro: Arquivo do banco de dados não encontrado em ${DB_PATH}`);
+    console.error(
+      `Erro: Arquivo do banco de dados não encontrado em ${DB_PATH}`
+    );
     process.exit(1);
   }
 

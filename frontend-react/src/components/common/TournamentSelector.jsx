@@ -16,8 +16,14 @@ const TournamentSelector = () => {
     // Defensive: always treat tournaments as array
     const safeTournaments = Array.isArray(tournaments) ? tournaments : [];
 
-    if (urlTournamentId && safeTournaments.find((t) => t.id.toString() === urlTournamentId)) {
-      if (!currentTournament || currentTournament.id.toString() !== urlTournamentId) {
+    if (
+      urlTournamentId &&
+      safeTournaments.find((t) => t.id.toString() === urlTournamentId)
+    ) {
+      if (
+        !currentTournament ||
+        currentTournament.id.toString() !== urlTournamentId
+      ) {
         selectTournament(urlTournamentId);
       }
     }

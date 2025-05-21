@@ -8,16 +8,23 @@ async function createTestAdmin() {
 
   // Ensure DB is initialized before trying to use it.
   if (!db || !db.open) {
-    console.error('Database connection is not open. Ensure the main app has initialized it or initialize here.');
+    console.error(
+      'Database connection is not open. Ensure the main app has initialized it or initialize here.'
+    );
   }
 
   try {
     console.log(`Attempting to create test admin user: ${testAdminUsername}`);
     // Check if user already exists to provide a clearer message
-    const existingAdmin = await adminModel.getAdminByUsername(testAdminUsername);
+    const existingAdmin =
+      await adminModel.getAdminByUsername(testAdminUsername);
     if (existingAdmin) {
-      console.log(`Admin user "${testAdminUsername}" already exists with ID: ${existingAdmin.id}.`);
-      console.log('Test admin already exists, proceeding with the existing user.');
+      console.log(
+        `Admin user "${testAdminUsername}" already exists with ID: ${existingAdmin.id}.`
+      );
+      console.log(
+        'Test admin already exists, proceeding with the existing user.'
+      );
     } else {
       const createdAdmin = await adminModel.createAdmin({
         username: testAdminUsername,
@@ -35,25 +42,31 @@ async function createTestAdmin() {
     const fs = require('fs');
     const credentialsData = {
       username: testAdminUsername,
-      password: testAdminPassword
+      password: testAdminPassword,
     };
-    fs.writeFileSync('../admin_credentials.json', JSON.stringify(credentialsData, null, 2));
-    console.log('Credentials saved to admin_credentials.json for future reference.');
-
+    fs.writeFileSync(
+      '../admin_credentials.json',
+      JSON.stringify(credentialsData, null, 2)
+    );
+    console.log(
+      'Credentials saved to admin_credentials.json for future reference.'
+    );
   } catch (error) {
     console.error('Error creating test admin user:');
     console.error(`  Message: ${error.message}`);
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        console.error(`  Detail: The username "${testAdminUsername}" likely already exists.`);
+      console.error(
+        `  Detail: The username "${testAdminUsername}" likely already exists.`
+      );
     } else {
-        console.error(`  Stack: ${error.stack}`);
+      console.error(`  Stack: ${error.stack}`);
     }
   } finally {
     // Only close if this script exclusively opened it.
     // If sharing a connection from a running server, don't close.
     if (db && db.open) {
-        console.log('Closing database connection.');
-        closeSyncConnection();
+      console.log('Closing database connection.');
+      closeSyncConnection();
     }
   }
 }

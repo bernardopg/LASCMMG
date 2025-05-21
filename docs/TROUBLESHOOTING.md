@@ -148,11 +148,13 @@ Se precisar de ajuda:
 - Detalhes da configuração de deploy, se aplicável.
 
 ### Exemplo de log de erro real (backend)
+
 ```
 [2025-05-19T15:00:00.000Z] ERROR: AuthMiddleware - Falha na verificação do token JWT: { error: 'jwt expired', requestId: 'abc123', ip: '::1' }
 ```
 
 ### Exemplo de erro no frontend (console)
+
 ```
 POST http://localhost:3001/api/auth/login 401 (Unauthorized)
 Falha na autenticação. Verifique suas credenciais.

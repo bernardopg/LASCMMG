@@ -2,30 +2,33 @@
 
 import eslint from '@eslint/js';
 import globals from 'globals';
-import tseslint from 'typescript-eslint'; // Although not using TS, some configs might need it implicitly
+import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import eslintPluginCypress from 'eslint-plugin-cypress/flat';
 
 export default tseslint.config(
   // Global ignores
   {
     ignores: [
       'node_modules/',
-      '*.json', // Ignore root json files like package.json
-      'tournaments/', // Ignore tournament data folders
-      'temp/', // Ignore temp folder if exists
+      '*.json',
+      'tournaments/',
+      'temp/',
+      'frontend-react/dist/',
+      'frontend-react/coverage/',
     ],
   },
 
-  // Base recommended configuration
   eslint.configs.recommended,
 
-  // Configuration for Node.js files (CommonJS) - typically backend, scripts, and .config.js files
+  // Backend, scripts, root .config.js (CommonJS)
   {
     files: ['backend/**/*.js', 'scripts/**/*.js', '*.config.js'],
     languageOptions: {
-      globals: {
-        ...globals.node,
-      },
+      globals: { ...globals.node },
       sourceType: 'commonjs',
       ecmaVersion: 'latest',
     },
@@ -35,20 +38,49 @@ export default tseslint.config(
     },
   },
 
-  // Configuration for root ESM files (.mjs extension and vitest.config.js)
-  // This ensures eslint.config.mjs itself and vitest.config.js are parsed as modules.
+  // Root .mjs files (ESM)
   {
     files: ['eslint.config.mjs', 'vitest.config.js'],
     languageOptions: {
-      globals: {
-        ...globals.node, // They still run in a Node environment
-      },
-      sourceType: 'module', // Crucial for import/export syntax
+      globals: { ...globals.node },
+      sourceType: 'module',
       ecmaVersion: 'latest',
-      parser: tseslint.parser, // Explicitly use typescript-eslint parser
+      parser: tseslint.parser,
     },
-    plugins: { // Ensure typescript-eslint plugin is available for this block if parser needs it
-      '@typescript-eslint': tseslint.plugin,
+    plugins: { '@typescript-eslint': tseslint.plugin },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+    },
+  },
+
+  // Backend Test files (ESM)
+  {
+    files: ['backend/tests/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.es2021 },
+      sourceType: 'module',
+      ecmaVersion: 'latest',
+      parser: tseslint.parser,
+    },
+    plugins: { '@typescript-eslint': tseslint.plugin },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+    },
+  },
+
+  // Frontend Vite/ESLint/Cypress Config files (ESM)
+  {
+    files: [
+      'frontend-react/vite.config.js',
+      'frontend-react/eslint.config.js',
+      'frontend-react/cypress.config.js',
+    ],
+    languageOptions: {
+      globals: { ...globals.node, process: 'readonly', caches: 'readonly' },
+      sourceType: 'module',
+      ecmaVersion: 'latest',
     },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
@@ -56,54 +88,84 @@ export default tseslint.config(
     },
   },
 
-  // Configuration for NEW React Frontend JS/JSX/TS/TSX files (ES Modules)
+  // Frontend Tailwind/PostCSS Config files (CommonJS)
   {
-    files: ['frontend-react/src/**/*.{js,jsx,ts,tsx}'],
+    files: [
+      'frontend-react/tailwind.config.js',
+      'frontend-react/postcss.config.js',
+    ],
     languageOptions: {
-      globals: {
-        ...globals.browser, // Use Browser global variables
-      },
-      sourceType: 'module', // Expect import/export
+      globals: { ...globals.node, require: 'readonly', module: 'readonly' },
+      sourceType: 'commonjs',
       ecmaVersion: 'latest',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true, // Enable JSX parsing
-        },
-      },
     },
-    // TODO: Add React specific plugins and rules here after installing them
-    // e.g., eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Warn for now, can be error
-      'no-console': ['warn', { allow: ['warn', 'error'] }], // Allow console.warn and console.error
-      // Add React specific rules later, e.g.:
-      // 'react/prop-types': 'off', // If using TypeScript for props
-      // 'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
     },
   },
-  // Remove or comment out old frontend/js config if it's no longer used
-  // {
-  //   files: ['frontend/js/**/*.js'],
-  //   languageOptions: {
-  //     globals: {
-  //       ...globals.browser,
-  //     },
-  //     sourceType: 'module',
-  //     ecmaVersion: 'latest',
-  //   },
-  //   rules: {
-  //     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-  //     'no-console': 'warn',
-  //   },
-  // },
 
-  // Prettier recommended configuration (must be last)
+  // Cypress Test files
+  {
+    files: ['frontend-react/cypress/**/*.cy.js'],
+    ...eslintPluginCypress.configs.recommended, // Spread the recommended config here
+    // This should include the plugin and globals.
+    // languageOptions and rules can be further customized below if needed,
+    // but the spread should handle the basics.
+    rules: {
+      // Override or add to recommended rules if necessary
+      ...(eslintPluginCypress.configs.recommended.rules || {}), // Ensure rules are spread if not already by top-level spread
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+    },
+  },
+
+  // React Frontend Source files (ESM)
+  {
+    files: ['frontend-react/src/**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+    },
+    languageOptions: {
+      globals: { ...globals.browser },
+      sourceType: 'module',
+      ecmaVersion: 'latest',
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+    settings: { react: { version: 'detect' } },
+    rules: {
+      ...reactPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
+      ...jsxA11yPlugin.configs.recommended.rules,
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
+    },
+  },
+
+  // Public JS files (likely browser scripts)
+  {
+    files: ['frontend-react/public/js/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.browser },
+      sourceType: 'script',
+      ecmaVersion: 'latest',
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'warn',
+    },
+  },
+
   eslintPluginPrettierRecommended,
 
-  // Custom Prettier rule override (optional, but good practice)
   {
     rules: {
-      'prettier/prettier': ['error', { endOfLine: 'auto' }], // Show as error, adjust endOfLine if needed
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   }
 );

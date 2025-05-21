@@ -14,8 +14,8 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 // Configurações de segurança
 const RATE_LIMIT = {
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100,
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || (NODE_ENV === 'development' ? 1000 : 100), // Increased for dev
 };
 
 // Configurações do banco de dados
@@ -98,6 +98,32 @@ if (!COOKIE_SECRET) {
 // Configurações do Redis
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
+// Configurações de CSRF Secret
+let CSRF_SECRET = process.env.CSRF_SECRET;
+
+if (!CSRF_SECRET) {
+  if (NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
+    console.error(
+      '\x1b[41m\x1b[37m%s\x1b[0m',
+      ' ERRO CRÍTICO DE SEGURANÇA: CSRF_SECRET não definido em produção! '
+    );
+    // eslint-disable-next-line no-console
+    console.error(
+      '\x1b[31m%s\x1b[0m',
+      'Defina CSRF_SECRET como uma string aleatória e segura nas variáveis de ambiente. A aplicação será encerrada.'
+    );
+    process.exit(1); // Encerrar a aplicação
+  } else {
+    CSRF_SECRET = crypto.randomBytes(32).toString('hex');
+    // eslint-disable-next-line no-console
+    console.warn(
+      '\x1b[33m%s\x1b[0m',
+      '⚠️ AVISO: CSRF_SECRET não configurado! Uma chave aleatória temporária foi gerada para desenvolvimento.'
+    );
+  }
+}
+
 // Exportar configurações
 module.exports = {
   NODE_ENV,
@@ -109,4 +135,5 @@ module.exports = {
   JWT_EXPIRATION,
   COOKIE_SECRET, // Adicionado
   REDIS_URL,
+  CSRF_SECRET, // Adicionado
 };
