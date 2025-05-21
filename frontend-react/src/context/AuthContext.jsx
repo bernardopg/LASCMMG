@@ -2,8 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useState,
-  useRef,
+  useState
 } from 'react';
 import apiInstance, { setAuthToken as setApiAuthToken } from '../services/api';
 
@@ -32,6 +31,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('authUser');
         const storedToken = localStorage.getItem('authToken');
+        // Verificar se o usuário tinha a preferência de "Lembrar-me" ativada
+        const rememberMe = localStorage.getItem('rememberMe') === 'true';
 
         if (storedUser && storedToken) {
           setApiAuthToken(storedToken);
@@ -55,20 +56,29 @@ export const AuthProvider = ({ children }) => {
     checkLoggedIn();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     try {
       setError(null);
 
       // Call the admin login endpoint
       const response = await apiInstance.post('/api/auth/login', {
-        // Changed to admin login endpoint
-        username: email, // Pass email directly as username, backend expects email
+        // Padronizando para usar email consistentemente
+        username: email, // Backend espera o email no campo 'username'
         password,
+        rememberMe, // Passando a preferência para o backend
       });
 
       // Backend /api/auth/login returns { success, message, token, admin }
       const { admin, token } = response.data;
       const userObj = admin; // Use the admin object as the user object
+
+      // Se rememberMe for verdadeiro, o token pode ser armazenado por mais tempo
+      // Isso será usado posteriormente para definir um token com expiração mais longa
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
 
       localStorage.setItem('authUser', JSON.stringify(userObj));
       localStorage.setItem('authToken', token);

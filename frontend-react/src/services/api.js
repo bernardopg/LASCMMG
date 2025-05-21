@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // Timeout de 30 segundos para todas as requisições
 });
 
 let currentCsrfToken = null;
@@ -308,8 +309,8 @@ export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
     await api.patch(`/api/tournaments/${tournamentId}/description`, { description: tournamentData.description });
   }
   if (tournamentData.date !== undefined) {
-     // Assuming backend PATCH for date exists or is part of a general update
-     // For now, this is a conceptual update.
+    // Assuming backend PATCH for date exists or is part of a general update
+    // For now, this is a conceptual update.
     await api.patch(`/api/tournaments/${tournamentId}/date`, { date: tournamentData.date });
   }
   // ... other fields like status, entry_fee, prize_pool, rules, bracket_type, num_players_expected
@@ -413,6 +414,11 @@ export const getAdminUsers = async (params = {}) => {
 
 export const createAdminUser = async (userData) => {
   const response = await api.post('/api/admin/users', userData);
+  return response.data;
+};
+
+export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
+  const response = await api.post(`/api/tournaments/${tournamentId}/assign_player`, { playerId });
   return response.data;
 };
 

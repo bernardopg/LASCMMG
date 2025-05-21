@@ -2,12 +2,14 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   getTournamentDetails,
-  getPlayers,
+  getPlayers, // This fetches players for a specific tournament
+  getAdminPlayers, // This fetches all players, can be filtered
+  assignPlayerToTournamentAPI, // Newly added API function
   generateTournamentBracket,
-  getTournamentState // Added getTournamentState
+  getTournamentState, // Added getTournamentState
 } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
-import { FaCog, FaUsers, FaSitemap, FaSpinner, FaEdit, FaListOl } from 'react-icons/fa';
+import { FaCog, FaUsers, FaSitemap, FaSpinner, FaEdit, FaListOl, FaPlus } from 'react-icons/fa';
 // import BracketDisplay from '../../components/bracket/BracketDisplay'; // A component to render the bracket
 
 const ManageTournamentPage = () => {
@@ -16,10 +18,13 @@ const ManageTournamentPage = () => {
   const { showError, showSuccess } = useMessage();
 
   const [tournament, setTournament] = useState(null);
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState([]); // Players in this tournament
+  const [globalPlayers, setGlobalPlayers] = useState([]); // Players not in any tournament
+  const [selectedGlobalPlayerId, setSelectedGlobalPlayerId] = useState('');
   const [bracketState, setBracketState] = useState(null); // To store parsed state_json
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [assignLoading, setAssignLoading] = useState(false);
 
   const fetchTournamentData = useCallback(async () => {
     setLoading(true);
@@ -43,6 +48,15 @@ const ManageTournamentPage = () => {
       const playersData = await getPlayers(tournamentId);
       setPlayers(playersData.players || []);
 
+      // Fetch global players (not assigned to any tournament)
+      // We assume getAdminPlayers can take a filter like { tournament_id: null }
+      // This might require an adjustment in getAdminPlayers if it doesn't support null filter directly
+      // or a specific backend endpoint for unassigned players.
+      // For now, let's assume a filter for `tournament_id: 'NULL'` or similar works.
+      // A more robust way would be a dedicated endpoint or ensuring the filter works as expected.
+      const adminPlayersData = await getAdminPlayers({ filters: { tournament_id: 'NULL' } });
+      setGlobalPlayers(adminPlayersData.players || []);
+
     } catch (err) {
       showError(`Erro ao carregar dados do torneio: ${err.response?.data?.message || err.message}`);
       setTournament(null);
@@ -54,6 +68,24 @@ const ManageTournamentPage = () => {
   useEffect(() => {
     fetchTournamentData();
   }, [fetchTournamentData]);
+
+  const handleAssignPlayer = async () => {
+    if (!selectedGlobalPlayerId) {
+      showError('Por favor, selecione um jogador para adicionar.');
+      return;
+    }
+    setAssignLoading(true);
+    try {
+      await assignPlayerToTournamentAPI(tournamentId, selectedGlobalPlayerId);
+      showSuccess('Jogador adicionado ao torneio com sucesso!');
+      setSelectedGlobalPlayerId(''); // Reset selection
+      fetchTournamentData(); // Refresh both tournament players and global players list
+    } catch (err) {
+      showError(`Erro ao adicionar jogador: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setAssignLoading(false);
+    }
+  };
 
   const handleGenerateBracket = async () => {
     if (!tournament || tournament.status !== 'Pendente') {
@@ -142,6 +174,38 @@ const ManageTournamentPage = () => {
             <FaSitemap className="mr-2" /> Ver Chaveamento Público
           </Link>
         {/* Add more action buttons here: e.g., Finalizar Torneio, Resetar Chaveamento */}
+      </div>
+
+      {/* Section to display players */}
+      <div className="card bg-white dark:bg-slate-800 p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Adicionar Jogador Existente ao Torneio</h2>
+        {globalPlayers.length > 0 ? (
+          <div className="flex items-center space-x-2">
+            <select
+              value={selectedGlobalPlayerId}
+              onChange={(e) => setSelectedGlobalPlayerId(e.target.value)}
+              className="select select-bordered flex-grow"
+              disabled={assignLoading}
+            >
+              <option value="">Selecione um jogador global</option>
+              {globalPlayers.map(gp => (
+                <option key={gp.id} value={gp.id}>
+                  {gp.name} ({gp.nickname || 'N/A'}) - ID: {gp.id}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleAssignPlayer}
+              className="btn btn-primary flex items-center"
+              disabled={assignLoading || !selectedGlobalPlayerId}
+            >
+              {assignLoading ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-2" />}
+              Adicionar ao Torneio
+            </button>
+          </div>
+        ) : (
+          <p>Nenhum jogador global disponível para adicionar. Crie jogadores na <Link to="/admin/players/create" className="link link-primary">página de criação de jogadores</Link> sem vinculá-los a um torneio.</p>
+        )}
       </div>
 
       {/* Section to display players */}

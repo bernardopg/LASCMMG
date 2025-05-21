@@ -3,13 +3,14 @@ import { getAdminPlayers, deletePlayerAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { useAuth } from '../../context/AuthContext'; // Importar useAuth
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const PlayersPage = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { showError, showSuccess, showInfo } = useMessage(); // Usar as funções específicas
+  const { showError, showSuccess } = useMessage(); // Removed showInfo as it's not used for edit anymore
   const { isAuthenticated } = useAuth(); // Obter estado de autenticação
+  const navigate = useNavigate(); // For navigation
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -147,15 +148,13 @@ const PlayersPage = () => {
                       {player.email || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                      <button
-                        onClick={() =>
-                          showInfo(`Editar jogador ${player.id} (implementar)`)
-                        }
+                      <Link
+                        to={`/admin/players/edit/${player.id}`}
                         className="text-blue-500 hover:text-blue-400"
                         title="Editar"
                       >
                         <FaEdit />
-                      </button>
+                      </Link>
                       <button
                         onClick={() =>
                           handleDeletePlayer(player.id, player.name)

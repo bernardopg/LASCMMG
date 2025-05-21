@@ -199,20 +199,20 @@ async function createGlobalPlayer(playerData) {
     const playerId = result.lastInsertRowid;
     // Audit logging for global player creation
     auditLogger.logAction(
-        'SYSTEM', // Or an admin user ID if available
-        'GLOBAL_PLAYER_CREATE',
-        'player',
-        playerId.toString(),
-        { name, nickname, email, ipAddress: ipAddress || 'unknown' }
+      'SYSTEM', // Or an admin user ID if available
+      'GLOBAL_PLAYER_CREATE',
+      'player',
+      playerId.toString(),
+      { name, nickname, email, ipAddress: ipAddress || 'unknown' }
     );
     return await getPlayerById(playerId);
   } catch (err) {
     if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
-         logger.warn(
-            { component: 'PlayerModel', name, email },
-            `Tentativa de adicionar jogador global duplicado (email existente): ${email}.`
-          );
-        throw new Error(`Um jogador com o email "${email}" já existe globalmente.`);
+      logger.warn(
+        { component: 'PlayerModel', name, email },
+        `Tentativa de adicionar jogador global duplicado (email existente): ${email}.`
+      );
+      throw new Error(`Um jogador com o email "${email}" já existe globalmente.`);
     } else if (err.message.includes('UNIQUE constraint failed')) { // General unique constraint
       logger.warn(
         { component: 'PlayerModel', name },
@@ -297,21 +297,21 @@ async function updatePlayer(playerId, playerData) {
       }
       return null;
     }
-     auditLogger.logAction(
-        'SYSTEM', // Or an admin user ID
-        'PLAYER_UPDATE',
-        'player',
-        playerId.toString(),
-        { updatedFields: fieldsToUpdate.map(f => f.split(' =')[0]), ipAddress: ipAddress || 'unknown' }
+    auditLogger.logAction(
+      'SYSTEM', // Or an admin user ID
+      'PLAYER_UPDATE',
+      'player',
+      playerId.toString(),
+      { updatedFields: fieldsToUpdate.map(f => f.split(' =')[0]), ipAddress: ipAddress || 'unknown' }
     );
     return await getPlayerById(playerId);
   } catch (err) {
-     if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
-        logger.warn(
-            { component: 'PlayerModel', playerId, email },
-            `Falha ao atualizar jogador ${playerId}: email "${email}" já existe.`
-        );
-        throw new Error(`O email "${email}" já está em uso por outro jogador.`);
+    if (err.message.includes('UNIQUE constraint failed: players.email') && email) {
+      logger.warn(
+        { component: 'PlayerModel', playerId, email },
+        `Falha ao atualizar jogador ${playerId}: email "${email}" já existe.`
+      );
+      throw new Error(`O email "${email}" já está em uso por outro jogador.`);
     }
     logger.error(
       { component: 'PlayerModel', err, playerId, playerData },
@@ -680,7 +680,7 @@ async function getAllPlayers(options = {}) {
       queryParams.push(`%${filters.nickname}%`);
       countQueryParams.push(`%${filters.nickname}%`);
     }
-     if (filters.email && typeof filters.email === 'string') { // Added email filter
+    if (filters.email && typeof filters.email === 'string') { // Added email filter
       whereClauses.push('email LIKE ?');
       queryParams.push(`%${filters.email}%`);
       countQueryParams.push(`%${filters.email}%`);
@@ -790,6 +790,73 @@ async function restorePlayer(playerId) {
   }
 }
 
+async function assignPlayerToTournament(playerId, tournamentId, ipAddress = 'unknown') {
+  if (!playerId || !tournamentId) {
+    throw new Error('Player ID and Tournament ID are required for assignment.');
+  }
+
+  try {
+    const player = await getPlayerById(playerId, true); // includeDeleted = true to check
+    if (!player) {
+      throw new Error(`Jogador com ID ${playerId} não encontrado.`);
+    }
+    if (player.is_deleted) {
+      // Optionally, prevent assigning a soft-deleted player or restore them first.
+      // For now, let's prevent assignment if soft-deleted.
+      throw new Error(`Jogador com ID ${playerId} está na lixeira e não pode ser atribuído.`);
+    }
+    if (player.tournament_id && player.tournament_id !== tournamentId) {
+      // Player is already in another active tournament
+      // Check if that other tournament is active/not deleted (requires tournamentModel access or more complex query)
+      // For simplicity, let's prevent if already assigned to *any* other tournament_id
+      // A more robust solution would check the status of player.tournament_id
+      logger.warn(
+        { component: 'PlayerModel', playerId, currentTournamentId: player.tournament_id, newTournamentId: tournamentId },
+        `Jogador ${playerId} já está atribuído ao torneio ${player.tournament_id}.`
+      );
+      throw new Error(`Jogador ${playerId} já está atribuído a outro torneio (${player.tournament_id}).`);
+    }
+    if (player.tournament_id === tournamentId) {
+       logger.info(
+        { component: 'PlayerModel', playerId, tournamentId },
+        `Jogador ${playerId} já está atribuído a este torneio ${tournamentId}. Nenhuma alteração feita.`
+      );
+      return player; // Already assigned to this tournament
+    }
+
+    const sql = `
+      UPDATE players
+      SET tournament_id = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND (is_deleted = 0 OR is_deleted IS NULL)
+    `;
+    const result = await runAsync(sql, [tournamentId, playerId]);
+
+    if (result.changes === 0) {
+      // This might happen if the player was deleted between the getPlayerById check and the update
+      throw new Error(`Não foi possível atribuir o jogador ${playerId} ao torneio ${tournamentId}. O jogador pode não existir ou já estar excluído.`);
+    }
+
+    auditLogger.logAction(
+      'SYSTEM', // Or an admin user ID
+      'PLAYER_ASSIGN_TOURNAMENT',
+      'player',
+      playerId.toString(),
+      { tournamentId, oldTournamentId: player.tournament_id, ipAddress }
+    );
+    logger.info(
+      { component: 'PlayerModel', playerId, tournamentId },
+      `Jogador ${playerId} atribuído ao torneio ${tournamentId}.`
+    );
+    return await getPlayerById(playerId);
+  } catch (err) {
+    logger.error(
+      { component: 'PlayerModel', err, playerId, tournamentId },
+      `Erro ao atribuir jogador ${playerId} ao torneio ${tournamentId}.`
+    );
+    throw err;
+  }
+}
+
 module.exports = {
   getPlayersByTournamentId,
   getPlayerById,
@@ -804,4 +871,5 @@ module.exports = {
   countPlayers,
   getAllPlayers,
   restorePlayer,
+  assignPlayerToTournament,
 };

@@ -29,7 +29,7 @@ router.post(
     // Changed path to /auth/login
     // Validation is now handled by validateRequest middleware using adminLoginSchema
     // req.body will contain validated and potentially sanitized data.
-    const { username, password } = req.body;
+    const { username, password, rememberMe } = req.body;
 
     // Basic presence check can be removed as Joi handles 'required'
     // if (
@@ -56,8 +56,9 @@ router.post(
       const authResult = await adminModel.authenticateAdmin(
         username,
         password,
-        req.ip
-      ); // Pass req.ip
+        req.ip,
+        rememberMe
+      ); // Pass req.ip and rememberMe
 
       if (authResult.success) {
         logger.info(

@@ -121,6 +121,7 @@ const adminLoginSchema = {
       'any.required': `"username" é um campo obrigatório`,
     }),
     password: passwordSchema, // Use the new robust password schema
+    rememberMe: Joi.boolean().optional().default(false)
   }),
 };
 
@@ -152,6 +153,17 @@ const specificTournamentIdStringSchema = Joi.string()
 const tournamentIdParamSchema = {
   params: Joi.object({
     tournamentId: specificTournamentIdStringSchema,
+  }),
+};
+
+const playerIdParamSchema = { // Define the missing schema
+  params: Joi.object({
+    playerId: Joi.number().integer().positive().required().messages({
+      'number.base': `"playerId" deve ser um número.`,
+      'number.integer': `"playerId" deve ser um inteiro.`,
+      'number.positive': `"playerId" deve ser um número positivo.`,
+      'any.required': `"playerId" é obrigatório.`,
+    }),
   }),
 };
 
@@ -597,6 +609,17 @@ function validateUsername(username) {
 
 // validatePassword function is now defined above adminLoginSchema
 
+const assignPlayerSchema = {
+  body: Joi.object({
+    playerId: Joi.number().integer().positive().required().messages({
+      'number.base': `"playerId" deve ser um número.`,
+      'number.integer': `"playerId" deve ser um inteiro.`,
+      'number.positive': `"playerId" deve ser um número positivo.`,
+      'any.required': `"playerId" é obrigatório no corpo da requisição.`,
+    }),
+  }),
+};
+
 module.exports = {
   validateRequest,
   validateUsername, // Export new function
@@ -630,4 +653,6 @@ module.exports = {
   adminGetPlayersQuerySchema,
   adminGetTrashQuerySchema,
   paginationQuerySchema,
+  assignPlayerSchema, // Added new schema
+  playerIdParamSchema, // Export the new schema
 };

@@ -216,8 +216,8 @@ async function migrateAdminCredentials() {
   }
 }
 
-async function authenticateAdmin(username, password, ipAddress) {
-  // Added ipAddress
+async function authenticateAdmin(username, password, ipAddress, rememberMe = false) {
+  // Added ipAddress and rememberMe
   if (!username || !password) {
     throw new Error('Nome de usuário e senha são obrigatórios');
   }
@@ -338,10 +338,13 @@ async function authenticateAdmin(username, password, ipAddress) {
 
       await updateLastLogin(finalAdminData.username);
 
+      // Definir tempo de expiração do token baseado na opção "Lembrar-me"
+      const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION; // 30 dias se rememberMe for true
+
       const token = jwt.sign(
         { username: finalAdminData.username, role: finalAdminData.role },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() } // Adicionado jti
+        { expiresIn: expirationTime, jwtid: crypto.randomUUID() } // Adicionado jti e expirationTime
       );
 
       auditLogger.logAction(
@@ -398,10 +401,13 @@ async function authenticateAdmin(username, password, ipAddress) {
         { username: admin.username, ipAddress: ipAddress || 'unknown' } // Use ipAddress
       );
 
+      // Definir tempo de expiração do token baseado na opção "Lembrar-me"
+      const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION; // 30 dias se rememberMe for true
+
       const token = jwt.sign(
         { id: admin.id, username: admin.username, role: admin.role }, // Include ID
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() } // Adicionado jti
+        { expiresIn: expirationTime, jwtid: crypto.randomUUID() } // Atualizado para usar expirationTime
       );
 
       return {

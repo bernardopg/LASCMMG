@@ -7,7 +7,7 @@ import {
   FaPlusCircle,
   FaSitemap,
   FaTrophy,
-  FaUsers, // Added for Schedule
+  FaUsers,
   FaUsersCog,
   FaUserShield,
 } from 'react-icons/fa';
@@ -15,7 +15,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isSidebarCollapsed }) => {
-  // Accept isSidebarCollapsed prop
   const location = useLocation();
   const { hasPermission } = useAuth();
 
@@ -23,7 +22,6 @@ const Sidebar = ({ isSidebarCollapsed }) => {
     return location.pathname === path;
   };
 
-  // Lista de links do menu
   const menuItems = [
     {
       name: 'Dashboard',
@@ -59,7 +57,7 @@ const Sidebar = ({ isSidebarCollapsed }) => {
       name: 'Adicionar Placar',
       path: '/add-score',
       icon: <FaPlusCircle className="w-5 h-5" />,
-      permission: null, // Rota será protegida por isAuthenticated, acessível a usuários logados
+      permission: null,
     },
     {
       name: 'Estatísticas',

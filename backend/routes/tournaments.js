@@ -28,6 +28,7 @@ const {
   updateScoresSchema,
   playerImportItemSchema, // Import the new schema for player import validation
   paginationQuerySchema, // Import pagination schema
+  assignPlayerSchema, // Import the new schema for assigning players
 } = require('../lib/utils/validationUtils');
 
 const router = express.Router();
@@ -445,6 +446,52 @@ router.post(
         success: false,
         message: 'Erro interno ao adicionar jogador.',
       });
+    }
+  }
+);
+
+// POST /api/tournaments/:tournamentId/assign_player - Assign an existing global player to a tournament (admin only)
+router.post(
+  '/:tournamentId/assign_player',
+  authMiddleware,
+  validateRequest({ ...tournamentIdParamSchema, ...assignPlayerSchema }),
+  async (req, res) => {
+    const { tournamentId } = req.params;
+    const { playerId } = req.body; // Validated by assignPlayerSchema
+
+    try {
+      const assignedPlayer = await playerModel.assignPlayerToTournament(
+        playerId,
+        tournamentId,
+        req.ip // Pass IP for audit logging
+      );
+
+      if (!assignedPlayer) {
+        // This case should ideally be caught by errors within assignPlayerToTournament
+        return res.status(404).json({ success: false, message: 'Jogador ou torneio não encontrado, ou jogador não pôde ser atribuído.' });
+      }
+
+      logger.info(
+        { component: 'TournamentsRoute', playerId, tournamentId, requestId: req.id },
+        `Jogador ${playerId} atribuído ao torneio ${tournamentId}.`
+      );
+      res.status(200).json({
+        success: true,
+        message: `Jogador ID ${playerId} atribuído ao torneio ${tournamentId} com sucesso!`,
+        player: assignedPlayer, // Return the updated player details
+      });
+    } catch (error) {
+      logger.error(
+        { component: 'TournamentsRoute', err: error, tournamentId, playerId, requestId: req.id },
+        `Erro ao atribuir jogador ${playerId} ao torneio ${tournamentId}.`
+      );
+      if (error.message.includes('já está atribuído a outro torneio') || error.message.includes('está na lixeira')) {
+        return res.status(409).json({ success: false, message: error.message });
+      }
+      if (error.message.includes('não encontrado')) {
+        return res.status(404).json({ success: false, message: error.message });
+      }
+      res.status(500).json({ success: false, message: 'Erro interno ao atribuir jogador ao torneio.' });
     }
   }
 );

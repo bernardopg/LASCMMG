@@ -36,6 +36,7 @@ import ManageTournamentPage from './pages/admin/ManageTournamentPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminActivityLogPage from './pages/admin/AdminActivityLogPage';
 import CreatePlayerPage from './pages/admin/CreatePlayerPage';
+import EditPlayerPage from './pages/admin/EditPlayerPage'; // Import EditPlayerPage
 import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
@@ -233,6 +234,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <CreatePlayerPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/players/edit/:playerId"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <EditPlayerPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }
