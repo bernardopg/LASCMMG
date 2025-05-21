@@ -1,20 +1,18 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import {
-  FaHome,
-  FaTrophy,
-  FaUsers,
-  FaSitemap,
-  FaHistory,
-  FaPlusCircle,
+  FaCalendarAlt,
   FaChartBar,
   FaCog,
-  FaUserShield,
-  FaChevronLeft, // Icon for collapse
-  FaChevronRight, // Icon for expand
-  FaCalendarAlt, // Added for Schedule
-  FaUsersCog, // Added for User Management
+  FaHistory,
+  FaHome,
+  FaPlusCircle,
+  FaSitemap,
+  FaTrophy,
+  FaUsers, // Added for Schedule
+  FaUsersCog,
+  FaUserShield
 } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isSidebarCollapsed }) => {
   // Accept isSidebarCollapsed prop
@@ -177,8 +175,7 @@ const Sidebar = ({ isSidebarCollapsed }) => {
                     LASCMMG
                   </p>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Sistema de gerenciamento de torneios da Liga Amadora
-                    Sul-Campista de Mari-Mari-Gomes
+                    Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG
                   </p>
                   <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                     <p>Versão: {import.meta.env.VITE_APP_VERSION || '0.1.0'}</p>

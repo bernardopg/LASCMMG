@@ -1,24 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { FaArrowRight, FaListOl, FaTrophy, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useTournament } from '../context/TournamentContext';
-import api from '../services/api'; // Importar a instância do axios configurada
+import api from '../services/api';
 
 const Home = () => {
-  const { tournaments, currentTournament, loading: tournamentsLoading } = useTournament(); // Renamed loading for clarity
+  const { tournaments, currentTournament, loading: tournamentsLoading } = useTournament();
   const [generalStats, setGeneralStats] = useState({
-    players: 0, // Needs API: GET /api/stats/total-players or similar
-    matches: 0, // Needs API: GET /api/stats/total-matches or similar
+    players: 0,
+    matches: 0,
     tournaments: 0,
   });
   const [statsLoading, setStatsLoading] = useState(true);
+  const fetchStatsAttempted = useRef(false);
 
-  // Carregar estatísticas gerais
   useEffect(() => {
     const fetchGeneralStats = async () => {
+      if (fetchStatsAttempted.current) return;
+      fetchStatsAttempted.current = true;
+
       setStatsLoading(true);
       try {
-        const response = await api.get('/api/system/stats'); // Usar a rota correta
+        const response = await api.get('/api/system/stats');
         if (response.data && response.data.success) {
           const stats = response.data.stats;
           setGeneralStats({
@@ -36,21 +39,15 @@ const Home = () => {
       setStatsLoading(false);
     };
 
-    // A contagem de torneios pode vir do context se já estiver carregada,
-    // ou da API de estatísticas gerais. A API /api/system/stats já inclui total de torneios.
-    // if (tournaments && tournaments.length > 0) {
-    //   setGeneralStats(prev => ({ ...prev, tournaments: tournaments.length }));
-    // }
     fetchGeneralStats();
-  }, []); // Removido 'tournaments' da dependência, pois /api/system/stats é a fonte primária.
+  }, []);
 
   return (
     <div className="space-y-8">
-      {/* Banner principal */}
       <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-primary-dark dark:text-primary-light mb-2">
-            Liga Amadora Sul-Campista de Mari-Mari-Gomes
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+            Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG
           </h1>
           <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-xl">
             Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
@@ -66,12 +63,9 @@ const Home = () => {
             </Link>
           </div>
         </div>
-
-        {/* Elemento decorativo */}
         <div className="absolute right-0 top-0 h-full w-1/3 bg-primary opacity-10 transform rotate-6 translate-x-1/4"></div>
       </section>
 
-      {/* Cards de estatísticas */}
       <section>
         <h2 className="text-xl font-semibold mb-4">Estatísticas Gerais</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -132,31 +126,30 @@ const Home = () => {
       {currentTournament && (
         <section>
           <h2 className="text-xl font-semibold mb-4">Torneio em Destaque</h2>
-          <div className="card overflow-hidden"> {/* 'card' deve ter estilos dark mode globais ou ser dark:bg-slate-700 etc. */}
-            <div className="p-6 pb-4 bg-primary-50 dark:bg-slate-700 border-b border-primary-200 dark:border-slate-600"> {/* Classes Tailwind para tema */}
+          <div className="card overflow-hidden">
+            <div className="p-6 pb-4 bg-primary-50 dark:bg-slate-700 border-b border-primary-200 dark:border-slate-600">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xl font-semibold text-primary dark:text-primary-light">
                     {currentTournament.name}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    {currentTournament.description?.substring(0, 100) || 'Sem descrição detalhada.'} {/* Using description as location is not standard */}
+                    {currentTournament.description?.substring(0, 100) || 'Sem descrição detalhada.'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
                   <span
-                    className={`badge ${currentTournament.status === 'Em Andamento' // Match backend status strings
-                        ? 'badge-success'
-                        : currentTournament.status === 'Pendente'
-                          ? 'badge-info'
-                          : 'badge-warning' // For 'Concluído', 'Cancelado'
+                    className={`badge ${currentTournament.status === 'Em Andamento'
+                      ? 'badge-success'
+                      : currentTournament.status === 'Pendente'
+                        ? 'badge-info'
+                        : 'badge-warning'
                       }`}
                   >
                     {currentTournament.status || 'N/A'}
                   </span>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     Data: {currentTournament.date ? new Date(currentTournament.date).toLocaleDateString('pt-BR') : 'N/A'}
-                    {/* endDate is not a standard field */}
                   </p>
                 </div>
               </div>
@@ -165,7 +158,7 @@ const Home = () => {
               <div className="mb-4">
                 <p className="text-gray-700 dark:text-gray-300">{currentTournament.rules || 'Regras não especificadas.'}</p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {/* Adjusted to 3 cols */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.num_players_expected || 'N/A'}
@@ -198,7 +191,6 @@ const Home = () => {
         </section>
       )}
 
-      {/* Lista de próximos torneios */}
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Todos os Torneios</h2>
@@ -243,10 +235,10 @@ const Home = () => {
                   <div className="flex items-center">
                     <span
                       className={`badge mr-3 ${tournament.status === 'Em Andamento'
-                          ? 'badge-success'
-                          : tournament.status === 'Pendente'
-                            ? 'badge-info'
-                            : 'badge-warning' // Para 'Concluído', 'Cancelado'
+                        ? 'badge-success'
+                        : tournament.status === 'Pendente'
+                          ? 'badge-info'
+                          : 'badge-warning'
                         }`}
                     >
                       {tournament.status || 'N/A'}

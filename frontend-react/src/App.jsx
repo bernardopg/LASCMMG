@@ -1,44 +1,32 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react';
-// Linha duplicada removida
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
-  useNavigate, // Adicionar useNavigate
+  useNavigate,
 } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import { TournamentProvider } from './context/TournamentContext';
-import api from './services/api'; // Import the api instance
-
-// Componentes comuns
+import api from './services/api';
 import MessageContainer from './components/common/MessageContainer';
 import Header from './components/layout/Header';
 import Sidebar from './components/layout/Sidebar';
-
-// Páginas de autenticação
 import Login from './pages/Login';
-
-// Outras Páginas (eagerly loaded)
 import AddScorePage from './pages/AddScorePage';
 import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
 import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage';
-// import PlayersPage from './pages/admin/PlayersPage'; // PlayersPage é pública/admin, não só admin. Ajustar rota.
-import PlayersPage from './pages/admin/PlayersPage'; // Corrigido para o caminho existente
+import PlayersPage from './pages/admin/PlayersPage';
 import SettingsPage from './pages/admin/SettingsPage';
-import Home from './pages/Home'; // Importar Home
-import NotFoundPage from './pages/NotFound'; // Importar NotFoundPage
-
-// Admin Security Sub-Pages (eagerly loaded as they are children of a layout)
+import Home from './pages/Home';
+import NotFoundPage from './pages/NotFound';
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
 import SecurityOverview from './pages/admin/security/SecurityOverview';
 import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
-
-// Layouts
 import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
 import ThemeContext from './context/ThemeContext';
 
@@ -60,6 +48,7 @@ const PageLoadingFallback = () => (
 // Componente wrapper para lidar com o evento de não autorizado e buscar CSRF token
 const AppContentWrapper = () => {
   const navigate = useNavigate();
+  const csrfFetchAttempted = React.useRef(false); // Usar ref para controlar a busca
 
   useEffect(() => {
     const handleUnauthorized = () => {
@@ -71,19 +60,26 @@ const AppContentWrapper = () => {
 
     window.addEventListener('unauthorized', handleUnauthorized);
 
-    // Fetch CSRF token when the app loads
-    api.get('/api/csrf-token')
-      .then(response => {
-        console.log('CSRF token endpoint contacted successfully.');
-      })
-      .catch(error => {
-        console.error('Error fetching CSRF token on app load:', error);
-      });
+    // Fetch CSRF token only once when the app loads
+    if (!csrfFetchAttempted.current) {
+      csrfFetchAttempted.current = true; // Marcar como tentado imediatamente
+      api.get('/api/csrf-token')
+        .then(response => {
+          console.log('CSRF token endpoint contacted successfully.');
+          // O token é gerenciado por cookies, não precisa ser armazenado no estado aqui.
+        })
+        .catch(error => {
+          console.error('Error fetching CSRF token on app load:', error);
+          // Do not reset csrfFetchAttempted.current to false here.
+          // If the first attempt fails (e.g. due to rate limit),
+          // we don't want to immediately retry on a quick re-render.
+        });
+    }
 
     return () => {
       window.removeEventListener('unauthorized', handleUnauthorized);
     };
-  }, [navigate]);
+  }, [navigate]); // Dependência apenas em navigate
 
   return null; // Este componente não renderiza UI diretamente
 };
@@ -169,7 +165,7 @@ function App() {
       <MessageProvider>
         <TournamentProvider>
           <Router>
-            <AppContentWrapper /> {/* Configura listeners e busca token */}
+            <AppContentWrapper />
             <MessageContainer />
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -178,7 +174,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <Home /> {/* Corrigido para renderizar Home */}
+                      <Home />
                     </MainLayout>
                   </ProtectedRoute>
                 }
@@ -322,7 +318,7 @@ function App() {
                   <ProtectedRoute>
                     <AdminSecurityLayout>
                       <Suspense fallback={<PageLoadingFallback />}>
-                        <AdminSecurityPage /> {/* This renders an <Outlet /> */}
+                        <AdminSecurityPage />
                       </Suspense>
                     </AdminSecurityLayout>
                   </ProtectedRoute>
@@ -337,7 +333,7 @@ function App() {
               <Route
                 path="*"
                 element={
-                  <NotFoundPage /> // Corrigido para usar o componente NotFoundPage
+                  <NotFoundPage />
                 }
               />
             </Routes>

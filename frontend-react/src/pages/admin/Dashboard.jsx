@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { FaChartBar, FaClock, FaCog, FaInfoCircle, FaListOl, FaPlus, FaPlusCircle, FaTrophy, FaUsers } from 'react-icons/fa'; // Icons
+import { useEffect, useState, useRef } from 'react';
+import { FaChartBar, FaClock, FaCog, FaInfoCircle, FaListOl, FaPlus, FaPlusCircle, FaTrophy, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
-import { getAdminPlayers, getAdminScores, getTournaments } from '../../services/api'; // API imports
+import { getAdminPlayers, getAdminScores, getTournaments } from '../../services/api';
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => (
   <div className="stat-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
@@ -42,39 +42,32 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+  const fetchDashboardDataAttempted = useRef(false); // Add ref
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (fetchDashboardDataAttempted.current && process.env.NODE_ENV === 'development') { // Check if already attempted in dev
+        return;
+      }
+      fetchDashboardDataAttempted.current = true; // Mark as attempted
+
       try {
         setLoading(true);
 
-        // Buscar estatísticas gerais
-        // TODO: getTournaments() aqui pode ser redundante se TournamentContext já os carrega.
-        // Considerar usar tournaments do context se já estiverem disponíveis.
-        const [tournamentsData, playersResp, scoresResp] = await Promise.all([
-          getTournaments(), // Assumes this returns { tournaments: [] } or similar
-          getAdminPlayers({ limit: 1 }), // For total count
-          getAdminScores({ limit: 1 }),  // For total count
-        ]);
+        const tournamentsData = await getTournaments();
+        const playersResp = await getAdminPlayers({ limit: 1 });
+        const scoresResp = await getAdminScores({ limit: 1 });
 
         const totalTournaments = tournamentsData?.tournaments?.length || tournamentsData?.length || 0;
         const totalPlayers = playersResp?.total || playersResp?.totalCount || 0;
         const totalMatches = scoresResp?.total || scoresResp?.totalCount || 0;
 
-        // Buscar partidas pendentes (status !== 'finalizada')
-        // TODO: O backend não suporta `filters: { status: 'pendente' }` em getAdminScores.
-        // Esta lógica precisará ser ajustada ou o backend atualizado.
-        // Por ora, vamos simular ou buscar todos e filtrar no cliente (menos ideal).
-        // const pendingScoresResp = await getAdminScores({ limit: 1000 }); // Fetch more to filter
-        // const pendingMatches = pendingScoresResp?.scores?.filter(s => s.status !== 'Concluído' && s.status !== 'Cancelado').length || 0;
-        const pendingMatches = 0; // Placeholder
+        const pendingMatches = 0;
 
-        // Buscar atividades recentes
-        const [recentScoresData, recentPlayersData, recentTournamentsData] = await Promise.all([
-          getAdminScores({ limit: 5, sortBy: 'timestamp', order: 'desc' }),
-          getAdminPlayers({ limit: 5, sortBy: 'createdAt', order: 'desc' }),
-          getTournaments({ limit: 5, sortBy: 'createdAt', order: 'desc' }), // Assuming getTournaments can sort
-        ]);
+        const recentScoresData = await getAdminScores({ limit: 5, sortBy: 'timestamp', order: 'desc' });
+        const recentPlayersData = await getAdminPlayers({ limit: 5, sortBy: 'createdAt', order: 'desc' });
+        const recentTournamentsData = await getTournaments({ limit: 5, sortBy: 'createdAt', order: 'desc' });
+
 
         const activity = [];
 
@@ -189,10 +182,10 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-4 md:mt-0 flex gap-2">
-              <Link to="/admin/reports" className="btn btn-outline btn-white text-sm"> {/* TODO: Criar página /admin/reports */}
-                <FaChartBar className="w-4 h-4 mr-2" />
-                Relatórios
-              </Link>
+            <Link to="/admin/reports" className="btn btn-outline btn-white text-sm">
+              <FaChartBar className="w-4 h-4 mr-2" />
+              Relatórios
+            </Link>
               <Link to="/admin/tournaments/create" className="btn btn-primary text-sm">
                 <FaPlus className="w-4 h-4 mr-2" />
                 Novo Torneio
@@ -207,7 +200,6 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="dashboard-content">
-            {/* Seção de estatísticas */}
             <div className="stats-section mb-8">
               <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                 Estatísticas Gerais
@@ -240,9 +232,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Layout de duas colunas */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Coluna da esquerda: Ações rápidas */}
               <div className="lg:col-span-1">
                 <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                   Ações Rápidas
@@ -272,7 +262,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Coluna da direita: Atividade recente */}
               <div className="lg:col-span-2">
                 <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                   Atividade Recente
@@ -314,7 +303,7 @@ const Dashboard = () => {
 
                   <div className="p-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
                     <Link
-                      to="/admin/activity-log" // TODO: Criar página /admin/activity-log
+                      to="/admin/activity-log"
                       className="text-primary dark:text-primary-light hover:underline inline-flex items-center text-sm"
                     >
                       Ver todas as atividades
