@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto'); // Added crypto import
-const { runAsync, getOneAsync } = require('../db/database');
+const { runAsync, getOneAsync, queryAsync } = require('../db/database');
 const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
 const { logger } = require('../logger/logger');
 const auditLogger = require('../logger/auditLogger'); // Import auditLogger
@@ -489,25 +489,10 @@ async function changePassword(
 async function getAllAdmins() {
   // This function will list users who have an admin-like role.
   // Adjust role names ('admin', 'super_admin') as per your system's roles.
-  const sql = "SELECT id, username, name, role, last_login, created_at FROM users WHERE role = 'admin' OR role = 'super_admin' ORDER BY username ASC";
+  const sql = "SELECT id, username, role, last_login, created_at FROM users WHERE role = 'admin' OR role = 'super_admin' ORDER BY username ASC";
   try {
-    // Assuming you have a getAllAsync function similar to getOneAsync and runAsync
-    // If not, this needs to be implemented in database.js or use db.all directly.
-    // For now, let's assume db.all can be used if getAllAsync is not present.
-    const { db } = require('../db/database'); // Direct db import for db.all
-    return new Promise((resolve, reject) => {
-      db.all(sql, [], (err, rows) => {
-        if (err) {
-          logger.error(
-            { component: 'AdminModel', err },
-            'Erro ao buscar todos os administradores.'
-          );
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+    // Usando queryAsync importado no topo do arquivo
+    return await queryAsync(sql, []);
   } catch (err) {
     logger.error(
       { component: 'AdminModel', err },

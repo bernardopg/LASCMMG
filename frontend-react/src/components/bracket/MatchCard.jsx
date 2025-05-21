@@ -1,4 +1,3 @@
-import React from 'react';
 import PlayerDisplay from './PlayerDisplay';
 
 // Helper to format date/time, similar to old ui.formatMatchDateTime
@@ -53,12 +52,11 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
 
   // Base styles from .bracket-match-card
   let cardClasses = `
-    relative group border rounded-md shadow-sm mb-3 min-w-[220px] md:min-w-[250px]
+    relative group border rounded-md shadow-sm mb-2 md:mb-3 min-w-[180px] sm:min-w-[220px] md:min-w-[250px]
     transition-all duration-200 ease-in-out overflow-hidden
-    ${
-      isSelected
-        ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)] bg-gray-600 scale-105'
-        : 'border-[var(--card-border-color)] bg-gray-750 hover:bg-gray-700 hover:border-gray-500'
+    ${isSelected
+      ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)] bg-gray-600 scale-105'
+      : 'border-[var(--card-border-color)] bg-gray-750 hover:bg-gray-700 hover:border-gray-500'
     }
     ${p1IsBye || p2IsBye ? 'opacity-60 bg-gray-800' : ''}
   `;
@@ -102,7 +100,7 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
       }}
     >
       {/* .bracket-match-header */}
-      <div className="px-3 py-1.5 bg-gray-800 border-b border-gray-600 text-xs text-gray-400 flex justify-between items-center">
+      <div className="px-2 md:px-3 py-1 md:py-1.5 bg-gray-800 border-b border-gray-600 text-xs text-gray-400 flex justify-between items-center">
         <span className="font-semibold">Partida #{match.id}</span>
         <span className={statusBadgeClasses}>{matchStatus}</span>
       </div>
@@ -134,7 +132,7 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
 
       {/* .bracket-match-footer */}
       {(match.dateTime || winnerName) && !p1IsBye && !p2IsBye && (
-        <div className="px-3 py-1 bg-gray-800 border-t border-gray-600 text-xs text-gray-400 text-center">
+        <div className="px-2 md:px-3 py-1 bg-gray-800 border-t border-gray-600 text-xs text-gray-400 text-center">
           {match.dateTime ? (
             formatMatchDateTime(match.dateTime)
           ) : (

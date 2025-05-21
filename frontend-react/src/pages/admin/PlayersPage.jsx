@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { getAdminPlayers, deletePlayerAdmin } from '../../services/api';
-import { useMessage } from '../../context/MessageContext';
-import { useAuth } from '../../context/AuthContext'; // Importar useAuth
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { useCallback, useEffect, useState } from 'react';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useAuth } from '../../context/AuthContext'; // Importar useAuth
+import { useMessage } from '../../context/MessageContext';
+import { deletePlayerAdmin, getAdminPlayers } from '../../services/api';
 
 const PlayersPage = () => {
   const [players, setPlayers] = useState([]);
@@ -94,16 +94,16 @@ const PlayersPage = () => {
   };
 
   return (
-    <div className="py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-primary">
+    <div className="py-4 md:py-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-0">
           Gerenciamento de Jogadores (Admin)
         </h1>
         <Link to="/admin/players/create" className="btn btn-primary">
           <FaPlus className="mr-2" /> Adicionar Jogador
         </Link>
       </div>
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-3 md:p-6">
         {loading ? (
           <div className="text-center py-10">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
@@ -117,20 +117,20 @@ const PlayersPage = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-3 md:mx-0">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
               <thead className="bg-gray-50 dark:bg-slate-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Nome
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Apelido
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">
                     E-mail
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
@@ -138,16 +138,16 @@ const PlayersPage = () => {
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {players.map((player) => (
                   <tr key={player.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                       {player.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                       {player.nickname || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 hidden md:table-cell">
                       {player.email || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                       <Link
                         to={`/admin/players/edit/${player.id}`}
                         className="text-blue-500 hover:text-blue-400"

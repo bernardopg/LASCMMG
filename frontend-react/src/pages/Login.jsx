@@ -81,15 +81,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-slate-800 shadow-xl rounded-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 p-4 sm:p-8 bg-white dark:bg-slate-800 shadow-xl rounded-xl">
         <div className="text-center">
           <img
-            className="mx-auto h-20 w-auto"
+            className="mx-auto h-16 sm:h-20 w-auto"
             src="/assets/logo-removebg.png"
             alt="LASCMMG Logo"
           />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Login - LASCMMG
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
@@ -122,8 +122,8 @@ const Login = () => {
                     type="email" // Changed type to email
                     autoComplete="email" // Changed autoComplete
                     className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email && touched.email // Changed to email
-                        ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
+                      ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
+                      : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
                       } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
                     placeholder="Endereço de email" // Changed placeholder
                   />
@@ -148,8 +148,8 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
                       className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password && touched.password
-                          ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
-                          : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
+                        ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
                         } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
                       placeholder="Senha"
                       onChange={(e) => {
@@ -186,11 +186,11 @@ const Login = () => {
                         <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                           <div
                             className={`h-2 rounded-full ${passwordStrength === 0 ? 'bg-red-500 w-0' :
-                                passwordStrength === 1 ? 'bg-red-500 w-1/5' :
-                                  passwordStrength === 2 ? 'bg-yellow-500 w-2/5' :
-                                    passwordStrength === 3 ? 'bg-yellow-500 w-3/5' :
-                                      passwordStrength === 4 ? 'bg-green-500 w-4/5' :
-                                        'bg-green-500 w-full'
+                              passwordStrength === 1 ? 'bg-red-500 w-1/5' :
+                                passwordStrength === 2 ? 'bg-yellow-500 w-2/5' :
+                                  passwordStrength === 3 ? 'bg-yellow-500 w-3/5' :
+                                    passwordStrength === 4 ? 'bg-green-500 w-4/5' :
+                                      'bg-green-500 w-full'
                               }`}
                           ></div>
                         </div>

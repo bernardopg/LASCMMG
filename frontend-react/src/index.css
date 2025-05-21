@@ -11,32 +11,37 @@
 
   /* Cores específicas do Tema Escuro (predominante) */
   /* --body-bg-dark: #1a2a1a; -- Removida, usar bg-lasc-body-dark do Tailwind */
-  --body-text-dark: #ffffff; /* Cor de texto padrão para tema escuro */
+  --body-text-dark: #ffffff;
+  /* Cor de texto padrão para tema escuro */
   /* --panel-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
   /* --input-bg-dark: #223322; -- Removida, usar bg-lasc-panel-dark do Tailwind */
-  --card-border-color-dark: rgba(
-    212,
-    180,
-    85,
-    0.3
-  ); /* Dourado (secondary) translúcido - Mantida por enquanto */
-  --input-border-color-dark: rgba(
-    212,
-    180,
-    85,
-    0.3
-  ); /* Similar ao card-border - Mantida por enquanto */
+  --card-border-color-dark: rgba(212,
+      180,
+      85,
+      0.3);
+  /* Dourado (secondary) translúcido - Mantida por enquanto */
+  --input-border-color-dark: rgba(212,
+      180,
+      85,
+      0.3);
+  /* Similar ao card-border - Mantida por enquanto */
   /* --placeholder-color-dark: #81c784; -- Removida, usar placeholder-lasc-placeholder-dark do Tailwind */
-  --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra customizada - Mantida */
+  --card-shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
+  /* Sombra customizada - Mantida */
 
   /* Cores para Scrollbar (Tema Escuro) */
-  --scrollbar-track-dark: #101c10; /* Quase preto, mais escuro que body-bg-dark */
-  --scrollbar-thumb-dark: #4a6a4a; /* Verde médio (primary-700 ou 600) */
-  --scrollbar-thumb-hover-dark: #5c7a5c; /* Verde um pouco mais claro (primary-600 ou 500) */
+  --scrollbar-track-dark: #101c10;
+  /* Quase preto, mais escuro que body-bg-dark */
+  --scrollbar-thumb-dark: #4a6a4a;
+  /* Verde médio (primary-700 ou 600) */
+  --scrollbar-thumb-hover-dark: #5c7a5c;
+  /* Verde um pouco mais claro (primary-600 ou 500) */
 
   /* Cores para Seleção de Texto */
-  --selection-bg: #24803e; /* primary-dark */
-  --selection-text: #ffffff; /* body-text-dark */
+  --selection-bg: #24803e;
+  /* primary-dark */
+  --selection-text: #ffffff;
+  /* body-text-dark */
 }
 
 /* Estilos base para HTML e Body */
@@ -61,10 +66,13 @@
   }
 
   body {
-    @apply bg-gray-100 text-gray-900; /* Default para light mode */
-    @apply dark:bg-slate-900 dark:text-gray-100; /* Usando cores Tailwind padrão para dark mode */
+    @apply bg-gray-100 text-gray-900;
+    /* Default para light mode */
+    @apply dark:bg-slate-900 dark:text-gray-100;
+    /* Usando cores Tailwind padrão para dark mode */
     margin: 0;
-    overflow-x: hidden; /* Evita scroll horizontal desnecessário */
+    overflow-x: hidden;
+    /* Evita scroll horizontal desnecessário */
   }
 
   /* Estilos de cabeçalho responsivos */
@@ -76,19 +84,23 @@
   h6 {
     @apply font-medium dark:text-gray-100;
   }
+
   h1 {
     @apply text-2xl md:text-3xl;
   }
+
   h2 {
     @apply text-xl md:text-2xl;
   }
+
   h3 {
     @apply text-lg md:text-xl;
   }
 
   /* Estilos de link padrão */
   a {
-    @apply text-secondary hover:text-secondary-light; /* Usando cores do tema Tailwind */
+    @apply text-secondary hover:text-secondary-light;
+    /* Usando cores do tema Tailwind */
     /* O dark mode para links pode ser tratado com dark:text-secondary-light dark:hover:text-secondary se as cores light/dark forem definidas no tema */
   }
 
@@ -103,6 +115,7 @@
     background-color: var(--selection-bg);
     color: var(--selection-text);
   }
+
   ::-moz-selection {
     /* Firefox */
     background-color: var(--selection-bg);
@@ -122,46 +135,58 @@
     min-width: 100% !important;
   }
 
-  .print-styles-active .print-hidden { /* Ensure elements with .print-hidden are hidden */
+  .print-styles-active .print-hidden {
+    /* Ensure elements with .print-hidden are hidden */
     display: none !important;
   }
 }
 
 /* Componentes customizados */
 @layer components {
+
   /* Botões */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ease-in-out hover:scale-105 active:scale-95; /* Added transition-all, hover/active scale */
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ease-in-out hover:scale-105 active:scale-95;
+    /* Added transition-all, hover/active scale */
   }
+
   .btn-primary {
     @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
   }
+
   .btn-primary:disabled {
     @apply bg-primary-dark opacity-50 cursor-not-allowed;
   }
+
   .btn-secondary {
     /* Adaptado para ser mais neutro e funcionar em ambos os temas */
     @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500;
     @apply dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-400;
   }
+
   .btn-secondary:disabled {
     @apply bg-gray-400 opacity-50 cursor-not-allowed dark:bg-gray-500;
   }
+
   .btn-danger {
     @apply bg-danger text-white hover:opacity-80 focus:ring-danger;
   }
+
   .btn-outline {
     /* Adaptado para tema escuro */
     @apply bg-transparent text-primary border border-primary hover:bg-primary-light hover:text-white hover:border-transparent font-semibold;
     @apply dark:text-primary-light dark:border-primary-light dark:hover:bg-primary-dark dark:hover:text-white;
   }
+
   .btn-outline:disabled {
     @apply bg-transparent text-opacity-50 border-opacity-50 cursor-not-allowed;
     @apply dark:text-primary-dark dark:opacity-50 dark:border-primary-dark;
   }
+
   .btn-sm {
     @apply px-3 py-1 text-sm;
   }
+
   .btn-lg {
     @apply px-6 py-3;
   }
@@ -169,31 +194,41 @@
   /* Formulários */
   .input {
     @apply block w-full px-3 py-2 rounded-md text-sm shadow-sm;
-    @apply bg-white border-gray-300 placeholder-gray-400 text-gray-900; /* Light mode */
-    @apply dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-gray-100; /* Dark mode com cores Tailwind padrão */
+    @apply bg-white border-gray-300 placeholder-gray-400 text-gray-900;
+    /* Light mode */
+    @apply dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-gray-100;
+    /* Dark mode com cores Tailwind padrão */
     @apply focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary;
     @apply dark:focus:ring-primary-light dark:focus:border-primary-light;
     @apply disabled:bg-gray-200 disabled:border-gray-300 disabled:shadow-none dark:disabled:bg-slate-600 dark:disabled:border-slate-500;
   }
+
   .label {
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
   }
+
   .error-message {
-    @apply text-danger dark:text-danger-light text-xs mt-1; /* Adicionado dark:text-danger-light */
+    @apply text-danger dark:text-danger-light text-xs mt-1;
+    /* Adicionado dark:text-danger-light */
   }
 
   /* Cards */
   .card {
     @apply rounded-lg shadow-sm overflow-hidden animate-fade-in;
-    @apply bg-white border border-gray-200; /* Light mode */
-    @apply dark:bg-slate-800 dark:border-slate-700 dark:shadow-md; /* Dark mode com cores Tailwind padrão */
+    @apply bg-white border border-gray-200;
+    /* Light mode */
+    @apply dark:bg-slate-800 dark:border-slate-700 dark:shadow-md;
+    /* Dark mode com cores Tailwind padrão */
   }
+
   .card-header {
     @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
   }
+
   .card-body {
     @apply p-6;
   }
+
   .card-footer {
     @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700;
   }
@@ -202,44 +237,77 @@
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
+
   .badge-primary {
     @apply bg-primary-100 text-primary-800 dark:bg-primary-dark dark:text-primary-100;
-  } /* Usando primary-dark do Tailwind */
+  }
+
+  /* Usando primary-dark do Tailwind */
   .badge-success {
     @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100;
   }
+
   .badge-warning {
     @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100;
   }
+
   .badge-error {
     @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100;
-  } /* Renomeado de badge-danger para consistência */
+  }
+
+  /* Renomeado de badge-danger para consistência */
   .badge-info {
     @apply bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100;
   }
 
   /* Scrollbar (WebKit) */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
+
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100; /* Tailwind color */
+    @apply bg-gray-100;
+    /* Tailwind color */
   }
+
   .dark ::-webkit-scrollbar-track {
-    @apply bg-slate-800; /* Tailwind color */
+    @apply bg-slate-800;
+    /* Tailwind color */
   }
+
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-400 rounded-md; /* Tailwind color */
+    @apply bg-gray-400 rounded-md;
+    /* Tailwind color */
   }
+
   .dark ::-webkit-scrollbar-thumb {
-    @apply bg-slate-600 rounded-md; /* Tailwind color */
+    @apply bg-slate-600 rounded-md;
+    /* Tailwind color */
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-500; /* Tailwind color */
+    @apply bg-gray-500;
+    /* Tailwind color */
   }
+
   .dark ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-500; /* Tailwind color */
+    @apply bg-slate-500;
+    /* Tailwind color */
+  }
+
+  /* Scrollbar utils */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+    @apply bg-gray-600;
+  }
+
+  .scrollbar-track-gray-900::-webkit-scrollbar-track {
+    @apply bg-gray-900;
   }
 
   /* Estilos de Impressão Detalhados */
@@ -250,8 +318,10 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       font-family:
-        'Times New Roman', Times, serif !important; /* Fonte serifada para impressão */
+        'Times New Roman', Times, serif !important;
+      /* Fonte serifada para impressão */
     }
+
     .no-print,
     header,
     .sidebar,
@@ -268,6 +338,7 @@
     .tournament-actions {
       display: none !important;
     }
+
     .dark,
     [data-theme='dark'],
     .dark body,
@@ -275,6 +346,7 @@
       background-color: white !important;
       color: black !important;
     }
+
     .dark .text-gray-100,
     .dark .text-gray-200,
     .dark .text-gray-300,
@@ -283,6 +355,7 @@
       /* Captura texto que usa a variável dark */
       color: black !important;
     }
+
     .dark .bg-gray-800,
     .dark .bg-gray-700,
     .dark .bg-gray-900,
@@ -291,12 +364,15 @@
       /* Captura backgrounds que usam variáveis dark */
       background-color: white !important;
     }
+
     .dark .border-gray-700,
     .dark .border-gray-600,
     .dark .border-\[var\(--card-border-color-dark\)\] {
       /* Captura bordas que usam variáveis dark */
-      border-color: #ccc !important; /* Cinza claro para bordas na impressão */
+      border-color: #ccc !important;
+      /* Cinza claro para bordas na impressão */
     }
+
     .container,
     .container-fluid,
     main,
@@ -309,141 +385,180 @@
       padding: 0.5cm !important;
       float: none !important;
     }
+
     .bracket-container {
       width: 100% !important;
       overflow: visible !important;
       page-break-inside: avoid;
     }
+
     .bracket {
       transform: scale(0.85) !important;
       transform-origin: top left !important;
       margin-bottom: 15pt !important;
       page-break-inside: avoid;
     }
+
     .bracket-round,
     .bracket-match {
       page-break-inside: avoid;
     }
+
     .bracket-match {
       border: 1pt solid #000 !important;
       margin: 4pt 0 !important;
     }
+
     .bracket-match-player {
       border-bottom: 1pt solid #000 !important;
       padding: 2pt !important;
     }
+
     table {
       width: 100% !important;
       border-collapse: collapse !important;
       margin-bottom: 15pt !important;
     }
+
     table,
     th,
     td {
       border: 1pt solid #000 !important;
     }
+
     th,
     td {
       padding: 4pt !important;
       text-align: left !important;
     }
+
     thead {
       display: table-header-group !important;
     }
+
     tr {
       page-break-inside: avoid;
     }
+
     @page {
       margin: 1.5cm;
-    } /* Margens da página de impressão */
+    }
+
+    /* Margens da página de impressão */
     h1,
     h2,
     h3 {
       text-align: left !important;
       margin-bottom: 10pt !important;
     }
+
     h1 {
       font-size: 18pt !important;
     }
+
     h2 {
       font-size: 14pt !important;
     }
+
     h3 {
       font-size: 12pt !important;
     }
+
     .tournament-info {
       margin-bottom: 15pt !important;
       text-align: left !important;
     }
+
     .tournament-name {
       font-size: 16pt !important;
       font-weight: bold !important;
       margin-bottom: 4pt !important;
     }
+
     .tournament-date,
     .tournament-location {
       font-size: 11pt !important;
       margin-bottom: 4pt !important;
     }
+
     .page-break {
       page-break-before: always;
     }
+
     a {
       text-decoration: none;
       color: black !important;
     }
+
     a[href]:after {
       content: ' (' attr(href) ')';
       font-size: 90%;
       color: #555 !important;
     }
+
     a[href^='#']:after,
     a[href^='javascript:']:after {
       content: '';
     }
+
     img {
       max-width: 100% !important;
       page-break-inside: avoid;
     }
+
     .bracket-connector {
       border-color: #000 !important;
     }
+
     .bracket-match-winner {
       font-weight: bold !important;
       background-color: #eee !important;
     }
+
     .bracket-match-score {
       font-weight: bold !important;
     }
+
     .print-logo img {
       max-height: 50pt !important;
       width: auto !important;
       margin-bottom: 10pt;
     }
-  } /* Fim @media print */
+  }
+
+  /* Fim @media print */
 
   /* Estilos para Conectores de Chaveamento */
   .bracket-connector {
     position: absolute;
-    width: 30px; /* Ajustável */
+    width: 30px;
+    /* Ajustável */
     border-top-width: 2px;
-    @apply border-gray-300 dark:border-slate-600; /* Tailwind color */
+    @apply border-gray-300 dark:border-slate-600;
+    /* Tailwind color */
   }
+
   .bracket-connector-horizontal {
     height: 2px;
-    @apply bg-gray-300 dark:bg-slate-600; /* Tailwind color */
+    @apply bg-gray-300 dark:bg-slate-600;
+    /* Tailwind color */
   }
+
   .bracket-connector-vertical {
     width: 2px;
-    @apply bg-gray-300 dark:bg-slate-600; /* Tailwind color */
+    @apply bg-gray-300 dark:bg-slate-600;
+    /* Tailwind color */
   }
-} /* Fim @layer components */
+}
+
+/* Fim @layer components */
 
 /* Utilitários de Animação */
 @layer utilities {
   .animate-fade-in {
     animation: fadeInAnimation 0.3s ease-out forwards;
   }
+
   .animate-fade-out {
     animation: fadeOutAnimation 0.3s ease-in-out forwards;
   }
@@ -453,16 +568,19 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
+
   @keyframes fadeOutAnimation {
     from {
       opacity: 1;
       transform: translateY(0);
     }
+
     to {
       opacity: 0;
       transform: translateY(-10px);

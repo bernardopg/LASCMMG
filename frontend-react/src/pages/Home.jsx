@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaArrowRight, FaListOl, FaTrophy, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useTournament } from '../context/TournamentContext';
@@ -55,19 +55,19 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-8 relative overflow-hidden">
+    <div className="space-y-6 md:space-y-8">
+      <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-4 md:p-8 relative overflow-hidden">
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 dark:text-white">
             Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica
             de Sinuca da CMMG
           </h1>
-          <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-xl">
+          <p className="text-gray-700 dark:text-gray-300 mb-4 md:mb-6 max-w-xl">
             Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
             Acompanhe resultados, estatísticas e chaveamentos dos torneios em
             andamento.
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 md:gap-4">
             <Link to="/brackets" className="btn btn-primary">
               Ver Chaveamentos
             </Link>
@@ -76,14 +76,14 @@ const Home = () => {
             </Link>
           </div>
         </div>
-        <div className="absolute right-0 top-0 h-full w-1/3 bg-primary opacity-10 transform rotate-6 translate-x-1/4"></div>
+        <div className="absolute right-0 top-0 h-full w-1/3 bg-primary opacity-10 transform rotate-6 translate-x-1/4 hidden md:block"></div>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-4">Estatísticas Gerais</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card p-6">
-            <div className="flex items-center justify-between mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="card p-4 md:p-6">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
               <h3 className="text-lg font-medium">Jogadores</h3>
               <span className="bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-100 p-2 rounded-full">
                 <FaUsers className="w-5 h-5" />
@@ -142,9 +142,9 @@ const Home = () => {
         <section>
           <h2 className="text-xl font-semibold mb-4">Torneio em Destaque</h2>
           <div className="card overflow-hidden">
-            <div className="p-6 pb-4 bg-primary-50 dark:bg-slate-700 border-b border-primary-200 dark:border-slate-600">
-              <div className="flex items-start justify-between">
-                <div>
+            <div className="p-4 md:p-6 pb-3 md:pb-4 bg-primary-50 dark:bg-slate-700 border-b border-primary-200 dark:border-slate-600">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                <div className="mb-3 sm:mb-0">
                   <h3 className="text-xl font-semibold text-primary dark:text-primary-light">
                     {currentTournament.name}
                   </h3>
@@ -153,36 +153,35 @@ const Home = () => {
                       'Sem descrição detalhada.'}
                   </p>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className="flex flex-row sm:flex-col sm:items-end justify-between sm:justify-start">
                   <span
-                    className={`badge ${
-                      currentTournament.status === 'Em Andamento'
+                    className={`badge ${currentTournament.status === 'Em Andamento'
                         ? 'badge-success'
                         : currentTournament.status === 'Pendente'
                           ? 'badge-info'
                           : 'badge-warning'
-                    }`}
+                      }`}
                   >
                     {currentTournament.status || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0 sm:mt-2">
                     Data:{' '}
                     {currentTournament.date
                       ? new Date(currentTournament.date).toLocaleDateString(
-                          'pt-BR'
-                        )
+                        'pt-BR'
+                      )
                       : 'N/A'}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <div className="mb-4">
                 <p className="text-gray-700 dark:text-gray-300">
                   {currentTournament.rules || 'Regras não especificadas.'}
                 </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.num_players_expected || 'N/A'}
@@ -202,7 +201,7 @@ const Home = () => {
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.entry_fee !== null &&
-                    currentTournament.entry_fee !== undefined
+                      currentTournament.entry_fee !== undefined
                       ? `R$ ${currentTournament.entry_fee.toFixed(2)}`
                       : 'Grátis'}
                   </span>
@@ -211,15 +210,11 @@ const Home = () => {
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="mt-4 md:mt-6 flex justify-end space-x-3">
                 <Link to="/brackets" className="btn btn-outline btn-sm">
-                  {' '}
-                  {/* Corrected link */}
                   Ver Chaveamento
                 </Link>
                 <Link to="/scores" className="btn btn-primary btn-sm">
-                  {' '}
-                  {/* Corrected link */}
                   Placares
                 </Link>
               </div>
@@ -265,7 +260,7 @@ const Home = () => {
                       {tournament.description?.substring(0, 70) ||
                         'Sem descrição.'}
                       {tournament.description &&
-                      tournament.description.length > 70
+                        tournament.description.length > 70
                         ? '...'
                         : ''}
                     </p>
@@ -278,13 +273,12 @@ const Home = () => {
                   </div>
                   <div className="flex items-center">
                     <span
-                      className={`badge mr-3 ${
-                        tournament.status === 'Em Andamento'
+                      className={`badge mr-3 ${tournament.status === 'Em Andamento'
                           ? 'badge-success'
                           : tournament.status === 'Pendente'
                             ? 'badge-info'
                             : 'badge-warning'
-                      }`}
+                        }`}
                     >
                       {tournament.status || 'N/A'}
                     </span>

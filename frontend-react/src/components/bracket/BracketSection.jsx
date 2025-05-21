@@ -57,13 +57,13 @@ const BracketSection = ({
   // End of sorting logic
 
   return (
-    <div className="mb-8 p-4 border border-gray-700 rounded-lg bg-gray-800 bg-opacity-50">
-      <h3 className="text-xl font-semibold text-[var(--color-secondary)] mb-4 pb-2 border-b border-gray-600">
+    <div className="mb-6 md:mb-8 p-3 md:p-4 border border-gray-700 rounded-lg bg-gray-800 bg-opacity-50">
+      <h3 className="text-lg md:text-xl font-semibold text-[var(--color-secondary)] mb-3 md:mb-4 pb-2 border-b border-gray-600">
         {title}
       </h3>
-      <div className="bracket-display flex flex-row overflow-x-auto pb-4 relative">
+      <div className="bracket-display flex flex-row overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900 relative">
         {' '}
-        {/* Added relative for potential connector positioning */}
+        {/* Added scrollbar classes for better mobile UX */}
         {sortedRoundNames.map((roundName, roundIndex) => {
           const matchesForRound = matchesByRound[roundName].sort(
             (a, b) => parseInt(a.id) - parseInt(b.id)
@@ -80,7 +80,7 @@ const BracketSection = ({
               {/* Add a visual spacer/connector area between rounds, except for the last one */}
               {roundIndex < sortedRoundNames.length - 1 && (
                 <div
-                  className="flex-shrink-0 w-10 md:w-16 flex items-center justify-center"
+                  className="flex-shrink-0 w-6 md:w-10 lg:w-16 flex items-center justify-center"
                   aria-hidden="true"
                 >
                   {/* This is where more complex connector lines would originate or pass through */}

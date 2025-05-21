@@ -15,34 +15,32 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import ThemeContext from './context/ThemeContext';
 import { TournamentProvider } from './context/TournamentContext';
+import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
 import AddScorePage from './pages/AddScorePage';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import RegisterPage from './pages/RegisterPage'; // Import RegisterPage
 import NotFoundPage from './pages/NotFound';
+import PlayerProfilePage from './pages/PlayerProfilePage'; // Import PlayerProfilePage
+import ProfilePage from './pages/ProfilePage';
+import RegisterPage from './pages/RegisterPage'; // Import RegisterPage
 import ScoresPage from './pages/ScoresPage';
 import StatsPage from './pages/StatsPage';
-import TournamentsPage from './pages/TournamentsPage';
 import TournamentDetailPage from './pages/TournamentDetailPage';
-import PlayerProfilePage from './pages/PlayerProfilePage'; // Import PlayerProfilePage
-import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
-import AdminSecurityPage from './pages/admin/AdminSecurityPage';
-import PlayersPage from './pages/admin/PlayersPage'; // Already imported
-import SettingsPage from './pages/admin/SettingsPage';
-import AdminPlaceholderPage from './pages/admin/AdminPlaceholderPage';
-import ProfilePage from './pages/ProfilePage';
-import EditTournamentPage from './pages/admin/EditTournamentPage';
-import ManageTournamentPage from './pages/admin/ManageTournamentPage';
-import AdminReportsPage from './pages/admin/AdminReportsPage';
+import TournamentsPage from './pages/TournamentsPage';
 import AdminActivityLogPage from './pages/admin/AdminActivityLogPage';
+import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminSecurityPage from './pages/admin/AdminSecurityPage';
 import CreatePlayerPage from './pages/admin/CreatePlayerPage';
 import EditPlayerPage from './pages/admin/EditPlayerPage'; // Import EditPlayerPage
-import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
+import EditTournamentPage from './pages/admin/EditTournamentPage';
+import ManageTournamentPage from './pages/admin/ManageTournamentPage';
+import PlayersPage from './pages/admin/PlayersPage'; // Already imported
+import SettingsPage from './pages/admin/SettingsPage';
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
 import SecurityOverview from './pages/admin/security/SecurityOverview';
 import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
-import api from './services/api'; // storeCsrfToken import removed
 
 // Lazy loaded pages
 const BracketPage = React.lazy(() => import('./pages/BracketPage'));
@@ -128,7 +126,7 @@ const MainLayout = ({ children }) => {
           className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-56'}`}
         >
           {/* This inner div provides top padding to clear the fixed header. Pages handle their own L/R/B padding. */}
-          <div className="pt-20"> {/* Header is h-16 (4rem=64px). pt-20 (5rem=80px) gives a bit of space. */}
+          <div className="pt-16 md:pt-20 px-2 md:px-6"> {/* Ajustes responsivos para padding */}
             <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
           </div>
         </main>
@@ -388,7 +386,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/add-score"
                 element={
                   <ProtectedRoute>
