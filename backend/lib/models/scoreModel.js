@@ -449,11 +449,30 @@ async function importScores(tournamentId, scoresData) {
 }
 
 async function countScores(includeDeleted = false) {
-  let { sql, params } = addScoreIsDeletedFilter(
-    'SELECT COUNT(*) as count FROM scores s',
-    [],
-    includeDeleted
-  );
+  // Temporarily remove is_deleted filter to avoid "no such column" error
+  // This assumes that for system stats, all scores (including soft-deleted) should be counted.
+  // If only non-deleted scores should be counted, the database schema needs to be fixed.
+  let sql = 'SELECT COUNT(*) as count FROM scores';
+  const params = [];
+
+  // Original code that caused the error:
+  // let { sql, params } = addScoreIsDeletedFilter(
+  //   'SELECT COUNT(*) as count FROM scores s', // Original had 's' alias
+  //   [],
+  //   includeDeleted
+  // );
+
+  // If we decide to re-enable filtering and the schema is fixed,
+  // the query should be: 'SELECT COUNT(*) as count FROM scores s'
+  // and addScoreIsDeletedFilter should be called as above.
+  // For now, if includeDeleted is false (the default for countScores call in security.js),
+  // and we want to respect it WITHOUT the filter helper due to schema issue:
+  if (!includeDeleted) {
+    // This part would still fail if is_deleted column doesn't exist.
+    // sql += ' WHERE (is_deleted = 0 OR is_deleted IS NULL)';
+    // So, for now, we count all scores regardless of includeDeleted.
+  }
+
   try {
     const row = await getOneAsync(sql, params);
     return row ? row.count : 0;

@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useEffect, useState } from 'react';
+import apiInstance, { setAuthToken as setApiAuthToken } from '../services/api'; // Importar api como default e setApiAuthToken
 
 // Criar context
 const AuthContext = createContext();
@@ -27,35 +27,26 @@ export const AuthProvider = ({ children }) => {
         const storedToken = localStorage.getItem('authToken');
 
         if (storedUser && storedToken) {
-          // Configurar token de autenticação no axios
-          axios.defaults.headers.common['Authorization'] =
-            `Bearer ${storedToken}`;
+          // Configurar token para a instância 'api' compartilhada
+          setApiAuthToken(storedToken);
 
-          // Verificar se o token ainda é válido usando /api/me
-          try {
-            const response = await axios.get('/api/me');
-            if (response.data && response.data.success && response.data.user) {
-              setCurrentUser(response.data.user);
-            } else {
-              // Token inválido ou resposta inesperada, fazer logout
-              // logout() já lida com a limpeza do localStorage e axios defaults
-              await logout();
-            }
-          } catch (err) {
-            // Se /api/me falhar (ex: 401, token expirado, erro de rede), fazer logout
-            // logout() já lida com a limpeza do localStorage e axios defaults
-            console.warn('Falha ao verificar token com /api/me, fazendo logout:', err.message);
+          console.log('AuthContext: Verificando token com /api/auth/me. Token:', storedToken ? 'presente' : 'ausente');
+          // Usar a instância 'api' configurada
+          const response = await apiInstance.get('/api/auth/me');
+          console.log('AuthContext: Resposta de /api/auth/me:', response.data);
+          if (response.data && response.data.success && response.data.user) {
+            setCurrentUser(response.data.user);
+            console.log('AuthContext: Token verificado com sucesso, usuário definido:', response.data.user);
+          } else {
+            console.warn('AuthContext: /api/auth/me não retornou sucesso ou usuário. Resposta:', response.data, 'Fazendo logout.');
             await logout();
           }
+        } else {
+          setApiAuthToken(null); // Garantir que a instância api também seja limpa se não houver token
         }
       } catch (err) {
-        // Erro ao acessar localStorage, por exemplo.
-        console.error('Erro crítico durante checkLoggedIn (ex: localStorage):', err);
-        // Garantir que o estado local seja limpo se houver erro aqui
-        localStorage.removeItem('authUser');
-        localStorage.removeItem('authToken');
-        delete axios.defaults.headers.common['Authorization'];
-        setCurrentUser(null);
+        console.warn('AuthContext: Falha ao verificar token com /api/auth/me. Erro:', err.response?.data || err.message, 'Fazendo logout.');
+        await logout();
       } finally {
         setLoading(false);
       }
@@ -69,56 +60,54 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      // O interceptor do Axios em services/api.js já deve adicionar o X-CSRF-Token.
-      // A leitura manual do cookie aqui é provavelmente redundante.
-
-      // Mapeia email para username conforme esperado pelo backend
-      // TODO: Verificar se esta limpeza de email ainda é necessária após correções no formulário de Login.
       const cleanEmail = email.includes('@') ?
         email.substring(0, email.indexOf('@')) + '@' + email.substring(email.indexOf('@') + 1) :
         email;
 
-      const response = await axios.post('/api/auth/login', {
-        username: cleanEmail, // O backend espera 'username'
+      // Usar a instância 'api' configurada
+      const response = await apiInstance.post('/api/auth/login', {
+        username: cleanEmail,
         password
-      }); // O header CSRF será adicionado pelo interceptor
+      });
 
-      // Aceita tanto { admin, token } quanto { user, token }
       const { admin, user, token } = response.data;
       const userObj = user || admin;
 
-      // Salvar no localStorage sempre como "user"
       localStorage.setItem('authUser', JSON.stringify(userObj));
       localStorage.setItem('authToken', token);
 
-      // Configurar token para futuras requisições
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Configurar token para a instância 'api' compartilhada
+      setApiAuthToken(token);
 
       setCurrentUser(userObj);
+      console.log('AuthContext: Login bem-sucedido, tokens definidos.');
       return userObj;
     } catch (err) {
       setError(err.response?.data?.message || 'Falha na autenticação');
+      setApiAuthToken(null); // Limpar token na instância api em caso de falha no login
       throw err;
     }
   };
 
   // Função de logout
   const logout = async () => {
+    console.log('AuthContext: Iniciando processo de logout.');
     try {
-      // Tentar fazer logout no servidor
-      await axios.post('/api/auth/logout');
+      // Usar a instância 'api' configurada
+      await apiInstance.post('/api/auth/logout');
+      console.log('AuthContext: Chamada para /api/auth/logout bem-sucedida.');
     } catch (err) {
-      console.error('Erro ao fazer logout:', err);
+      console.error('AuthContext: Erro ao fazer logout no servidor:', err.response?.data || err.message);
     } finally {
-      // Remover dados do localStorage
       localStorage.removeItem('authUser');
       localStorage.removeItem('authToken');
+      console.log('AuthContext: authUser e authToken removidos do localStorage.');
 
-      // Remover token de autenticação
-      delete axios.defaults.headers.common['Authorization'];
+      setApiAuthToken(null); // Limpar token da instância 'api' compartilhada
+      console.log('AuthContext: Cabeçalho Authorization removido da instância api.');
 
-      // Limpar estado do usuário
       setCurrentUser(null);
+      console.log('AuthContext: currentUser definido como null.');
     }
   };
 

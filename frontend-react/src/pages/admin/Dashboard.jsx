@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { FaChartBar, FaClock, FaCog, FaInfoCircle, FaListOl, FaPlus, FaPlusCircle, FaTrophy, FaUsers } from 'react-icons/fa'; // Icons
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTournament } from '../../context/TournamentContext';
 import { useMessage } from '../../context/MessageContext';
-import { getTournaments, getAdminPlayers, getAdminScores } from '../../services/api'; // API imports
-import { FaUsers, FaListOl, FaTrophy, FaClock, FaPlus, FaCog, FaUserShield, FaInfoCircle, FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa'; // Icons
+import { useTournament } from '../../context/TournamentContext';
+import { getAdminPlayers, getAdminScores, getTournaments } from '../../services/api'; // API imports
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => (
   <div className="stat-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
