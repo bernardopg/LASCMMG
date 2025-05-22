@@ -104,12 +104,6 @@ function initializeDatabase() {
     );
   `;
 
-  // Adicionar ALTER TABLE para bancos de dados existentes, se necessário.
-  // Por simplicidade, focaremos no CREATE TABLE IF NOT EXISTS por agora.
-  // const alterTournamentsTable1 = `ALTER TABLE tournaments ADD COLUMN entry_fee REAL;`;
-  // const alterTournamentsTable2 = `ALTER TABLE tournaments ADD COLUMN prize_pool TEXT;`;
-  // const alterTournamentsTable3 = `ALTER TABLE tournaments ADD COLUMN rules TEXT;`;
-
   const createPlayersTable = `
     CREATE TABLE IF NOT EXISTS players (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -125,10 +119,10 @@ function initializeDatabase() {
       skill_level TEXT,
       is_deleted INTEGER DEFAULT 0,
       deleted_at TEXT, -- Added for soft delete timestamp
-      FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
-      -- UNIQUE (tournament_id, name) -- Removed for now, needs careful thought for global vs tournament players
-      -- TODO: Add appropriate UNIQUE constraints for global players (e.g., name or email)
-      -- and for tournament players (e.g., tournament_id + global_player_id if using separate global table)
+      FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
+      UNIQUE (tournament_id, name) -- Ensures a player name is unique within a specific tournament
+      -- The existing email TEXT UNIQUE handles global email uniqueness.
+      -- Global players (tournament_id IS NULL) can have the same name if their emails differ.
     );
   `;
 
@@ -218,16 +212,10 @@ function initializeDatabase() {
     db.exec(createPlayersTournamentIdDeletedIndex); // Execute new index
     db.exec(createPlayersNameIndex); // Execute new index
 
-    logger.info(
-      { component: 'Database' },
-      'Tabelas e índices do banco de dados inicializados/verificados.'
-    );
+    logger.info({ component: 'Database' }, 'Banco de dados inicializado/verificado com sucesso.');
   } catch (err) {
-    logger.error(
-      { component: 'Database', err },
-      'Erro ao inicializar tabelas ou índices.'
-    );
-    throw err; // Relançar o erro para que a aplicação não inicie com DB inconsistente
+    logger.error({ component: 'Database', err }, 'Erro ao inicializar o banco de dados.');
+    throw err;
   }
 }
 

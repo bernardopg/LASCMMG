@@ -95,6 +95,9 @@ const MainLayout = ({ children }) => {
     return savedState ? JSON.parse(savedState) : false;
   });
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   const toggleSidebarCollapse = () => {
@@ -105,6 +108,22 @@ const MainLayout = ({ children }) => {
     });
   };
 
+  // Monitor window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+
+      // Automatically close sidebar on mobile when resizing
+      if (mobile && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarOpen]);
+
   useEffect(() => {
     if (isSidebarCollapsed) {
       document.body.classList.add('sidebar-collapsed-app');
@@ -113,24 +132,45 @@ const MainLayout = ({ children }) => {
     }
   }, [isSidebarCollapsed]);
 
+  // Toggle mobile sidebar
+  const toggleMobileSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Header
         isSidebarCollapsed={isSidebarCollapsed}
         toggleSidebarCollapse={toggleSidebarCollapse}
+        toggleMobileSidebar={toggleMobileSidebar}
+        isMobile={isMobile}
         currentTheme={theme}
         toggleTheme={toggleTheme}
       />
-      <div className="flex">
-        <Sidebar isSidebarCollapsed={isSidebarCollapsed} />
-        <main
-          className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-56'}`}
-        >
-          {/* This inner div provides top padding to clear the fixed header. Pages handle their own L/R/B padding. */}
-          <div className="pt-16 md:pt-20 px-2 md:px-6"> {/* Ajustes responsivos para padding */}
-            <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
-          </div>
-        </main>
+
+      {/* Overlay for mobile sidebar */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"
+          onClick={toggleMobileSidebar}
+        />
+      )}
+
+      <div className="flex flex-col md:flex-row flex-1 min-h-[calc(100vh-4rem)] pt-16">
+        <div className={`
+          ${isMobile ? 'fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out' : 'relative flex-shrink-0'}
+          ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+          ${isMobile ? 'mt-16' : ''}
+        `}>
+          <Sidebar isSidebarCollapsed={isMobile ? false : isSidebarCollapsed} />
+        </div>
+
+          <main className="flex-1 w-full" id="main-content" tabIndex="-1">
+            {/* Adjusted padding to match the new fixed header */}
+            <div className="pt-4 pb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto transition-all duration-200">
+              <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+            </div>
+          </main>
       </div>
       <Footer />
     </div>

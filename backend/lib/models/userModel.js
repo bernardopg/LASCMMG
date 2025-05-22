@@ -227,106 +227,43 @@ async function authenticateUser(username, password, ipAddress) {
 }
 
 /**
- * Changes a user's password.
- * @param {string} username - The username.
- * @param {string} currentPassword - The current password.
- * @param {string} newPassword - The new password.
- * @param {string} ipAddress - The IP address of the user.
- * @returns {Promise<object>} Object containing success status and message.
- */
-async function changeUserPassword(
-  username,
-  currentPassword,
-  newPassword,
-  ipAddress
-) {
-  // Added ipAddress parameter
-  if (!username || !currentPassword || !newPassword) {
-    throw new Error('Incomplete data for password change');
-  }
-
-  // Password validation (length, complexity) is now handled by Joi schema at the route level.
-  // The check for newPassword being different from currentPassword remains.
-  if (currentPassword === newPassword) {
-    return {
-      success: false,
-      message: 'New password cannot be the same as the current password',
-    };
-  }
-
-  try {
-    const user = await getUserByUsername(username);
-    if (!user) {
-      return {
-        success: false,
-        message: 'User not found.',
-      };
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(
-      currentPassword,
-      user.hashedPassword
-    );
-    if (!isPasswordCorrect) {
-      return { success: false, message: 'Incorrect current password' };
-    }
-
-    auditLogger.logAction(
-      user.id.toString(),
-      'USER_PASSWORD_CHANGE',
-      'user',
-      user.id.toString(),
-      { username: user.username, ipAddress: ipAddress || 'unknown' } // Use ipAddress parameter
-    );
-
-    const saltRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    const sql = 'UPDATE users SET hashedPassword = ? WHERE username = ?';
-    await runAsync(sql, [hashedNewPassword, username]);
-
-    logger.info(
-      'UserModel',
-      `Password changed successfully for user ${username}.`
-    );
-    return { success: true, message: 'Password changed successfully' };
-  } catch (err) {
-    logger.error(
-      'UserModel',
-      `Error changing password for ${username}: ${err.message}`,
-      { error: err }
-    );
-    // Do not throw generic error to client, specific messages handled above
-    return {
-      success: false,
-      message: 'An error occurred while changing password.',
-    };
-  }
-}
-
-/**
- * Atualiza a senha de um usuário após validar a senha atual.
+ * Atualiza a senha de um usuário (identificado por ID) após validar a senha atual.
+ * A complexidade da nova senha deve ser validada na camada de rota usando Joi.
  * @param {number} userId - O ID do usuário.
  * @param {string} currentPassword - A senha atual do usuário.
  * @param {string} newPassword - A nova senha a ser definida.
- * @returns {Promise<boolean>} True se a senha foi atualizada com sucesso, false caso contrário.
+ * @param {string} ipAddress - O endereço IP do requisitante para auditoria.
+ * @returns {Promise<object>} Objeto com status de sucesso e mensagem.
  */
-async function updatePassword(userId, currentPassword, newPassword) {
+async function updatePasswordById(userId, currentPassword, newPassword, ipAddress) {
   if (!userId) {
-    throw new Error('ID de usuário não fornecido');
+    // Este erro deve ser pego antes pela validação da rota ou verificação do req.user,
+    // mas é uma salvaguarda.
+    logger.error('UserModel', 'ID de usuário não fornecido para updatePasswordById.');
+    return { success: false, message: 'ID de usuário não fornecido.' };
   }
 
   if (!currentPassword || !newPassword) {
-    throw new Error('Senha atual ou nova senha não fornecida');
+    // Também deve ser pego pela validação da rota.
+    logger.error('UserModel', `Senha atual ou nova não fornecida para usuário ID: ${userId}.`);
+    return { success: false, message: 'Senha atual e nova senha são obrigatórias.' };
+  }
+
+  if (currentPassword === newPassword) {
+    return {
+      success: false,
+      message: 'Nova senha não pode ser igual à senha atual.',
+    };
   }
 
   try {
-    // Obter o usuário para validar a senha atual
-    const user = await getOneAsync('SELECT id, hashedPassword FROM users WHERE id = ?', [userId]);
+    // Obter o usuário para validar a senha atual e para auditoria
+    // Selecionar username para o log de auditoria.
+    const user = await getOneAsync('SELECT id, username, hashedPassword, role FROM users WHERE id = ?', [userId]);
 
     if (!user) {
-      logger.warn('UserModel', `Tentativa de atualização de senha para usuário inexistente ID: ${userId}`);
-      return false;
+      logger.warn('UserModel', `Tentativa de atualização de senha para usuário inexistente ID: ${userId}.`);
+      return { success: false, message: 'Usuário não encontrado.' };
     }
 
     // Verificar se a senha atual está correta
@@ -336,45 +273,46 @@ async function updatePassword(userId, currentPassword, newPassword) {
     );
 
     if (!isCurrentPasswordValid) {
-      logger.warn('UserModel', `Tentativa de atualização de senha com senha atual inválida para usuário ID: ${userId}`);
-      return false;
-    }
-
-    // Verificar se a nova senha atende aos requisitos mínimos
-    if (newPassword.length < 8) {
-      throw new Error('A nova senha deve ter pelo menos 8 caracteres');
+      logger.warn('UserModel', `Tentativa de atualização de senha com senha atual inválida para usuário ID: ${userId}.`);
+      return { success: false, message: 'Senha atual incorreta.' };
     }
 
     // Gerar hash da nova senha
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // Atualizar a senha no banco de dados
-    await runAsync(
+    const result = await runAsync(
       'UPDATE users SET hashedPassword = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [hashedPassword, userId]
+      [hashedNewPassword, userId]
     );
 
-    // Registrar a ação no log de auditoria
-    auditLogger.log({
-      action: 'password_update',
-      entity: 'user',
-      entityId: userId,
-      message: `Senha atualizada para o usuário ID: ${userId}`,
-      metadata: {
-        userId,
-      },
-    });
+    if (result.changes === 0) {
+      // Isso não deveria acontecer se o usuário foi encontrado e a senha atual estava correta.
+      logger.error('UserModel', `Falha ao atualizar a senha no banco de dados para o usuário ID: ${userId}, nenhuma linha afetada.`);
+      return { success: false, message: 'Erro ao atualizar a senha. Nenhuma alteração feita.' };
+    }
 
-    logger.info('UserModel', `Senha atualizada com sucesso para o usuário ID: ${userId}`);
-    return true;
+    // Registrar a ação no log de auditoria
+    // Usar o formato de log de auditoria consistente com outros logs de ação.
+    auditLogger.logAction(
+      user.id.toString(),
+      user.role === 'admin' ? 'ADMIN_PASSWORD_CHANGE_BY_ID' : 'USER_PASSWORD_CHANGE_BY_ID',
+      user.role, // entityType
+      user.id.toString(), // entityId
+      { username: user.username, changedByUserId: userId, ipAddress: ipAddress || 'unknown' }
+    );
+
+    logger.info('UserModel', `Senha atualizada com sucesso para o usuário ID: ${userId}.`);
+    return { success: true, message: 'Senha alterada com sucesso.' };
   } catch (err) {
     logger.error(
       'UserModel',
       `Erro ao atualizar senha para o usuário ID: ${userId}: ${err.message}`,
       { error: err }
     );
-    throw err;
+    // Não relançar o erro diretamente para o cliente, mas retornar uma mensagem genérica.
+    return { success: false, message: 'Ocorreu um erro ao tentar alterar a senha.' };
   }
 }
 
@@ -384,6 +322,6 @@ module.exports = {
   createUser,
   updateUserLastLogin,
   authenticateUser,
-  changeUserPassword,
-  updatePassword,
+  // changeUserPassword, // Removida
+  updatePasswordById, // Nova função consolidada
 };

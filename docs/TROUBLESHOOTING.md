@@ -74,8 +74,8 @@ Este guia foi atualizado para ajudar a diagnosticar e resolver problemas com o S
   - Solução (Desenvolvimento): `CORS_ORIGIN=*` no `.env` do backend geralmente permite. Verifique se o frontend está rodando na porta esperada (Vite padrão: 5173).
   - Solução (Produção): `CORS_ORIGIN` no `.env` do backend DEVE ser a URL exata do frontend (ex: `https://app.seudominio.com`). `VITE_API_URL` no frontend deve corresponder ao que o backend espera ou ao proxy.
 - **Problemas com Redis (Backend):**
-  - **Erro: "Cliente Redis não disponível" ou falhas em CSRF, rate limiting, login/logout, honeypot.**
-    - Solução: Verifique se o servidor Redis está rodando e acessível na URL configurada em `REDIS_URL` no arquivo `.env` do backend. Verifique os logs do Redis para erros de conexão.
+  - **Erro: "Cliente Redis não disponível" ou falhas em CSRF, rate limiting, login/logout (incluindo refresh tokens e blacklist), honeypot, rastreamento de tentativas de login falhas, ou timeout de sessão por inatividade.**
+    - Solução: Verifique se o servidor Redis está rodando e acessível na URL configurada em `REDIS_URL` no arquivo `.env` do backend. Verifique os logs do Redis para erros de conexão. Muitas funcionalidades críticas de segurança e sessão dependem do Redis.
 
 ## 4. Problemas do Banco de Dados (SQLite)
 
@@ -100,9 +100,15 @@ Este guia foi atualizado para ajudar a diagnosticar e resolver problemas com o S
 ## 6. Problemas de Acesso e Autenticação
 
 - **Não consigo fazer login no painel (`/login`):**
-  - Solução: Verifique credenciais. Admin inicializado com `node scripts/initialize_admin.js`? Logs do backend? Limpe cookies/localStorage do navegador. `JWT_SECRET`, `COOKIE_SECRET` corretos no `.env` do backend?
+  - Solução:
+    - Verifique suas credenciais (email e senha).
+    - O administrador inicial foi criado com `node scripts/initialize_admin.js`?
+    - Verifique os logs do backend para mensagens de erro específicas.
+    - Limpe cookies e localStorage do seu navegador para o site.
+    - Confirme que `JWT_SECRET`, `COOKIE_SECRET`, e `CSRF_SECRET` estão corretamente configurados no arquivo `.env` do backend.
+    - **Conta Bloqueada:** Se você vir uma mensagem sobre "Muitas tentativas de login falhas" (status 429), sua conta ou IP pode estar temporariamente bloqueado. Aguarde o tempo indicado (geralmente 15 minutos) e tente novamente.
 - **Logout não funciona / sessão persiste:**
-  - Solução: Logs do backend (rota `/api/auth/logout`). Cookies sendo removidos? Limpe cache/cookies.
+  - Solução: Verifique os logs do backend (rota `/api/auth/logout`). O Redis está funcionando corretamente (usado para invalidar tokens de acesso e refresh tokens)? Limpe cache/cookies do navegador.
 
 ## 7. Problemas de Interface e Frontend React
 

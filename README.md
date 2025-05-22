@@ -13,16 +13,26 @@
 ## 🎱 Visão Geral (Atualizado: Maio/2025)
 
 ### Manutenção (22/05/2025)
-- Revisão e aprimoramento de toda a documentação do projeto
-- Atualização dos schemas de API e referências de endpoints
-- Otimizações de segurança no backend e API
-- Padronização e melhoria do código JavaScript/React
-- Consolidado scripts de administrador em `initialize_admin.js`
-- Padronizado o armazenamento do banco de dados na pasta raiz `/data`
-- Removidos componentes duplicados no frontend
-- Implementada rota para alteração de senha de usuário
+- **Backend Refactoring & Enhancements:**
+  - Consolidada lógica de atualização de senha de usuário no `userModel.js`.
+  - Padronizada validação de requisições nas rotas de usuário (`routes/users.js`) utilizando Joi schemas.
+  - Refatorada a função `authenticateAdmin` no `adminModel.js` para maior clareza, separando a lógica de autenticação baseada em arquivo e migração.
+  - Aprimorado o gerenciamento de refresh tokens no `adminModel.js` com o uso de Redis Sets para revogação eficiente por usuário.
+  - Integrado rastreamento de tentativas de login falhas e mecanismo de lockout de conta nas rotas de login de administrador e de usuário.
+  - Removida duplicação de código no `scoreModel.js`.
+  - Adicionada constraint `UNIQUE (tournament_id, name)` à tabela `players` no schema do banco de dados (`database.js`) e corrigidos erros de sintaxe relacionados.
+  - Revisadas configurações de cookies e tratamento de `COOKIE_SECRET` / `JWT_SECRET` para segurança.
+  - Verificada consistência geral nas práticas de logging e uso de `async/await`.
+- Revisão e aprimoramento de toda a documentação do projeto (em andamento com esta atualização).
+- Atualização dos schemas de API e referências de endpoints (a ser verificado após revisão do backend).
+- Otimizações de segurança no backend e API (conforme itens acima).
+- Padronização e melhoria do código JavaScript/React (foco no backend nesta etapa).
+- Consolidado scripts de administrador em `initialize_admin.js` (verificado, já implementado).
+- Padronizado o armazenamento do banco de dados na pasta raiz `/data` (verificado, já implementado).
+- Removidos componentes duplicados no frontend (fora do escopo desta revisão de backend).
+- Implementada rota para alteração de senha de usuário (verificado, e aprimorado).
 
-O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Vite e Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
+O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Vite e Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching, gerenciamento de sessão e outras funcionalidades de backend.
 
 **Diferenciais do projeto:**
 

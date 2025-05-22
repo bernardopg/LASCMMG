@@ -83,20 +83,20 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 p-4 sm:p-8 bg-white dark:bg-slate-800 shadow-xl rounded-xl">
-        <div className="text-center">
+        <div className="flex justify-center mb-6 md:mb-8">
           <img
-            className="mx-auto h-16 sm:h-20 w-auto"
-            src="/assets/logo-removebg.png"
+            src="/assets/logo-lascmmg.png"
             alt="LASCMMG Logo"
+            className="h-16 w-auto transition-transform duration-300 hover:scale-105"
           />
-          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            Login - LASCMMG
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sistema de gerenciamento de torneios da Liga Academica de Sinuca -
-            CMMG
-          </p>
         </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white mb-6 md:mb-8">
+          Login - LASCMMG
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          Sistema de gerenciamento de torneios da Liga Academica de Sinuca -
+          CMMG
+        </p>
 
         <Formik
           initialValues={initialValues}

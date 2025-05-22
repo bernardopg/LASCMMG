@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config/config'); // Removed JWT_EXPIRATION
+const { JWT_SECRET, SESSION_INACTIVITY_TIMEOUT } = require('../config/config'); // Adicionado SESSION_INACTIVITY_TIMEOUT
 const { logger } = require('../logger/logger');
 const { getClient } = require('../db/redisClient'); // Import Redis client
 
@@ -9,6 +9,7 @@ const AUTH_CONFIG = {
   lockoutDurationMinutes: 15,
   redisFailedAttemptsPrefix: 'failedlogin:',
   redisBlacklistedTokenPrefix: 'jwtblacklist:',
+  redisActiveSessionPrefix: 'activesession:', // Para rastrear atividade
 };
 
 // Helper function to get Redis client
@@ -130,6 +131,48 @@ async function isTokenBlacklisted(token) {
   }
 }
 
+// Atualizar o timestamp da última atividade da sessão
+async function updateUserActivity(userId) {
+  const redis = await getRedis();
+  if (!redis) return;
+
+  const key = `${AUTH_CONFIG.redisActiveSessionPrefix}${userId}`;
+  try {
+    // Define o timestamp atual e define o TTL para corresponder ao timeout de inatividade
+    await redis.set(key, Date.now().toString(), { EX: SESSION_INACTIVITY_TIMEOUT });
+  } catch (error) {
+    logger.error(
+      'AuthMiddleware',
+      `Erro ao atualizar a atividade do usuário ${userId} no Redis:`,
+      { error: error.message }
+    );
+  }
+}
+
+// Verificar se a sessão está inativa (o token pode ainda não ter expirado)
+async function isSessionInactive(userId) {
+  const redis = await getRedis();
+  if (!redis) return false; // Se o Redis estiver inativo, não podemos verificar, então assumimos que não está inativo
+
+  const key = `${AUTH_CONFIG.redisActiveSessionPrefix}${userId}`;
+  try {
+    const lastActivity = await redis.get(key);
+    if (!lastActivity) {
+      // Se não houver registro de atividade, a sessão é considerada inativa (ou nunca existiu/foi limpa)
+      return true;
+    }
+    // O Redis cuidará da expiração da chave. Se a chave existir, a sessão está ativa.
+    return false;
+  } catch (error) {
+    logger.error(
+      'AuthMiddleware',
+      `Erro ao verificar inatividade da sessão para ${userId} no Redis:`,
+      { error: error.message }
+    );
+    return false; // Em caso de erro, assuma que a sessão não está inativa para evitar logout acidental
+  }
+}
+
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token =
@@ -160,9 +203,39 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded; // Adiciona informações do usuário ao objeto req
 
+    // Verificar inatividade da sessão
+    if (await isSessionInactive(req.user.id)) {
+      logger.warn('AuthMiddleware', 'Sessão inativa para o usuário.', {
+        userId: req.user.id,
+        username: req.user.username,
+        requestId: req.id,
+        ip: req.ip,
+      });
+      // Opcional: invalidar o token JWT aqui também, adicionando-o à blacklist
+      // await blacklistToken(token, decoded);
+      return res.status(401).json({
+        success: false,
+        message: 'Sessão expirada devido à inatividade. Faça login novamente.',
+        code: 'SESSION_INACTIVE',
+      });
+    }
+
+    // Atualizar o timestamp da última atividade
+    await updateUserActivity(req.user.id);
+
     // Pass a function to revoke the token for logout routes
     req.revokeToken = async () => {
-      return await blacklistToken(token, decoded);
+      const blacklisted = await blacklistToken(token, decoded);
+      // Limpar também o rastreamento de atividade da sessão no logout
+      const redis = await getRedis();
+      if (redis) {
+        try {
+          await redis.del(`${AUTH_CONFIG.redisActiveSessionPrefix}${req.user.id}`);
+        } catch (delError) {
+          logger.error('AuthMiddleware', 'Erro ao limpar chave de sessão ativa no logout', { error: delError.message });
+        }
+      }
+      return blacklisted;
     };
 
     next();
@@ -190,5 +263,6 @@ module.exports = {
   clearFailedAttempts,
   blacklistToken, // For use in logout logic
   isTokenBlacklisted, // Potentially for other checks
+  updateUserActivity, // Exportar para uso potencial em outros lugares (ex: login bem-sucedido)
   AUTH_CONFIG,
 };

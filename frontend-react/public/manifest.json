@@ -9,13 +9,13 @@
       "type": "image/x-icon"
     },
     {
-      "src": "assets/logo192.png",
+      "src": "assets/logo-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/logo512.png",
+      "src": "assets/logo-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
@@ -26,7 +26,11 @@
   "theme_color": "#2e9d3a",
   "background_color": "#1a2a1a",
   "orientation": "portrait",
-  "categories": ["sports", "utilities", "productivity"],
+  "categories": [
+    "sports",
+    "utilities",
+    "productivity"
+  ],
   "lang": "pt-BR",
   "dir": "ltr",
   "prefer_related_applications": false,

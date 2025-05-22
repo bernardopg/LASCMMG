@@ -103,7 +103,20 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000', // Your backend server address
         changeOrigin: true, // Recommended for virtual hosted sites
-        // secure: false, // Uncomment if your backend is on HTTP and Vite is on HTTPS, or for self-signed certs
+        secure: false, // For self-signed certs
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            // Add current origin to help backend know where the request is coming from
+            proxyReq.setHeader('X-Forwarded-Host', req.headers.host);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            // Override CORS headers in the response
+            proxyRes.headers['Access-Control-Allow-Origin'] = req.headers.origin || '*';
+            proxyRes.headers['Access-Control-Allow-Credentials'] = true;
+            proxyRes.headers['Access-Control-Allow-Methods'] = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+            proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization';
+          });
+        },
       },
     },
   },

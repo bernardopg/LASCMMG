@@ -1,80 +1,214 @@
+import { useEffect, useRef } from 'react';
+import { FaArrowUp, FaFacebook, FaGithub, FaHeart, FaInstagram, FaTwitter } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
+  const footerRef = useRef(null);
+  const firstLinkRef = useRef(null);
+  const scrollButtonRef = useRef(null);
+
+  // Manage keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only handle keydown if footer has focus
+      if (!footerRef.current?.contains(document.activeElement)) return;
+
+      const focusableElements = Array.from(
+        footerRef.current?.querySelectorAll('a[href], button') || []
+      ).filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+
+      if (!focusableElements.length) return;
+
+      const currentIndex = focusableElements.indexOf(document.activeElement);
+
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          const nextIndex = currentIndex < focusableElements.length - 1 ? currentIndex + 1 : 0;
+          focusableElements[nextIndex]?.focus();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          const prevIndex = currentIndex > 0 ? currentIndex - 1 : focusableElements.length - 1;
+          focusableElements[prevIndex]?.focus();
+          break;
+        case 'Home':
+          e.preventDefault();
+          focusableElements[0]?.focus();
+          break;
+        case 'End':
+          e.preventDefault();
+          focusableElements[focusableElements.length - 1]?.focus();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
   const currentYear = new Date().getFullYear();
 
+  // Function to scroll back to top smoothly with improved accessibility
+  const scrollToTop = () => {
+    // Announce to screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.classList.add('sr-only');
+    announcement.textContent = 'Voltando ao topo da página';
+    document.body.appendChild(announcement);
+
+    // Add animation class to button
+    if (scrollButtonRef.current) {
+      scrollButtonRef.current.classList.add('animate-bounce');
+
+      // Remove animation class after completion
+      setTimeout(() => {
+        scrollButtonRef.current?.classList.remove('animate-bounce');
+      }, 500);
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+
+    // After scrolling, focus on the first focusable element in the document
+    setTimeout(() => {
+      const firstFocusable = document.querySelector('a[href], button, input, select, textarea');
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+      // Remove announcement after focus changes
+      document.body.removeChild(announcement);
+    }, 800);
+  };
+
+  // Social media links with appropriate aria labels
+  const socialLinks = [
+    {
+      name: 'Facebook',
+      url: 'https://facebook.com', // Update with real link
+      icon: <FaFacebook className="w-5 h-5" />,
+      label: 'Visite nossa página no Facebook'
+    },
+    {
+      name: 'Instagram',
+      url: 'https://instagram.com', // Update with real link
+      icon: <FaInstagram className="w-5 h-5" />,
+      label: 'Siga-nos no Instagram'
+    },
+    {
+      name: 'Twitter',
+      url: 'https://twitter.com', // Update with real link
+      icon: <FaTwitter className="w-5 h-5" />,
+      label: 'Siga-nos no Twitter'
+    },
+    {
+      name: 'GitHub',
+      url: 'https://github.com', // Update with real link
+      icon: <FaGithub className="w-5 h-5" />,
+      label: 'Acesse nosso repositório no GitHub'
+    },
+  ];
+
+  // Footer navigation links with refs for keyboard navigation
+  const footerLinks = [
+    { name: 'Sobre', path: '/about' },
+    { name: 'Contato', path: '/contact' },
+    { name: 'Política de Privacidade', path: '/privacy' },
+    { name: 'Termos de Uso', path: '/terms' },
+  ];
+
   return (
-    <footer className="footer bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 py-4 px-6 mt-auto">
+    <footer
+      ref={footerRef}
+      className="footer bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 py-6 px-4 sm:px-6 mt-auto transition-all duration-300 print:hidden shadow-inner"
+      role="contentinfo"
+      aria-label="Rodapé do site"
+    >
       <div className="container mx-auto">
-        <div className="footer-content flex flex-col md:flex-row justify-between items-center">
-          <div className="footer-logo flex items-center mb-4 md:mb-0">
-            <img
-              src="/assets/logo.png"
-              alt="Logo LASCMMG"
-              className="footer-logo-img h-8 mr-2"
-            />
-            <span className="text-gray-800 dark:text-gray-100 font-medium">
-              LASCMMG
-            </span>
+        <div className="footer-content flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Logo and title section - improved with gradient */}
+          <div className="flex items-center justify-center md:justify-start mb-4 md:mb-0">
+            <Link to="/" aria-label="Ir para página inicial LASCMMG">
+              <img
+                src="/assets/logo-lascmmg.png"
+                alt="LASCMMG Logo"
+                className="h-10 mr-3"
+              />
+            </Link>
+            <div className="flex flex-col">
+              <span className="text-gray-800 dark:text-gray-100 font-semibold text-lg bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                LASCMMG
+              </span>
+              <span className="text-gray-600 dark:text-gray-300 text-xs">
+                Liga Acadêmica de Sinuca CMMG
+              </span>
+            </div>
           </div>
 
-          <div className="footer-links flex flex-wrap justify-center gap-4 my-3 md:my-0">
-            <Link
-              to="/about" // TODO: Criar página /about
-              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
-            >
-              Sobre
-            </Link>
-            <Link
-              to="/contact" // TODO: Criar página /contact
-              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
-            >
-              Contato
-            </Link>
-            <Link
-              to="/privacy" // TODO: Criar página /privacy
-              className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
-            >
-              Política de Privacidade
-            </Link>
-          </div>
+          {/* Navigation links section - improved spacing and responsiveness */}
+          <nav className="footer-links flex flex-wrap justify-center gap-3 sm:gap-5 my-4 md:my-0" aria-label="Links do rodapé">
+            {footerLinks.map((link, index) => (
+              <Link
+                key={link.path}
+                ref={index === 0 ? firstLinkRef : null}
+                to={link.path}
+                className="footer-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-all duration-200 text-sm font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded px-2 py-1 hover:translate-y-[-2px]"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
 
-          <div className="footer-social flex items-center gap-3">
-            <a
-              href="https://facebook.com" // TODO: Usar link real da LASCMMG
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
-              aria-label="Facebook"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"
-                ></path>
-              </svg>
-            </a>
-            <a
-              href="https://instagram.com" // TODO: Usar link real da LASCMMG
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors"
-              aria-label="Instagram"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"
-                ></path>
-              </svg>
-            </a>
+          {/* Social media section - improved with visual feedback */}
+          <div className="footer-social flex items-center gap-4 mb-4 md:mb-0">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-full p-2 hover:bg-gray-100 dark:hover:bg-slate-700"
+                aria-label={social.label}
+              >
+                {social.icon}
+              </a>
+            ))}
           </div>
         </div>
 
-        <p className="copyright text-center text-gray-500 dark:text-gray-400 text-sm mt-4">
-          &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de
-          Minas Gerais. Todos os direitos reservados.
-        </p>
+        {/* Divider - improved with gradient */}
+        <div className="relative h-px my-4">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent"></div>
+        </div>
+
+        {/* Copyright and bottom section - improved layout and added heart icon */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="copyright text-center text-gray-500 dark:text-gray-400 text-xs md:text-sm">
+            &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de
+            Minas Gerais. Todos os direitos reservados.
+            <span className="inline-flex items-center ml-1">
+              Feito com <FaHeart className="mx-1 text-red-500 animate-pulse h-3 w-3" /> no Brasil
+            </span>
+          </p>
+
+          <div className="mt-2 md:mt-0">
+            <button
+              ref={scrollButtonRef}
+              onClick={scrollToTop}
+              className="group flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded px-3 py-1 hover:bg-gray-50 dark:hover:bg-slate-700"
+              aria-label="Voltar ao topo da página"
+            >
+              <span>Voltar ao topo</span>
+              <FaArrowUp className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-1" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
       </div>
     </footer>
   );

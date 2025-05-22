@@ -236,177 +236,187 @@ async function migrateAdminCredentials() {
   }
 }
 
+// Helper function for file-based admin authentication and migration
+async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddress, rememberMe) {
+  if (!fs.existsSync(CREDENTIALS_FILE_PATH)) {
+    logger.warn(
+      {
+        component: 'AdminModel',
+        username,
+        filePath: CREDENTIALS_FILE_PATH,
+      },
+      `File-based auth: User ${username} not in DB and admin_credentials.json not found.`
+    );
+    // Consistent with DB not found, throw error to indicate no admin config.
+    // Or, return a specific failure if this path is considered a "soft" failure.
+    // For now, throwing to indicate system misconfiguration if file is expected.
+    throw new Error(
+      'Credenciais de administrador não configuradas no sistema (arquivo ausente).'
+    );
+  }
+
+  let fileCredentials;
+  try {
+    fileCredentials = JSON.parse(
+      fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
+    );
+  } catch (parseError) {
+    logger.error(
+      {
+        component: 'AdminModel',
+        err: parseError,
+        filePath: CREDENTIALS_FILE_PATH,
+      },
+      'File-based auth: Error parsing admin_credentials.json.'
+    );
+    throw new Error(
+      'Erro ao processar arquivo de credenciais do administrador (JSON inválido).'
+    );
+  }
+
+  if (
+    !fileCredentials ||
+    !fileCredentials.username ||
+    !fileCredentials.hashedPassword
+  ) {
+    logger.warn(
+      { component: 'AdminModel', filePath: CREDENTIALS_FILE_PATH },
+      'File-based auth: admin_credentials.json is incomplete or malformed.'
+    );
+    throw new Error(
+      'Arquivo de credenciais do administrador principal inválido (incompleto/malformado).'
+    );
+  }
+
+  if (username !== fileCredentials.username) {
+    auditLogger.logAction(
+      username,
+      'ADMIN_LOGIN_FAILURE',
+      'admin',
+      username,
+      {
+        username,
+        reason: 'Admin username mismatch (file credentials)',
+        ipAddress: ipAddress || 'unknown',
+      }
+    );
+    return { success: false, message: 'Credenciais inválidas.' };
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(
+    password,
+    fileCredentials.hashedPassword
+  );
+
+  if (!isPasswordCorrect) {
+    auditLogger.logAction(
+      username,
+      'ADMIN_LOGIN_FAILURE',
+      'admin',
+      username,
+      {
+        username,
+        reason: 'Incorrect password (file credentials)',
+        ipAddress: ipAddress || 'unknown',
+      }
+    );
+    return { success: false, message: 'Credenciais inválidas.' };
+  }
+
+  // If password is correct, attempt migration.
+  // migrateAdminCredentials already checks if user exists in DB before inserting.
+  const migrationResult = await migrateAdminCredentials();
+
+  // Even if migration had an issue (e.g. user already existed),
+  // we need to fetch the admin from DB to get their ID for the token.
+  const finalAdminData = await getAdminByUsername(fileCredentials.username);
+  if (!finalAdminData) {
+    // This is a critical failure: password matched file, migration attempted, but user still not in DB.
+    logger.error(
+      {
+        component: 'AdminModel',
+        username: fileCredentials.username,
+        migrationMessage: migrationResult.message,
+      },
+      'File-based auth: CRITICAL - Admin data not found in DB after successful file auth and migration attempt.'
+    );
+    throw new Error(
+      `Falha ao carregar dados do administrador ${fileCredentials.username} do banco após autenticação por arquivo. Verifique os logs.`
+    );
+  }
+
+  await updateLastLogin(finalAdminData.username);
+
+  const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION;
+  const token = jwt.sign(
+    // Use finalAdminData.id which comes from the DB
+    { id: finalAdminData.id, username: finalAdminData.username, role: finalAdminData.role },
+    JWT_SECRET,
+    { expiresIn: expirationTime, jwtid: crypto.randomUUID() }
+  );
+
+  auditLogger.logAction(
+    finalAdminData.id.toString(),
+    'ADMIN_LOGIN_SUCCESS',
+    'admin',
+    finalAdminData.id.toString(),
+    {
+      username: finalAdminData.username,
+      authMethod: 'file_credentials_migrated',
+      ipAddress: ipAddress || 'unknown',
+    }
+  );
+
+  // Calculate expiresIn for client
+  const expiresInSeconds = expirationTime.endsWith('d')
+    ? parseInt(expirationTime) * 24 * 60 * 60
+    : expirationTime.endsWith('h')
+      ? parseInt(expirationTime) * 60 * 60
+      : parseInt(expirationTime);
+
+
+  return {
+    success: true,
+    message: migrationResult.migrated
+      ? 'Login bem-sucedido! Conta de administrador migrada do arquivo para o banco.'
+      : 'Login bem-sucedido! (Conta de administrador já existia no banco).',
+    token,
+    refreshToken: rememberMe ? await generateRefreshToken(finalAdminData.id) : null,
+    expiresIn: expiresInSeconds,
+    admin: {
+      id: finalAdminData.id,
+      username: finalAdminData.username,
+      role: finalAdminData.role,
+    },
+  };
+}
+
 async function authenticateAdmin(username, password, ipAddress, rememberMe = false) {
-  // Added ipAddress and rememberMe
   if (!username || !password) {
-    throw new Error('Nome de usuário e senha são obrigatórios');
+    throw new Error('Nome de usuário e senha são obrigatórios.');
   }
 
   try {
-    const admin = await getAdminByUsername(username);
+    const adminFromDb = await getAdminByUsername(username);
 
-    if (!admin) {
-      // Admin não encontrado no banco de dados, tentar fallback para arquivo
-      if (!fs.existsSync(CREDENTIALS_FILE_PATH)) {
-        logger.warn(
-          {
-            component: 'AdminModel',
-            username,
-            filePath: CREDENTIALS_FILE_PATH,
-          },
-          `Tentativa de login para ${username}: usuário não encontrado no DB e admin_credentials.json também não existe.`
-        );
-        throw new Error(
-          'Credenciais de administrador não configuradas no sistema.'
-        );
-      }
-
-      let fileCredentials;
-      try {
-        fileCredentials = JSON.parse(
-          fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
-        );
-      } catch (parseError) {
-        logger.error(
-          {
-            component: 'AdminModel',
-            err: parseError,
-            filePath: CREDENTIALS_FILE_PATH,
-          },
-          'Erro ao fazer parse do admin_credentials.json durante o login.'
-        );
-        throw new Error(
-          'Erro ao processar arquivo de credenciais do administrador.'
-        );
-      }
-
-      if (
-        !fileCredentials ||
-        !fileCredentials.username ||
-        !fileCredentials.hashedPassword
-      ) {
-        logger.warn(
-          { component: 'AdminModel', filePath: CREDENTIALS_FILE_PATH },
-          'Arquivo admin_credentials.json encontrado, mas está incompleto ou malformado.'
-        );
-        throw new Error(
-          'Arquivo de credenciais do administrador principal inválido.'
-        );
-      }
-
-      if (username !== fileCredentials.username) {
-        auditLogger.logAction(
-          username,
-          'ADMIN_LOGIN_FAILURE',
-          'admin',
-          username,
-          {
-            username,
-            reason: 'Admin not found in file credentials',
-            ipAddress: ipAddress || 'unknown',
-          } // Use ipAddress
-        );
-        return { success: false, message: 'Credenciais inválidas.' };
-      }
-
+    if (adminFromDb) {
+      // Admin found in the database, proceed with DB authentication
       const isPasswordCorrect = await bcrypt.compare(
         password,
-        fileCredentials.hashedPassword
+        adminFromDb.hashedPassword
       );
 
       if (!isPasswordCorrect) {
         auditLogger.logAction(
-          username,
+          adminFromDb.id.toString(),
           'ADMIN_LOGIN_FAILURE',
           'admin',
-          username,
+          adminFromDb.id.toString(),
           {
-            username,
-            reason: 'Incorrect password (file credentials)',
-            ipAddress: ipAddress || 'unknown',
-          } // Use ipAddress
-        );
-        return { success: false, message: 'Credenciais inválidas.' };
-      }
-
-      const migrationResult = await migrateAdminCredentials();
-
-      if (!migrationResult.success || !migrationResult.migrated) {
-        const adminAfterAttemptedMigration = await getAdminByUsername(
-          fileCredentials.username
-        );
-        if (!adminAfterAttemptedMigration) {
-          logger.error(
-            {
-              component: 'AdminModel',
-              migrationMessage: migrationResult.message,
-            },
-            'Falha crítica: Migração de credenciais do admin do arquivo para o DB falhou durante o login.'
-          );
-          throw new Error(
-            `Erro ao configurar conta de administrador no banco de dados: ${migrationResult.message}. Verifique os logs do servidor.`
-          );
-        }
-      }
-
-      const finalAdminData = await getAdminByUsername(fileCredentials.username);
-      if (!finalAdminData) {
-        throw new Error(
-          'Falha ao recuperar dados do administrador após a migração/verificação.'
-        );
-      }
-
-      await updateLastLogin(finalAdminData.username);
-
-      // Definir tempo de expiração do token baseado na opção "Lembrar-me"
-      const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION; // 30 dias se rememberMe for true
-
-      const token = jwt.sign(
-        { username: finalAdminData.username, role: finalAdminData.role },
-        JWT_SECRET,
-        { expiresIn: expirationTime, jwtid: crypto.randomUUID() } // Adicionado jti e expirationTime
-      );
-
-      auditLogger.logAction(
-        finalAdminData.id.toString(),
-        'ADMIN_LOGIN_SUCCESS',
-        'admin',
-        finalAdminData.id.toString(),
-        {
-          username: finalAdminData.username,
-          ipAddress: ipAddress || 'unknown', // Use ipAddress
-        }
-      );
-
-      return {
-        success: true,
-        message:
-          'Login bem-sucedido! Conta de administrador configurada/verificada.',
-        token,
-        admin: {
-          id: finalAdminData.id,
-          username: finalAdminData.username,
-          role: finalAdminData.role,
-        },
-      };
-    } else {
-      // Admin encontrado no banco de dados
-      const isPasswordCorrect = await bcrypt.compare(
-        password,
-        admin.hashedPassword
-      );
-
-      if (!isPasswordCorrect) {
-        auditLogger.logAction(
-          admin.id.toString(),
-          'ADMIN_LOGIN_FAILURE',
-          'admin',
-          admin.id.toString(),
-          {
-            username: admin.username,
+            username: adminFromDb.username,
             reason: 'Incorrect password (DB)',
             ipAddress: ipAddress || 'unknown',
-          } // Use ipAddress
+          }
         );
         return { success: false, message: 'Credenciais inválidas.' };
       }
@@ -414,57 +424,62 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
       await updateLastLogin(username);
 
       auditLogger.logAction(
-        admin.id.toString(),
+        adminFromDb.id.toString(),
         'ADMIN_LOGIN_SUCCESS',
         'admin',
-        admin.id.toString(),
-        { username: admin.username, ipAddress: ipAddress || 'unknown' } // Use ipAddress
+        adminFromDb.id.toString(),
+        { username: adminFromDb.username, authMethod: 'database', ipAddress: ipAddress || 'unknown' }
       );
 
-      // Definir tempo de expiração do token baseado na opção "Lembrar-me"
-      const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION; // 30 dias se rememberMe for true
-
+      const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION;
       const token = jwt.sign(
-        { id: admin.id, username: admin.username, role: admin.role }, // Include ID
+        { id: adminFromDb.id, username: adminFromDb.username, role: adminFromDb.role },
         JWT_SECRET,
-        { expiresIn: expirationTime, jwtid: crypto.randomUUID() } // Atualizado para usar expirationTime
+        { expiresIn: expirationTime, jwtid: crypto.randomUUID() }
       );
 
-      // Gerar refresh token se o usuário selecionou "Lembrar-me"
       let refreshToken = null;
       if (rememberMe) {
         try {
-          refreshToken = await generateRefreshToken(admin.id);
+          refreshToken = await generateRefreshToken(adminFromDb.id);
         } catch (refreshError) {
           logger.error(
             { component: 'AdminModel', err: refreshError, username },
-            'Erro ao gerar refresh token, prosseguindo sem ele.'
+            'Erro ao gerar refresh token para admin do DB, prosseguindo sem ele.'
           );
-          // Continuar sem refresh token se houver erro
         }
       }
 
-      // Calcular quanto tempo até expiração para retornar ao cliente
-      const expiresIn = expirationTime.endsWith('d')
-        ? parseInt(expirationTime) * 24 * 60 * 60 // dias para segundos
+      const expiresInSeconds = expirationTime.endsWith('d')
+        ? parseInt(expirationTime) * 24 * 60 * 60
         : expirationTime.endsWith('h')
-          ? parseInt(expirationTime) * 60 * 60 // horas para segundos
-          : parseInt(expirationTime); // assume segundos
+          ? parseInt(expirationTime) * 60 * 60
+          : parseInt(expirationTime);
 
       return {
         success: true,
         message: 'Login bem-sucedido!',
         token,
         refreshToken,
-        expiresIn,
-        admin: { id: admin.id, username: admin.username, role: admin.role },
+        expiresIn: expiresInSeconds,
+        admin: { id: adminFromDb.id, username: adminFromDb.username, role: adminFromDb.role },
       };
+    } else {
+      // Admin not found in DB, try file-based authentication and migration
+      return await _handleFileBasedAdminAuthAndMigration(username, password, ipAddress, rememberMe);
     }
   } catch (err) {
+    // Catch errors from _handleFileBasedAdminAuthAndMigration or other unexpected errors
     logger.error(
       { component: 'AdminModel', err, username },
-      'Erro durante o processo de autenticação.'
+      `Erro durante o processo de autenticação do admin ${username}.`
     );
+    // Re-throw or return a generic error response
+    // To keep existing behavior of throwing, we re-throw.
+    // If specific error messages from _handleFileBasedAdminAuthAndMigration should reach client,
+    // then those functions should return objects like { success: false, message: ... }
+    // and this catch block might return a more generic error.
+    // For now, re-throwing to align with original behavior for unhandled cases.
     throw err;
   }
 }
@@ -547,28 +562,30 @@ async function getAllAdmins() {
 
 // Gerar um refresh token para um usuário
 async function generateRefreshToken(userId) {
+  const redis = await getClient();
+  if (!redis) {
+    logger.error('AdminModel', 'Cliente Redis não disponível para gerar refresh token.');
+    throw new Error('Serviço de refresh token indisponível');
+  }
+
   try {
-    const { getClient } = require('../db/redisClient');
-    const redis = await getClient();
-    if (!redis) {
-      logger.error('AdminModel', 'Cliente Redis não disponível para gerar refresh token.');
-      throw new Error('Serviço de refresh token indisponível');
-    }
-
-    // Gerar um token único
-    const refreshToken = crypto.randomBytes(40).toString('hex');
-
-    // Salvar no Redis com um TTL maior que o JWT (ex: 30 dias)
+    const refreshTokenString = crypto.randomBytes(40).toString('hex');
     const refreshTokenTTL = 30 * 24 * 60 * 60; // 30 dias em segundos
-    const redisKey = `refresh:${refreshToken}`;
+    const tokenRedisKey = `refresh:${refreshTokenString}`;
+    const userTokensRedisKey = `user:${userId}:refreshTokens`;
 
-    // Armazenar informações necessárias para reconstruir o JWT
-    await redis.set(redisKey, JSON.stringify({
+    // Armazenar o token principal com seus detalhes e TTL
+    await redis.set(tokenRedisKey, JSON.stringify({
       userId: userId,
       createdAt: Date.now()
     }), { EX: refreshTokenTTL });
 
-    return refreshToken;
+    // Adicionar o token ao Set do usuário
+    await redis.sAdd(userTokensRedisKey, refreshTokenString);
+    // Opcionalmente, definir um TTL para o Set do usuário para limpeza automática
+    // await redis.expire(userTokensRedisKey, refreshTokenTTL + (24 * 60 * 60)); // Ex: TTL do set um dia a mais que o token
+
+    return refreshTokenString;
   } catch (err) {
     logger.error(
       { component: 'AdminModel', err, userId },
@@ -579,47 +596,55 @@ async function generateRefreshToken(userId) {
 }
 
 // Validar um refresh token
-async function validateRefreshToken(refreshToken) {
+async function validateRefreshToken(refreshTokenString) {
+  const redis = await getClient();
+  if (!redis) {
+    logger.error('AdminModel', 'Cliente Redis não disponível para validar refresh token.');
+    return { success: false, message: 'Serviço indisponível.' };
+  }
+
+  const tokenRedisKey = `refresh:${refreshTokenString}`;
+
   try {
-    const { getClient } = require('../db/redisClient');
-    const redis = await getClient();
-    if (!redis) {
-      logger.error('AdminModel', 'Cliente Redis não disponível para validar refresh token.');
-      return { success: false };
+    const tokenDataString = await redis.get(tokenRedisKey);
+
+    if (!tokenDataString) {
+      return { success: false, message: 'Refresh token não encontrado ou expirado.' };
     }
 
-    const redisKey = `refresh:${refreshToken}`;
-    const tokenData = await redis.get(redisKey);
+    const { userId, createdAt } = JSON.parse(tokenDataString);
+    const userTokensRedisKey = `user:${userId}:refreshTokens`;
 
-    if (!tokenData) {
-      return { success: false };
+    // Verificar se o token ainda está no Set do usuário (proteção contra alguns cenários de race condition pós-revogação)
+    // Embora a remoção do token principal seja a principal forma de invalidação.
+    const isTokenInUserSet = await redis.sIsMember(userTokensRedisKey, refreshTokenString);
+    if (!isTokenInUserSet) {
+        // Token foi removido do set do usuário (provavelmente por revokeAll), mas o token principal ainda não expirou.
+        // Considerar inválido e limpar o token principal.
+        await redis.del(tokenRedisKey);
+        return { success: false, message: 'Refresh token revogado.' };
     }
 
-    // Extrair dados do token
-    const { userId, createdAt } = JSON.parse(tokenData);
+    // Opcional: Verificar idade do token além do TTL do Redis, se necessário para lógica de negócios específica.
+    // const tokenAge = Date.now() - createdAt;
+    // const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 dias em ms
+    // if (tokenAge > maxAge) {
+    //   await redis.del(tokenRedisKey);
+    //   await redis.sRem(userTokensRedisKey, refreshTokenString);
+    //   return { success: false, message: 'Refresh token muito antigo.' };
+    // }
 
-    // Verificar se o token não é muito antigo (verificação opcional além do TTL)
-    const tokenAge = Date.now() - createdAt;
-    const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 dias em ms
-
-    if (tokenAge > maxAge) {
-      // Token muito antigo, remover do Redis
-      await redis.del(redisKey);
-      return { success: false };
-    }
-
-    // Buscar dados do usuário
     const admin = await getAdminById(userId);
     if (!admin) {
-      // Usuário não existe mais
-      await redis.del(redisKey);
-      return { success: false };
+      await redis.del(tokenRedisKey);
+      await redis.sRem(userTokensRedisKey, refreshTokenString);
+      return { success: false, message: 'Usuário associado ao token não encontrado.' };
     }
 
-    // Remover o token atual para evitar reuso (implementação de uso único)
-    await redis.del(redisKey);
+    // Implementação de uso único: remover o token após validação bem-sucedida.
+    await redis.del(tokenRedisKey);
+    await redis.sRem(userTokensRedisKey, refreshTokenString);
 
-    // Retornar as informações do usuário para gerar um novo JWT
     return {
       success: true,
       userId: admin.id,
@@ -629,56 +654,41 @@ async function validateRefreshToken(refreshToken) {
 
   } catch (err) {
     logger.error(
-      { component: 'AdminModel', err },
+      { component: 'AdminModel', err, refreshTokenString },
       'Erro ao validar refresh token.'
     );
-    return { success: false };
+    return { success: false, message: 'Erro interno ao validar refresh token.' };
   }
 }
 
 // Revogar todos os refresh tokens de um usuário (útil para logout em todos os dispositivos)
 async function revokeAllRefreshTokens(userId) {
+  const redis = await getClient();
+  if (!redis) {
+    logger.error('AdminModel', 'Cliente Redis não disponível para revogar refresh tokens.');
+    return false;
+  }
+
+  const userTokensRedisKey = `user:${userId}:refreshTokens`;
+
   try {
-    const { getClient } = require('../db/redisClient');
-    const redis = await getClient();
-    if (!redis) {
-      logger.error('AdminModel', 'Cliente Redis não disponível para revogar refresh tokens.');
-      return false;
+    const tokenStrings = await redis.sMembers(userTokensRedisKey);
+    if (tokenStrings && tokenStrings.length > 0) {
+      const multi = redis.multi();
+      tokenStrings.forEach(tokenString => {
+        multi.del(`refresh:${tokenString}`);
+      });
+      multi.del(userTokensRedisKey); // Remove o Set do usuário
+      await multi.exec();
+      logger.info({ component: 'AdminModel', userId, count: tokenStrings.length }, `Todos os ${tokenStrings.length} refresh tokens para o usuário ${userId} foram revogados.`);
+    } else {
+      logger.info({ component: 'AdminModel', userId }, `Nenhum refresh token ativo encontrado para o usuário ${userId} para revogar.`);
     }
-
-    // Necessário implementar um índice de tokens por usuário em uma implementação real
-    // Esta é uma implementação simplificada
-    const scanPattern = `refresh:*`;
-    let cursor = '0';
-    let keysToCheck = [];
-
-    do {
-      const scanResult = await redis.scan(cursor, { MATCH: scanPattern, COUNT: 100 });
-      cursor = scanResult.cursor;
-      keysToCheck = keysToCheck.concat(scanResult.keys);
-    } while (cursor !== '0');
-
-    // Verificar cada token para identificar os do usuário
-    for (const key of keysToCheck) {
-      const tokenData = await redis.get(key);
-      if (tokenData) {
-        try {
-          const parsedData = JSON.parse(tokenData);
-          if (parsedData.userId === userId) {
-            await redis.del(key);
-          }
-        } catch (e) {
-          // Ignorar erros de parsing individual
-          continue;
-        }
-      }
-    }
-
     return true;
   } catch (err) {
     logger.error(
       { component: 'AdminModel', err, userId },
-      'Erro ao revogar refresh tokens.'
+      'Erro ao revogar todos os refresh tokens.'
     );
     return false;
   }

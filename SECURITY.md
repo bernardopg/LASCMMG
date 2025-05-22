@@ -26,11 +26,13 @@ Nossa equipe responderá dentro de 48 horas e trabalhará com você para entende
 O LASCMMG implementa várias medidas de segurança para proteger os dados dos usuários e a integridade do sistema:
 
 ### Autenticação e Controle de Acesso
-- Autenticação baseada em JWT com tempos de expiração curtos
-- Armazenamento seguro de senhas utilizando bcrypt
-- Funcionalidade de troca de senha para usuários
-- Permissões baseadas em funções (RBAC)
-- Bloqueio de contas após múltiplas tentativas de acesso mal-sucedidas
+- Autenticação baseada em JWT com tempos de expiração curtos para tokens de acesso.
+- Suporte a Refresh Tokens para gerenciamento de sessão estendida de forma segura.
+- Gerenciamento de sessão com timeout por inatividade.
+- Armazenamento seguro de senhas utilizando bcrypt.
+- Funcionalidade de troca de senha para usuários e administradores.
+- Permissões baseadas em funções (RBAC) para proteger endpoints administrativos.
+- Bloqueio de contas (baseado em nome de usuário/IP) após múltiplas tentativas de login mal-sucedidas, com contadores armazenados em Redis.
 
 ### Proteção contra Ataques Web
 - Proteção CSRF

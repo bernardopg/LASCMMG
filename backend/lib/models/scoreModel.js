@@ -692,56 +692,8 @@ module.exports = {
   importScores,
   countScores,
   getAllScores,
-  restoreScore, // Added restoreScore
+  restoreScore,
 };
-
-// This function is already defined below, ensure it's the one being used or remove redundancy if it's defined twice.
-// async function restoreScore(scoreId) {
-//   if (!scoreId) {
-//     throw new Error('ID do score não fornecido para restauração.');
-//   }
-//   // Set is_deleted to 0 and clear deleted_at
-//   // Also update completed_at or add an updated_at if schema changes
-//   const sql =
-//     'UPDATE scores SET is_deleted = 0, deleted_at = NULL, completed_at = CURRENT_TIMESTAMP WHERE id = ? AND is_deleted = 1';
-//   try {
-//     const result = await runAsync(sql, [scoreId]);
-//     if (result.changes > 0) {
-//       logger.info('ScoreModel', `Score ${scoreId} restaurado da lixeira.`, {
-//         scoreId,
-//       });
-//       return true;
-//     }
-//     logger.warn(
-//       'ScoreModel',
-//       `Score ${scoreId} não encontrado na lixeira ou não precisou de restauração.`,
-//       { scoreId }
-//     );
-//     const score = await getScoreById(scoreId); // Check if it exists and is not deleted
-//     return !!score;
-//   } catch (err) {
-//     logger.error(
-//       'ScoreModel',
-//       `Erro ao restaurar score ${scoreId} da lixeira: ${err.message}`,
-//       { scoreId, error: err }
-//     );
-//     throw err;
-//   }
-// }
-
-// module.exports = {
-//   getScoreById,
-//   getScoresByMatchId,
-//   addScore,
-//   updateScore,
-//   deleteScore,
-//   getScoresByTournamentId,
-//   deleteScoresByTournamentId,
-//   importScores,
-//   countScores,
-//   getAllScores,
-//   restoreScore, // Added restoreScore
-// };
 
 // The actual restoreScore function definition is below
 async function restoreScore(scoreId) {
@@ -766,7 +718,7 @@ async function restoreScore(scoreId) {
       { scoreId }
     );
     const score = await getScoreById(scoreId); // Check if it exists and is not deleted
-    return !!score;
+    return !!score; // Ensure it returns true if the score exists and is not deleted.
   } catch (err) {
     logger.error(
       { component: 'ScoreModel', err, scoreId },
@@ -775,5 +727,5 @@ async function restoreScore(scoreId) {
     throw err;
   }
 }
-
-// module.exports is defined once at the top now.
+// Ensure module.exports is defined only once at the top.
+// The duplicated restoreScore and module.exports below this comment block will be removed.

@@ -3,11 +3,13 @@
 [⬅ Voltar ao README Principal](../README.md)
 
 ## Melhorias de Segurança e Autenticação
-- [x] Implementar refresh token automático no AuthContext
-- [ ] Adicionar timeout por inatividade para sessões de usuário
+- [x] Implementar refresh token automático no AuthContext (Frontend)
+- [x] Implementado timeout por inatividade para sessões (via Redis em `authMiddleware.js`)
+- [x] Implementada validação de força de senha com Joi (`passwordSchema`) para registro e alteração de senha.
+- [x] Integrado rastreamento de tentativas de login falhas e lockout de conta.
+- [x] Aprimorado gerenciamento de refresh tokens no `adminModel.js` com Redis Sets.
 - [ ] Implementar sistema de recuperação de senha
 - [ ] Adicionar autenticação em dois fatores para administradores
-- [ ] Adicionar validação de força de senha ao cadastrar usuários
 
 ## Correções em Componentes de Contexto
 - [ ] Completar implementação do MessageContext com tratamento para múltiplas mensagens
@@ -51,10 +53,10 @@
 - [ ] Implementar sistema de versionamento semântico
 
 ## Documentação
-- [ ] Atualizar documentação de API
+- [x] Atualizada `API_REFERENCE.md` para refletir mudanças no backend.
+- [x] Atualizado `MANUAL_USUARIO.md` para refletir mudanças de autenticação e usuário.
 - [ ] Criar guia detalhado para desenvolvedores
 - [ ] Documentar todos os componentes reutilizáveis
-- [ ] Atualizar manual do usuário com novas funcionalidades
 - [ ] Criar documentação para operações de manutenção
 
 ## Novos Recursos
@@ -65,18 +67,20 @@
 - [ ] Adicionar sistema de classificação e ranking
 
 ## Refatoração
-- [ ] Eliminar código duplicado entre componentes similares
-- [ ] Padronizar nomenclatura em todo o projeto
+- [x] Eliminado código duplicado (ex: `scoreModel.restoreScore`, funções de senha em `userModel.js`).
+- [x] Padronizada nomenclatura (ex: `updatePasswordById` em `userModel.js`, validação Joi em `routes/users.js`).
+- [x] Refatorada função `authenticateAdmin` em `adminModel.js` para melhor clareza.
 - [ ] Atualizar bibliotecas desatualizadas
 - [ ] Melhorar estrutura de pastas para facilitar manutenção
-- [ ] Refatorar funções grandes em componentes menores e mais gerenciáveis
+- [ ] Refatorar outras funções grandes em componentes/módulos menores (revisão contínua)
 
 ## TODO do Backend
 Estas são tarefas pendentes identificadas no código do backend que precisam ser implementadas:
 
 ### Base de Dados
-- [ ] Adicionar restrições UNIQUE apropriadas para jogadores globais (ex: nome ou email)
+- [x] Adicionada constraint `UNIQUE (tournament_id, name)` à tabela `players`. `email TEXT UNIQUE` já existe para unicidade global de email.
   - Arquivo: `/backend/lib/db/database.js`
+- [ ] Considerar índice `UNIQUE (name) WHERE tournament_id IS NULL` se nomes de jogadores globais (não associados a torneios) precisarem ser únicos independentemente do email.
 
 ### Modelos
 - [ ] Implementar log de auditoria para exclusão em massa, caso seja uma ação comum de administrador

@@ -57,7 +57,7 @@ Este guia detalha o processo de implantação do Sistema de Gerenciamento de Tor
      cp .env.example .env
      ```
 
-   - Edite `.env` e defina **obrigatoriamente** `COOKIE_SECRET` e `JWT_SECRET` com valores longos, aleatórios e seguros. Ajuste `PORT` (ex: `3001` para API) e `NODE_ENV=production`.
+   - Edite `.env` e defina **obrigatoriamente** `COOKIE_SECRET`, `JWT_SECRET`, e `CSRF_SECRET` com valores longos, aleatórios e seguros. Ajuste `PORT` (ex: `3001` para API) e `NODE_ENV=production`.
 
      ```ini
      # /lascmmg/.env
@@ -65,9 +65,10 @@ Este guia detalha o processo de implantação do Sistema de Gerenciamento de Tor
      PORT=3001
      COOKIE_SECRET=SEU_COOKIE_SECRET_MUITO_SEGURO_E_LONGO
      JWT_SECRET=SEU_JWT_SECRET_SUPER_SEGURO_E_COMPLEXO
+     CSRF_SECRET=SEU_CSRF_SECRET_IGUALMENTE_SEGURO_E_UNICO
      REDIS_URL=redis://localhost:6379 # URL do seu servidor Redis
      CORS_ORIGIN=https://seu-dominio-frontend.com # URL do seu frontend em produção
-     # ... outras variáveis como RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS, DATA_DIR ...
+     # ... outras variáveis como RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS, DATA_DIR, SESSION_INACTIVITY_TIMEOUT_SECONDS ...
      ```
 
 3. **Instalar Dependências do Backend (e do projeto geral):**
@@ -159,18 +160,30 @@ O backend Express pode ser configurado para servir os arquivos estáticos do fro
 2. No `backend/server.js`, adicione middlewares para servir esses arquivos estáticos e para lidar com o roteamento do React:
 
    ```javascript
-   // Em backend/server.js (exemplo)
+   // Em backend/server.js (exemplo adaptado da estrutura atual)
    // ...
-   // Servir arquivos estáticos do React build
-   app.use(express.static(path.join(__dirname, 'public_frontend')));
+   // Supondo que o build do frontend (de frontend-react/dist) foi copiado para backend/public_frontend
+   // (conforme Dockerfile) ou para ../frontend-react/dist (se não usar Docker e servir localmente)
+
+   // Servir assets estáticos específicos como em server.js
+   // Exemplo para assets (ajuste os caminhos conforme sua estrutura final de build/deploy)
+   // app.use('/assets', express.static(path.join(__dirname, 'public_frontend/assets')));
+   // app.use(express.static(path.join(__dirname, 'public_frontend'))); // Para servir index.html e outros da raiz do dist
 
    // Lidar com todas as outras rotas NÃO API e servir index.html para o React Router
-   app.get(/^(?!\/api).*$/, (req, res) => {
-     // Regex para não capturar rotas /api
-     res.sendFile(path.join(__dirname, 'public_frontend', 'index.html'));
+   // Esta abordagem é mais próxima à usada em server.js para o catch-all.
+   app.get('*', (req, res, next) => {
+     if (req.path.startsWith('/api/')) { // Não interferir com rotas da API
+       return next();
+     }
+     // Se houver arquivos estáticos específicos (css, js) sendo servidos por rotas dedicadas antes,
+     // este catch-all pode precisar ser mais específico ou vir após elas.
+     // O server.js atual já tem uma lógica para isso.
+     res.sendFile(path.join(__dirname, 'public_frontend', 'index.html')); // Ajuste o caminho se necessário
    });
    // ...
    ```
+   **Nota:** A configuração exata para servir o frontend pelo backend Express deve espelhar a lógica de `path.join(__dirname, '../frontend-react/dist')` ou o local para onde os arquivos de build do Vite são colocados e como o `server.js` está configurado para encontrá-los. A abordagem de servir separadamente é geralmente mais simples de gerenciar.
 
    Neste caso, `VITE_API_URL` no frontend pode ser `/api`.
 
@@ -321,10 +334,11 @@ Esta abordagem é comum para VPS ou servidores dedicados.
 - **Backend (`.env`):**
   - `NODE_ENV=production`: Otimiza Express, desabilita logs detalhados de erro.
   - `PORT`: Porta para o backend (ex: `3001`).
-  - `JWT_SECRET`, `COOKIE_SECRET`: Devem ser strings longas, aleatórias e únicas. **NÃO USE OS VALORES DE EXEMPLO.**
+  - `JWT_SECRET`, `COOKIE_SECRET`, `CSRF_SECRET`: Devem ser strings longas, aleatórias e únicas. **NÃO USE OS VALORES DE EXEMPLO.**
   - `REDIS_URL`: URL de conexão para o seu servidor Redis (ex: `redis://localhost:6379` ou `redis://user:password@host:port`).
   - `CORS_ORIGIN`: URL exata do seu frontend (ex: `https://app.lascmmg.com`).
   - `DATA_DIR`: Diretório para o banco de dados (ex: `./data` ou `/var/lib/lascmmg/data`).
+  - `SESSION_INACTIVITY_TIMEOUT_SECONDS`: Tempo em segundos para timeout de sessão por inatividade (ex: `1800` para 30 minutos).
 - **Frontend (Build time - `.env.production` em `frontend-react/`):**
   - `VITE_API_URL`: URL completa da sua API backend (ex: `https://app.lascmmg.com/api` ou `/api` se servido no mesmo domínio).
   - `VITE_APP_VERSION`: Pode ser injetado no build para exibir a versão.

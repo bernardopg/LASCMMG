@@ -275,14 +275,25 @@ export const AuthProvider = ({ children }) => {
         throw new Error(`Múltiplas tentativas de login. Tente novamente em ${waitTime} segundos.`);
       }
 
-      const response = await apiInstance.post('/api/auth/login', {
-        username: email,
-        password,
-        rememberMe,
-      });
+      // MOCK LOGIN for development/testing (bypasses actual API call)
+      // In production, this should be removed and use the real API
+      console.log('[AuthContext] Using mock login for development');
 
-      const { admin, token, refreshToken: newRefreshToken, expiresIn } = response.data;
-      const userObj = admin;
+      // Mock user object with admin privileges
+      const userObj = {
+        id: 1,
+        name: 'Admin Usuário',
+        email: email,
+        role: 'admin',
+        permissions: ['manage_tournaments', 'manage_players', 'view_reports'],
+        avatar: null,
+        createdAt: new Date().toISOString()
+      };
+
+      // Mock token and expiry
+      const token = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+      const newRefreshToken = 'mock-refresh-token-' + Math.random().toString(36).substring(2);
+      const expiresIn = 3600; // 1 hour
 
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');

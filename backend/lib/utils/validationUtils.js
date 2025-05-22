@@ -629,6 +629,40 @@ const refreshTokenSchema = Joi.object({
   })
 });
 
+// Schema for User Registration
+const userRegistrationSchema = {
+  body: Joi.object({
+    username: Joi.string().email().required().messages({
+      'string.base': `"username" deve ser do tipo texto`,
+      'string.empty': `"username" não pode estar vazio`,
+      'string.email': `"username" deve ser um email válido`,
+      'any.required': `"username" é um campo obrigatório`,
+    }),
+    password: passwordSchema,
+  }),
+};
+
+// Schema for User Password Change
+const userPasswordChangeSchema = {
+  body: Joi.object({
+    currentPassword: passwordSchema,
+    newPassword: passwordSchema,
+  }),
+};
+
+// Schema for User Login
+const userLoginSchema = {
+  body: Joi.object({
+    username: Joi.string().email().required().messages({
+      'string.base': `"username" deve ser do tipo texto`,
+      'string.empty': `"username" não pode estar vazio`,
+      'string.email': `"username" deve ser um email válido`,
+      'any.required': `"username" é um campo obrigatório`,
+    }),
+    password: passwordSchema, // Using the common strong password schema
+  }),
+};
+
 module.exports = {
   validateRequest,
   validateUsername, // Export new function
@@ -665,4 +699,7 @@ module.exports = {
   assignPlayerSchema, // Added new schema
   playerIdParamSchema, // Export the new schema
   refreshTokenSchema, // Export the new schema
+  userRegistrationSchema, // Export new schema
+  userPasswordChangeSchema, // Export new schema
+  userLoginSchema, // Export new schema for user login
 };

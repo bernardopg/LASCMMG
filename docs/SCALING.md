@@ -79,7 +79,14 @@ O frontend React, sendo uma SPA de arquivos estáticos após o build com Vite, �
   - Balanceador de Carga (Nginx, HAProxy, ELB).
   - Múltiplas instâncias da API Node.js (gerenciadas por PM2, Systemd, ou contêineres Docker/Kubernetes).
   - Banco de dados centralizado (PostgreSQL, MySQL).
-  - Cache distribuído (Redis) para sessões (se não usar JWT stateless), blacklist de tokens, rate limiting compartilhado.
+  - Cache distribuído (Redis) para:
+    - Blacklist de tokens JWT (logout).
+    - Armazenamento e validação de tokens CSRF.
+    - Contadores de rate limiting (se configurado para usar store Redis).
+    - Rastreamento de tentativas de login falhas e estado de lockout de contas.
+    - Rastreamento de atividade de sessão para timeout por inatividade.
+    - Armazenamento e validação de refresh tokens.
+    - Rastreamento de atividade suspeita do Honeypot.
 
 ## 5. Otimização de Banco de Dados (SQLite e Futuro)
 
@@ -157,7 +164,15 @@ graph TD
   - **Estado Local (Context/Zustand/Redux):** Cache de dados da API no cliente para evitar requisições repetidas.
 - **Backend:**
   - **Cache em Memória (simples):** Para dados raramente alterados (ex: configurações).
-  - **Cache Distribuído (Redis):** Já implementado para tokens CSRF, contadores de rate limiting, blacklist de JWTs e rastreamento de atividade do honeypot. Pode ser expandido para cache de dados frequentemente acessados e resultados de queries.
+  - **Cache Distribuído (Redis):** Amplamente utilizado para:
+    - Tokens CSRF.
+    - Contadores de rate limiting (se configurado com store Redis).
+    - Blacklist de tokens JWT (logout).
+    - Rastreamento de atividade do honeypot e contadores de atividade suspeita.
+    - Contadores de tentativas de login falhas e estado de lockout.
+    - Rastreamento de atividade de sessão para timeout por inatividade.
+    - Armazenamento e validação de refresh tokens.
+    - *Pode ser expandido para cache de dados frequentemente acessados e resultados de queries.*
 - **CDN:** Para assets estáticos do frontend.
 - **Nginx (Proxy Reverso):** Pode cachear respostas da API (com cuidado para dados dinâmicos).
 
@@ -181,7 +196,7 @@ graph TD
 ### Fase 2: Preparação para Escala Maior (Médio Prazo)
 
 - Planejar migração de SQLite para PostgreSQL/MySQL.
-- **[CONCLUÍDO PARCIALMENTE]** Introduzir Redis para estado compartilhado (CSRF, rate limit, JWT blacklist, honeypot tracker). Expandir para cache de dados.
+- **[CONCLUÍDO]** Utilização robusta de Redis para estado compartilhado essencial à segurança e sessão (CSRF, rate limit distribuído - se configurado, JWT blacklist, refresh tokens, rastreamento de honeypot, contadores de login falho, tracking de inatividade). *Próximo passo: Expandir para cache de dados da aplicação.*
 - Containerizar backend e frontend (Dockerfile multi-estágio).
 - Configurar CI/CD robusto (GitHub Actions, GitLab CI).
 

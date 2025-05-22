@@ -65,6 +65,7 @@ if (!JWT_SECRET) {
 }
 
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '24h';
+const SESSION_INACTIVITY_TIMEOUT = parseInt(process.env.SESSION_INACTIVITY_TIMEOUT_SECONDS) || 1800; // 30 minutos em segundos
 
 // Configurações de Cookie Secret
 let COOKIE_SECRET = process.env.COOKIE_SECRET;
@@ -134,6 +135,7 @@ module.exports = {
   DB_CONFIG,
   JWT_SECRET,
   JWT_EXPIRATION,
+  SESSION_INACTIVITY_TIMEOUT, // Adicionado
   COOKIE_SECRET, // Adicionado
   REDIS_URL,
   CSRF_SECRET, // Adicionado

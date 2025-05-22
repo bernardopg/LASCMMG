@@ -52,7 +52,11 @@ A nova interface, construída com React, Vite e Tailwind CSS, oferece:
 A aplicação é acessada através do seu navegador web.
 
 - **Interface Pública:** Geralmente no endereço principal (ex: `http://localhost:5173/` durante o desenvolvimento com Vite, ou `https://seudominio.com/` em produção).
-- **Login Administrativo:** Através da rota `/login`.
+- **Registro de Usuário Regular:** Se habilitado, através de um link "Registrar" ou rota específica (ex: `/register`). O nome de usuário é o seu email.
+- **Login de Usuário Regular:** Através da rota `/login` (ou um formulário de login). Use seu email e senha cadastrados.
+- **Login Administrativo:** Geralmente através da mesma rota `/login`, mas com credenciais de administrador. O nome de usuário do administrador também é um email.
+
+**Nota sobre Segurança no Login:** O sistema implementa proteção contra múltiplas tentativas de login falhas. Após um certo número de tentativas incorretas, sua conta ou IP pode ser temporariamente bloqueado.
 
 ## 🖥️ Visão Geral da Interface Moderna
 
@@ -120,9 +124,15 @@ Acesso restrito a administradores. Navegue para `/admin` após o login.
 
 ### Acesso e Logout Seguro
 
-- **Login:** Acesse a rota `/login`. Insira seu nome de usuário e senha.
-- **Logout:** No menu de perfil (canto superior direito), clique em "Sair".
+- **Login (Administrador):** Acesse a rota `/login` (ou o formulário de login designado). Insira seu email de administrador e senha. Você pode ter a opção "Lembrar-me" para estender a duração da sua sessão.
+- **Logout:** No menu de perfil (canto superior direito), clique em "Sair". Sua sessão será encerrada e o token de acesso invalidado no backend.
+- **Alteração de Senha (Administrador):** Administradores podem alterar suas próprias senhas através de uma opção no painel de perfil ou configurações, se disponível na interface. Isso requer a senha atual e a nova senha.
 - **Nota Importante de Segurança para Administradores (Configuração Inicial):** Se você está configurando o sistema pela primeira vez e utilizou o script `scripts/initialize_admin.js` ou um arquivo `admin_credentials.json` para criar o primeiro administrador, é crucial que, após o primeiro login bem-sucedido e a confirmação de que o sistema está funcionando, este arquivo `admin_credentials.json` (se existir na raiz do projeto) seja **removido ou movido para um local seguro fora do servidor**. O sistema migra essas credenciais para o banco de dados, e manter o arquivo original no servidor representa um risco de segurança.
+
+### Gerenciamento de Perfil (Usuário Regular - se aplicável)
+
+Usuários regulares autenticados podem ter acesso a um painel de perfil para:
+- **Alterar Senha:** Geralmente requer a senha atual e a nova senha. A nova senha deve atender aos critérios de complexidade definidos pelo sistema.
 
 ### Navegação no Painel Admin
 

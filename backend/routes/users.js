@@ -3,131 +3,157 @@ const router = express.Router();
 const userModel = require('../lib/models/userModel');
 const { logger } = require('../lib/logger/logger');
 const {
-  validateUsername,
-  validatePassword,
-} = require('../lib/utils/validationUtils'); // Assuming validation utils exist or will be created
+  validateRequest,
+  userRegistrationSchema,
+  userPasswordChangeSchema,
+  userLoginSchema,
+} = require('../lib/utils/validationUtils');
+const {
+  authMiddleware,
+  // Import functions for failed login attempts for regular users
+  trackFailedAttempt,
+  isUserLockedOut,
+  clearFailedAttempts,
+  AUTH_CONFIG, // For lockout message consistency
+  updateUserActivity, // For updating activity on successful login
+} = require('../lib/middleware/authMiddleware');
 
 // User Registration
-router.post('/register', async (req, res, next) => {
+router.post('/register', validateRequest(userRegistrationSchema), async (req, res, next) => {
+  // username and password are now validated by userRegistrationSchema
   const { username, password } = req.body;
 
   try {
-    // Validate input
-    if (!validateUsername(username)) {
-      return res.status(400).json({ message: 'Invalid username format.' });
-    }
-    if (!validatePassword(password)) {
-      // Password validation should be more specific in validatePassword
-      return res
-        .status(400)
-        .json({ message: 'Password does not meet complexity requirements.' });
-    }
-
     const newUser = await userModel.createUser({
-      username,
-      password,
+      username, // Joi schema ensures this is a valid email
+      password, // Joi schema ensures this meets complexity requirements
       ipAddress: req.ip,
     });
     logger.info('UserRoutes', `User ${username} registered successfully.`);
-    // Do not send back the full user object, especially not password hashes
     res.status(201).json({
+      success: true, // Added for consistency
       message: 'User registered successfully.',
-      userId: newUser.id, // Send back only necessary, non-sensitive info
+      userId: newUser.id,
       username: newUser.username,
     });
   } catch (error) {
     logger.error(
       'UserRoutes',
       `Error during user registration for ${username}: ${error.message}`,
-      { error }
+      { error, requestId: req.id } // Added requestId
     );
     if (error.message === 'Username already taken') {
-      return res.status(409).json({ message: error.message });
+      return res.status(409).json({ success: false, message: error.message });
     }
-    if (error.message === 'Password must be at least 8 characters long') {
-      return res.status(400).json({ message: error.message });
-    }
-    // For other errors, send a generic message
-    next(error); // Pass to global error handler
+    // Password complexity errors are now handled by Joi, so specific check for "Password must be at least 8 characters long" is less likely here.
+    // Joi will return a 400 with detailed messages.
+    next(error);
   }
 });
 
 // User Login
-router.post('/login', async (req, res, next) => {
+router.post('/login', validateRequest(userLoginSchema), async (req, res, next) => {
+  // username and password are now validated by userLoginSchema
   const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ message: 'Username and password are required.' });
-  }
+  // Manual check for username/password presence is no longer needed due to Joi validation.
+  // if (!username || !password) { // No longer needed due to Joi
+  //   return res
+  //     .status(400)
+  //     .json({ message: 'Username and password are required.' });
+  // }
 
   try {
+    if (await isUserLockedOut(username)) {
+      logger.warn(
+        { component: 'UserRoutes', username, ip: req.ip, requestId: req.id },
+        `Tentativa de login para usuário ${username} bloqueado (lockout).`
+      );
+      return res.status(429).json({
+        success: false,
+        message: `Muitas tentativas de login falhas. Conta bloqueada por ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
+      });
+    }
+
     const authResult = await userModel.authenticateUser(
       username,
       password,
       req.ip
-    ); // Pass req.ip
+    );
 
     if (authResult.success) {
-      logger.info('UserRoutes', `User ${username} logged in successfully.`);
+      if (authResult.user && authResult.user.id) {
+        await clearFailedAttempts(username);
+        await updateUserActivity(authResult.user.id); // Update activity on successful login
+        logger.info(
+          { component: 'UserRoutes', username, userId: authResult.user.id, success: true, requestId: req.id, ip: req.ip },
+          'User login bem-sucedido, tentativas falhas limpas e atividade registrada.'
+        );
+      } else {
+        logger.warn(
+          { component: 'UserRoutes', username, success: true, requestId: req.id, ip: req.ip },
+          'User login bem-sucedido, mas ID do usuário não encontrado no resultado.'
+        );
+      }
       res.json({
+        success: true,
         message: authResult.message,
         token: authResult.token,
-        user: authResult.user, // Contains id, username, role
+        user: authResult.user,
       });
     } else {
+      await trackFailedAttempt(username);
       logger.warn(
         'UserRoutes',
-        `Failed login attempt for ${username}: ${authResult.message}`
+        `Failed login attempt for user ${username}: ${authResult.message}`,
+        { requestId: req.id, ip: req.ip }
       );
-      // Use a generic message for failed login attempts to avoid user enumeration
-      return res.status(401).json({ message: 'Invalid credentials.' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
   } catch (error) {
     logger.error(
       'UserRoutes',
       `Error during user login for ${username}: ${error.message}`,
-      { error }
+      { error, requestId: req.id } // Added requestId
     );
-    next(error); // Pass to global error handler
+    next(error);
   }
 });
 
-// Implementando rota para alteração de senha
-router.put('/password', async (req, res, next) => {
+// Rota para alteração de senha do usuário logado
+router.put('/password', authMiddleware, validateRequest(userPasswordChangeSchema), async (req, res, next) => {
+  // currentPassword and newPassword are now validated by userPasswordChangeSchema
   const { currentPassword, newPassword } = req.body;
-  const userId = req.user?.id; // Assumir que o middleware de autenticação adiciona req.user
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Usuário não autenticado.' });
-  }
+  const userId = req.user.id; // authMiddleware ensures req.user.id exists
 
   try {
-    // Validar a nova senha
-    if (!validatePassword(newPassword)) {
-      return res
-        .status(400)
-        .json({ message: 'A nova senha não atende aos requisitos de complexidade.' });
-    }
+    // userModel.updatePasswordById now returns an object { success: boolean, message: string }
+    const result = await userModel.updatePasswordById(
+      userId,
+      currentPassword,
+      newPassword,
+      req.ip // Pass IP for audit log
+    );
 
-    // Verificar se a senha atual está correta e atualizar para a nova senha
-    const updated = await userModel.updatePassword(userId, currentPassword, newPassword);
-
-    if (updated) {
-      logger.info('UserRoutes', `Senha alterada com sucesso para o usuário ID ${userId}.`);
-      res.json({ message: 'Senha alterada com sucesso.' });
+    if (result.success) {
+      logger.info('UserRoutes', `Senha alterada com sucesso para o usuário ID ${userId}.`, { requestId: req.id });
+      res.json({ success: true, message: result.message });
     } else {
-      logger.warn('UserRoutes', `Tentativa de alteração de senha falhou para o usuário ID ${userId}.`);
-      res.status(400).json({ message: 'Senha atual incorreta.' });
+      // Determine appropriate status code based on the message from the model
+      // e.g., 400 for "Nova senha não pode ser igual à senha atual." or "Senha atual incorreta."
+      // e.g., 404 for "Usuário não encontrado."
+      const statusCode = result.message.includes('não encontrado') ? 404 : 400;
+      logger.warn('UserRoutes', `Tentativa de alteração de senha falhou para o usuário ID ${userId}: ${result.message}`, { requestId: req.id });
+      res.status(statusCode).json({ success: false, message: result.message });
     }
   } catch (error) {
+    // This catch block is for unexpected errors during the process
     logger.error(
       'UserRoutes',
       `Erro ao alterar senha para o usuário ID ${userId}: ${error.message}`,
-      { error }
+      { error, requestId: req.id }
     );
-    next(error); // Passar para o manipulador de erros global
+    next(error);
   }
 });
 

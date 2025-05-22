@@ -7,8 +7,15 @@ const {
   adminLoginSchema,
   changePasswordSchema,
   refreshTokenSchema,
-} = require('../lib/utils/validationUtils'); // Adicionado refreshTokenSchema
-const { authMiddleware } = require('../lib/middleware/authMiddleware'); // Import authMiddleware
+} = require('../lib/utils/validationUtils');
+const {
+  authMiddleware,
+  updateUserActivity,
+  trackFailedAttempt,
+  isUserLockedOut,
+  clearFailedAttempts,
+  AUTH_CONFIG, // Import AUTH_CONFIG for lockout message
+} = require('../lib/middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRATION } = require('../lib/config/config');
 const crypto = require('crypto');
@@ -30,23 +37,45 @@ router.post(
   loginLimiter,
   validateRequest(adminLoginSchema),
   async (req, res) => {
-    const { username, password, rememberMe } = req.body;
+    const { username, password, rememberMe } = req.body; // username is validated as email by adminLoginSchema
 
     try {
+      if (await isUserLockedOut(username)) {
+        logger.warn(
+          { component: 'AuthRoute', username, ip: req.ip, requestId: req.id },
+          `Tentativa de login para admin ${username} bloqueado (lockout).`
+        );
+        return res.status(429).json({
+          success: false,
+          message: `Muitas tentativas de login falhas. Conta bloqueada por ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
+        });
+      }
+
       const authResult = await adminModel.authenticateAdmin(
         username,
         password,
         req.ip,
         rememberMe
-      ); // Pass req.ip and rememberMe
+      );
 
       if (authResult.success) {
-        logger.info(
-          { username, success: true, requestId: req.id, ip: req.ip },
-          'Login bem-sucedido'
-        );
+        if (authResult.user && authResult.user.id) {
+          await clearFailedAttempts(username);
+          await updateUserActivity(authResult.user.id); // Register initial activity
+          logger.info(
+            { username, userId: authResult.user.id, success: true, requestId: req.id, ip: req.ip },
+            'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
+          );
+        } else {
+          // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
+           logger.warn(
+            { username, success: true, requestId: req.id, ip: req.ip },
+            'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
+          );
+        }
         res.json(authResult);
       } else {
+        await trackFailedAttempt(username);
         logger.warn(
           {
             username,
@@ -55,11 +84,12 @@ router.post(
             requestId: req.id,
             ip: req.ip,
           },
-          'Falha na autenticação'
+          'Falha na autenticação do admin.'
         );
         res.status(401).json(authResult);
       }
     } catch (error) {
+      // Log internal server errors, but avoid tracking them as failed login attempts for specific user
       logger.error(
         { err: error, username, requestId: req.id, ip: req.ip },
         'Erro interno durante autenticação.'
@@ -216,10 +246,10 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
       // Verificar o refresh token no Redis ou banco de dados
       const isValid = await adminModel.validateRefreshToken(refreshToken);
 
-      if (!isValid.success) {
+      if (!isValid.success || !isValid.userId) {
         return res.status(401).json({
           success: false,
-          message: 'Refresh token inválido ou expirado.'
+          message: 'Refresh token inválido, expirado ou não associado a um usuário.'
         });
       }
 
@@ -233,9 +263,12 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
       // Gerar novo refresh token
       const newRefreshToken = await adminModel.generateRefreshToken(isValid.userId);
 
+      // Atualizar atividade do usuário ao emitir novo token de acesso
+      await updateUserActivity(isValid.userId);
+
       logger.info(
-        { username: isValid.username, success: true, requestId: req.id, ip: req.ip },
-        'Token atualizado com sucesso via refresh token'
+        { username: isValid.username, userId: isValid.userId, success: true, requestId: req.id, ip: req.ip },
+        'Token atualizado com sucesso via refresh token e atividade do usuário registrada.'
       );
 
       return res.json({

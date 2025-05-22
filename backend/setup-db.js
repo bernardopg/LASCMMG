@@ -2,10 +2,9 @@
 
 const { program } = require('commander');
 const {
-  initializeDatabase,
-  testDatabaseConnection,
-} = require('./lib/db/db-init'); // Caminho corrigido
-// migrateDataFromJson was removed from db-init.js
+  initializeDatabase, // Alterado para corresponder à exportação de database.js
+  checkDbConnection,    // Alterado para corresponder à exportação de database.js
+} = require('./lib/db/database'); // Caminho corrigido e direto para database.js
 
 program
   .version('1.0.0')
@@ -14,7 +13,6 @@ program
   )
   .option('-i, --init', 'Inicializar o banco de dados')
   .option('-t, --test', 'Testar a conexão com o banco de dados')
-  // Migrate option removed as migrateDataFromJson is discontinued
   .option(
     '-d, --data-dir <path>',
     'Diretório para armazenar o banco de dados',
@@ -27,30 +25,27 @@ const options = program.opts();
 async function main() {
   try {
     if (!options.init && !options.test) {
-      // Removed options.migrate
       program.help();
       return;
     }
 
     if (options.init) {
-      await initializeDatabase();
+      await initializeDatabase(); // Chamada direta
       // eslint-disable-next-line no-console
       console.log('Banco de dados inicializado com sucesso.');
     }
 
     if (options.test) {
-      const testResult = await testDatabaseConnection();
-      if (testResult) {
+      const testResult = await checkDbConnection(); // Chamada direta
+      if (testResult.status === 'ok') {
         // eslint-disable-next-line no-console
-        console.log('Teste de conexão bem-sucedido!');
+        console.log(`Teste de conexão bem-sucedido: ${testResult.message}`);
       } else {
         // eslint-disable-next-line no-console
-        console.error('Teste de conexão falhou!');
+        console.error(`Teste de conexão falhou: ${testResult.message}`);
         process.exit(1);
       }
     }
-
-    // Migration logic removed as migrateDataFromJson is discontinued
 
     // eslint-disable-next-line no-console
     console.log('Operações concluídas com sucesso.');
