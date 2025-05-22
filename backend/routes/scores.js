@@ -79,6 +79,26 @@ router.post(
           state.matches &&
           state.matches[stateMatchKey]
         ) {
+          // Prevent prototype pollution
+          if (
+            stateMatchKey === '__proto__' ||
+            stateMatchKey === 'constructor' ||
+            stateMatchKey === 'prototype'
+          ) {
+            logger.warn(
+              {
+                component: 'ScoresRoute',
+                stateMatchKey,
+                requestId: req.id,
+              },
+              `Chave stateMatchKey inválida: ${stateMatchKey} em POST /api/scores.`
+            );
+            return res.status(400).json({
+              success: false,
+              message: 'Chave stateMatchKey inválida.',
+            });
+          }
+
           state.matches[stateMatchKey].score = [
             savedScore.player1_score,
             savedScore.player2_score,
