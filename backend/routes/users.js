@@ -94,7 +94,41 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-// TODO: Add route for password change (e.g., PUT /users/password)
-// This would require authentication (e.g., JWT middleware)
+// Implementando rota para alteração de senha
+router.put('/password', async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user?.id; // Assumir que o middleware de autenticação adiciona req.user
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Usuário não autenticado.' });
+  }
+
+  try {
+    // Validar a nova senha
+    if (!validatePassword(newPassword)) {
+      return res
+        .status(400)
+        .json({ message: 'A nova senha não atende aos requisitos de complexidade.' });
+    }
+
+    // Verificar se a senha atual está correta e atualizar para a nova senha
+    const updated = await userModel.updatePassword(userId, currentPassword, newPassword);
+
+    if (updated) {
+      logger.info('UserRoutes', `Senha alterada com sucesso para o usuário ID ${userId}.`);
+      res.json({ message: 'Senha alterada com sucesso.' });
+    } else {
+      logger.warn('UserRoutes', `Tentativa de alteração de senha falhou para o usuário ID ${userId}.`);
+      res.status(400).json({ message: 'Senha atual incorreta.' });
+    }
+  } catch (error) {
+    logger.error(
+      'UserRoutes',
+      `Erro ao alterar senha para o usuário ID ${userId}: ${error.message}`,
+      { error }
+    );
+    next(error); // Passar para o manipulador de erros global
+  }
+});
 
 module.exports = router;

@@ -1,217 +1,461 @@
+/**
+ * API Service Module - LASCMMG Application
+ *
+ * This module provides a centralized interface for all API interactions in the application.
+ * It handles authentication, CSRF protection, error handling, and provides methods for
+ * all API endpoints.
+ *
+ * @module api
+ * @version 2.2.0
+ * @lastUpdated 2025-05-21
+ */
+
 /* eslint-env browser */
 import axios from 'axios';
 
-// Cria uma instância do axios com configurações padrão
+/**
+ * Constants
+ */
+const API_TIMEOUT = 20000; // 20 seconds
+const AUTH_STORAGE_KEY = 'authToken';
+const USER_STORAGE_KEY = 'authUser';
+const CSRF_ERROR_RETRY_MAX = 3;
+const NETWORK_RETRY_MAX = 2;
+const NETWORK_RETRY_DELAY = 1000; // 1 second
+
+/**
+ * Request cancellation support
+ */
+const pendingRequests = new Map();
+
+/**
+ * Base axios instance with default configuration
+ */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
-  timeout: 30000, // Timeout de 30 segundos para todas as requisições
+  timeout: API_TIMEOUT,
+  withCredentials: true, // Enable cookies for CSRF protection
 });
 
+/**
+ * CSRF Token Management
+ */
 let currentCsrfToken = null;
 let csrfTokenPromise = null;
+let csrfErrorRetryCount = 0;
+let csrfTokenExpirationTime = null;
+const CSRF_TOKEN_LIFETIME = 30 * 60 * 1000; // 30 minutes
 
-// Function to ensure CSRF token is fetched and stored
-// This will be called by the interceptor if the token is needed and not yet available.
-const ensureCsrfTokenInternal = () => {
-  if (currentCsrfToken) return Promise.resolve(currentCsrfToken);
-  if (csrfTokenPromise) return csrfTokenPromise; // A fetch is already in progress
+/**
+ * Fetches a new CSRF token from the server
+ * @returns {Promise<string|null>} The CSRF token or null if the fetch fails
+ */
+const ensureCsrfTokenInternal = async () => {
+  // Check if we have a valid token that hasn't expired
+  const now = Date.now();
+  if (currentCsrfToken && csrfTokenExpirationTime && now < csrfTokenExpirationTime) {
+    return currentCsrfToken;
+  }
 
-  console.log('Attempting to fetch CSRF token...');
-  csrfTokenPromise = api
-    .get('/api/csrf-token')
+  // Return existing promise if one is in flight
+  if (csrfTokenPromise) return csrfTokenPromise;
+
+  console.info('Fetching new CSRF token...');
+
+  // Generate a unique request ID for this CSRF fetch
+  const requestId = `csrf-${Date.now()}`;
+
+  const source = axios.CancelToken.source();
+  pendingRequests.set(requestId, source);
+
+  csrfTokenPromise = api.get('/api/csrf-token', {
+    cancelToken: source.token
+  })
     .then((response) => {
       if (response.data && response.data.csrfToken) {
         currentCsrfToken = response.data.csrfToken;
-        console.log('CSRF token fetched and stored by interceptor logic.');
-        // csrfTokenPromise = null; // Clear the promise once resolved - actually, let's clear it outside
+        csrfErrorRetryCount = 0; // Reset retry counter on success
+        csrfTokenExpirationTime = Date.now() + CSRF_TOKEN_LIFETIME;
+        console.info('CSRF token fetched successfully');
         return currentCsrfToken;
       }
-      console.warn(
-        'CSRF token not found in response from /api/csrf-token (interceptor fetch).'
-      );
-      // Do not throw error here, let the original request proceed without token if fetch fails
-      // The backend will then reject it if CSRF is mandatory.
+
+      console.warn('CSRF token not found in response');
       return null;
     })
     .catch((err) => {
-      console.error('Error fetching CSRF token in interceptor logic:', err);
-      // Do not throw error here either.
+      if (axios.isCancel(err)) {
+        console.info('CSRF token request was cancelled');
+      } else {
+        console.error('Error fetching CSRF token:', err);
+      }
       return null;
     })
     .finally(() => {
-      csrfTokenPromise = null; // Always clear the promise after it settles
+      csrfTokenPromise = null;
+      pendingRequests.delete(requestId);
     });
+
   return csrfTokenPromise;
 };
 
-// Adiciona um interceptor de requisição para incluir o token CSRF
+/**
+ * Forces refresh of the CSRF token, clearing the current one
+ */
+export const refreshCsrfToken = () => {
+  currentCsrfToken = null;
+  csrfTokenExpirationTime = null;
+  return ensureCsrfTokenInternal();
+};
+
+/**
+ * Cancels all pending requests
+ * @param {string|null} [reason=null] - Optional cancellation reason
+ */
+export const cancelAllRequests = (reason = null) => {
+  for (const [id, source] of pendingRequests.entries()) {
+    source.cancel(reason || 'Operation canceled by user');
+    pendingRequests.delete(id);
+  }
+  console.info('All pending requests cancelled:', reason || 'No reason provided');
+};
+
+/**
+ * Delay helper for retry mechanisms
+ * @param {number} ms - Milliseconds to delay
+ * @returns {Promise<void>}
+ */
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Request Interceptor - Adds request ID, cancellation, and security headers
+ */
 api.interceptors.request.use(
   async (config) => {
-    // Make interceptor async
+    // Generate unique request ID
+    const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    config.headers['X-Request-ID'] = requestId;
+
+    // Setup cancellation token
+    const source = axios.CancelToken.source();
+    config.cancelToken = config.cancelToken || source.token;
+
+    // Store cancellation source for later reference
+    pendingRequests.set(requestId, source);
+
+    // Add requestId to the config for later reference
+    config._requestId = requestId;
+
     const protectedMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
+    // Add CSRF token to mutating requests
     if (protectedMethods.includes(config.method.toUpperCase())) {
-      if (!currentCsrfToken) {
-        // If token is not available, try to fetch it.
-        // This ensures that the first protected request triggers the fetch.
+      if (!currentCsrfToken || (csrfTokenExpirationTime && Date.now() > csrfTokenExpirationTime)) {
         await ensureCsrfTokenInternal();
       }
 
       if (currentCsrfToken) {
         config.headers['X-CSRF-Token'] = currentCsrfToken;
       } else {
-        console.warn(
-          'CSRF token still not available after attempting fetch. Request might fail.'
-        );
+        console.warn('CSRF token unavailable. Request may fail if CSRF protection is required.');
       }
     }
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Adiciona um interceptor para tratar erros globalmente
+/**
+ * Response Interceptor - Handles common API errors with retry logic
+ */
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Trata erros comuns de API
-    if (error.response) {
-      // Erro do servidor com resposta (400-500)
-      console.error('Erro na API:', error.response.data);
+  (response) => {
+    // Clean up the request from pendingRequests
+    const requestId = response.config._requestId;
+    if (requestId) {
+      pendingRequests.delete(requestId);
+    }
+    return response;
+  },
+  async (error) => {
+    // Clean up regardless of success/failure
+    if (error.config && error.config._requestId) {
+      pendingRequests.delete(error.config._requestId);
+    }
 
-      // Se for erro de autenticação (401), redirecionar para login
-      if (error.response.status === 401) {
-        // Limpar local storage
-        localStorage.removeItem('authUser');
-        localStorage.removeItem('authToken');
+    // Extract data for better error handling
+    const { response, request, config } = error;
 
-        // Redirecionar para login (se não estiver já na página de login)
-        if (window.location.pathname !== '/login') {
-          // Disparar um evento customizado para que o App possa lidar com a navegação
-          const event = new CustomEvent('unauthorized');
-          window.dispatchEvent(event);
-          // window.location.href = '/login'; // Removido hard refresh
-        }
+    // Skip interceptor for cancelled requests
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
+    // CSRF error handling with auto retry
+    if (response?.status === 403 &&
+        response?.data?.message?.includes('CSRF') &&
+        csrfErrorRetryCount < CSRF_ERROR_RETRY_MAX) {
+
+      csrfErrorRetryCount++;
+      console.warn(`CSRF token rejected. Refreshing token and retrying (${csrfErrorRetryCount}/${CSRF_ERROR_RETRY_MAX})`);
+
+      // Force refresh the CSRF token
+      currentCsrfToken = null;
+      csrfTokenExpirationTime = null;
+      await ensureCsrfTokenInternal();
+
+      // Retry the original request
+      if (currentCsrfToken && config) {
+        config.headers['X-CSRF-Token'] = currentCsrfToken;
+        return axios(config);
       }
-    } else if (error.request) {
-      // Requisição foi feita mas não houve resposta (problemas de rede)
-      console.error('Erro de rede:', error.request);
-    } else {
-      // Erro na configuração da requisição
-      console.error('Erro na requisição:', error.message);
+    }
+
+    // Network error handling with retries
+    if (!response && error.message &&
+        (error.message.includes('timeout') ||
+         error.message.includes('Network Error')) &&
+        config && config._retryCount < NETWORK_RETRY_MAX) {
+
+      const retryCount = config._retryCount || 0;
+      config._retryCount = retryCount + 1;
+
+      console.warn(`Network error. Retrying request (${config._retryCount}/${NETWORK_RETRY_MAX})`);
+
+      // Exponential backoff
+      const delayTime = NETWORK_RETRY_DELAY * Math.pow(2, retryCount);
+      await delay(delayTime);
+
+      // Create a new request with the same config
+      return axios(config);
+    }
+
+    // Authentication error handling
+    if (response?.status === 401) {
+      console.warn('Authentication error: User is not authenticated or token expired');
+
+      // Clear auth data
+      localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        // Dispatch event for app-level handling
+        window.dispatchEvent(new CustomEvent('unauthorized'));
+      }
+    }
+    // Server errors with response
+    else if (response) {
+      console.error('API error:', {
+        status: response.status,
+        url: request?.responseURL,
+        data: response.data
+      });
+    }
+    // Network errors
+    else if (request) {
+      console.error('Network error:', {
+        url: request.responseURL || config?.url,
+        method: config?.method,
+        message: error.message
+      });
+    }
+    // Request configuration errors
+    else {
+      console.error('Request configuration error:', error.message);
     }
 
     return Promise.reject(error);
   }
 );
 
-// Função para definir o token de autenticação
+/**
+ * Authentication Management
+ */
+
+/**
+ * Sets the authentication token for subsequent requests
+ * @param {string|null} token - JWT token or null to clear
+ */
 export const setAuthToken = (token) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem(AUTH_STORAGE_KEY, token);
   } else {
     delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   }
 };
 
-// Função para verificar se o token está presente
+/**
+ * Initializes authentication from localStorage if available
+ */
 export const initializeAuth = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem(AUTH_STORAGE_KEY);
   if (token) {
     setAuthToken(token);
+    return true;
   }
+  return false;
 };
 
-// Inicializar token se existir no localStorage
+// Initialize auth on module load
 initializeAuth();
 
-// Funções específicas da API
+/**
+ * API Request Methods
+ * Organized by resource type
+ */
 
-// Torneios
+/**
+ * Authentication API Methods
+ */
+export const loginUser = async (credentials) => {
+  const response = await api.post('/api/auth/login', credentials);
+
+  // Store token if returned
+  if (response.data.token) {
+    setAuthToken(response.data.token);
+  }
+
+  return response.data;
+};
+
+export const logoutUser = async () => {
+  try {
+    await api.post('/api/logout');
+  } catch (error) {
+    // Continue with local logout even if server logout fails
+    console.warn('Server logout failed, continuing with local logout');
+  } finally {
+    setAuthToken(null);
+    // Cancel any pending requests to prevent state issues after logout
+    cancelAllRequests('User logged out');
+  }
+
+  return { success: true, message: 'Logout realizado com sucesso.' };
+};
+
+export const changePassword = async (passwordData) => {
+  const response = await api.post('/api/change-password', passwordData);
+  return response.data;
+};
+
+export const getCurrentUser = async () => {
+  const response = await api.get('/api/me');
+  return response.data;
+};
+
+/**
+ * Tournament API Methods
+ */
 export const getTournaments = async (params = {}) => {
-  // Accept params object
-  const response = await api.get('/api/tournaments', { params }); // Pass params to API call
+  const response = await api.get('/api/tournaments', { params });
   return response.data;
 };
 
 export const getTournamentDetails = async (tournamentId) => {
-  const response = await api.get(`/api/tournaments/${tournamentId}`); // Ajuste o endpoint
+  const response = await api.get(`/api/tournaments/${tournamentId}`);
   return response.data;
 };
 
 export const getTournamentState = async (tournamentId) => {
   const response = await api.get(`/api/tournaments/${tournamentId}/state`);
-  return response.data; // This should be the direct state object
+  return response.data;
 };
 
-// Jogadores
+export const createTournamentAdmin = async (tournamentData) => {
+  const response = await api.post('/api/tournaments/create', tournamentData);
+  return response.data;
+};
+
+export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
+  const updates = {};
+  let hasUpdates = false;
+
+  // Convert the data into a series of patch requests
+  const updateableFields = [
+    'name', 'description', 'date', 'status',
+    'entry_fee', 'prize_pool', 'rules'
+  ];
+
+  // Build consolidated updates object
+  updateableFields.forEach(field => {
+    if (tournamentData[field] !== undefined) {
+      updates[field] = tournamentData[field];
+      hasUpdates = true;
+    }
+  });
+
+  // If we have multiple fields to update, use a single PATCH
+  if (hasUpdates) {
+    await api.patch(`/api/tournaments/${tournamentId}`, updates);
+  }
+
+  // Return the updated tournament
+  const response = await api.get(`/api/tournaments/${tournamentId}`);
+  return response.data;
+};
+
+export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
+  if (permanent) {
+    const response = await api.delete(`/api/admin/trash/item/tournament/${tournamentId}`);
+    return response.data;
+  } else {
+    const response = await api.patch(
+      `/api/tournaments/${tournamentId}/status`,
+      { status: 'Cancelado' }
+    );
+    return response.data;
+  }
+};
+
+export const generateTournamentBracket = async (tournamentId) => {
+  const response = await api.post(`/api/tournaments/${tournamentId}/generate-bracket`);
+  return response.data;
+};
+
+export const updateMatchScoreAdmin = async (tournamentId, matchId, scoreData) => {
+  const response = await api.patch(
+    `/api/tournaments/${tournamentId}/matches/${matchId}/winner`,
+    scoreData
+  );
+  return response.data;
+};
+
+/**
+ * Player API Methods
+ */
 export const getPlayers = async (tournamentId) => {
-  // Se tournamentId for fornecido, filtre por torneio, senão, todos os jogadores
   const url = tournamentId
     ? `/api/tournaments/${tournamentId}/players`
     : '/api/players';
-  const response = await api.get(url); // Ajuste o endpoint
+  const response = await api.get(url);
   return response.data;
 };
 
 export const getPlayerDetails = async (playerId) => {
   const response = await api.get(`/api/players/${playerId}`);
-  return response.data; // Expects { success: true, player: {...} }
-};
-
-// Placares
-export const getScores = async (tournamentId) => {
-  const response = await api.get(`/api/tournaments/${tournamentId}/scores`); // Ajuste o endpoint
   return response.data;
 };
 
-export const saveScore = async (scoreData) => {
-  const response = await api.post('/api/scores', scoreData); // Ajuste o endpoint
-  return response.data;
-};
-
-// Autenticação (exemplo, pode já existir no AuthContext)
-export const loginUser = async (credentials) => {
-  const response = await api.post('/api/auth/login', credentials);
-  return response.data;
-};
-
-export const getCurrentUser = async () => {
-  const response = await api.get('/api/me'); // Corrigido endpoint
-  return response.data;
-};
-
-// Estatísticas
-export const getTournamentStats = async (tournamentId) => {
-  const response = await api.get(`/api/tournaments/${tournamentId}/stats`); // Ajuste o endpoint
-  return response.data;
-};
-
-export const getPlayerStats = async (tournamentId, playerName) => {
-  // playerName might need to be URL encoded if it can contain special characters
-  const encodedPlayerName = encodeURIComponent(playerName);
-  const response = await api.get(
-    `/api/tournaments/${tournamentId}/players/${encodedPlayerName}/stats`
-  ); // Ajuste o endpoint
-  return response.data;
-};
-
-// Admin - Jogadores
 export const getAdminPlayers = async ({
   page = 1,
   limit = 10,
   sortBy = 'name',
-  order = 'asc',
-  filters = {},
+  sortDirection = 'asc',
+  search = '',
+  ...filters
 } = {}) => {
   const response = await api.get('/api/admin/players', {
-    params: { page, limit, sortBy, order, ...filters },
+    params: { page, limit, sortBy, sortDirection, search, ...filters },
   });
-  return response.data; // Espera-se { players: [], totalPages: X, currentPage: Y }
+  return response.data;
 };
 
 export const createPlayerAdmin = async (playerData) => {
@@ -225,23 +469,80 @@ export const updatePlayerAdmin = async (playerId, playerData) => {
 };
 
 export const deletePlayerAdmin = async (playerId, permanent = false) => {
-  // Soft delete by default
   const response = await api.delete(`/api/admin/players/${playerId}`, {
     params: { permanent },
   });
   return response.data;
 };
 
-// Admin - Placares (similar structure)
+export const bulkDeletePlayersAdmin = async (playerIds, permanent = false) => {
+  const response = await api.post(`/api/admin/players/bulk-delete`, {
+    playerIds,
+    permanent
+  });
+  return response.data;
+};
+
+export const importPlayersAdmin = async (playersCsv) => {
+  const formData = new FormData();
+  formData.append('file', playersCsv);
+
+  const response = await api.post('/api/admin/players/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const exportPlayersAdmin = async (format = 'csv', filters = {}) => {
+  const response = await api.get('/api/admin/players/export', {
+    params: { format, ...filters },
+    responseType: 'blob',
+  });
+
+  // Create download link
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `players_export_${new Date().toISOString().split('T')[0]}.${format}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  return { success: true, message: `Jogadores exportados em formato ${format.toUpperCase()}` };
+};
+
+export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
+  const response = await api.post(
+    `/api/tournaments/${tournamentId}/assign_player`,
+    { playerId }
+  );
+  return response.data;
+};
+
+/**
+ * Score API Methods
+ */
+export const getScores = async (tournamentId) => {
+  const response = await api.get(`/api/tournaments/${tournamentId}/scores`);
+  return response.data;
+};
+
+export const saveScore = async (scoreData) => {
+  const response = await api.post('/api/scores', scoreData);
+  return response.data;
+};
+
 export const getAdminScores = async ({
   page = 1,
   limit = 10,
   sortBy = 'timestamp',
-  order = 'desc',
-  filters = {},
+  sortDirection = 'desc',
+  ...filters
 } = {}) => {
   const response = await api.get('/api/admin/scores', {
-    params: { page, limit, sortBy, order, ...filters },
+    params: { page, limit, sortBy, sortDirection, ...filters },
   });
   return response.data;
 };
@@ -258,7 +559,25 @@ export const deleteScoreAdmin = async (scoreId, permanent = false) => {
   return response.data;
 };
 
-// Admin - Lixeira
+/**
+ * Stats API Methods
+ */
+export const getTournamentStats = async (tournamentId) => {
+  const response = await api.get(`/api/tournaments/${tournamentId}/stats`);
+  return response.data;
+};
+
+export const getPlayerStats = async (tournamentId, playerName) => {
+  const encodedPlayerName = encodeURIComponent(playerName);
+  const response = await api.get(
+    `/api/tournaments/${tournamentId}/players/${encodedPlayerName}/stats`
+  );
+  return response.data;
+};
+
+/**
+ * Admin - Trash Management
+ */
 export const getTrashItems = async ({
   page = 1,
   limit = 10,
@@ -279,7 +598,6 @@ export const restoreTrashItem = async (itemId, itemType) => {
 };
 
 export const permanentlyDeleteDBItem = async (itemId, itemType) => {
-  // Updated to use path parameters as per backend route change
   const response = await api.delete(
     `/api/admin/trash/item/${itemType}/${itemId}`
   );
@@ -287,88 +605,10 @@ export const permanentlyDeleteDBItem = async (itemId, itemType) => {
 };
 
 /**
- * Admin - Torneios
+ * Admin - Security Methods
  */
-export const createTournamentAdmin = async (tournamentData) => {
-  // Adicionada função que estava faltando
-  const response = await api.post('/api/tournaments/create', tournamentData); // Endpoint de criação de torneio
-  return response.data;
-};
-
-// Placeholder for a more comprehensive update.
-// Ideally, backend would have a PUT /api/admin/tournaments/:id or similar.
-// For now, this might make multiple PATCH calls or just update a few key fields.
-export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
-  // Example: just updating name and description for now via existing PATCH routes
-  // A real implementation would iterate through tournamentData and call relevant PATCH endpoints
-  // or use a dedicated PUT endpoint.
-  if (tournamentData.name !== undefined) {
-    await api.patch(`/api/tournaments/${tournamentId}/name`, { name: tournamentData.name });
-  }
-  if (tournamentData.description !== undefined) {
-    await api.patch(`/api/tournaments/${tournamentId}/description`, { description: tournamentData.description });
-  }
-  if (tournamentData.date !== undefined) {
-    // Assuming backend PATCH for date exists or is part of a general update
-    // For now, this is a conceptual update.
-    await api.patch(`/api/tournaments/${tournamentId}/date`, { date: tournamentData.date });
-  }
-  // ... other fields like status, entry_fee, prize_pool, rules, bracket_type, num_players_expected
-  // This is simplified. A robust solution needs careful handling of all fields.
-  // For status:
-  if (tournamentData.status !== undefined) {
-    await api.patch(`/api/tournaments/${tournamentId}/status`, { status: tournamentData.status });
-  }
-
-  // After all updates, fetch the updated tournament details to return
-  const response = await api.get(`/api/tournaments/${tournamentId}`);
-  return response.data;
-};
-
-export const updateMatchScoreAdmin = async (tournamentId, matchId, scoreData) => {
-  // scoreData should be { player1Score, player2Score, winnerId }
-  const response = await api.patch(`/api/tournaments/${tournamentId}/matches/${matchId}/winner`, scoreData);
-  return response.data;
-};
-
-export const generateTournamentBracket = async (tournamentId) => {
-  const response = await api.post(`/api/tournaments/${tournamentId}/generate-bracket`);
-  return response.data;
-};
-
-export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
-  // Added permanent flag, defaulting to true for admin delete
-  // For permanent deletion, the backend route was changed to /api/admin/trash/item/:itemType/:itemId
-  if (permanent) {
-    const response = await api.delete(`/api/admin/trash/item/tournament/${tournamentId}`);
-    return response.data;
-  } else {
-    // For soft delete, typically PATCH status to 'Cancelado'
-    // This is handled in TournamentContext or could be a separate admin soft-delete function
-    // OR, if the backend supports soft delete via DELETE with a query param on the tournament itself:
-    // For now, assuming soft delete is handled by changing status or a specific soft-delete endpoint.
-    // The current deleteTournamentAdmin in admin.js handles soft delete if permanent=false is passed to /api/admin/tournaments/:id
-    // However, the admin.js route for DELETE /api/admin/tournaments/:id is not defined.
-    // Let's assume soft delete is done by updating status for now, or this needs a backend adjustment.
-    // The deleteTournamentAdmin in this api.js file was calling /api/admin/trash/item for permanent,
-    // and /api/tournaments/:id/status for soft. This seems inconsistent with a dedicated admin delete.
-    // For now, I will keep the logic as it was, but this area needs review for consistency.
-    // The backend /api/admin/tournaments/:id (DELETE) is not defined.
-    // The backend /api/admin/trash/item (DELETE) is for permanent deletion from trash.
-    // The backend /api/tournaments/:id/status (PATCH) is for status update.
-
-    // Correct approach for soft-delete via status update:
-    const response = await api.patch(
-      `/api/tournaments/${tournamentId}/status`,
-      { status: 'Cancelado' } // Or 'Arquivado' or a specific soft-deleted status
-    );
-    return response.data;
-  }
-};
-
-// Admin - Segurança
 export const getSecurityOverviewStats = async () => {
-  const response = await api.get('/api/system/security/overview-stats'); // Endpoint based on old handler, might need adjustment
+  const response = await api.get('/api/system/security/overview-stats');
   return response.data;
 };
 
@@ -404,12 +644,12 @@ export const unblockIp = async (ipAddress) => {
   return response.data;
 };
 
-// Potentially more for threat analytics if it has its own data endpoints
-
-// Admin - User Management
+/**
+ * Admin - User Management
+ */
 export const getAdminUsers = async (params = {}) => {
   const response = await api.get('/api/admin/users', { params });
-  return response.data; // Expects { users: [], ...pagination }
+  return response.data;
 };
 
 export const createAdminUser = async (userData) => {
@@ -417,9 +657,32 @@ export const createAdminUser = async (userData) => {
   return response.data;
 };
 
-export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
-  const response = await api.post(`/api/tournaments/${tournamentId}/assign_player`, { playerId });
+export const updateAdminUser = async (userId, userData) => {
+  const response = await api.put(`/api/admin/users/${userId}`, userData);
   return response.data;
+};
+
+export const deleteAdminUser = async (userId) => {
+  const response = await api.delete(`/api/admin/users/${userId}`);
+  return response.data;
+};
+
+/**
+ * Health Check/Status API
+ */
+export const checkApiStatus = async () => {
+  try {
+    const response = await api.get('/ping', { timeout: 5000 });
+    return {
+      status: 'online',
+      details: response.data
+    };
+  } catch (error) {
+    return {
+      status: 'offline',
+      error: error.message
+    };
+  }
 };
 
 export default api;

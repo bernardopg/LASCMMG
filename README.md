@@ -1,4 +1,4 @@
-# LASCMMG - Sistema de Gerenciamento de Torneios de Sinuca (Versão React)
+# LASCMMG - Sistema de Gerenciamento de Torneios de Sinuca (Versão React/Vite)
 
 [![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-yellow.svg)](LICENSE.md)
 ![Build](https://img.shields.io/github/actions/workflow/status/bernardopg/LASCMMG/ci.yml?branch=main)
@@ -8,10 +8,21 @@
 ![Node Version](https://img.shields.io/badge/node-%3E%3D18.x-brightgreen)
 ![Vite](https://img.shields.io/badge/vite-6.3.5-blue)
 ![React](https://img.shields.io/badge/react-18.2.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/tailwindcss-3.4.1-blue)
 
 ## 🎱 Visão Geral (Atualizado: Maio/2025)
 
-O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
+### Manutenção (22/05/2025)
+- Revisão e aprimoramento de toda a documentação do projeto
+- Atualização dos schemas de API e referências de endpoints
+- Otimizações de segurança no backend e API
+- Padronização e melhoria do código JavaScript/React
+- Consolidado scripts de administrador em `initialize_admin.js`
+- Padronizado o armazenamento do banco de dados na pasta raiz `/data`
+- Removidos componentes duplicados no frontend
+- Implementada rota para alteração de senha de usuário
+
+O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Vite e Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching e armazenamento de estado compartilhado.
 
 **Diferenciais do projeto:**
 
@@ -119,10 +130,7 @@ Nossa documentação abrangente está disponível na pasta `/docs`:
 - [**SCALING.md**](/docs/SCALING.md) - Estratégias para escalabilidade
 - [**TROUBLESHOOTING.md**](/docs/TROUBLESHOOTING.md) - Soluções para problemas comuns
 - [**RELATORIO_CONSOLIDADO_LASCMMG.md**](/docs/RELATORIO_CONSOLIDADO_LASCMMG.md) - Relatório técnico abrangente
-
-## 📝 Lista de Tarefas (TODO)
-
-Temos uma [lista de tarefas pendentes](/TODO.md) detalhada para o desenvolvimento contínuo e melhorias futuras.
+- [**TODO.md**](/docs/TODO.md) - Lista de tarefas pendentes e melhorias planejadas
 
 ## 🤝 Contribuição
 
@@ -140,3 +148,4 @@ Consulte nosso [SECURITY.md](SECURITY.md) para informações sobre como reportar
 
 - **Desenvolvido por:** Equipe LASCMMG
 - **Agradecimentos especiais:** A todos os colaboradores e à comunidade de sinuca da CMMG
+- **Última revisão:** 22 de maio de 2025

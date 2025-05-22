@@ -1,11 +1,39 @@
 // scripts/initialize_admin.js
+/**
+ * Script consolidado para gerenciamento de usuários administradores
+ * Substitui os scripts anteriores:
+ * - create_admin_user.js
+ * - create_test_admin.js
+ * - create_custom_admin.js
+ *
+ * Uso:
+ * - Criar/atualizar administrador personalizado: node scripts/initialize_admin.js --username <email> --password <senha> [--role <papel>]
+ * - Criar administrador padrão: node scripts/initialize_admin.js --default
+ * - Criar administrador de teste: node scripts/initialize_admin.js --test
+ */
+
 const adminModel = require('../backend/lib/models/adminModel');
 const {
   db,
   runAsync,
   closeSyncConnection,
-} = require('../backend/lib/db/database'); // Ensure db is initialized, added runAsync
-const bcrypt = require('bcrypt'); // Added bcrypt for password hashing
+} = require('../backend/lib/db/database');
+const bcrypt = require('bcrypt');
+
+// Configurações padrão
+const DEFAULT_ADMIN = {
+  username: 'admin@example.com',
+  password: 'Admin123!',
+  role: 'super_admin',
+  permissions: ['all']
+};
+
+const TEST_ADMIN = {
+  username: 'testadmin@example.com',
+  password: 'TestAdmin123!',
+  role: 'admin',
+  permissions: ['all']
+};
 
 // Function to parse command line arguments
 function getArgs() {
@@ -31,75 +59,89 @@ function getArgs() {
 
 async function initializeAdmin() {
   const args = getArgs();
-  const newAdminUsername = args.username;
-  const newAdminPassword = args.password;
+  let adminConfig = {};
 
-  if (!newAdminUsername || !newAdminPassword) {
-    console.error('Error: Missing --username or --password argument.');
-    console.log(
-      'Usage: node scripts/initialize_admin.js --username <username> --password <password>'
-    );
-    return;
+  // Determinar qual configuração usar com base nos argumentos
+  if (args.default) {
+    adminConfig = { ...DEFAULT_ADMIN };
+    console.log('Usando configuração de administrador padrão');
+  } else if (args.test) {
+    adminConfig = { ...TEST_ADMIN };
+    console.log('Usando configuração de administrador de teste');
+  } else {
+    // Configuração personalizada
+    if (!args.username || !args.password) {
+      console.error('Erro: Argumentos --username ou --password ausentes.');
+      console.log(
+        'Uso: node scripts/initialize_admin.js --username <email> --password <senha> [--role <papel>]\n' +
+        '  ou: node scripts/initialize_admin.js --default\n' +
+        '  ou: node scripts/initialize_admin.js --test'
+      );
+      return;
+    }
+
+    adminConfig = {
+      username: args.username,
+      password: args.password,
+      role: args.role || 'super_admin',
+      permissions: ['all']
+    };
   }
 
   // Ensure DB is initialized before trying to use it.
   if (!db || !db.open) {
     console.error(
-      'Database connection is not open. Ensure the main app has initialized it or initialize here.'
+      'Conexão com o banco de dados não está aberta. Verificando inicialização.'
     );
-    // Attempt to initialize if not open - this might be specific to your setup
-    // For now, we assume it should be open or the main app handles it.
-    // If you have a specific db init script for CLI, you might call it here.
-    // e.g. require('../backend/lib/db/db-init').init();
-    // This is a placeholder, adjust based on your project's DB initialization for scripts.
   }
 
   try {
-    console.log(`Attempting to create admin user: ${newAdminUsername}`);
-    const existingAdmin = await adminModel.getAdminByUsername(newAdminUsername);
+    console.log(`Tentando criar/atualizar usuário administrador: ${adminConfig.username}`);
+    const existingAdmin = await adminModel.getAdminByUsername(adminConfig.username);
+
     if (existingAdmin) {
       console.log(
-        `Admin user "${newAdminUsername}" (ID: ${existingAdmin.id}) already exists. Updating password.`
+        `Usuário administrador "${adminConfig.username}" (ID: ${existingAdmin.id}) já existe. Atualizando senha.`
       );
-      const saltRounds = 10; // Same as in adminModel
-      const hashedPassword = await bcrypt.hash(newAdminPassword, saltRounds);
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(adminConfig.password, saltRounds);
       const sql = 'UPDATE users SET hashedPassword = ? WHERE id = ?';
       await runAsync(sql, [hashedPassword, existingAdmin.id]);
       console.log(
-        `Password for admin user "${newAdminUsername}" has been updated.`
+        `Senha para usuário administrador "${adminConfig.username}" foi atualizada.`
       );
-      // Log action if audit logging is desired here, similar to adminModel
     } else {
       const createdAdmin = await adminModel.createAdmin({
-        username: newAdminUsername,
-        password: newAdminPassword, // The model will hash this
-        role: 'super_admin', // Default role, can be parameterized if needed
-        permissions: ['all'], // Default permissions
+        username: adminConfig.username,
+        password: adminConfig.password,
+        role: adminConfig.role,
+        permissions: adminConfig.permissions
       });
-      console.log('Admin user created successfully:');
+
+      console.log('Usuário administrador criado com sucesso:');
       console.log(`  ID: ${createdAdmin.id}`);
       console.log(`  Username: ${createdAdmin.username}`);
       console.log(`  Role: ${createdAdmin.role}`);
       console.log(
-        `\nPassword was set to: ${newAdminPassword} (this will be hashed)`
+        `\nSenha definida como: ${adminConfig.password} (será criptografada)`
       );
       console.log(
-        'Please ensure this password is secure and managed appropriately.'
+        'Por favor, certifique-se de que esta senha seja segura e gerenciada adequadamente.'
       );
     }
   } catch (error) {
-    console.error('Error creating admin user:');
-    console.error(`  Message: ${error.message}`);
+    console.error('Erro ao criar usuário administrador:');
+    console.error(`  Mensagem: ${error.message}`);
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       console.error(
-        `  Detail: The username "${newAdminUsername}" likely already exists.`
+        `  Detalhe: O nome de usuário "${adminConfig.username}" provavelmente já existe.`
       );
     } else {
       console.error(`  Stack: ${error.stack}`);
     }
   } finally {
     if (db && db.open) {
-      console.log('Closing database connection.');
+      console.log('Fechando conexão com o banco de dados.');
       closeSyncConnection();
     }
   }

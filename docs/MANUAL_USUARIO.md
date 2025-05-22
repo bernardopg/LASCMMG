@@ -1,6 +1,6 @@
 # Manual do Usuário - Sistema LASCMMG (Versão React com Vite)
 
-[⬅ Voltar ao README Principal](README.md)
+[⬅ Voltar ao README Principal](../README.md)
 
 ## Índice
 

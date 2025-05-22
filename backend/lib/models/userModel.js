@@ -304,6 +304,80 @@ async function changeUserPassword(
   }
 }
 
+/**
+ * Atualiza a senha de um usuário após validar a senha atual.
+ * @param {number} userId - O ID do usuário.
+ * @param {string} currentPassword - A senha atual do usuário.
+ * @param {string} newPassword - A nova senha a ser definida.
+ * @returns {Promise<boolean>} True se a senha foi atualizada com sucesso, false caso contrário.
+ */
+async function updatePassword(userId, currentPassword, newPassword) {
+  if (!userId) {
+    throw new Error('ID de usuário não fornecido');
+  }
+
+  if (!currentPassword || !newPassword) {
+    throw new Error('Senha atual ou nova senha não fornecida');
+  }
+
+  try {
+    // Obter o usuário para validar a senha atual
+    const user = await getOneAsync('SELECT id, hashedPassword FROM users WHERE id = ?', [userId]);
+
+    if (!user) {
+      logger.warn('UserModel', `Tentativa de atualização de senha para usuário inexistente ID: ${userId}`);
+      return false;
+    }
+
+    // Verificar se a senha atual está correta
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.hashedPassword
+    );
+
+    if (!isCurrentPasswordValid) {
+      logger.warn('UserModel', `Tentativa de atualização de senha com senha atual inválida para usuário ID: ${userId}`);
+      return false;
+    }
+
+    // Verificar se a nova senha atende aos requisitos mínimos
+    if (newPassword.length < 8) {
+      throw new Error('A nova senha deve ter pelo menos 8 caracteres');
+    }
+
+    // Gerar hash da nova senha
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Atualizar a senha no banco de dados
+    await runAsync(
+      'UPDATE users SET hashedPassword = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [hashedPassword, userId]
+    );
+
+    // Registrar a ação no log de auditoria
+    auditLogger.log({
+      action: 'password_update',
+      entity: 'user',
+      entityId: userId,
+      message: `Senha atualizada para o usuário ID: ${userId}`,
+      metadata: {
+        userId,
+      },
+    });
+
+    logger.info('UserModel', `Senha atualizada com sucesso para o usuário ID: ${userId}`);
+    return true;
+  } catch (err) {
+    logger.error(
+      'UserModel',
+      `Erro ao atualizar senha para o usuário ID: ${userId}: ${err.message}`,
+      { error: err }
+    );
+    throw err;
+  }
+}
+
 module.exports = {
   userExists,
   getUserByUsername,
@@ -311,4 +385,5 @@ module.exports = {
   updateUserLastLogin,
   authenticateUser,
   changeUserPassword,
+  updatePassword,
 };

@@ -1,21 +1,51 @@
-# Security Policy
+# Política de Segurança do LASCMMG
 
-## Supported Versions
+## Versões Suportadas
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+A seguinte tabela indica quais versões estão atualmente recebendo atualizações de segurança:
 
-| Version | Supported          |
+| Versão | Suportada          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 2.0.x   | :white_check_mark: |
+| 1.5.x   | :white_check_mark: |
+| < 1.5   | :x:                |
 
-## Reporting a Vulnerability
+## Reportando Vulnerabilidades
 
-Use this section to tell people how to report a vulnerability.
+Se você descobrir uma vulnerabilidade de segurança no LASCMMG, por favor envie um e-mail para o administrador do sistema em `admin@lascmmg.org` com os seguintes detalhes:
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+- Descrição detalhada da vulnerabilidade
+- Passos para reproduzir
+- Possível impacto
+- Sugestões de mitigação, se houver
+
+Nossa equipe responderá dentro de 48 horas e trabalhará com você para entender e resolver o problema.
+
+## Medidas de Segurança Implementadas
+
+O LASCMMG implementa várias medidas de segurança para proteger os dados dos usuários e a integridade do sistema:
+
+### Autenticação e Controle de Acesso
+- Autenticação baseada em JWT com tempos de expiração curtos
+- Armazenamento seguro de senhas utilizando bcrypt
+- Funcionalidade de troca de senha para usuários
+- Permissões baseadas em funções (RBAC)
+- Bloqueio de contas após múltiplas tentativas de acesso mal-sucedidas
+
+### Proteção contra Ataques Web
+- Proteção CSRF
+- Validação rigorosa de entrada com Joi
+- Sanitização de saída para prevenir XSS
+- Headers de segurança configurados (HSTS, X-Content-Type-Options, etc)
+- Sistema de honeypot para detecção de bots maliciosos
+
+### Monitoramento e Auditoria
+- Registro detalhado de ações administrativas
+- Monitoramento de tentativas de acesso suspeitas
+- Alertas automáticos para atividades anômalas
+
+### Banco de Dados e Armazenamento
+- Banco de dados centralizado com padronização de caminho
+- Backups automáticos
+- Remoção de códigos e diretórios redundantes
+- Soft delete para recuperação de dados acidentalmente excluídos

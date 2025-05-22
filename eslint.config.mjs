@@ -1,4 +1,11 @@
-// @ts-check
+/**
+ * ESLint configuration for LASCMMG project
+ *
+ * This configuration handles both backend (Node.js) and frontend (React) code
+ * with appropriate rule sets for each environment.
+ *
+ * @ts-check
+ */
 
 import eslint from '@eslint/js';
 import globals from 'globals';
@@ -10,7 +17,7 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import eslintPluginCypress from 'eslint-plugin-cypress/flat';
 
 export default tseslint.config(
-  // Global ignores
+  // Global ignores - files and directories to exclude from linting
   {
     ignores: [
       'node_modules/',
@@ -24,7 +31,7 @@ export default tseslint.config(
 
   eslint.configs.recommended,
 
-  // Backend, scripts, root .config.js (CommonJS)
+  // Backend Node.js files (CommonJS format)
   {
     files: ['backend/**/*.js', 'scripts/**/*.js', '*.config.js'],
     languageOptions: {
@@ -35,10 +42,18 @@ export default tseslint.config(
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': 'warn',
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      'no-new-func': 'error',
+      'security/detect-object-injection': 'warn',
+      'security/detect-non-literal-regexp': 'warn',
+      'security/detect-unsafe-regex': 'warn',
+      'security/detect-buffer-noassert': 'error',
+      'node/no-deprecated-api': 'warn',
     },
   },
 
-  // Root .mjs files (ESM)
+  // Root .mjs config files (ES modules)
   {
     files: ['eslint.config.mjs', 'vitest.config.js'],
     languageOptions: {
@@ -54,7 +69,7 @@ export default tseslint.config(
     },
   },
 
-  // Backend Test files (ESM)
+  // Backend test files (using Vitest/Jest syntax)
   {
     files: ['backend/tests/**/*.js'],
     languageOptions: {
@@ -70,7 +85,7 @@ export default tseslint.config(
     },
   },
 
-  // Frontend Vite/ESLint/Cypress Config files (ESM)
+  // Frontend configuration files (Vite, ESLint, Cypress)
   {
     files: [
       'frontend-react/vite.config.js',
@@ -88,7 +103,7 @@ export default tseslint.config(
     },
   },
 
-  // Frontend Tailwind/PostCSS Config files (CommonJS)
+  // Frontend styling configuration files (Tailwind, PostCSS)
   {
     files: [
       'frontend-react/tailwind.config.js',
@@ -106,7 +121,7 @@ export default tseslint.config(
     },
   },
 
-  // Cypress Test files
+  // End-to-end test files (Cypress)
   {
     files: ['frontend-react/cypress/**/*.cy.js'],
     ...eslintPluginCypress.configs.recommended, // Spread the recommended config here
@@ -121,7 +136,7 @@ export default tseslint.config(
     },
   },
 
-  // React Frontend Source files (ESM)
+  // React application source code
   {
     files: ['frontend-react/src/**/*.{js,jsx,ts,tsx}'],
     plugins: {
@@ -141,13 +156,19 @@ export default tseslint.config(
       ...reactHooksPlugin.configs.recommended.rules,
       ...jsxA11yPlugin.configs.recommended.rules,
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+      'react/jsx-no-bind': ['warn', { allowArrowFunctions: true }],
+      'react-hooks/exhaustive-deps': 'warn',
+      'jsx-a11y/anchor-is-valid': 'warn',
+      'jsx-a11y/click-events-have-key-events': 'warn',
+      'jsx-a11y/no-static-element-interactions': 'warn',
+      'jsx-a11y/aria-role': ['error', { ignoreNonDOM: true }],
     },
   },
 
-  // Public JS files (likely browser scripts)
+  // Browser scripts in public directory
   {
     files: ['frontend-react/public/js/**/*.js'],
     languageOptions: {
@@ -163,9 +184,16 @@ export default tseslint.config(
 
   eslintPluginPrettierRecommended,
 
+  // Global prettier configuration
   {
     rules: {
-      'prettier/prettier': ['error', { endOfLine: 'auto' }],
+      'prettier/prettier': ['error', {
+        endOfLine: 'auto',
+        singleQuote: true,
+        trailingComma: 'es5',
+        printWidth: 100,
+        tabWidth: 2
+      }],
     },
   }
 );

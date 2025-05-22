@@ -1,3 +1,15 @@
+/**
+ * LASCMMG Tournament Management System
+ * Main Server Application
+ *
+ * This is the main entry point for the LASCMMG backend server.
+ * It configures Express, security middleware, static file serving,
+ * and API routes.
+ *
+ * @version 1.2.0
+ * @license MIT
+ */
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -6,6 +18,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const xss = require('xss-clean');
+const { randomUUID } = require('crypto');
 const csrfMiddleware = require('./lib/middleware/csrfMiddleware');
 const honeypot = require('./lib/middleware/honeypot');
 const fs = require('fs').promises;
@@ -41,7 +54,7 @@ notificationService.init(io);
 app.use((req, res, next) => {
   let requestId = req.headers['x-request-id'];
   if (!requestId) {
-    requestId = require('crypto').randomBytes(16).toString('hex');
+    requestId = randomUUID();
     res.setHeader('X-Request-Id', requestId);
   }
   req.id = requestId;
@@ -70,8 +83,8 @@ app.use(
         ? {
           directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'"],
-            styleSrc: ["'self'"],
+            scriptSrc: ["'self'", (req, res) => `'nonce-${req.id}'`],
+            styleSrc: ["'self'", (req, res) => `'nonce-${req.id}'`],
             imgSrc: ["'self'", 'data:'],
             connectSrc: ["'self'"],
             fontSrc: ["'self'"],
@@ -79,9 +92,14 @@ app.use(
             frameAncestors: ["'none'"],
             baseUri: ["'self'"],
             formAction: ["'self'"],
+            upgradeInsecureRequests: NODE_ENV === 'production' ? [] : null,
           },
         }
         : false,
+    crossOriginEmbedderPolicy: NODE_ENV === 'production',
+    crossOriginOpenerPolicy: NODE_ENV === 'production',
+    crossOriginResourcePolicy: { policy: 'same-site' },
+    originAgentCluster: true,
   })
 );
 
@@ -195,7 +213,10 @@ app.use((req, res, next) => {
 
 const oneDay = 86400000;
 
-// Função para definir os cabeçalhos adequados por tipo de arquivo
+/**
+ * Configure response headers based on file type
+ * This improves security by setting correct MIME types and preventing MIME sniffing
+ */
 const setContentTypeHeaders = (res, filePath) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   const ext = path.extname(filePath).toLowerCase();
@@ -215,7 +236,7 @@ const setContentTypeHeaders = (res, filePath) => {
   }
 };
 
-// Configuração de arquivos estáticos com headers adequados
+// Static file serving with appropriate caching and security headers
 app.use(
   '/css',
   express.static(path.join(__dirname, '../frontend-react/css'), {
@@ -286,6 +307,7 @@ app.get('/api/csrf-token', csrfMiddleware.csrfProvider, (req, res) => {
   });
 });
 
+// Health check endpoint for monitoring and system status
 app.get('/ping', (req, res) => {
   const dbStatus = checkDbConnection();
   if (dbStatus.status === 'ok') {
@@ -377,6 +399,10 @@ app.get('*', (req, res, next) => {
   res.sendFile(path.join(__dirname, '../frontend-react/index.html')); // Changed path
 });
 
+/**
+ * Starts the server with proper initialization of dependencies
+ * Sets up graceful shutdown and error handling
+ */
 async function startServer() {
   try {
     await applyDatabaseMigrations();
@@ -405,6 +431,7 @@ async function startServer() {
 
 const serverInstance = startServer(); // Capture the server instance
 
+// Global error handling for uncaught exceptions and unhandled promise rejections
 process.on('uncaughtException', (error) => {
   logger.fatal({ err: error }, 'Erro não capturado (uncaughtException):');
   if (NODE_ENV !== 'production') {
@@ -418,5 +445,7 @@ process.on('unhandledRejection', (reason, promise) => {
     'Rejeição de Promise não tratada (unhandledRejection):'
   );
 });
+
+// Export for testing and programmatic usage
 
 module.exports = { app, serverInstance }; // Export app and server for testing

@@ -1,5 +1,7 @@
 # TODO List - Projeto LASCMMG
 
+[⬅ Voltar ao README Principal](../README.md)
+
 ## Melhorias de Segurança e Autenticação
 - [ ] Implementar refresh token automático no AuthContext
 - [ ] Adicionar timeout por inatividade para sessões de usuário
@@ -68,3 +70,24 @@
 - [ ] Atualizar bibliotecas desatualizadas
 - [ ] Melhorar estrutura de pastas para facilitar manutenção
 - [ ] Refatorar funções grandes em componentes menores e mais gerenciáveis
+
+## TODO do Backend
+Estas são tarefas pendentes identificadas no código do backend que precisam ser implementadas:
+
+### Base de Dados
+- [ ] Adicionar restrições UNIQUE apropriadas para jogadores globais (ex: nome ou email)
+  - Arquivo: `/backend/lib/db/database.js`
+
+### Modelos
+- [ ] Implementar log de auditoria para exclusão em massa, caso seja uma ação comum de administrador
+  - Arquivo: `/backend/lib/models/playerModel.js`
+
+### Rotas
+- [ ] Implementar estratégia de cache (ex: Redis) para as rotas de jogadores
+  - Arquivo: `/backend/routes/player.js`
+- [ ] Implementar estratégia de cache (ex: Redis) para as rotas de torneios
+  - Arquivo: `/backend/routes/tournaments.js`
+
+### Testes
+- [ ] Autenticar como administrador uma vez para obter um token para rotas protegidas nos testes de integração
+  - Arquivo: `/backend/tests/integration/tournament_flow.test.js`

@@ -4,6 +4,7 @@
  * Este arquivo contém as configurações gerais do aplicativo,
  * incluindo variáveis de ambiente e configurações padrão.
  */
+const path = require('path');
 
 // Configurações do ambiente
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -21,7 +22,7 @@ const RATE_LIMIT = {
 // Configurações do banco de dados
 const DB_CONFIG = {
   // Diretório base para armazenar dados
-  dataDir: process.env.DATA_DIR || './data',
+  dataDir: process.env.DATA_DIR || path.resolve(process.cwd(), 'data'),
 
   // Nome do arquivo de banco de dados
   dbFile: NODE_ENV === 'test' ? 'test-database.sqlite' : 'database.sqlite',

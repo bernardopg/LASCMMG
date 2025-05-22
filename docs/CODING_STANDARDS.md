@@ -1,6 +1,6 @@
 # Padrões de Codificação - LASCMMG (Versão React com Vite)
 
-[⬅ Voltar ao README Principal](../README.md)
+[⬅ Voltar ao README Principal](../README.md) | [📝 Guia de Contribuição](../CONTRIBUTING.md)
 
 ## Índice
 
