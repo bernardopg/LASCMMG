@@ -169,45 +169,52 @@ const AdminTournamentListPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                     {tournament.bracket_type?.replace('-', ' ')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                    <Link
-                      to={`/admin/tournaments/edit/${tournament.id}`}
-                      className="text-blue-500 hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300"
-                      title="Editar"
-                    >
-                      <FaEdit />
-                    </Link>
-                    <Link
-                      to={`/admin/tournaments/manage/${tournament.id}`}
-                      className="text-green-500 hover:text-green-400 dark:text-green-400 dark:hover:text-green-300"
-                      title="Gerenciar Estado e Chaveamento"
-                    >
-                      <FaCog />
-                    </Link>
-                    <button
-                      onClick={() =>
-                        handleDeleteTournament(tournament.id, tournament.name)
-                      }
-                      className="text-red-500 hover:text-red-400 dark:text-red-400 dark:hover:text-red-300"
-                      title="Excluir"
-                      disabled={actionLoading === tournament.id}
-                    >
-                      <FaTrash />
-                    </button>
-                    {tournament.status === 'Pendente' && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-wrap gap-2 items-center justify-start">
+                      <Link
+                        to={`/admin/tournaments/edit/${tournament.id}`}
+                        className="btn btn-xs btn-outline flex items-center"
+                        title="Editar"
+                        aria-label="Editar torneio"
+                      >
+                        <FaEdit className="mr-1" /> Editar
+                      </Link>
+                      <Link
+                        to={`/admin/tournaments/manage/${tournament.id}`}
+                        className="btn btn-xs btn-outline flex items-center"
+                        title="Gerenciar Estado e Chaveamento"
+                        aria-label="Gerenciar Estado e Chaveamento"
+                      >
+                        <FaCog className="mr-1" /> Gerenciar
+                      </Link>
                       <button
-                        onClick={() => handleGenerateBracket(tournament.id)}
-                        className="text-teal-500 hover:text-teal-400 dark:text-teal-400 dark:hover:text-teal-300"
-                        title="Gerar Chaveamento"
+                        onClick={() =>
+                          handleDeleteTournament(tournament.id, tournament.name)
+                        }
+                        className="btn btn-xs btn-outline btn-error flex items-center"
+                        title="Excluir"
+                        aria-label="Excluir torneio"
                         disabled={actionLoading === tournament.id}
                       >
-                        {actionLoading === tournament.id ? (
-                          <FaSyncAlt className="animate-spin" />
-                        ) : (
-                          <FaSitemap />
-                        )}
+                        <FaTrash className="mr-1" /> Excluir
                       </button>
-                    )}
+                      {tournament.status === 'Pendente' && (
+                        <button
+                          onClick={() => handleGenerateBracket(tournament.id)}
+                          className="btn btn-xs btn-outline flex items-center"
+                          title="Gerar Chaveamento"
+                          aria-label="Gerar Chaveamento"
+                          disabled={actionLoading === tournament.id}
+                        >
+                          {actionLoading === tournament.id ? (
+                            <FaSyncAlt className="animate-spin mr-1" />
+                          ) : (
+                            <FaSitemap className="mr-1" />
+                          )}
+                          Chaveamento
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

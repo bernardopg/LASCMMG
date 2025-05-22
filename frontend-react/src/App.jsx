@@ -38,6 +38,7 @@ import EditTournamentPage from './pages/admin/EditTournamentPage';
 import ManageTournamentPage from './pages/admin/ManageTournamentPage';
 import PlayersPage from './pages/admin/PlayersPage'; // Already imported
 import SettingsPage from './pages/admin/SettingsPage';
+import AdminTournamentDetailPage from './pages/admin/AdminTournamentDetailPage';
 import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
 import SecurityOverview from './pages/admin/security/SecurityOverview';
@@ -354,6 +355,16 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <AdminTournamentListPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tournaments/:tournamentId"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminTournamentDetailPage />
                       </MainLayout>
                     </ProtectedRoute>
                   }

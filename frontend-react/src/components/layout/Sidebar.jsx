@@ -11,6 +11,7 @@ import {
   FaUsers,
   FaUsersCog,
   FaUserShield,
+  FaTrash,
 } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -128,6 +129,48 @@ const Sidebar = ({ isSidebarCollapsed }) => {
       },
     ],
     admin: [
+      {
+        name: 'Torneios',
+        path: '/admin/tournaments',
+        icon: <FaTrophy className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Jogadores',
+        path: '/admin/players',
+        icon: <FaUsers className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Relatórios',
+        path: '/admin/reports',
+        icon: <FaChartBar className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Lixeira',
+        path: '/admin/trash',
+        icon: <FaTrash className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Log de Atividades',
+        path: '/admin/activity-log',
+        icon: <FaHistory className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Agendamento de Partidas',
+        path: '/admin/match-schedule',
+        icon: <FaCalendarAlt className="w-5 h-5" />,
+        permission: 'admin',
+      },
+      {
+        name: 'Segurança',
+        path: '/admin/security',
+        icon: <FaUserShield className="w-5 h-5" />,
+        permission: 'admin',
+      },
       {
         name: 'Configurações',
         path: '/settings',

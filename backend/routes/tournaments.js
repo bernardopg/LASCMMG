@@ -146,16 +146,14 @@ router.post(
       entry_fee,
       prize_pool,
       rules,
-    } = req.body; // numPlayersExpected and entry_fee are validated by Joi
+    } = req.body;
 
-    const sanitizedName = name; // Joi handles trimming
+    const sanitizedName = name;
     const tournamentId = `${Date.now()}-${sanitizedName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')}`;
 
-    // Joi schema handles validation, optionality, and null allowance.
-    // Defaulting logic can be applied here or rely on DB defaults if appropriate.
     const finalNumPlayersExpected =
       numPlayersExpected !== undefined ? numPlayersExpected : 32; // Default if undefined
     const finalEntryFee = entry_fee !== undefined ? entry_fee : null; // Default to null if undefined
@@ -485,13 +483,25 @@ router.post(
         { component: 'TournamentsRoute', err: error, tournamentId, playerId, requestId: req.id },
         `Erro ao atribuir jogador ${playerId} ao torneio ${tournamentId}.`
       );
-      if (error.message.includes('já está atribuído a outro torneio') || error.message.includes('está na lixeira')) {
+      if (
+        error.message.includes('já está atribuído a outro torneio') ||
+        error.message.includes('está na lixeira')
+      ) {
         return res.status(409).json({ success: false, message: error.message });
       }
-      if (error.message.includes('não encontrado')) {
+      if (
+        error.message.includes('não encontrado') ||
+        error.message.includes('not found')
+      ) {
         return res.status(404).json({ success: false, message: error.message });
       }
-      res.status(500).json({ success: false, message: 'Erro interno ao atribuir jogador ao torneio.' });
+      if (
+        error.message.includes('não pôde ser atribuído') ||
+        error.message.includes('não pode ser atribuído')
+      ) {
+        return res.status(400).json({ success: false, message: error.message });
+      }
+      res.status(500).json({ success: false, message: error.message || 'Erro interno ao atribuir jogador ao torneio.' });
     }
   }
 );

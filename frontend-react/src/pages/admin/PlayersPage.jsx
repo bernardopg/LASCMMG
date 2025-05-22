@@ -756,15 +756,15 @@ const PlayersPage = () => {
     setPlayerFormModalOpen(true);
   };
 
-  // Get CSS class based on density setting
-  const getRowClass = () => {
+  // Get CSS class and style based on density setting
+  const getDensityProps = () => {
     switch (densityLevel) {
       case 'compact':
-        return 'px-2 py-2';
+        return { className: 'px-2 py-1', style: { minHeight: 32 } };
       case 'spacious':
-        return 'px-4 md:px-8 py-6';
+        return { className: 'px-6 py-5', style: { minHeight: 64 } };
       default: // normal
-        return 'px-3 md:px-6 py-4';
+        return { className: 'px-4 py-3', style: { minHeight: 48 } };
     }
   };
 
@@ -807,16 +807,19 @@ const PlayersPage = () => {
 
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-3 md:p-6">
         {/* Search and filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-          <form onSubmit={handleSubmitSearch} className="flex items-center mb-4 md:mb-0 w-full md:w-auto">
-            <div className="relative w-full md:w-auto">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+          <form
+            onSubmit={handleSubmitSearch}
+            className="flex flex-col sm:flex-row items-stretch gap-2 w-full md:w-auto"
+          >
+            <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Buscar jogadores..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 ref={searchInputRef}
-                className="input input-bordered pr-10 w-full md:w-auto"
+                className="input input-bordered pr-10 w-full"
                 aria-label="Buscar jogadores"
               />
               <button
@@ -828,50 +831,48 @@ const PlayersPage = () => {
               </button>
             </div>
           </form>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto">
             {selectedPlayers.length > 0 && (
               <button
                 onClick={handleBulkDelete}
-                className="btn btn-error btn-sm"
+                className="btn btn-error btn-sm w-full sm:w-auto"
                 aria-label={`Excluir ${selectedPlayers.length} jogadores selecionados`}
               >
                 <FaTrashAlt className="mr-1" /> Excluir ({selectedPlayers.length})
               </button>
             )}
-            <div className="dropdown dropdown-end">
-              <label tabIndex={0} className="btn btn-sm btn-outline">
-                <FaCompress className="mr-1" /> Densidade
-              </label>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 dark:bg-slate-700 rounded-box w-52">
-                <li>
-                  <button
-                    onClick={() => handleChangeDensity('compact')}
-                    className={densityLevel === 'compact' ? 'active' : ''}
-                  >
-                    <FaCompress /> Compacto
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleChangeDensity('normal')}
-                    className={densityLevel === 'normal' ? 'active' : ''}
-                  >
-                    <FaUsers /> Normal
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => handleChangeDensity('spacious')}
-                    className={densityLevel === 'spacious' ? 'active' : ''}
-                  >
-                    <FaExpand /> Espaçoso
-                  </button>
-                </li>
-              </ul>
+            <div className="flex flex-row gap-1 w-full sm:w-auto" role="group" aria-label="Densidade da tabela">
+              <button
+                type="button"
+                onClick={() => handleChangeDensity('compact')}
+                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'compact' ? 'btn-primary' : 'btn-outline'}`}
+                aria-pressed={densityLevel === 'compact'}
+                aria-label="Densidade Compacta"
+              >
+                <FaCompress className="mr-1" /> Compacto
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeDensity('normal')}
+                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'normal' ? 'btn-primary' : 'btn-outline'}`}
+                aria-pressed={densityLevel === 'normal'}
+                aria-label="Densidade Normal"
+              >
+                <FaUsers className="mr-1" /> Normal
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeDensity('spacious')}
+                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'spacious' ? 'btn-primary' : 'btn-outline'}`}
+                aria-pressed={densityLevel === 'spacious'}
+                aria-label="Densidade Espaçosa"
+              >
+                <FaExpand className="mr-1" /> Espaçoso
+              </button>
             </div>
             <button
               onClick={() => setFiltersVisible(!filtersVisible)}
-              className={`btn btn-outline btn-sm ${filtersVisible ? 'btn-active' : ''}`}
+              className={`btn btn-outline btn-sm w-full sm:w-auto ${filtersVisible ? 'btn-active' : ''}`}
               aria-expanded={filtersVisible}
               aria-controls="filter-panel"
             >
@@ -981,7 +982,7 @@ const PlayersPage = () => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                   <thead className="bg-gray-50 dark:bg-slate-700">
                     <tr>
-                      <th className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-10`}>
+                      <th {...getDensityProps()} className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-10 ${getDensityProps().className}`}>
                         <input
                           type="checkbox"
                           checked={selectedPlayers.length === players.length && players.length > 0}
@@ -991,7 +992,8 @@ const PlayersPage = () => {
                         />
                       </th>
                       <th
-                        className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer`}
+                        {...getDensityProps()}
+                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer ${getDensityProps().className}`}
                         onClick={() => handleSort('name')}
                         aria-sort={sortConfig.key === 'name' ? sortConfig.direction : 'none'}
                       >
@@ -1004,7 +1006,8 @@ const PlayersPage = () => {
                         </div>
                       </th>
                       <th
-                        className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer`}
+                        {...getDensityProps()}
+                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer ${getDensityProps().className}`}
                         onClick={() => handleSort('nickname')}
                         aria-sort={sortConfig.key === 'nickname' ? sortConfig.direction : 'none'}
                       >
@@ -1017,7 +1020,8 @@ const PlayersPage = () => {
                         </div>
                       </th>
                       <th
-                        className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell cursor-pointer`}
+                        {...getDensityProps()}
+                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell cursor-pointer ${getDensityProps().className}`}
                         onClick={() => handleSort('email')}
                         aria-sort={sortConfig.key === 'email' ? sortConfig.direction : 'none'}
                       >
@@ -1030,11 +1034,12 @@ const PlayersPage = () => {
                         </div>
                       </th>
                       <th
-                        className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell`}
+                        {...getDensityProps()}
+                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell ${getDensityProps().className}`}
                       >
                         Nível
                       </th>
-                      <th className={`${getRowClass()} text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider`}>
+                      <th {...getDensityProps()} className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider ${getDensityProps().className}`}>
                         Ações
                       </th>
                     </tr>
@@ -1051,7 +1056,7 @@ const PlayersPage = () => {
                             transition={{ duration: 0.2 }}
                             className={selectedPlayers.includes(player.id) ? "bg-blue-50 dark:bg-slate-700" : ""}
                           >
-                            <td className={getRowClass()}>
+                            <td {...getDensityProps()} className={getDensityProps().className}>
                               <input
                                 type="checkbox"
                                 checked={selectedPlayers.includes(player.id)}
@@ -1060,19 +1065,19 @@ const PlayersPage = () => {
                                 aria-label={`Selecionar jogador ${player.name}`}
                               />
                             </td>
-                            <td className={`${getRowClass()} font-medium text-gray-900 dark:text-white`}>
+                            <td {...getDensityProps()} className={`font-medium text-gray-900 dark:text-white ${getDensityProps().className}`}>
                               {player.name}
                             </td>
-                            <td className={`${getRowClass()} text-gray-700 dark:text-gray-300`}>
+                            <td {...getDensityProps()} className={`text-gray-700 dark:text-gray-300 ${getDensityProps().className}`}>
                               {player.nickname || '-'}
                             </td>
-                            <td className={`${getRowClass()} text-gray-700 dark:text-gray-300 hidden md:table-cell`}>
+                            <td {...getDensityProps()} className={`text-gray-700 dark:text-gray-300 hidden md:table-cell ${getDensityProps().className}`}>
                               {player.email || '-'}
                             </td>
-                            <td className={`${getRowClass()} hidden md:table-cell`}>
+                            <td {...getDensityProps()} className={`hidden md:table-cell ${getDensityProps().className}`}>
                               <SkillLevelIndicator level={player.skill_level} />
                             </td>
-                            <td className={`${getRowClass()} space-x-3 whitespace-nowrap`}>
+                            <td {...getDensityProps()} className={`space-x-3 whitespace-nowrap ${getDensityProps().className}`}>
                               <Tooltip content="Editar jogador">
                                 <button
                                   onClick={() => handleOpenEditModal(player)}
@@ -1112,16 +1117,32 @@ const PlayersPage = () => {
                 {loading ? <CardSkeleton /> : (
                   <AnimatePresence>
                     {players.map(player => (
-                      <PlayerCard
+                      <motion.div
                         key={player.id}
-                        player={player}
-                        isSelected={selectedPlayers.includes(player.id)}
-                        onSelect={() => handleSelectPlayer(player.id)}
-                        onEdit={() => handleOpenEditModal(player)}
-                        onDelete={handleDeletePlayer}
-                        deleteLoading={deleteLoading}
-                        deletingPlayerId={deletingPlayerId}
-                      />
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        layout
+                        className={`rounded-lg shadow-sm mb-3 border-l-4 ${selectedPlayers.includes(player.id) ? 'border-blue-500' : 'border-transparent'}
+                          bg-white dark:bg-slate-700
+                          ${densityLevel === 'compact' ? 'p-2' : densityLevel === 'spacious' ? 'p-8' : 'p-4'}`}
+                        style={{
+                          minHeight: densityLevel === 'compact' ? 32 : densityLevel === 'spacious' ? 64 : 48,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <PlayerCard
+                          player={player}
+                          isSelected={selectedPlayers.includes(player.id)}
+                          onSelect={() => handleSelectPlayer(player.id)}
+                          onEdit={() => handleOpenEditModal(player)}
+                          onDelete={handleDeletePlayer}
+                          deleteLoading={deleteLoading}
+                          deletingPlayerId={deletingPlayerId}
+                        />
+                      </motion.div>
                     ))}
                   </AnimatePresence>
                 )}
