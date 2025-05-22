@@ -620,6 +620,15 @@ const assignPlayerSchema = {
   }),
 };
 
+// Schema para validação de refresh token
+const refreshTokenSchema = Joi.object({
+  refreshToken: Joi.string().required().messages({
+    'string.base': 'O refresh token deve ser uma string',
+    'string.empty': 'O refresh token não pode estar vazio',
+    'any.required': 'O refresh token é obrigatório'
+  })
+});
+
 module.exports = {
   validateRequest,
   validateUsername, // Export new function
@@ -655,4 +664,5 @@ module.exports = {
   paginationQuerySchema,
   assignPlayerSchema, // Added new schema
   playerIdParamSchema, // Export the new schema
+  refreshTokenSchema, // Export the new schema
 };

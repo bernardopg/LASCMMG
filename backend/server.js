@@ -41,8 +41,10 @@ const port = envPort || 3000;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: NODE_ENV === 'production' ? CORS_ORIGIN : '*',
+    origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID', 'X-Requested-With'],
+    exposedHeaders: ['Content-Disposition', 'X-Request-ID'],
     credentials: true
   }
 });
@@ -105,10 +107,10 @@ app.use(
 
 app.use(
   cors({
-    origin: NODE_ENV === 'production' ? CORS_ORIGIN : '*',
+    origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposedHeaders: ['Content-Disposition'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID', 'X-Requested-With'],
+    exposedHeaders: ['Content-Disposition', 'X-Request-ID'],
     credentials: true,
     maxAge: 86400,
   })

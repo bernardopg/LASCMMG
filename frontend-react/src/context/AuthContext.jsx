@@ -1,8 +1,9 @@
-import React, {
+import {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState
 } from 'react';
 import apiInstance, { setAuthToken as setApiAuthToken } from '../services/api';
@@ -24,7 +25,8 @@ export const AuthProvider = ({ children }) => {
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [tokenRefreshing, setTokenRefreshing] = useState(false);
 
-  const checkLoggedInAttempted = React.useRef(false);
+  const checkLoggedInAttempted = useRef(false);
+  const refreshTimeoutRef = useRef(null); // Ref para gerenciar o timeout de refresh
 
   const logout = useCallback(async () => {
     try {
@@ -35,6 +37,12 @@ export const AuthProvider = ({ children }) => {
       // Ignorar erro de logout no servidor
       console.warn('Erro ao fazer logout no servidor:', err);
     } finally {
+      // Limpar qualquer timeout de refresh pendente
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+        refreshTimeoutRef.current = null;
+      }
+
       localStorage.removeItem('authUser');
       localStorage.removeItem('authToken');
       localStorage.removeItem('tokenExpiry');
@@ -49,9 +57,11 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = useCallback(async () => {
     try {
       setTokenRefreshing(true);
+      console.log('[AuthContext] Iniciando processo de refresh token');
       const storedRefreshToken = localStorage.getItem('refreshToken');
 
       if (!storedRefreshToken) {
+        console.warn('[AuthContext] Refresh token não encontrado no localStorage');
         throw new Error('Refresh token não encontrado');
       }
 
@@ -60,6 +70,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const { token, refreshToken: newRefreshToken, expiresIn } = response.data;
+      console.log(`[AuthContext] Refresh token concluído com sucesso. Novo token expira em ${expiresIn}s`);
 
       // Atualizar tokens e tempo de expiração
       setApiAuthToken(token);
@@ -73,6 +84,12 @@ export const AuthProvider = ({ children }) => {
       const expiryTime = Date.now() + (expiresIn || 3600) * 1000;
       localStorage.setItem('tokenExpiry', expiryTime.toString());
 
+      // Programar próximo refresh
+      scheduleTokenRefresh(expiryTime);
+
+      // Depurar estado dos tokens após refresh
+      debugTokenStatus();
+
       return token;
     } catch (err) {
       console.error('Erro ao atualizar token:', err);
@@ -82,16 +99,40 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setTokenRefreshing(false);
     }
-  }, [logout]);
+  }, [logout]);  // Função para programar o refresh automático do token
+  const scheduleTokenRefresh = useCallback((expiryTime) => {
+    // Limpar qualquer refresh pendente
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+
+    const now = Date.now();
+    const timeUntilExpiry = expiryTime - now;
+
+    // Renovar quando faltar 5 minutos para expirar (ou imediatamente se faltar menos que isso)
+    const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000);
+
+    console.log(`[AuthContext] Token será renovado em ${Math.round(refreshTime / 60000)} minutos (${new Date(now + refreshTime).toLocaleTimeString()})`);
+
+    refreshTimeoutRef.current = setTimeout(() => {
+      console.log('[AuthContext] Executando refresh token automático');
+      refreshToken().catch(err => {
+        console.error('[AuthContext] Falha no refresh automático:', err);
+      });
+    }, refreshTime);
+  }, [refreshToken]);
 
   const checkTokenExpiration = useCallback(() => {
     const tokenExpiry = localStorage.getItem('tokenExpiry');
     if (tokenExpiry) {
       const expiryTime = parseInt(tokenExpiry, 10);
       const now = Date.now();
+      const timeToExpiry = expiryTime - now;
+      const timeToExpiryMinutes = Math.round(timeToExpiry / 60000);
 
       // Se o token expirou
       if (now >= expiryTime) {
+        console.log('[AuthContext] Token expirado. Tentando refresh...');
         // Tentar refresh token se disponível
         const hasRefreshToken = localStorage.getItem('refreshToken');
         if (hasRefreshToken && !tokenRefreshing) {
@@ -100,26 +141,47 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           // Sem refresh token, apenas faz logout
+          console.log('[AuthContext] Sem refresh token disponível para renovação. Realizando logout.');
           logout();
         }
         return false;
       }
 
-      // Se o token está próximo de expirar (menos de 5 minutos)
-      if (expiryTime - now < 5 * 60 * 1000) {
-        // Atualizar token automaticamente em segundo plano
-        const hasRefreshToken = localStorage.getItem('refreshToken');
-        if (hasRefreshToken && !tokenRefreshing) {
-          refreshToken().catch(() => {
-            // Tratamento de erro silencioso aqui (logout já é chamado em caso de erro)
-          });
-        }
+      // Se o token está próximo de expirar mas ainda não foi agendado refresh
+      if (timeToExpiry < 5 * 60 * 1000 && !refreshTimeoutRef.current) {
+        console.log(`[AuthContext] Token próximo de expirar (${timeToExpiryMinutes} minutos restantes). Agendando refresh...`);
+        // Programar refresh token
+        scheduleTokenRefresh(expiryTime);
       }
 
       return true;
     }
     return false;
-  }, [logout, refreshToken, tokenRefreshing]);
+  }, [logout, refreshToken, tokenRefreshing, scheduleTokenRefresh]);
+
+  // Função auxiliar para imprimir o estado dos tokens no console (apenas para depuração)
+  const debugTokenStatus = useCallback(() => {
+    const tokenExpiry = localStorage.getItem('tokenExpiry');
+    const authToken = localStorage.getItem('authToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const rememberMe = localStorage.getItem('rememberMe');
+
+    if (tokenExpiry) {
+      const expiryTime = parseInt(tokenExpiry, 10);
+      const now = Date.now();
+      const minutesLeft = Math.round((expiryTime - now) / (60 * 1000));
+
+      console.group('[AuthContext] Estado dos tokens');
+      console.log(`Token JWT: ${authToken ? '✅ Presente' : '❌ Ausente'}`);
+      console.log(`Refresh Token: ${refreshToken ? '✅ Presente' : '❌ Ausente'}`);
+      console.log(`Lembrar-me: ${rememberMe === 'true' ? '✅ Ativado' : '❌ Desativado'}`);
+      console.log(`Expiração do token: ${new Date(expiryTime).toLocaleString()} (${minutesLeft} minutos restantes)`);
+      console.log(`Refresh automático agendado: ${refreshTimeoutRef.current ? '✅ Sim' : '❌ Não'}`);
+      console.groupEnd();
+    } else {
+      console.log('[AuthContext] Nenhum token ativo encontrado');
+    }
+  }, []);
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -142,6 +204,12 @@ export const AuthProvider = ({ children }) => {
           const response = await apiInstance.get('/api/me');
           if (response.data && response.data.success && response.data.user) {
             setCurrentUser(response.data.user);
+
+            // Programar refresh token se encontrado um token válido
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            if (tokenExpiry) {
+              scheduleTokenRefresh(parseInt(tokenExpiry, 10));
+            }
           } else {
             await logout();
           }
@@ -157,7 +225,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkLoggedIn();
-  }, [logout, checkTokenExpiration]);
+  }, [logout, checkTokenExpiration, scheduleTokenRefresh]);
 
   // Configurar verificação periódica de expiração do token (a cada minuto)
   useEffect(() => {
@@ -169,6 +237,31 @@ export const AuthProvider = ({ children }) => {
 
     return () => clearInterval(tokenCheckInterval);
   }, [currentUser, checkTokenExpiration]);
+
+  // Adicionar chamada ao debugTokenStatus nos lugares críticos
+  useEffect(() => {
+    if (currentUser) {
+      // Exibir status de token a cada minuto para facilitar depuração
+      const debugInterval = setInterval(() => {
+        debugTokenStatus();
+      }, 60000); // a cada minuto
+
+      // Executar uma vez no início
+      debugTokenStatus();
+
+      return () => clearInterval(debugInterval);
+    }
+  }, [currentUser, debugTokenStatus]);
+
+  // Limpar o timeout de refresh ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+        refreshTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const login = useCallback(async (email, password, rememberMe = false) => {
     try {
@@ -193,25 +286,35 @@ export const AuthProvider = ({ children }) => {
 
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
+        console.log('[AuthContext] Login com "Lembrar-me" ativado');
       } else {
         localStorage.removeItem('rememberMe');
+        console.log('[AuthContext] Login sem "Lembrar-me"');
       }
 
       // Calcular e salvar o tempo de expiração do token
       const expiryTime = Date.now() + (expiresIn || 3600) * 1000; // Padrão: 1 hora
+      const expiryDate = new Date(expiryTime);
+      console.log(`[AuthContext] Token expira em ${expiresIn}s (${expiryDate.toLocaleString()})`);
       localStorage.setItem('tokenExpiry', expiryTime.toString());
 
       // Salvar refresh token se disponível
       if (newRefreshToken) {
+        console.log('[AuthContext] Refresh token armazenado');
         localStorage.setItem('refreshToken', newRefreshToken);
       }
 
       localStorage.setItem('authUser', JSON.stringify(userObj));
       localStorage.setItem('authToken', token);
 
-      setApiAuthToken(token);
-      setCurrentUser(userObj);
+      setApiAuthToken(token); setCurrentUser(userObj);
       setLoginAttempts(0); // Resetar tentativas após login bem-sucedido
+
+      // Programar refresh token
+      scheduleTokenRefresh(expiryTime);
+
+      // Depurar estado dos tokens após login
+      debugTokenStatus();
 
       return userObj;
     } catch (err) {
@@ -221,7 +324,7 @@ export const AuthProvider = ({ children }) => {
       setApiAuthToken(null);
       throw err;
     }
-  }, [loginAttempts]);
+  }, [loginAttempts, scheduleTokenRefresh]);
 
   const hasPermission = useCallback((permission) => {
     if (!currentUser || !currentUser.role) return false;
@@ -273,6 +376,8 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!currentUser,
     loginAttempts,
     tokenRefreshing,
+    hasRefreshToken: !!localStorage.getItem('refreshToken'),
+    debugTokenStatus, // Expomos o método de depuração para uso em componentes
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

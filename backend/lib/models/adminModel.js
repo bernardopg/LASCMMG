@@ -7,6 +7,7 @@ const { runAsync, getOneAsync, queryAsync } = require('../db/database');
 const { JWT_SECRET, JWT_EXPIRATION } = require('../config/config');
 const { logger } = require('../logger/logger');
 const auditLogger = require('../logger/auditLogger'); // Import auditLogger
+const { getClient } = require('../db/redisClient'); // Import Redis client
 
 const CREDENTIALS_FILE_PATH = path.join(
   __dirname, // backend/lib/models
@@ -49,6 +50,25 @@ async function getAdminByUsername(username) {
     logger.error(
       { component: 'AdminModel', err, username },
       `Erro ao buscar admin ${username}.`
+    );
+    throw err;
+  }
+}
+
+async function getAdminById(id) {
+  if (!id) {
+    throw new Error('ID de usuário não fornecido');
+  }
+
+  const sql =
+    'SELECT id, username, hashedPassword, role FROM users WHERE id = ?';
+
+  try {
+    return await getOneAsync(sql, [id]);
+  } catch (err) {
+    logger.error(
+      { component: 'AdminModel', err, userId: id },
+      `Erro ao buscar admin por ID ${id}.`
     );
     throw err;
   }
@@ -410,10 +430,33 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
         { expiresIn: expirationTime, jwtid: crypto.randomUUID() } // Atualizado para usar expirationTime
       );
 
+      // Gerar refresh token se o usuário selecionou "Lembrar-me"
+      let refreshToken = null;
+      if (rememberMe) {
+        try {
+          refreshToken = await generateRefreshToken(admin.id);
+        } catch (refreshError) {
+          logger.error(
+            { component: 'AdminModel', err: refreshError, username },
+            'Erro ao gerar refresh token, prosseguindo sem ele.'
+          );
+          // Continuar sem refresh token se houver erro
+        }
+      }
+
+      // Calcular quanto tempo até expiração para retornar ao cliente
+      const expiresIn = expirationTime.endsWith('d')
+        ? parseInt(expirationTime) * 24 * 60 * 60 // dias para segundos
+        : expirationTime.endsWith('h')
+          ? parseInt(expirationTime) * 60 * 60 // horas para segundos
+          : parseInt(expirationTime); // assume segundos
+
       return {
         success: true,
         message: 'Login bem-sucedido!',
         token,
+        refreshToken,
+        expiresIn,
         admin: { id: admin.id, username: admin.username, role: admin.role },
       };
     }
@@ -502,6 +545,145 @@ async function getAllAdmins() {
   }
 }
 
+// Gerar um refresh token para um usuário
+async function generateRefreshToken(userId) {
+  try {
+    const { getClient } = require('../db/redisClient');
+    const redis = await getClient();
+    if (!redis) {
+      logger.error('AdminModel', 'Cliente Redis não disponível para gerar refresh token.');
+      throw new Error('Serviço de refresh token indisponível');
+    }
+
+    // Gerar um token único
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+
+    // Salvar no Redis com um TTL maior que o JWT (ex: 30 dias)
+    const refreshTokenTTL = 30 * 24 * 60 * 60; // 30 dias em segundos
+    const redisKey = `refresh:${refreshToken}`;
+
+    // Armazenar informações necessárias para reconstruir o JWT
+    await redis.set(redisKey, JSON.stringify({
+      userId: userId,
+      createdAt: Date.now()
+    }), { EX: refreshTokenTTL });
+
+    return refreshToken;
+  } catch (err) {
+    logger.error(
+      { component: 'AdminModel', err, userId },
+      'Erro ao gerar refresh token.'
+    );
+    throw err;
+  }
+}
+
+// Validar um refresh token
+async function validateRefreshToken(refreshToken) {
+  try {
+    const { getClient } = require('../db/redisClient');
+    const redis = await getClient();
+    if (!redis) {
+      logger.error('AdminModel', 'Cliente Redis não disponível para validar refresh token.');
+      return { success: false };
+    }
+
+    const redisKey = `refresh:${refreshToken}`;
+    const tokenData = await redis.get(redisKey);
+
+    if (!tokenData) {
+      return { success: false };
+    }
+
+    // Extrair dados do token
+    const { userId, createdAt } = JSON.parse(tokenData);
+
+    // Verificar se o token não é muito antigo (verificação opcional além do TTL)
+    const tokenAge = Date.now() - createdAt;
+    const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 dias em ms
+
+    if (tokenAge > maxAge) {
+      // Token muito antigo, remover do Redis
+      await redis.del(redisKey);
+      return { success: false };
+    }
+
+    // Buscar dados do usuário
+    const admin = await getAdminById(userId);
+    if (!admin) {
+      // Usuário não existe mais
+      await redis.del(redisKey);
+      return { success: false };
+    }
+
+    // Remover o token atual para evitar reuso (implementação de uso único)
+    await redis.del(redisKey);
+
+    // Retornar as informações do usuário para gerar um novo JWT
+    return {
+      success: true,
+      userId: admin.id,
+      username: admin.username,
+      role: admin.role
+    };
+
+  } catch (err) {
+    logger.error(
+      { component: 'AdminModel', err },
+      'Erro ao validar refresh token.'
+    );
+    return { success: false };
+  }
+}
+
+// Revogar todos os refresh tokens de um usuário (útil para logout em todos os dispositivos)
+async function revokeAllRefreshTokens(userId) {
+  try {
+    const { getClient } = require('../db/redisClient');
+    const redis = await getClient();
+    if (!redis) {
+      logger.error('AdminModel', 'Cliente Redis não disponível para revogar refresh tokens.');
+      return false;
+    }
+
+    // Necessário implementar um índice de tokens por usuário em uma implementação real
+    // Esta é uma implementação simplificada
+    const scanPattern = `refresh:*`;
+    let cursor = '0';
+    let keysToCheck = [];
+
+    do {
+      const scanResult = await redis.scan(cursor, { MATCH: scanPattern, COUNT: 100 });
+      cursor = scanResult.cursor;
+      keysToCheck = keysToCheck.concat(scanResult.keys);
+    } while (cursor !== '0');
+
+    // Verificar cada token para identificar os do usuário
+    for (const key of keysToCheck) {
+      const tokenData = await redis.get(key);
+      if (tokenData) {
+        try {
+          const parsedData = JSON.parse(tokenData);
+          if (parsedData.userId === userId) {
+            await redis.del(key);
+          }
+        } catch (e) {
+          // Ignorar erros de parsing individual
+          continue;
+        }
+      }
+    }
+
+    return true;
+  } catch (err) {
+    logger.error(
+      { component: 'AdminModel', err, userId },
+      'Erro ao revogar refresh tokens.'
+    );
+    return false;
+  }
+}
+
 module.exports = {
   adminExists,
   getAdminByUsername,
@@ -511,4 +693,8 @@ module.exports = {
   authenticateAdmin,
   changePassword,
   getAllAdmins,
+  generateRefreshToken,
+  validateRefreshToken,
+  revokeAllRefreshTokens,
+  getAdminById,
 };

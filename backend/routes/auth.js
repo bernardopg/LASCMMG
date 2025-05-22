@@ -6,8 +6,12 @@ const {
   validateRequest,
   adminLoginSchema,
   changePasswordSchema,
-} = require('../lib/utils/validationUtils'); // Import validation utilities
+  refreshTokenSchema,
+} = require('../lib/utils/validationUtils'); // Adicionado refreshTokenSchema
 const { authMiddleware } = require('../lib/middleware/authMiddleware'); // Import authMiddleware
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET, JWT_EXPIRATION } = require('../lib/config/config');
+const crypto = require('crypto');
 
 const rateLimit = require('express-rate-limit');
 const loginLimiter = rateLimit({
@@ -26,31 +30,7 @@ router.post(
   loginLimiter,
   validateRequest(adminLoginSchema),
   async (req, res) => {
-    // Changed path to /auth/login
-    // Validation is now handled by validateRequest middleware using adminLoginSchema
-    // req.body will contain validated and potentially sanitized data.
     const { username, password, rememberMe } = req.body;
-
-    // Basic presence check can be removed as Joi handles 'required'
-    // if (
-    //   !username ||
-    //   !password ||
-    //   typeof username !== 'string' ||
-    //   typeof password !== 'string'
-    // ) {
-    //   logger.warn(
-    //     {
-    //       message: 'Tentativa de login com dados inválidos.',
-    //       username,
-    //       requestId: req.id,
-    //       ip: req.ip,
-    //     },
-    //     'Tentativa de login com dados inválidos.'
-    //   );
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, message: 'Usuário e senha são obrigatórios.' });
-    // }
 
     try {
       const authResult = await adminModel.authenticateAdmin(
@@ -97,12 +77,8 @@ router.post(
   authMiddleware,
   validateRequest(changePasswordSchema),
   async (req, res) => {
-    // authMiddleware ensures user is authenticated.
-    // validateRequest ensures body has username, currentPassword, newPassword with correct formats.
     const { username, currentPassword, newPassword } = req.body;
 
-    // It's generally good practice for a user to only be able to change their own password.
-    // The `username` in the body should match `req.user.username` from the token.
     if (req.user.username !== username) {
       logger.warn(
         'AuthRoutes',
@@ -114,31 +90,6 @@ router.post(
         message: 'Não autorizado a alterar a senha de outro usuário.',
       });
     }
-
-    // Manual validation can be removed
-    // if (
-    //   !username ||
-    //   !currentPassword ||
-    //   !newPassword ||
-    //   typeof username !== 'string' ||
-    //   typeof currentPassword !== 'string' ||
-    //   typeof newPassword !== 'string'
-    // ) {
-    //   logger.warn(
-    //     {
-    //       message: 'Tentativa de alterar senha com dados inválidos.',
-    //       username,
-    //       requestId: req.id,
-    //       ip: req.ip,
-    //     },
-    //     'Tentativa de alterar senha com dados inválidos.'
-    //   );
-    //   return res.status(400).json({
-    //     success: false,
-    //     message:
-    //       'Usuário, senha atual e nova senha (como strings) são obrigatórios.',
-    //   });
-    // }
 
     try {
       const result = await adminModel.changePassword(
@@ -242,6 +193,77 @@ router.post('/logout', authMiddleware, async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Erro interno ao processar logout.',
+    });
+  }
+});
+
+// Rota para refresh token
+router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    // Verificar se o token existe
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token não fornecido.'
+      });
+    }
+
+    // Recuperar usuário do refresh token (aqui você deverá implementar uma lógica específica de verificação)
+    // Essa implementação depende de como você deseja armazenar e validar os refresh tokens
+    try {
+      // Verificar o refresh token no Redis ou banco de dados
+      const isValid = await adminModel.validateRefreshToken(refreshToken);
+
+      if (!isValid.success) {
+        return res.status(401).json({
+          success: false,
+          message: 'Refresh token inválido ou expirado.'
+        });
+      }
+
+      // Gerar novo access token
+      const newToken = jwt.sign(
+        { id: isValid.userId, username: isValid.username, role: isValid.role },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() }
+      );
+
+      // Gerar novo refresh token
+      const newRefreshToken = await adminModel.generateRefreshToken(isValid.userId);
+
+      logger.info(
+        { username: isValid.username, success: true, requestId: req.id, ip: req.ip },
+        'Token atualizado com sucesso via refresh token'
+      );
+
+      return res.json({
+        success: true,
+        token: newToken,
+        refreshToken: newRefreshToken,
+        expiresIn: parseInt(JWT_EXPIRATION) || 86400, // Converte para segundos
+        message: 'Token atualizado com sucesso.'
+      });
+
+    } catch (tokenError) {
+      logger.error(
+        { err: tokenError, requestId: req.id, ip: req.ip },
+        'Erro ao verificar refresh token.'
+      );
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token inválido ou expirado.'
+      });
+    }
+  } catch (error) {
+    logger.error(
+      { err: error, requestId: req.id, ip: req.ip },
+      'Erro interno durante refresh de token.'
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor durante o refresh de token.',
     });
   }
 });

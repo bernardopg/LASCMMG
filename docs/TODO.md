@@ -3,7 +3,7 @@
 [⬅ Voltar ao README Principal](../README.md)
 
 ## Melhorias de Segurança e Autenticação
-- [ ] Implementar refresh token automático no AuthContext
+- [x] Implementar refresh token automático no AuthContext
 - [ ] Adicionar timeout por inatividade para sessões de usuário
 - [ ] Implementar sistema de recuperação de senha
 - [ ] Adicionar autenticação em dois fatores para administradores
