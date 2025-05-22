@@ -129,7 +129,6 @@ Nossa documentação abrangente está disponível na pasta `/docs`:
 - [**CODING_STANDARDS.md**](/docs/CODING_STANDARDS.md) - Padrões de codificação do projeto
 - [**SCALING.md**](/docs/SCALING.md) - Estratégias para escalabilidade
 - [**TROUBLESHOOTING.md**](/docs/TROUBLESHOOTING.md) - Soluções para problemas comuns
-- [**RELATORIO_CONSOLIDADO_LASCMMG.md**](/docs/RELATORIO_CONSOLIDADO_LASCMMG.md) - Relatório técnico abrangente
 - [**TODO.md**](/docs/TODO.md) - Lista de tarefas pendentes e melhorias planejadas
 
 ## 🤝 Contribuição
