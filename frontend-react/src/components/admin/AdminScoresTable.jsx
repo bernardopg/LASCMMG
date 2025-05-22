@@ -14,19 +14,18 @@ const ScoreEditModal = ({ isOpen, onClose, score, onSave }) => {
   if (!isOpen) return null;
 
   const initialValues = {
-    player1_name: score?.player1_name || score?.player1 || '',
-    score1: score?.score1 ?? '',
-    player2_name: score?.player2_name || score?.player2 || '',
-    score2: score?.score2 ?? '',
+    player1_name: score?.player1_name || '', // Keep for display
+    player1_score: score?.player1_score ?? '', // Use player1_score
+    player2_name: score?.player2_name || '', // Keep for display
+    player2_score: score?.player2_score ?? '', // Use player2_score
     round: score?.round || '',
+    // winner_id could be added here if editing winner is desired
   };
 
-  // Basic validation, can be expanded
   const validationSchema = Yup.object().shape({
-    score1: Yup.number().required('Placar obrigatório').min(0).integer(),
-    score2: Yup.number().required('Placar obrigatório').min(0).integer(),
+    player1_score: Yup.number().required('Placar obrigatório').min(0).integer(), // Validate player1_score
+    player2_score: Yup.number().required('Placar obrigatório').min(0).integer(), // Validate player2_score
     round: Yup.string().required('Rodada obrigatória'),
-    // Player names are typically not editable here, but scores and round might be
   });
 
   return (
@@ -41,10 +40,10 @@ const ScoreEditModal = ({ isOpen, onClose, score, onSave }) => {
           onSubmit={(values, { setSubmitting }) => {
             onSave(
               {
-                // Only send editable fields
-                score1: Number(values.score1),
-                score2: Number(values.score2),
+                player1_score: Number(values.player1_score), // Send player1_score
+                player2_score: Number(values.player2_score), // Send player2_score
                 round: values.round,
+                // winner_id: values.winner_id, // If winner editing is added
               },
               score.id
             );
@@ -55,37 +54,37 @@ const ScoreEditModal = ({ isOpen, onClose, score, onSave }) => {
           {({ isSubmitting, dirty, isValid }) => (
             <Form className="space-y-4">
               <p className="text-sm text-gray-300">
-                Jogadores: {initialValues.player1_name} vs{' '}
-                {initialValues.player2_name}
+                Jogadores: {initialValues.player1_name || 'Jogador 1'} vs{' '}
+                {initialValues.player2_name || 'Jogador 2'}
               </p>
               <div>
-                <label htmlFor="score1_edit" className="label">
-                  Placar Jogador 1
+                <label htmlFor="player1_score_edit" className="label">
+                  Placar {initialValues.player1_name || 'Jogador 1'}
                 </label>
                 <Field
                   type="number"
-                  name="score1"
-                  id="score1_edit"
+                  name="player1_score" // Use player1_score
+                  id="player1_score_edit"
                   className="input"
                 />
                 <ErrorMessage
-                  name="score1"
+                  name="player1_score" // Use player1_score
                   component="div"
                   className="error-message"
                 />
               </div>
               <div>
-                <label htmlFor="score2_edit" className="label">
-                  Placar Jogador 2
+                <label htmlFor="player2_score_edit" className="label">
+                  Placar {initialValues.player2_name || 'Jogador 2'}
                 </label>
                 <Field
                   type="number"
-                  name="score2"
-                  id="score2_edit"
+                  name="player2_score" // Use player2_score
+                  id="player2_score_edit"
                   className="input"
                 />
                 <ErrorMessage
-                  name="score2"
+                  name="player2_score" // Use player2_score
                   component="div"
                   className="error-message"
                 />
@@ -232,7 +231,7 @@ const AdminScoresTable = () => {
           <thead className="bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Data
+                Concluído em
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Jogador 1
@@ -268,20 +267,20 @@ const AdminScoresTable = () => {
               scores.map((score) => (
                 <tr key={score.id} className="hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {new Date(score.timestamp).toLocaleString('pt-BR')}
+                    {score.completed_at ? new Date(score.completed_at).toLocaleString('pt-BR') : score.timestamp ? new Date(score.timestamp).toLocaleString('pt-BR') : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {score.player1_name || score.player1 || '-'}
+                    {score.player1_name || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {score.player2_name || score.player2 || '-'}
+                    {score.player2_name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">{`${score.score1 ?? 0}-${score.score2 ?? 0}`}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">{`${score.player1_score ?? 0} - ${score.player2_score ?? 0}`}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {score.winner_name || score.winner || '-'}
+                    {score.winner_name || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {score.round || '-'}
+                    {score.round || score.match_round || '-'} {/* Fallback to match_round if score.round is not set */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button

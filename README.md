@@ -31,6 +31,14 @@
 - Padronizado o armazenamento do banco de dados na pasta raiz `/data` (verificado, já implementado).
 - Removidos componentes duplicados no frontend (fora do escopo desta revisão de backend).
 - Implementada rota para alteração de senha de usuário (verificado, e aprimorado).
+- **Frontend Review & Enhancements:**
+  - Revisão e atualização completa do fluxo de autenticação (Login, Registro, Perfil) para alinhar com as mudanças do backend, incluindo uso de email como username e validação de complexidade de senha.
+  - Padronização de nomes de campos de dados (ex: `completed_at` para datas, `player1_score`/`player2_score` para placares, `skill_level` e `gender` com enums em Português) em todas as páginas e componentes relevantes (`ScoresPage`, `StatsPage`, `AdminPlayersTable`, `AdminScoresTable`, `PlayersPage`, `TournamentDetailPage`, `TournamentsPage`, `AddScorePage`, `ManageTournamentPage`).
+  - Atualização das páginas administrativas (`CreateTournamentPage`, `EditTournamentPage`, `AdminTournamentListPage`, `ManageTournamentPage`, `PlayersPage`, `AdminUserManagementPage`, `TrashPage`, sub-páginas de Segurança) para garantir o uso correto das APIs e o manuseio consistente dos dados.
+  - Refinamento dos provedores de contexto (`AuthContext`, `TournamentContext`) e do serviço de API (`services/api.js`) para melhor integração e gerenciamento de estado.
+  - Revisão e atualização da configuração do PWA manifest (`vite.config.js`) e de assets estáticos como `offline.html`.
+  - Correção de funcionalidades em componentes de admin como `ImportPlayersModal` e tabelas de gerenciamento.
+  - Revisão geral de componentes de layout, comuns, de admin e de chaveamento para consistência e correção de bugs.
 
 O LASCMMG é um sistema web robusto e moderno projetado para a organização, acompanhamento e administração completa de torneios de sinuca. Esta versão representa uma modernização significativa, com uma interface de usuário (frontend) totalmente reconstruída em **React com Vite e Tailwind CSS**, e um backend sólido em **Node.js/Express** utilizando **SQLite** (via `better-sqlite3`) para persistência de dados e **Redis** para caching, gerenciamento de sessão e outras funcionalidades de backend.
 

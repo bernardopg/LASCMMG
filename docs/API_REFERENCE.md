@@ -235,6 +235,11 @@ Atualiza agendamento de partida (admin).
 
 Atualiza vencedor/placar de partida (admin).
 **Auth:** JWT + CSRF
+**Body:** `{ "score1": 0, "score2": 0, "winnerId": 123 (ID do jogador vencedor, opcional se placares diferem) }`
+**Respostas:**
+- 200: `{ success: true, message: "Placar atualizado e chaveamento avançado.", match: { ...dados da partida atualizada... }, nextMatch: { ...dados da próxima partida se houver... } }`
+- 400: Dados inválidos.
+- 404: Torneio ou partida não encontrada.
 
 ### `GET /api/tournaments/:tournamentId/stats`
 
@@ -283,10 +288,10 @@ Cria placar para partida (autenticado).
 
 Lista jogadores para administração.
 **Auth:** JWT
-**Query:** `page`, `limit`, `sortBy` (ex: `name`, `created_at`), `order` (`asc`, `desc`), `filters[columnName]=value` (ex: `filters[name]=John&filters[status]=active`)
+**Query:** `page`, `limit`, `sortBy` (ex: `name`, `created_at`), `order` (`asc`, `desc`), `filters[columnName]=value` (ex: `filters[name]=John&filters[status]=active`). Para buscar jogadores não atribuídos a nenhum torneio, use `filters[tournament_id]=null` (a string "null" ou o valor nulo dependendo da implementação do parsing no backend).
 **Respostas:**
 
-- 200: `{ success: true, players: [{ id, name, nickname, gender, skill_level, email, tournaments, games_played, wins, losses, is_deleted, deleted_at }], totalPages, currentPage, totalPlayers }`
+- 200: `{ success: true, players: [{ id, name, nickname, gender, skill_level, email, tournament_id, games_played, wins, losses, is_deleted, deleted_at }], totalPages, currentPage, totalPlayers }`
 - 401/403: Não autenticado/autorizado
 
 ### `POST /api/admin/players`

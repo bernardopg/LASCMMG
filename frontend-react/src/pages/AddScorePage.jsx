@@ -103,9 +103,9 @@ const AddScorePage = () => {
 
 
     const payload = {
-      player1Score: Number(values.score1),
-      player2Score: Number(values.score2),
-      winnerId: finalWinnerId,
+      score1: Number(values.score1), // Changed from player1Score
+      score2: Number(values.score2), // Changed from player2Score
+      winnerId: finalWinnerId,     // This is the player's database ID
     };
 
     try {

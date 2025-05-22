@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../services/api';
+import React, { useEffect, useState, useCallback } from 'react'; // Added useCallback
+import api, { getTournamentState } from '../../services/api'; // Import getTournamentState
+import { useMessage } from '../../context/MessageContext'; // For error/success messages
 
 /**
  * Página de Gerenciamento de Agendamento de Partidas (Admin)
@@ -13,30 +14,34 @@ const AdminMatchSchedulePage = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { showError, showSuccess } = useMessage(); // Initialize useMessage
 
   // Busca partidas do torneio selecionado
-  const fetchMatches = async () => {
-    if (!tournamentId) return;
+  const fetchMatches = useCallback(async () => { // Wrapped in useCallback
+    if (!tournamentId) {
+      setMatches([]); // Clear matches if no tournamentId
+      return;
+    }
     setLoading(true);
     setError('');
     setSuccess('');
     try {
-      const res = await api.get(`/api/tournaments/${tournamentId}/state`);
-      const state = res.data;
-      // Extrai partidas do state.matches
-      const matchesArr = Object.entries(state.matches || {}).map(
-        ([matchId, match]) => ({
-          matchId,
-          ...match,
+      const state = await getTournamentState(tournamentId);
+      const matchesArr = Object.entries(state?.matches || {}).map(
+        ([matchIdFromKey, matchData]) => ({
+          ...matchData,
+          matchId: matchData.id || matchIdFromKey,
+          schedule: matchData.dateTime || '',
         })
       );
       setMatches(matchesArr);
     } catch (err) {
-      setError('Erro ao carregar partidas do torneio.');
+      showError(`Erro ao carregar partidas: ${err.response?.data?.message || err.message}`);
+      setMatches([]); // Clear matches on error
     } finally {
       setLoading(false);
     }
-  };
+  }, [tournamentId, showError]); // Added dependencies
 
   // Handler para atualizar agendamento de uma partida
   const handleScheduleChange = (matchId, newSchedule) => {
@@ -53,13 +58,13 @@ const AdminMatchSchedulePage = () => {
     setError('');
     setSuccess('');
     try {
-      await api.patch(
+      await api.patch( // Assuming api default export is the axios instance
         `/api/tournaments/${tournamentId}/matches/${matchId}/schedule`,
         { schedule }
       );
-      setSuccess('Agendamento salvo com sucesso!');
+      showSuccess('Agendamento salvo com sucesso!');
     } catch (err) {
-      setError('Erro ao salvar agendamento.');
+      showError(`Erro ao salvar agendamento: ${err.response?.data?.message || err.message}`);
     } finally {
       setSaving(false);
     }
@@ -67,8 +72,12 @@ const AdminMatchSchedulePage = () => {
 
   // Busca partidas ao selecionar torneio
   useEffect(() => {
-    fetchMatches();
-  }, [tournamentId]);
+    if (tournamentId) { // Only fetch if tournamentId is present
+        fetchMatches();
+    } else {
+        setMatches([]); // Clear matches if no tournamentId
+    }
+  }, [tournamentId, fetchMatches]); // Added fetchMatches to dependency array
 
   return (
     <div className="py-8">

@@ -190,7 +190,7 @@ graph TD
 - **[EM ANDAMENTO]** Otimizar queries SQL e índices do SQLite.
 - **[CONCLUÍDO]** Implementar modo WAL para SQLite.
 - **[CONCLUÍDO]** Configurar `rollup-plugin-visualizer` para análise de bundle do frontend React/Vite.
-- **[A FAZER]** Configurar Service Worker básico com `vite-plugin-pwa`.
+- **[CONCLUÍDO]** Configurar Service Worker básico com `vite-plugin-pwa` (configuração inicial em `vite.config.js` está presente).
 - **[CONCLUÍDO]** Script `manage-database.js` com comando `vacuum` para SQLite. Agendamento via cron é responsabilidade do admin do servidor.
 
 ### Fase 2: Preparação para Escala Maior (Médio Prazo)

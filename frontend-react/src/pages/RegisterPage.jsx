@@ -2,34 +2,34 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import api from '../services/api';
-import { useAuth } from '../context/AuthContext'; // To potentially redirect if already logged in
-import ThemeContext from '../context/ThemeContext'; // For styling consistency
+import { registerRegularUser } from '../services/api'; // Import the specific API function
+import { useAuth } from '../context/AuthContext';
+import ThemeContext from '../context/ThemeContext';
+import { useMessage } from '../context/MessageContext'; // For consistent messages
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { theme } = React.useContext(ThemeContext);
-  const [serverError, setServerError] = useState('');
+  const { showError, showSuccess } = useMessage(); // Use MessageContext
+  const [serverError, setServerError] = useState(''); // Kept for direct form error
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate('/'); // Redirect if already logged in
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
   const initialValues = {
-    username: '',
+    email: '', // Changed from username to email
     password: '',
     confirmPassword: '',
   };
 
   const validationSchema = Yup.object({
-    username: Yup.string()
-      .min(3, 'Usuário deve ter pelo menos 3 caracteres')
-      .max(30, 'Usuário não pode ter mais de 30 caracteres')
-      .matches(/^[a-zA-Z0-9]+$/, 'Usuário deve ser alfanumérico')
-      .required('Usuário é obrigatório'),
+    email: Yup.string() // Changed from username to email
+      .email('Email inválido')
+      .required('Email é obrigatório'),
     password: Yup.string()
       .min(8, 'A senha deve ter pelo menos 8 caracteres')
       .matches(/[a-z]/, 'Deve conter uma letra minúscula')
@@ -43,29 +43,29 @@ const RegisterPage = () => {
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setServerError('');
+    setServerError(''); // Clear previous server errors shown directly on form
     try {
-      const response = await api.post('/users/register', {
-        username: values.username,
+      // Use the specific API function from services/api.js
+      const responseData = await registerRegularUser({
+        username: values.email, // Send email as username
         password: values.password,
       });
-      // Handle successful registration
-      // e.g., show success message and redirect to login
-      alert(
-        response.data.message || 'Registro bem-sucedido! Por favor, faça login.'
-      );
-      resetForm();
-      navigate('/login');
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setServerError(error.response.data.message);
+
+      if (responseData.success) {
+        showSuccess(responseData.message || 'Registro bem-sucedido! Por favor, faça login.');
+        resetForm();
+        navigate('/login');
       } else {
-        setServerError('Falha no registro. Tente novamente.');
+        // If registerRegularUser resolves but indicates failure (e.g. {success: false, message: ...})
+        const message = responseData.message || 'Falha no registro. Tente novamente.';
+        showError(message); // Use MessageContext for consistency
+        setServerError(message); // Also set local serverError if needed for specific form display
       }
+    } catch (error) {
+      // This catches errors thrown by registerRegularUser (e.g., network errors, or if it throws on non-2xx)
+      const message = error.response?.data?.message || error.message || 'Falha no registro. Tente novamente.';
+      showError(message);
+      setServerError(message);
     }
     setSubmitting(false);
   };
@@ -99,17 +99,17 @@ const RegisterPage = () => {
             <Form className="space-y-6">
               <div>
                 <label
-                  htmlFor="username"
+                  htmlFor="email" // Changed from username to email
                   className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
                 >
-                  Usuário
+                  Email
                 </label>
                 <Field
-                  type="text"
-                  name="username"
-                  id="username"
+                  type="email" // Changed from text to email
+                  name="email"   // Changed from username to email
+                  id="email"     // Changed from username to email
                   className={`mt-1 block w-full px-3 py-2 border ${
-                    errors.username && touched.username
+                    errors.email && touched.email // Changed from username to email
                       ? 'border-red-500'
                       : 'border-gray-300 dark:border-slate-600'
                   } rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm ${
@@ -117,9 +117,10 @@ const RegisterPage = () => {
                       ? 'bg-slate-700 text-white placeholder-gray-400'
                       : 'bg-white text-gray-900 placeholder-gray-400'
                   }`}
+                  placeholder="seu@email.com" // Added placeholder
                 />
                 <ErrorMessage
-                  name="username"
+                  name="email" // Changed from username to email
                   component="div"
                   className="mt-1 text-xs text-red-500"
                 />

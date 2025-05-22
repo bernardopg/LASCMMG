@@ -67,11 +67,11 @@ const PlayerProfilePage = () => {
           <FaUserCircle className="text-8xl md:text-9xl text-primary dark:text-primary-light mb-4 md:mb-0 md:mr-8" />
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">
-              {player.name || player.PlayerName}
+              {player.name}
             </h1>
-            {player.Nickname && (
+            {player.nickname && (
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-1">
-                "{player.Nickname}"
+                "{player.nickname}"
               </p>
             )}
             {player.email && (

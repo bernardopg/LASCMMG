@@ -739,10 +739,16 @@ async function getAllPlayers(options = {}) {
       queryParams.push(`%${filters.email}%`);
       countQueryParams.push(`%${filters.email}%`);
     }
-    if (filters.tournament_id) {
-      whereClauses.push('tournament_id = ?');
-      queryParams.push(filters.tournament_id);
-      countQueryParams.push(filters.tournament_id);
+    // Handle tournament_id filter, including null for unassigned players
+    if (filters.tournament_id !== undefined) {
+      if (filters.tournament_id === null) {
+        whereClauses.push('tournament_id IS NULL');
+        // No parameter needed for IS NULL
+      } else {
+        whereClauses.push('tournament_id = ?');
+        queryParams.push(filters.tournament_id);
+        countQueryParams.push(filters.tournament_id);
+      }
     }
     if (filters.gender && typeof filters.gender === 'string') {
       whereClauses.push('gender = ?');

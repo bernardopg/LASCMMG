@@ -4,10 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
+import { loginRegularUser, loginUser as loginAdminUser } from '../services/api'; // Import specific login functions
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login: authContextLogin } = useAuth(); // Renamed to avoid conflict if we add local login function
   const { showError, showSuccess } = useMessage();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
@@ -61,18 +62,36 @@ const Login = () => {
   };
 
   // Função de submit do formulário
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
+    // For this example, we'll try regular user login.
+    // A more complex UI might have a switch or try admin login on failure.
+    // The `authContextLogin` now expects the API function as its first argument.
+
+    // Determine if it's an admin login attempt (e.g., based on email domain or a UI switch)
+    // This is a simplified heuristic. A real app might have a separate admin login page or a role selector.
+    const isAdminAttempt = values.email.includes('@admin.lascmmg.com') || values.email.startsWith('admin@'); // Example heuristic
+
+    const loginApiFunc = isAdminAttempt ? loginAdminUser : loginRegularUser;
+    const credentials = { username: values.email, password: values.password, rememberMe: values.rememberMe };
+
     try {
       setIsLoading(true);
-      await login(values.email, values.password, values.rememberMe); // Passou rememberMe para login
+      // Pass the specific API login function to AuthContext's login
+      await authContextLogin(loginApiFunc, credentials, values.rememberMe);
       showSuccess('Login realizado com sucesso!');
-      navigate('/');
+
+      // Redirect based on role after successful login (AuthContext.currentUser should be updated)
+      // This part needs access to the updated currentUser from AuthContext, which might not be immediate.
+      // It's often better to handle redirection in a useEffect hook in App.jsx or a protected route wrapper
+      // that reacts to `isAuthenticated` and `currentUser.role`.
+      // For now, a simple redirect to home.
+      navigate(isAdminAttempt ? '/admin' : '/');
+
     } catch (error) {
       console.error('Erro no login:', error);
       showError(
-        error.response?.data?.message || // Priorizar mensagem do backend
-        error.message || // Mensagem de erro do JS (ex: rede)
-        'Falha na autenticação. Verifique suas credenciais.' // Fallback
+        // error.message should now be the one from AuthContext or API service
+        error.message || 'Falha na autenticação. Verifique suas credenciais.'
       );
     } finally {
       setIsLoading(false);

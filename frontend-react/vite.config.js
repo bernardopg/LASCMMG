@@ -66,31 +66,36 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'LASCMMG Torneios',
+        name: 'LASCMMG - Sistema de Gerenciamento de Torneios', // Aligned with public/manifest.json
         short_name: 'LASCMMG',
-        description: 'Sistema de Gerenciamento de Torneios de Sinuca LASCMMG',
-        theme_color: '#1a2a1a', // Cor do tema escuro --body-bg-dark
-        background_color: '#ffffff', // Cor de fundo para splash screen
+        description: 'Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG', // Aligned
+        theme_color: '#2e9d3a', // Primary green, from public/manifest.json
+        background_color: '#1a2a1a', // Dark green body, from public/manifest.json
         display: 'standalone',
         scope: '/',
-        start_url: '/',
+        start_url: '/', // Explicit root
+        orientation: 'portrait',
+        categories: ['sports', 'utilities', 'productivity'],
+        lang: 'pt-BR',
         icons: [
           {
-            src: '/logo192.png', // Caminho relativo à pasta public/
+            src: '/assets/logo-192x192.png', // Corrected path to assets folder
             sizes: '192x192',
             type: 'image/png',
+            purpose: 'any maskable'
           },
           {
-            src: '/logo512.png', // Caminho relativo à pasta public/
+            src: '/assets/logo-512x512.png', // Corrected path to assets folder
             sizes: '512x512',
             type: 'image/png',
+            purpose: 'any maskable'
           },
-          {
-            src: '/logo512.png', // Para máscara de ícone adaptável
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
+          // Optional: include favicon.ico if desired in manifest icons as well
+          // {
+          //   "src": "/assets/favicon.ico",
+          //   "sizes": "64x64 32x32 24x24 16x16",
+          //   "type": "image/x-icon"
+          // }
         ],
       },
     }),

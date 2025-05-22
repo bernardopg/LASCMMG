@@ -23,6 +23,7 @@ const CreateTournamentPage = () => {
       entry_fee: values.entry_fee ? parseFloat(values.entry_fee) : null,
       prize_pool: values.prize_pool,
       rules: values.rules,
+      status: values.status, // Add status from form values
     };
 
     try {

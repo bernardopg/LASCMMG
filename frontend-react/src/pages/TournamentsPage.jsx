@@ -97,9 +97,10 @@ const TournamentsPage = () => {
               className="input pl-10 pr-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Todos os status</option>
-              <option value="active">Ativo</option>
-              <option value="pending">Pendente</option>
-              <option value="finished">Finalizado</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Em Andamento">Em Andamento</option>
+              <option value="Concluído">Concluído</option>
+              <option value="Cancelado">Cancelado</option>
             </select>
             <FaFilter className="absolute left-3 top-2.5 text-gray-400" />
           </div>
@@ -173,13 +174,11 @@ const TournamentsPage = () => {
                       Status
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell">
-                      Data Início
+                      Data
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">
-                      Data Fim
-                    </th>
+                    {/* Data Fim column removed as it's not in the backend model */}
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Jogadores
+                      Jogadores (Inscritos/Esperados)
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Ações
@@ -194,7 +193,12 @@ const TournamentsPage = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`badge ${tournament.status === 'ativo' || tournament.status === 'active' ? 'badge-success' : tournament.status === 'finalizado' || tournament.status === 'finished' ? 'badge-primary' : 'badge-warning'}`}
+                          className={`badge ${
+                            tournament.status === 'Em Andamento' ? 'badge-success' :
+                            tournament.status === 'Pendente' ? 'badge-info' :
+                            tournament.status === 'Concluído' ? 'badge-primary' :
+                            tournament.status === 'Cancelado' ? 'badge-error' : 'badge-secondary'
+                          }`}
                         >
                           {tournament.status || 'Indefinido'}
                         </span>
@@ -202,32 +206,20 @@ const TournamentsPage = () => {
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-200 hidden sm:table-cell">
                         {(() => {
                           try {
-                            return tournament.startDate
-                              ? new Date(tournament.startDate).toLocaleDateString('pt-BR')
+                            return tournament.date // Use tournament.date
+                              ? new Date(tournament.date).toLocaleDateString('pt-BR')
                               : '-';
                           } catch (err) {
-                            console.error('Erro ao formatar data de início:', err);
+                            console.error('Erro ao formatar data:', err);
                             return '-';
                           }
                         })()}
                       </td>
-                      <td className="px-4 py-3 text-gray-700 dark:text-gray-200 hidden md:table-cell">
-                        {(() => {
-                          try {
-                            return tournament.endDate
-                              ? new Date(tournament.endDate).toLocaleDateString('pt-BR')
-                              : '-';
-                          } catch (err) {
-                            console.error('Erro ao formatar data de fim:', err);
-                            return '-';
-                          }
-                        })()}
-                      </td>
+                      {/* Data Fim column removed */}
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-200 flex items-center gap-1">
                         <FaUsers className="inline mr-1" />
-                        {tournament.playersCount ??
-                          tournament.players?.length ??
-                          '-'}
+                        {/* playersCount or players.length is not reliably returned by current getTournaments API */}
+                        {tournament.num_players_expected ? `${tournament.current_players_count || 0}/${tournament.num_players_expected}` : (tournament.current_players_count || '-')}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col sm:flex-row gap-2">

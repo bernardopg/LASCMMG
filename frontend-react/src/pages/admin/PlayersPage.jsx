@@ -31,8 +31,8 @@ import {
   deletePlayerAdmin,
   getAdminPlayers,
   createPlayerAdmin,
-  updatePlayerAdmin,
-  bulkDeletePlayersAdmin
+  updatePlayerAdmin
+  // bulkDeletePlayersAdmin, // This function is not exported from api.js as the backend endpoint doesn't exist
 } from '../../services/api';
 import debounce from 'lodash/debounce'; // Import only the debounce function to reduce bundle size
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -72,27 +72,31 @@ const Tooltip = ({ children, content }) => {
 
 // Skill level indicator component
 const SkillLevelIndicator = ({ level }) => {
+  // Align with backend: 'Iniciante', 'Intermediário', 'Avançado', 'Profissional'
   const levels = {
-    'beginner': 1,
-    'intermediate': 2,
-    'advanced': 3
+    'Iniciante': 1,
+    'Intermediário': 2,
+    'Avançado': 3,
+    'Profissional': 4, // Assuming 4 stars for Profissional
   };
+  const maxStars = 4; // Max stars to display
 
   const stars = levels[level] || 0;
-  const label = level === 'beginner' ? 'Iniciante' :
-               level === 'intermediate' ? 'Intermediário' :
-               level === 'advanced' ? 'Avançado' : 'Desconhecido';
+  // Label is already the Portuguese value from `level` prop if it matches keys
+  const label = Object.keys(levels).includes(level) ? level : 'Desconhecido';
+
 
   return (
     <div
       className="flex items-center"
-      aria-label={`Nível: ${label} (${stars} de 3)`}
+      aria-label={`Nível: ${label} (${stars} de ${maxStars})`}
     >
-      {[...Array(3)].map((_, i) => (
+      {[...Array(maxStars)].map((_, i) => (
         i < stars
-          ? <FaStar key={i} className="text-yellow-400" aria-hidden="true" />
-          : <FaRegStar key={i} className="text-gray-400" aria-hidden="true" />
+          ? <FaStar key={i} className="text-yellow-400 mr-0.5" aria-hidden="true" />
+          : <FaRegStar key={i} className="text-gray-400 mr-0.5" aria-hidden="true" />
       ))}
+      <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">({label})</span>
     </div>
   );
 };
@@ -157,7 +161,8 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
       <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600 flex justify-between items-center">
         <div className="text-sm">
           <span className="text-gray-500 dark:text-gray-400 mr-2">Gênero:</span>
-          <span className="font-medium">{player.gender === 'male' ? 'Masculino' : player.gender === 'female' ? 'Feminino' : 'Outro'}</span>
+          {/* Assuming player.gender is already 'Masculino', 'Feminino', 'Outro' from backend */}
+          <span className="font-medium">{player.gender || 'N/A'}</span>
         </div>
         <div className="flex items-center">
           <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">Nível:</span>
@@ -271,8 +276,8 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
     name: player?.name || '',
     nickname: player?.nickname || '',
     email: player?.email || '',
-    gender: player?.gender || 'male',
-    skill_level: player?.skill_level || 'beginner',
+    gender: player?.gender || 'Masculino', // Align with backend
+    skill_level: player?.skill_level || 'Iniciante', // Align with backend
   };
 
   const validationSchema = Yup.object().shape({
@@ -280,13 +285,13 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
       .required('Nome é obrigatório')
       .min(2, 'Nome muito curto')
       .max(100, 'Nome muito longo'),
-    nickname: Yup.string().max(50, 'Apelido muito longo'),
-    email: Yup.string().email('Email inválido'),
-    gender: Yup.string().oneOf(['male', 'female', 'other'], 'Gênero inválido'),
+    nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
+    email: Yup.string().email('Email inválido').nullable(),
+    gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').required('Gênero é obrigatório'), // Align
     skill_level: Yup.string().oneOf(
-      ['beginner', 'intermediate', 'advanced'],
+      ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], // Align
       'Nível inválido'
-    ),
+    ).required('Nível é obrigatório'),
   });
 
   return (
@@ -391,9 +396,9 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                       id="gender"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="male">Masculino</option>
-                      <option value="female">Feminino</option>
-                      <option value="other">Outro</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Feminino">Feminino</option>
+                      <option value="Outro">Outro</option>
                     </Field>
                     <ErrorMessage
                       name="gender"
@@ -411,9 +416,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                       id="skill_level"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="beginner">Iniciante</option>
-                      <option value="intermediate">Intermediário</option>
-                      <option value="advanced">Avançado</option>
+                      <option value="Iniciante">Iniciante</option>
+                      <option value="Intermediário">Intermediário</option>
+                      <option value="Avançado">Avançado</option>
+                      <option value="Profissional">Profissional</option>
                     </Field>
                     <ErrorMessage
                       name="skill_level"
@@ -890,9 +896,9 @@ const PlayersPage = () => {
                   aria-label="Filtrar por gênero"
                 >
                   <option value="">Todos</option>
-                  <option value="male">Masculino</option>
-                  <option value="female">Feminino</option>
-                  <option value="other">Outro</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
                 </select>
               </div>
               <div className="w-full md:w-1/3">
@@ -907,9 +913,10 @@ const PlayersPage = () => {
                   aria-label="Filtrar por nível de habilidade"
                 >
                   <option value="">Todos</option>
-                  <option value="beginner">Iniciante</option>
-                  <option value="intermediate">Intermediário</option>
-                  <option value="advanced">Avançado</option>
+                  <option value="Iniciante">Iniciante</option>
+                  <option value="Intermediário">Intermediário</option>
+                  <option value="Avançado">Avançado</option>
+                  <option value="Profissional">Profissional</option>
                 </select>
               </div>
             </div>

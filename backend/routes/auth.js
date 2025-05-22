@@ -59,20 +59,20 @@ router.post(
       );
 
       if (authResult.success) {
-        if (authResult.user && authResult.user.id) {
-          await clearFailedAttempts(username);
-          await updateUserActivity(authResult.user.id); // Register initial activity
-          logger.info(
-            { username, userId: authResult.user.id, success: true, requestId: req.id, ip: req.ip },
-            'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
-          );
-        } else {
-          // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
-           logger.warn(
-            { username, success: true, requestId: req.id, ip: req.ip },
-            'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
-          );
-        }
+      if (authResult.admin && authResult.admin.id) {
+        await clearFailedAttempts(username);
+        await updateUserActivity(authResult.admin.id); // Register initial activity
+        logger.info(
+          { username, userId: authResult.admin.id, success: true, requestId: req.id, ip: req.ip },
+          'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
+        );
+      } else {
+        // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
+         logger.warn(
+          { username, success: true, requestId: req.id, ip: req.ip },
+          'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
+        );
+      }
         res.json(authResult);
       } else {
         await trackFailedAttempt(username);

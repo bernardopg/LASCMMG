@@ -310,27 +310,20 @@ const StatsPage = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                   {matchHistory.map((match, index) => {
-                    const isPlayer1 =
-                      match.player1_name === selectedPlayerName ||
-                      match.player1 === selectedPlayerName; // Assuming API might return player1 or player1_name
-                    const opponent = isPlayer1
-                      ? match.player2_name || match.player2
-                      : match.player1_name || match.player1;
-                    const playerScore = isPlayer1 ? match.score1 : match.score2;
-                    const opponentScore = isPlayer1
-                      ? match.score2
-                      : match.score1;
-                    const isWin =
-                      (match.winner_name || match.winner) ===
-                      selectedPlayerName;
+                    const isPlayer1 = match.player1_name === selectedPlayerName;
+                    const opponent = isPlayer1 ? match.player2_name : match.player1_name;
+                    const playerScore = isPlayer1 ? match.player1_score : match.player2_score; // Use player1_score/player2_score
+                    const opponentScore = isPlayer1 ? match.player2_score : match.player1_score; // Use player1_score/player2_score
+                    const isWin = match.winner_name === selectedPlayerName;
+
                     return (
                       <tr
-                        key={match.id || index}
+                        key={match.id || index} // Assuming score object from backend has an id (score_id) or match_id
                         className={`${isWin ? 'bg-green-500 bg-opacity-10 dark:bg-green-700 dark:bg-opacity-20' : 'bg-red-500 bg-opacity-10 dark:bg-red-700 dark:bg-opacity-20'} hover:bg-gray-50 dark:hover:bg-slate-700`}
                       >
                         <td className="p-2">
-                          {match.timestamp
-                            ? new Date(match.timestamp).toLocaleDateString(
+                          {match.completed_at // Use completed_at
+                            ? new Date(match.completed_at).toLocaleDateString(
                                 'pt-BR'
                               )
                             : '-'}

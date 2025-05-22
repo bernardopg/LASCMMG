@@ -104,15 +104,28 @@ router.post(
             savedScore.player2_score,
           ];
 
-          let determinedWinnerId = savedScore.winner_id;
-          if (determinedWinnerId === null && match) {
+          // Determine winner *index* (0 or 1) for the state_json
+          let winnerIndex = null;
+          if (savedScore.winner_id !== null && savedScore.winner_id !== undefined) {
+            if (savedScore.winner_id === match.player1_id) {
+              winnerIndex = 0;
+            } else if (savedScore.winner_id === match.player2_id) {
+              winnerIndex = 1;
+            }
+          } else if (match) { // If no explicit winner_id, determine from scores
             if (savedScore.player1_score > savedScore.player2_score) {
-              determinedWinnerId = match.player1_id;
+              winnerIndex = 0;
             } else if (savedScore.player2_score > savedScore.player1_score) {
-              determinedWinnerId = match.player2_id;
+              winnerIndex = 1;
             }
           }
-          state.matches[stateMatchKey].winner = determinedWinnerId;
+          // Only set winner in state if it's determined (0 or 1)
+          if (winnerIndex !== null) {
+            state.matches[stateMatchKey].winner = winnerIndex;
+          } else {
+            // If winner cannot be determined (e.g. draw and no explicit winner_id), set to null
+            state.matches[stateMatchKey].winner = null;
+          }
 
           await tournamentModel.updateTournamentState(
             tournamentId,

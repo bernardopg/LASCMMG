@@ -84,13 +84,20 @@ const AdminTrashTable = () => {
   };
 
   const getItemDescription = (item) => {
-    switch (item.type) {
+    // The backend GET /api/admin/trash flattens properties onto the item.
+    // 'name' is a common property added by the backend for display.
+    // 'id' is the original entity ID.
+    switch (item.itemType) { // item.itemType is what backend sends
       case 'player':
-        return `Jogador: ${item.data?.name || item.item_id}`;
+        return `Jogador: ${item.name || item.id}`;
       case 'score':
-        return `Placar: ${item.data?.player1_name || item.data?.player1} ${item.data?.score1}-${item.data?.score2} ${item.data?.player2_name || item.data?.player2} (Rodada: ${item.data?.round || 'N/A'})`;
+        // Backend constructs a 'name' for score: `Placar ID ${s.id} (Partida ${s.match_id})`
+        // We can use that or reconstruct if more detail is needed from item properties.
+        return item.name || `Placar ID: ${item.id} (Partida: ${item.match_id}, ${item.player1_score}x${item.player2_score})`;
+      case 'tournament':
+        return `Torneio: ${item.name || item.id}`;
       default:
-        return `ID: ${item.item_id}`;
+        return `ID: ${item.id} (Tipo: ${item.itemType})`;
     }
   };
 
@@ -122,7 +129,7 @@ const AdminTrashTable = () => {
           <option value="">Todos</option>
           <option value="player">Jogador</option>
           <option value="score">Placar</option>
-          {/* Add other types as needed */}
+          <option value="tournament">Torneio</option>
         </select>
       </div>
       <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
@@ -156,21 +163,21 @@ const AdminTrashTable = () => {
             ) : (
               trashItems.map((item) => (
                 <tr
-                  key={`${item.type}-${item.item_id}`}
+                  key={`${item.itemType}-${item.id}`} // Use item.id (original entity ID) and item.itemType
                   className="hover:bg-gray-700"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                     {getItemDescription(item)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {item.type}
+                    {item.itemType} {/* Use item.itemType */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {new Date(item.deleted_at).toLocaleString('pt-BR')}
+                    {item.deleted_at ? new Date(item.deleted_at).toLocaleString('pt-BR') : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
-                      onClick={() => handleRestore(item.item_id, item.type)}
+                      onClick={() => handleRestore(item.id, item.itemType)} // Use item.id and item.itemType
                       className="text-green-400 hover:text-green-300"
                       title="Restaurar Item"
                     >
@@ -178,7 +185,7 @@ const AdminTrashTable = () => {
                     </button>
                     <button
                       onClick={() =>
-                        handlePermanentDelete(item.item_id, item.type)
+                        handlePermanentDelete(item.id, item.itemType) // Use item.id and item.itemType
                       }
                       className="text-red-500 hover:text-red-400"
                       title="Excluir Permanentemente"

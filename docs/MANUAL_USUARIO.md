@@ -52,9 +52,9 @@ A nova interface, construída com React, Vite e Tailwind CSS, oferece:
 A aplicação é acessada através do seu navegador web.
 
 - **Interface Pública:** Geralmente no endereço principal (ex: `http://localhost:5173/` durante o desenvolvimento com Vite, ou `https://seudominio.com/` em produção).
-- **Registro de Usuário Regular:** Se habilitado, através de um link "Registrar" ou rota específica (ex: `/register`). O nome de usuário é o seu email.
-- **Login de Usuário Regular:** Através da rota `/login` (ou um formulário de login). Use seu email e senha cadastrados.
-- **Login Administrativo:** Geralmente através da mesma rota `/login`, mas com credenciais de administrador. O nome de usuário do administrador também é um email.
+- **Registro de Usuário Regular:** Se habilitado, através de um link "Registrar" ou rota específica (ex: `/register`). O campo "Email" será seu nome de usuário para login.
+- **Login de Usuário Regular:** Através da rota `/login` (ou um formulário de login). Use seu email (como nome de usuário) e senha cadastrados.
+- **Login Administrativo:** Geralmente através da mesma rota `/login`, mas com credenciais de administrador. O nome de usuário do administrador também é um email. A interface de login pode tentar identificar se é um admin baseado no formato do email ou oferecer uma opção.
 
 **Nota sobre Segurança no Login:** O sistema implementa proteção contra múltiplas tentativas de login falhas. Após um certo número de tentativas incorretas, sua conta ou IP pode ser temporariamente bloqueado.
 
@@ -124,59 +124,90 @@ Acesso restrito a administradores. Navegue para `/admin` após o login.
 
 ### Acesso e Logout Seguro
 
-- **Login (Administrador):** Acesse a rota `/login` (ou o formulário de login designado). Insira seu email de administrador e senha. Você pode ter a opção "Lembrar-me" para estender a duração da sua sessão.
+- **Login (Administrador):** Acesse a rota `/login` (ou o formulário de login designado). Insira seu email de administrador (que serve como nome de usuário) e senha. Você pode ter a opção "Lembrar-me" para estender a duração da sua sessão.
 - **Logout:** No menu de perfil (canto superior direito), clique em "Sair". Sua sessão será encerrada e o token de acesso invalidado no backend.
-- **Alteração de Senha (Administrador):** Administradores podem alterar suas próprias senhas através de uma opção no painel de perfil ou configurações, se disponível na interface. Isso requer a senha atual e a nova senha.
+- **Alteração de Senha (Administrador):** Administradores podem alterar suas próprias senhas através da página "Meu Perfil" (`/profile`). Isso requer a senha atual e a nova senha, que deve atender aos critérios de complexidade.
 - **Nota Importante de Segurança para Administradores (Configuração Inicial):** Se você está configurando o sistema pela primeira vez e utilizou o script `scripts/initialize_admin.js` ou um arquivo `admin_credentials.json` para criar o primeiro administrador, é crucial que, após o primeiro login bem-sucedido e a confirmação de que o sistema está funcionando, este arquivo `admin_credentials.json` (se existir na raiz do projeto) seja **removido ou movido para um local seguro fora do servidor**. O sistema migra essas credenciais para o banco de dados, e manter o arquivo original no servidor representa um risco de segurança.
 
-### Gerenciamento de Perfil (Usuário Regular - se aplicável)
+### Gerenciamento de Perfil (Usuário Regular)
 
-Usuários regulares autenticados podem ter acesso a um painel de perfil para:
-- **Alterar Senha:** Geralmente requer a senha atual e a nova senha. A nova senha deve atender aos critérios de complexidade definidos pelo sistema.
+Usuários regulares autenticados podem ter acesso à página "Meu Perfil" (`/profile`) para:
+- **Visualizar Dados:** Ver seu nome de usuário (email) e role.
+- **Alterar Senha:** Requer a senha atual e a nova senha. A nova senha deve atender aos critérios de complexidade definidos pelo sistema (mínimo 8 caracteres, incluindo maiúsculas, minúsculas, números e símbolos).
 
 ### Navegação no Painel Admin
 
 A barra lateral no modo admin oferece links para:
 
-- **Dashboard Admin:** Visão geral da administração.
-- **Torneios:** Gerenciamento de torneios (criar, editar, listar).
-- **Jogadores:** Gerenciamento de jogadores (associados ao torneio admin ativo).
-- **Placares:** Gerenciamento de placares (associados ao torneio admin ativo).
+- **Dashboard Admin:** Visão geral com estatísticas, ações rápidas e atividade recente.
+- **Torneios:** Gerenciamento de torneios (criar, editar, listar, gerenciar estado).
+- **Jogadores (Globais):** Gerenciamento de todos os jogadores do sistema (criar, editar, visualizar).
+- **Usuários Admin:** Gerenciamento de contas de administrador (criar novos administradores).
+- **Agendamento de Partidas:** Ferramentas para definir datas/horários de partidas.
 - **Lixeira:** Gerenciar itens excluídos.
 - **Segurança:** Acesso às subseções de segurança.
-- Outros links podem incluir Agendamento, Configurações do Sistema, etc.
+- **Configurações:** Configurações gerais do sistema (placeholder).
+- Outros links podem incluir Relatórios, etc.
 
 ### Dashboard Administrativo (`/admin`)
 
-- Página inicial da área administrativa.
-- Exibe tabelas para gerenciamento rápido de Jogadores, Placares e Itens na Lixeira.
-- Permite adicionar, editar e excluir itens diretamente das tabelas através de modais.
+- Página inicial da área administrativa (refere-se ao `admin/Dashboard.jsx` mais completo).
+- Exibe cartões com estatísticas gerais (Total de Jogadores, Partidas Realizadas, Partidas Pendentes, Torneios Ativos).
+- Seção de "Ações Rápidas" com links para Gerenciar Jogadores, Adicionar Placar, Configurações.
+- Feed de "Atividade Recente" mostrando as últimas criações/atualizações de torneios, jogadores e placares.
 
 ### Gerenciamento de Torneios
 
-- Acesse via link "Torneios" no menu admin.
-- Funcionalidades para criar novos torneios, editar detalhes (nome, data, descrição, tipo, taxas, regras), definir status (Pendente, Em Andamento, Concluído, Cancelado).
-- Visualização da lista de todos os torneios com opções de filtro e busca.
+- **Listagem (`/admin/tournaments`):** Visualiza todos os torneios com opções de paginação. Ações rápidas para editar, gerenciar estado/chaveamento, excluir (soft delete), e gerar chaveamento (para torneios pendentes).
+- **Criação (`/admin/tournaments/create`):** Formulário para criar um novo torneio. Campos incluem Nome, Data, Descrição, Tipo de Chaveamento (Eliminatória Simples, Dupla Eliminação, Todos contra Todos), Nº Esperado de Jogadores, Taxa de Inscrição, Premiação, Regras e Status inicial (Pendente, Em Andamento, etc.).
+- **Edição (`/admin/tournaments/edit/:id`):** Formulário similar ao de criação para editar um torneio existente.
+- **Gerenciamento Específico (`/admin/tournaments/manage/:id`):** Página para gerenciar um torneio individualmente, incluindo:
+    - Adicionar jogadores existentes (globais) ao torneio.
+    - Visualizar jogadores inscritos.
+    - Gerar/resetar chaveamento.
+    - Link para visualização pública do chaveamento.
+    - (Futuro) Gerenciamento de partidas e resultados diretamente nesta página.
 
 ### Gerenciamento de Jogadores (Admin)
 
-- Acessível pela tabela no Dashboard Admin ou um link dedicado (geralmente contextual ao torneio selecionado).
-- Permite adicionar novos jogadores a um torneio, editar informações (nome, apelido, gênero, nível de habilidade) e realizar exclusão lógica (soft delete).
-- Funcionalidade para importar lista de jogadores para um torneio.
+- **Página Principal de Jogadores (`/admin/players`):**
+    - Lista todos os jogadores "globais" (não necessariamente vinculados a um torneio específico no momento da criação/edição nesta página).
+    - Oferece visualização em tabela ou cartões, com opções de busca, filtros (gênero, nível de habilidade), ordenação e paginação.
+    - Ações de edição e exclusão lógica (mover para lixeira) para cada jogador.
+    - Funcionalidade de seleção múltipla para exclusão em massa.
+- **Criação de Jogador Global (`/admin/players/create` ou via modal em `/admin/players`):**
+    - Formulário para adicionar um novo jogador ao sistema. Campos: Nome (obrigatório), Apelido, Email (opcional, mas único globalmente se preenchido), Gênero (Masculino, Feminino, Outro), Nível de Habilidade (Iniciante, Intermediário, Avançado, Profissional).
+- **Edição de Jogador Global (`/admin/players/edit/:id` ou via modal):**
+    - Formulário similar para editar os detalhes de um jogador existente.
+- **Importação de Jogadores para um Torneio:**
+    - Realizada na página de gerenciamento de um torneio específico (`/admin/tournaments/manage/:id`), através de um modal que aceita um arquivo JSON com a lista de jogadores. Campos esperados no JSON: `PlayerName` (obrigatório), `Nickname`, `gender`, `skill_level`.
 
 ### Gerenciamento de Placares (Admin)
 
-- Acessível pela tabela no Dashboard Admin ou um link dedicado (contextual ao torneio).
-- Permite adicionar ou editar placares de partidas, definir o vencedor.
-- As atualizações de placar refletem automaticamente no chaveamento.
-- Exclusão lógica de placares incorretos.
+- **Adição de Placar (`/match/:matchId/add-score`):** Página dedicada para registrar o placar de uma partida específica. Requer seleção de torneio e partida. O formulário inclui campos para os placares dos dois jogadores e, em caso de empate nos pontos, um seletor manual de vencedor.
+- **Edição de Placares (Tabela em `/admin` ou página específica):**
+    - A tabela de "Gerenciamento de Placares" no Dashboard Admin (`admin/Dashboard.jsx` mais simples) ou uma página dedicada (`AdminScoresTable.jsx` se usada isoladamente) lista os placares registrados.
+    - Permite editar os pontos de cada jogador e a rodada.
+    - Exclusão lógica de placares.
 
-### Lixeira (Admin)
+### Gerenciamento de Administradores (`/admin/users`)
+- Lista os administradores existentes (username/email, role, último login, data de criação).
+- Formulário para criar novos administradores:
+    - **Email (para Username):** O nome de usuário do novo admin deve ser um endereço de email válido.
+    - **Senha:** Deve atender aos critérios de complexidade (mínimo 8 caracteres, maiúsculas, minúsculas, números, símbolos).
+    - **Confirmação de Senha.**
+- Atualmente, a edição e exclusão de outros administradores não está implementada na UI.
 
-- Acessível pela tabela no Dashboard Admin ou um link dedicado.
+### Agendamento de Partidas (`/admin/match-schedule`)
+- Permite que administradores definam ou alterem a data e hora de partidas específicas de um torneio.
+- Requer a inserção do ID do torneio para carregar suas partidas.
+- Cada partida listada terá um campo de data/hora editável e um botão para salvar o agendamento.
+
+### Lixeira (Admin) (`/admin/trash`)
+
 - Lista itens que foram "excluídos" (soft delete), como jogadores, placares ou torneios (status "Cancelado").
 - Permite restaurar itens para seu estado ativo ou excluí-los permanentemente do sistema.
-- Filtros por tipo de item (Torneios, Jogadores, Placares) podem estar disponíveis.
+- Filtros por tipo de item (Torneio, Jogador, Placar) estão disponíveis.
 
 ### Seção de Segurança (Admin) (`/admin/security`)
 

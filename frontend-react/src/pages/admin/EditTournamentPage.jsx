@@ -33,12 +33,18 @@ const EditTournamentPage = () => {
 
   const handleSubmit = async (formData) => {
     try {
-      // Ensure updateTournamentAdmin can handle the formData structure
-      // It might need to make multiple PATCH calls or one PUT call
-      // For now, assuming a single call that updates all editable fields.
-      const updatedData = await updateTournamentAdmin(tournamentId, formData);
-      showSuccess('Torneio atualizado com sucesso!');
-      navigate('/admin/tournaments'); // Redirect to tournament list
+      // updateTournamentAdmin in services/api.js now handles making multiple PATCH calls
+      // for individual fields if necessary.
+      const responseData = await updateTournamentAdmin(tournamentId, formData);
+
+      // updateTournamentAdmin returns { success, tournament, errors }
+      if (responseData.success) {
+        showSuccess('Torneio atualizado com sucesso!');
+        navigate('/admin/tournaments'); // Redirect to tournament list
+      } else {
+        const errorMessages = responseData.errors?.map(e => `${e.field}: ${e.message}`).join('; ') || 'Falha ao atualizar alguns campos.';
+        showError(errorMessages);
+      }
     } catch (err) {
       showError(`Erro ao atualizar torneio: ${err.response?.data?.message || err.message}`);
     }
@@ -85,9 +91,9 @@ const EditTournamentPage = () => {
         Editar Torneio: {tournament.name}
       </h1>
       <TournamentForm
-        initialData={initialValues}
+        initialValues={initialValues} // Corrected prop name
         onSubmit={handleSubmit}
-        isEditMode={true}
+        isEditing={true} // Corrected prop name
       />
     </div>
   );

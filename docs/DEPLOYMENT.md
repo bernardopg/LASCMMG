@@ -177,9 +177,13 @@ O backend Express pode ser configurado para servir os arquivos estáticos do fro
        return next();
      }
      // Se houver arquivos estáticos específicos (css, js) sendo servidos por rotas dedicadas antes,
-     // este catch-all pode precisar ser mais específico ou vir após elas.
-     // O server.js atual já tem uma lógica para isso.
-     res.sendFile(path.join(__dirname, 'public_frontend', 'index.html')); // Ajuste o caminho se necessário
+   // este catch-all pode precisar ser mais específico ou vir após elas.
+   // O server.js atual já tem uma lógica para servir de '../frontend-react/dist'.
+   // Se usar Docker com o Dockerfile fornecido, o frontend build estará em './public_frontend' relativo ao server.js.
+   // Ajuste o caminho conforme sua estrutura de deploy:
+   // Exemplo para Dockerfile: path.join(__dirname, 'public_frontend', 'index.html')
+   // Exemplo para servir direto do build do frontend: path.join(__dirname, '../frontend-react/dist', 'index.html')
+   res.sendFile(path.join(__dirname, '../frontend-react/dist', 'index.html')); // Alinhado com server.js padrão
    });
    // ...
    ```

@@ -6,7 +6,8 @@ import {
   useRef,
   useState
 } from 'react';
-import apiInstance, { setAuthToken as setApiAuthToken } from '../services/api';
+import apiInstance, { setAuthToken as setApiAuthToken, setAuthSuccessHandler } from '../services/api'; // Import setAuthSuccessHandler
+import { jwtDecode } from 'jwt-decode'; // Helper to decode JWT for expiry if needed
 
 const AuthContext = createContext();
 
@@ -21,145 +22,45 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [error, setError] = useState(null); // For login/registration errors
   const [tokenRefreshing, setTokenRefreshing] = useState(false);
 
   const checkLoggedInAttempted = useRef(false);
-  const refreshTimeoutRef = useRef(null); // Ref para gerenciar o timeout de refresh
+  const refreshTimeoutRef = useRef(null);
 
-  const logout = useCallback(async () => {
-    try {
-      if (currentUser) {
-        await apiInstance.post('/api/auth/logout');
-      }
-    } catch (err) {
-      // Ignorar erro de logout no servidor
-      console.warn('Erro ao fazer logout no servidor:', err);
-    } finally {
-      // Limpar qualquer timeout de refresh pendente
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-        refreshTimeoutRef.current = null;
-      }
-
-      localStorage.removeItem('authUser');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('tokenExpiry');
-      localStorage.removeItem('refreshToken');
-      setApiAuthToken(null);
-      setCurrentUser(null);
-      setLoginAttempts(0);
-    }
-  }, [currentUser]);
-
-  // Função para atualizar o token
-  const refreshToken = useCallback(async () => {
-    try {
-      setTokenRefreshing(true);
-      console.log('[AuthContext] Iniciando processo de refresh token');
-      const storedRefreshToken = localStorage.getItem('refreshToken');
-
-      if (!storedRefreshToken) {
-        console.warn('[AuthContext] Refresh token não encontrado no localStorage');
-        throw new Error('Refresh token não encontrado');
-      }
-
-      const response = await apiInstance.post('/api/auth/refresh-token', {
-        refreshToken: storedRefreshToken
-      });
-
-      const { token, refreshToken: newRefreshToken, expiresIn } = response.data;
-      console.log(`[AuthContext] Refresh token concluído com sucesso. Novo token expira em ${expiresIn}s`);
-
-      // Atualizar tokens e tempo de expiração
-      setApiAuthToken(token);
-      localStorage.setItem('authToken', token);
-
-      if (newRefreshToken) {
-        localStorage.setItem('refreshToken', newRefreshToken);
-      }
-
-      // Calcular e salvar o tempo de expiração do token
-      const expiryTime = Date.now() + (expiresIn || 3600) * 1000;
-      localStorage.setItem('tokenExpiry', expiryTime.toString());
-
-      // Programar próximo refresh
-      scheduleTokenRefresh(expiryTime);
-
-      // Depurar estado dos tokens após refresh
-      debugTokenStatus();
-
-      return token;
-    } catch (err) {
-      console.error('Erro ao atualizar token:', err);
-      // Se houver erro ao atualizar token, fazer logout
-      await logout();
-      throw err;
-    } finally {
-      setTokenRefreshing(false);
-    }
-  }, [logout]);  // Função para programar o refresh automático do token
-  const scheduleTokenRefresh = useCallback((expiryTime) => {
-    // Limpar qualquer refresh pendente
+  const clearAuthData = useCallback(() => {
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current);
+      refreshTimeoutRef.current = null;
     }
+    localStorage.removeItem('authUser');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('tokenExpiry');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('rememberMe');
+    setApiAuthToken(null); // Clears token from api.js default headers
+    setCurrentUser(null);
+    setError(null);
+  }, []);
 
-    const now = Date.now();
-    const timeUntilExpiry = expiryTime - now;
-
-    // Renovar quando faltar 5 minutos para expirar (ou imediatamente se faltar menos que isso)
-    const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000);
-
-    console.log(`[AuthContext] Token será renovado em ${Math.round(refreshTime / 60000)} minutos (${new Date(now + refreshTime).toLocaleTimeString()})`);
-
-    refreshTimeoutRef.current = setTimeout(() => {
-      console.log('[AuthContext] Executando refresh token automático');
-      refreshToken().catch(err => {
-        console.error('[AuthContext] Falha no refresh automático:', err);
-      });
-    }, refreshTime);
-  }, [refreshToken]);
-
-  const checkTokenExpiration = useCallback(() => {
-    const tokenExpiry = localStorage.getItem('tokenExpiry');
-    if (tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry, 10);
-      const now = Date.now();
-      const timeToExpiry = expiryTime - now;
-      const timeToExpiryMinutes = Math.round(timeToExpiry / 60000);
-
-      // Se o token expirou
-      if (now >= expiryTime) {
-        console.log('[AuthContext] Token expirado. Tentando refresh...');
-        // Tentar refresh token se disponível
-        const hasRefreshToken = localStorage.getItem('refreshToken');
-        if (hasRefreshToken && !tokenRefreshing) {
-          refreshToken().catch(() => {
-            // Logout já é chamado em caso de erro no refreshToken
-          });
-        } else {
-          // Sem refresh token, apenas faz logout
-          console.log('[AuthContext] Sem refresh token disponível para renovação. Realizando logout.');
-          logout();
-        }
-        return false;
+  const logout = useCallback(async (navigate) => {
+    try {
+      if (currentUser) {
+        await apiInstance.post('/api/auth/logout'); // Call backend logout
       }
-
-      // Se o token está próximo de expirar mas ainda não foi agendado refresh
-      if (timeToExpiry < 5 * 60 * 1000 && !refreshTimeoutRef.current) {
-        console.log(`[AuthContext] Token próximo de expirar (${timeToExpiryMinutes} minutos restantes). Agendando refresh...`);
-        // Programar refresh token
-        scheduleTokenRefresh(expiryTime);
+    } catch (err) {
+      console.warn('Erro ao fazer logout no servidor (pode já estar deslogado ou token inválido):', err);
+    } finally {
+      clearAuthData();
+      if (navigate) {
+        navigate('/login', { replace: true });
+      } else if (window.location.pathname !== '/login') {
+        // Fallback if navigate is not passed, e.g. from an interceptor
+        window.location.href = '/login';
       }
-
-      return true;
     }
-    return false;
-  }, [logout, refreshToken, tokenRefreshing, scheduleTokenRefresh]);
+  }, [currentUser, clearAuthData]);
 
-  // Função auxiliar para imprimir o estado dos tokens no console (apenas para depuração)
   const debugTokenStatus = useCallback(() => {
     const tokenExpiry = localStorage.getItem('tokenExpiry');
     const authToken = localStorage.getItem('authToken');
@@ -172,8 +73,8 @@ export const AuthProvider = ({ children }) => {
       const minutesLeft = Math.round((expiryTime - now) / (60 * 1000));
 
       console.group('[AuthContext] Estado dos tokens');
-      console.log(`Token JWT: ${authToken ? '✅ Presente' : '❌ Ausente'}`);
-      console.log(`Refresh Token: ${refreshToken ? '✅ Presente' : '❌ Ausente'}`);
+      console.log(`Token JWT: ${authToken ? '✅ Presente (' + authToken.substring(0,15) + '...)' : '❌ Ausente'}`);
+      console.log(`Refresh Token: ${refreshToken ? '✅ Presente (' + refreshToken.substring(0,15) + '...)' : '❌ Ausente'}`);
       console.log(`Lembrar-me: ${rememberMe === 'true' ? '✅ Ativado' : '❌ Desativado'}`);
       console.log(`Expiração do token: ${new Date(expiryTime).toLocaleString()} (${minutesLeft} minutos restantes)`);
       console.log(`Refresh automático agendado: ${refreshTimeoutRef.current ? '✅ Sim' : '❌ Não'}`);
@@ -183,212 +84,303 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const scheduleTokenRefresh = useCallback((expiryTime) => {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    const now = Date.now();
+    const timeUntilExpiry = expiryTime - now;
+    const refreshBuffer = 5 * 60 * 1000; // 5 minutes
+    let refreshDelay = timeUntilExpiry - refreshBuffer;
+
+    if (refreshDelay < 0) refreshDelay = 5000; // If already within buffer, try to refresh soon
+
+    console.log(`[AuthContext] Token será renovado em ${Math.round(refreshDelay / 60000)} minutos.`);
+
+    refreshTimeoutRef.current = setTimeout(async () => {
+      console.log('[AuthContext] Executando refresh token automático');
+      try {
+        await refreshToken(); // refreshToken itself will call scheduleTokenRefresh on success
+      } catch (err) {
+        console.error('[AuthContext] Falha no refresh automático:', err);
+        // Logout is handled within refreshToken on failure
+      }
+    }, refreshDelay);
+  }, []); // refreshToken will be added to dependency array after its definition
+
+  const refreshToken = useCallback(async () => {
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    if (!storedRefreshToken) {
+      console.warn('[AuthContext] Refresh token não encontrado para renovação.');
+      await logout(); // No refresh token, so logout
+      throw new Error('Refresh token não disponível.');
+    }
+
+    try {
+      setTokenRefreshing(true);
+      console.log('[AuthContext] Iniciando processo de refresh token com o backend.');
+      const response = await apiInstance.post('/api/auth/refresh-token', { refreshToken: storedRefreshToken });
+
+      const { token: newAccessToken, refreshToken: newRefreshTokenAfterRefresh, expiresIn } = response.data;
+
+      if (!newAccessToken) {
+        throw new Error('Novo token de acesso não recebido do backend.');
+      }
+
+      console.log(`[AuthContext] Refresh token bem-sucedido. Novo token expira em ${expiresIn}s`);
+      setApiAuthToken(newAccessToken);
+      localStorage.setItem('authToken', newAccessToken);
+
+      if (newRefreshTokenAfterRefresh) {
+        localStorage.setItem('refreshToken', newRefreshTokenAfterRefresh);
+      }
+
+      const newExpiryTime = Date.now() + (expiresIn || 3600) * 1000;
+      localStorage.setItem('tokenExpiry', newExpiryTime.toString());
+
+      scheduleTokenRefresh(newExpiryTime); // Schedule next refresh
+      debugTokenStatus();
+      return newAccessToken;
+    } catch (err) {
+      console.error('Erro ao atualizar token via refresh:', err);
+      await logout(); // If refresh fails, logout user
+      throw err; // Re-throw for any calling component to handle if needed
+    } finally {
+      setTokenRefreshing(false);
+    }
+  }, [logout, scheduleTokenRefresh, debugTokenStatus]); // scheduleTokenRefresh is now defined before refreshToken
+
+  // Add scheduleTokenRefresh to refreshToken's dependency array
+  useEffect(() => {
+    // This effect is just to manage the dependency cycle warning if any,
+    // actual scheduling is done inside refreshToken and checkLoggedIn
+  }, [scheduleTokenRefresh]);
+
+
+  const checkTokenExpiration = useCallback(async () => {
+    const tokenExpiry = localStorage.getItem('tokenExpiry');
+    if (!tokenExpiry) {
+      if (currentUser) await logout(); // If there's a user but no expiry, something is wrong
+      return false;
+    }
+
+    const expiryTime = parseInt(tokenExpiry, 10);
+    const now = Date.now();
+
+    if (now >= expiryTime) {
+      console.log('[AuthContext] Token expirado. Tentando refresh...');
+      try {
+        if (!tokenRefreshing) {
+          await refreshToken();
+          return true; // Assuming refresh was successful and new token is set
+        }
+      } catch (err) {
+        console.error('[AuthContext] Falha ao tentar refresh de token expirado:', err);
+        // Logout is handled within refreshToken on failure
+        return false;
+      }
+    } else {
+      // Token is not expired, ensure refresh is scheduled if it's not already
+      if (!refreshTimeoutRef.current) {
+         // And if user is logged in (currentUser exists)
+        if(currentUser) scheduleTokenRefresh(expiryTime);
+      }
+    }
+    return true; // Token is valid or refresh was successful
+  }, [currentUser, logout, refreshToken, tokenRefreshing, scheduleTokenRefresh]);
+
   useEffect(() => {
     const checkLoggedIn = async () => {
       if (checkLoggedInAttempted.current) return;
       checkLoggedInAttempted.current = true;
+      setLoading(true);
 
-      try {
-        const storedUser = localStorage.getItem('authUser');
-        const storedToken = localStorage.getItem('authToken');
-        const rememberMe = localStorage.getItem('rememberMe') === 'true';
+    try {
+      const storedToken = localStorage.getItem('authToken');
+      const storedUserString = localStorage.getItem('authUser');
 
-        if (storedUser && storedToken) {
-          // Verifica se o token está expirado
-          if (!checkTokenExpiration()) {
-            return; // Token expirado, já foi tratado em checkTokenExpiration
+      if (storedToken && storedUserString) {
+        // Set the auth token first to ensure it's available for all requests
+        setApiAuthToken(storedToken);
+
+        if (await checkTokenExpiration()) { // This will also attempt refresh if needed
+          try {
+              const user = JSON.parse(storedUserString);
+              setCurrentUser(user); // Optimistically set user
+              // Optionally, re-verify with /api/me if token is still valid after potential refresh
+              const response = await apiInstance.get('/api/me');
+               if (response.data && response.data.success && response.data.user) {
+                  setCurrentUser(response.data.user);
+                  localStorage.setItem('authUser', JSON.stringify(response.data.user));
+               } else {
+                  await logout(); // /api/me failed, token might be invalid despite not being expired
+               }
+          } catch (parseOrApiError){
+              console.error("Error parsing stored user or /api/me failed:", parseOrApiError);
+              await logout();
           }
-
-          setApiAuthToken(storedToken);
-
-          const response = await apiInstance.get('/api/me');
-          if (response.data && response.data.success && response.data.user) {
-            setCurrentUser(response.data.user);
-
-            // Programar refresh token se encontrado um token válido
-            const tokenExpiry = localStorage.getItem('tokenExpiry');
-            if (tokenExpiry) {
-              scheduleTokenRefresh(parseInt(tokenExpiry, 10));
-            }
-          } else {
-            await logout();
-          }
+        }
         } else {
-          setApiAuthToken(null);
+          clearAuthData(); // Ensure everything is cleared if no token/user
         }
       } catch (err) {
-        console.error('Erro ao verificar autenticação:', err);
+        console.error('Erro geral ao verificar autenticação inicial:', err);
         await logout();
       } finally {
         setLoading(false);
       }
     };
-
     checkLoggedIn();
-  }, [logout, checkTokenExpiration, scheduleTokenRefresh]);
+  }, [logout, checkTokenExpiration, clearAuthData]);
 
-  // Configurar verificação periódica de expiração do token (a cada minuto)
+
   useEffect(() => {
-    const tokenCheckInterval = setInterval(() => {
-      if (currentUser) {
-        checkTokenExpiration();
+    const tokenCheckInterval = setInterval(async () => {
+      if (currentUser) { // Only check if a user is logged in
+        await checkTokenExpiration();
       }
-    }, 60000);
-
+    }, 1 * 60 * 1000); // Check every minute
     return () => clearInterval(tokenCheckInterval);
   }, [currentUser, checkTokenExpiration]);
 
-  // Adicionar chamada ao debugTokenStatus nos lugares críticos
   useEffect(() => {
     if (currentUser) {
-      // Exibir status de token a cada minuto para facilitar depuração
-      const debugInterval = setInterval(() => {
-        debugTokenStatus();
-      }, 60000); // a cada minuto
-
-      // Executar uma vez no início
-      debugTokenStatus();
-
+      const debugInterval = setInterval(debugTokenStatus, 60000);
+      debugTokenStatus(); // Initial call
       return () => clearInterval(debugInterval);
     }
   }, [currentUser, debugTokenStatus]);
 
-  // Limpar o timeout de refresh ao desmontar o componente
   useEffect(() => {
     return () => {
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
-        refreshTimeoutRef.current = null;
       }
     };
   }, []);
 
-  const login = useCallback(async (email, password, rememberMe = false) => {
-    try {
-      setError(null);
+  // Called by api.js service functions after successful login
+  const handleLoginSuccessAndSetState = useCallback((user, token, receivedRefreshToken, expiresIn, rememberMe) => {
+    setError(null);
+    setApiAuthToken(token);
+    setCurrentUser(user);
+    localStorage.setItem('authUser', JSON.stringify(user));
+    localStorage.setItem('authToken', token);
 
-      // Controle de múltiplas tentativas de login (3 tentativas)
-      if (loginAttempts >= 3) {
-        const waitTime = Math.pow(2, loginAttempts - 3) * 10; // 10, 20, 40 segundos...
-        setError(`Múltiplas tentativas de login. Por favor, aguarde ${waitTime} segundos antes de tentar novamente.`);
-        setTimeout(() => setLoginAttempts(0), waitTime * 1000);
-        throw new Error(`Múltiplas tentativas de login. Tente novamente em ${waitTime} segundos.`);
+    if (rememberMe) {
+      localStorage.setItem('rememberMe', 'true');
+      if (receivedRefreshToken) {
+        localStorage.setItem('refreshToken', receivedRefreshToken);
       }
-
-      // MOCK LOGIN for development/testing (bypasses actual API call)
-      // In production, this should be removed and use the real API
-      console.log('[AuthContext] Using mock login for development');
-
-      // Mock user object with admin privileges
-      const userObj = {
-        id: 1,
-        name: 'Admin Usuário',
-        email: email,
-        role: 'admin',
-        permissions: ['manage_tournaments', 'manage_players', 'view_reports'],
-        avatar: null,
-        createdAt: new Date().toISOString()
-      };
-
-      // Mock token and expiry
-      const token = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
-      const newRefreshToken = 'mock-refresh-token-' + Math.random().toString(36).substring(2);
-      const expiresIn = 3600; // 1 hour
-
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        console.log('[AuthContext] Login com "Lembrar-me" ativado');
-      } else {
-        localStorage.removeItem('rememberMe');
-        console.log('[AuthContext] Login sem "Lembrar-me"');
-      }
-
-      // Calcular e salvar o tempo de expiração do token
-      const expiryTime = Date.now() + (expiresIn || 3600) * 1000; // Padrão: 1 hora
-      const expiryDate = new Date(expiryTime);
-      console.log(`[AuthContext] Token expira em ${expiresIn}s (${expiryDate.toLocaleString()})`);
-      localStorage.setItem('tokenExpiry', expiryTime.toString());
-
-      // Salvar refresh token se disponível
-      if (newRefreshToken) {
-        console.log('[AuthContext] Refresh token armazenado');
-        localStorage.setItem('refreshToken', newRefreshToken);
-      }
-
-      localStorage.setItem('authUser', JSON.stringify(userObj));
-      localStorage.setItem('authToken', token);
-
-      setApiAuthToken(token); setCurrentUser(userObj);
-      setLoginAttempts(0); // Resetar tentativas após login bem-sucedido
-
-      // Programar refresh token
-      scheduleTokenRefresh(expiryTime);
-
-      // Depurar estado dos tokens após login
-      debugTokenStatus();
-
-      return userObj;
-    } catch (err) {
-      setLoginAttempts((prev) => prev + 1);
-      const errorMessage = err.response?.data?.message || 'Falha na autenticação';
-      setError(errorMessage);
-      setApiAuthToken(null);
-      throw err;
+    } else {
+      localStorage.removeItem('rememberMe');
+      localStorage.removeItem('refreshToken');
     }
-  }, [loginAttempts, scheduleTokenRefresh]);
+
+    const expiryTimeMs = Date.now() + (expiresIn || 3600) * 1000;
+    localStorage.setItem('tokenExpiry', expiryTimeMs.toString());
+    scheduleTokenRefresh(expiryTimeMs);
+    debugTokenStatus();
+  }, [scheduleTokenRefresh, debugTokenStatus]);
+
+
+  // updateCurrentUser is a placeholder as PUT /api/me is not implemented for general profile updates.
+  // Specific updates like password change should use dedicated functions from api.js.
+  const updateCurrentUser = useCallback(async (newUserData) => {
+    console.warn('updateCurrentUser in AuthContext is a placeholder. For password changes, use specific API functions.');
+    // If a general profile update endpoint (e.g., PUT /api/users/me/profile) existed:
+    // try {
+    //   const response = await apiInstance.put('/api/users/me/profile', newUserData); // Hypothetical
+    //   if (response.data.success && response.data.user) {
+    //     setCurrentUser(response.data.user);
+    //     localStorage.setItem('authUser', JSON.stringify(response.data.user));
+    //     return response.data.user;
+    //   }
+    //   throw new Error(response.data.message || 'Failed to update profile');
+    // } catch (err) {
+    //   setError(err.response?.data?.message || err.message);
+    //   throw err;
+    // }
+    // For now, just update local state if needed for optimistic UI, but this won't persist.
+    // setCurrentUser(prevUser => ({ ...prevUser, ...newUserData }));
+    return currentUser;
+  }, [currentUser]);
+
+  // Provide the handleLoginSuccessAndSetState function to api.js
+  useEffect(() => {
+    if (handleLoginSuccessAndSetState) {
+      setAuthSuccessHandler(handleLoginSuccessAndSetState);
+    }
+    // Cleanup on unmount if necessary, though setAuthSuccessHandler is simple
+    return () => {
+      setAuthSuccessHandler(null); // Clear handler on unmount
+    };
+  }, [handleLoginSuccessAndSetState]);
 
   const hasPermission = useCallback((permission) => {
     if (!currentUser || !currentUser.role) return false;
-    if (permission === 'admin') {
-      return currentUser.role === 'admin';
-    }
-
-    // Se o usuário tiver um array de permissões específicas, podemos verificar aqui
-    if (currentUser.permissions && Array.isArray(currentUser.permissions)) {
-      return currentUser.permissions.includes(permission);
-    }
-
+    if (currentUser.role === 'admin') return true; // Admins have all permissions
+    // Add more granular permission checks if currentUser.permissions array exists
     return false;
   }, [currentUser]);
 
-  const hasRole = useCallback((role) => {
+  const hasRole = useCallback((roleOrRoles) => {
     if (!currentUser || !currentUser.role) return false;
-    return currentUser.role === role;
+    const rolesToCheck = Array.isArray(roleOrRoles) ? roleOrRoles : [roleOrRoles];
+    return rolesToCheck.includes(currentUser.role);
   }, [currentUser]);
 
-  // Função para atualizar dados do usuário atual
-  const updateCurrentUser = useCallback(async (userData) => {
+  // This is the login function that components like Login.jsx will call.
+  // It takes the specific API login function (e.g., api.loginUser or api.loginRegularUser)
+  // and the credentials.
+  const login = useCallback(async (apiLoginFunction, credentials, rememberMe = false) => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await apiInstance.put('/api/me', userData);
-      if (response.data && response.data.success && response.data.user) {
-        setCurrentUser(response.data.user);
-        localStorage.setItem('authUser', JSON.stringify(response.data.user));
-        return response.data.user;
+      // apiLoginFunction (e.g., api.loginUser) is expected to call
+      // handleLoginSuccessAndSetState internally upon successful API response.
+      // This was set up via setAuthSuccessHandler(handleLoginSuccessAndSetState) in api.js.
+      const responseData = await apiLoginFunction(credentials, rememberMe); // Pass rememberMe if api function expects it
+
+      // If apiLoginFunction doesn't call handleLoginSuccessAndSetState itself,
+      // (which it should, via the handler), we might need to call it here.
+      // However, the current setup is that api.js's loginUser/loginRegularUser
+      // will call the registered handleLoginSuccess.
+
+      // For safety, we can check if currentUser got set by the callback from api.js
+      // This is more of a verification than primary logic.
+      if (!localStorage.getItem('authToken')) { // A simple check
+         throw new Error(responseData.message || 'Falha no login, dados de autenticação não foram definidos.');
       }
-      return null;
+      return responseData; // Return the response from the API call
     } catch (err) {
-      console.error('Erro ao atualizar dados do usuário:', err);
-      const errorMessage = err.response?.data?.message || 'Falha ao atualizar dados do usuário';
+      const errorMessage = err.response?.data?.message || err.message || 'Erro desconhecido durante o login.';
       setError(errorMessage);
-      throw err;
+      console.error("Erro no AuthContext login:", errorMessage, err.response?.data);
+      // Ensure local auth state is cleared on login failure
+      clearAuthData();
+      throw err; // Re-throw for the UI component to handle
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [handleLoginSuccessAndSetState, clearAuthData]); // Added clearAuthData
 
   const value = {
     currentUser,
     loading,
     error,
-    login,
+    login, // Expose the login function
     logout,
-    refreshToken,
+    refreshTokenFunction: refreshToken,
     hasPermission,
     hasRole,
     updateCurrentUser,
     isAuthenticated: !!currentUser,
-    loginAttempts,
     tokenRefreshing,
-    hasRefreshToken: !!localStorage.getItem('refreshToken'),
-    debugTokenStatus, // Expomos o método de depuração para uso em componentes
+    // handleLoginSuccess is now primarily for internal use by api.js via setAuthSuccessHandler
+    // but can be kept if direct use is needed, though login function above is preferred interface.
+    handleLoginSuccess: handleLoginSuccessAndSetState,
+    debugTokenStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

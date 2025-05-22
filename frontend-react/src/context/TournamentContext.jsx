@@ -226,12 +226,17 @@ export const TournamentProvider = ({ children }) => {
         setLoading(true);
         setError(null);
 
-        const response = await api.put(
-          `/api/tournaments/${tournamentId}`,
-          tournamentData
-        );
+        // Use the refactored api.updateTournamentAdmin which handles multiple PATCH calls
+        const response = await api.updateTournamentAdmin(tournamentId, tournamentData);
+        // updateTournamentAdmin in api.js now returns { success, tournament, errors }
 
-        const updatedTournamentData = response.data.tournament;
+        if (!response.success) {
+          // Handle case where one or more PATCH calls failed within updateTournamentAdmin
+          const errorMessages = response.errors.map(e => `${e.field}: ${e.message}`).join('; ');
+          throw new Error(errorMessages || 'Falha parcial ou total ao atualizar torneio.');
+        }
+
+        const updatedTournamentData = response.tournament;
 
         if (updatedTournamentData) {
           // Atualiza torneio na lista
@@ -463,14 +468,19 @@ export const TournamentProvider = ({ children }) => {
 
   // Função para remover um jogador de um torneio
   const removePlayerFromTournament = useCallback(async (tournamentId, playerId) => {
+    // Assuming this is a soft delete. The API for this is via admin player deletion.
+    // Requires importing deletePlayerAdmin from api.js
+    // import { deletePlayerAdmin } from '../services/api'; // Would need this import
     return controlRequest(`removePlayerFromTournament-${tournamentId}-${playerId}`, async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const response = await api.delete(
-          `/api/tournaments/${tournamentId}/players/${playerId}`
-        );
+        // This should call the admin endpoint for deleting a player,
+        // which handles soft/permanent deletion. Assuming soft delete here.
+        // The backend route is DELETE /api/admin/players/:playerId
+        // The api.js function is deletePlayerAdmin(playerId, permanent)
+        const response = await api.deletePlayerAdmin(playerId, false); // Assuming api.js is updated or deletePlayerAdmin is imported
 
         // Limpar cache de jogadores para este torneio
         playersCache.current.delete(tournamentId.toString());
@@ -489,12 +499,15 @@ export const TournamentProvider = ({ children }) => {
 
   // Função para iniciar um torneio
   const startTournament = useCallback(async (tournamentId) => {
+    // This should call the endpoint for generating bracket, which also starts the tournament.
+    // Backend route: POST /api/tournaments/:tournamentId/generate-bracket
+    // api.js function: generateTournamentBracket(tournamentId)
     return controlRequest(`startTournament-${tournamentId}`, async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const response = await api.post(`/api/tournaments/${tournamentId}/start`);
+        const response = await api.generateTournamentBracket(tournamentId); // Assuming api.js has this function
 
         // Limpar caches para este torneio
         playersCache.current.delete(tournamentId.toString());

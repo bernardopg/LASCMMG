@@ -25,45 +25,28 @@ const Home = () => {
 
       setStatsLoading(true);
       try {
-        // Em ambiente de desenvolvimento, use dados simulados
-        if (process.env.NODE_ENV === 'development') {
-          // Simular um atraso para mostrar o efeito de carregamento
-          await new Promise(resolve => setTimeout(resolve, 500));
-
-          // Dados simulados para desenvolvimento
-          const mockStats = {
-            players: 42,
-            matches: 128,
-            tournaments: tournaments?.length || 8,
-          };
-
-          setGeneralStats(mockStats);
-          console.info('Usando estatísticas simuladas em ambiente de desenvolvimento');
+        // Sempre buscar dados reais do backend
+        const response = await api.get('/api/system/stats');
+        if (response.data && response.data.success) {
+          const stats = response.data.stats;
+          setGeneralStats({
+            players: stats.entities?.players || 0,
+            matches: stats.entities?.matches || 0,
+            tournaments: stats.tournaments?.total || 0,
+          });
         } else {
-          // Em produção, faça uma chamada real à API
-          const response = await api.get('/api/system/stats');
-          if (response.data && response.data.success) {
-            const stats = response.data.stats;
-            setGeneralStats({
-              players: stats.entities?.players || 0,
-              matches: stats.entities?.matches || 0,
-              tournaments: stats.tournaments?.total || 0,
-            });
-          } else {
-            setGeneralStats({
-              players: 0,
-              matches: 0,
-              tournaments: tournaments?.length || 0,
-            });
-          }
+          setGeneralStats({
+            players: 0,
+            matches: 0,
+            tournaments: tournaments?.length || 0,
+          });
         }
       } catch (err) {
         console.error('Erro ao buscar estatísticas gerais:', err);
-        // Em caso de erro, use dados alternativos
         setGeneralStats({
-          players: Math.floor(Math.random() * 50) + 30, // Entre 30-80 jogadores
-          matches: Math.floor(Math.random() * 100) + 80, // Entre 80-180 partidas
-          tournaments: tournaments?.length || Math.floor(Math.random() * 5) + 5, // Entre 5-10 torneios
+          players: 0,
+          matches: 0,
+          tournaments: tournaments?.length || 0,
         });
       }
       setStatsLoading(false);

@@ -5,23 +5,34 @@ import { useMessage } from '../../context/MessageContext'; // Import useMessage
 const AdminSchedulePage = () => {
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
   const { showInfo } = useMessage(); // Get showInfo from context
-  // Placeholder data - replace with actual data fetching
-  const unscheduledMatches = [
-    {
-      id: 'm101',
-      round: 'Rodada 1',
-      player1: 'Jogador A',
-      player2: 'Jogador B',
-      tournament: 'Torneio Principal',
-    },
-    {
-      id: 'm102',
-      round: 'Rodada 1',
-      player1: 'Jogador C',
-      player2: 'Jogador D',
-      tournament: 'Torneio Principal',
-    },
-  ];
+  const [unscheduledMatches, setUnscheduledMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch unscheduled matches from backend
+  React.useEffect(() => {
+    const fetchUnscheduledMatches = async () => {
+      setLoading(true);
+      try {
+        // Substitua a URL abaixo pelo endpoint real do backend
+        const response = await fetch('/api/admin/matches/unscheduled', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+          },
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Erro ao buscar partidas não agendadas');
+        const data = await response.json();
+        setUnscheduledMatches(data.matches || []);
+      } catch (err) {
+        setUnscheduledMatches([]);
+        showInfo('Falha ao buscar partidas não agendadas do backend.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUnscheduledMatches();
+  }, [showInfo]);
 
   return (
     <div className="container mx-auto px-4 py-8">

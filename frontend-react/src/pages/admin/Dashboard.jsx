@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 import {
   FaChartBar,
   FaClock,
@@ -14,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
-import {
+import api, {
   getAdminPlayers,
   getAdminScores,
   getTournaments,
@@ -86,31 +87,121 @@ const Dashboard = () => {
       try {
         setLoading(true);
 
-        const tournamentsData = await getTournaments();
-        const playersResp = await getAdminPlayers({ limit: 1 });
-        const scoresResp = await getAdminScores({ limit: 1 });
+        // Get the auth token from localStorage
+        const authToken = localStorage.getItem('authToken');
 
-        const totalTournaments =
-          tournamentsData?.tournaments?.length || tournamentsData?.length || 0;
-        const totalPlayers = playersResp?.total || playersResp?.totalCount || 0;
-        const totalMatches = scoresResp?.total || scoresResp?.totalCount || 0;
+        // If no token, redirect to login
+        if (!authToken) {
+          console.error('No auth token found in localStorage');
+          showError('Sessão expirada ou inválida. Por favor, faça login novamente.');
+          window.location.href = '/login'; // Force redirect to login
+          return;
+        }
 
-        const pendingMatches = 0;
+        // Force reset token in global API instance
+        api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
+        // Create a new axios instance specifically for this component to ensure fresh headers
+        const axiosInstance = axios.create({
+          baseURL: api.defaults.baseURL,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          timeout: 20000,
+          withCredentials: true
+        });
+
+        // Debug authentication token - enhanced to show full format
+        console.log('Auth token available:', !!authToken);
+        console.log('User authenticated:', !!user);
+        console.log('Auth token header value:', `Bearer ${authToken.substring(0, 15)}...`);
+
+        // Initialize default stats
+        let dashboardDisplayStats = {
+          totalPlayers: 0,
+          totalMatches: 0,
+          pendingMatches: 0,
+          totalTournaments: 0,
+        };
+
+        // Define a function to get system stats
+        const getSystemStats = async (token) => {
+          // Make sure we have the right endpoint
+          const apiUrl = api.defaults.baseURL || 'http://localhost:3000';
+          console.log('Trying system stats endpoint:', `${apiUrl}/api/system/stats`);
+
+          try {
+            const response = await axios.get(`${apiUrl}/api/system/stats`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              withCredentials: true
+            });
+
+            if (response.data && response.data.success) {
+              return response.data.stats;
+            }
+          } catch (error) {
+            console.error('Failed to get system stats:', error.response?.status, error.message);
+            // Try the security endpoint instead
+            try {
+              console.log('Trying alternative endpoint:', `${apiUrl}/api/system/security/stats`);
+              const secResponse = await axios.get(`${apiUrl}/api/system/security/stats`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                withCredentials: true
+              });
+
+              if (secResponse.data && secResponse.data.success) {
+                return secResponse.data.stats;
+              }
+            } catch (secError) {
+              console.error('Failed on alternative endpoint too:', secError.message);
+            }
+          }
+          return null;
+        };
+
+        // Try to get system stats
+        const statsData = await getSystemStats(authToken);
+        console.log('Stats data received:', statsData ? 'Yes' : 'No');
+
+        if (statsData) {
+          dashboardDisplayStats = {
+            totalPlayers: statsData.entities?.players || 0,
+            totalMatches: statsData.entities?.scores || 0,
+            pendingMatches: 0,
+            totalTournaments: statsData.tournaments?.total || 0,
+          };
+          setStats(dashboardDisplayStats);
+        } else {
+          console.warn('Could not fetch system stats, using default values');
+        }
+
+        // Now fetch the rest of the data using the API service functions
         const recentScoresData = await getAdminScores({
           limit: 5,
-          sortBy: 'timestamp',
-          order: 'desc',
+          sortBy: 'completed_at',
+          sortDirection: 'desc'
         });
+
         const recentPlayersData = await getAdminPlayers({
           limit: 5,
-          sortBy: 'createdAt',
-          order: 'desc',
+          sortBy: 'created_at',
+          sortDirection: 'desc'
         });
+
         const recentTournamentsData = await getTournaments({
           limit: 5,
-          sortBy: 'createdAt',
-          order: 'desc',
+          sortBy: 'created_at',
+          sortDirection: 'desc'
         });
 
         const activity = [];
@@ -120,9 +211,9 @@ const Dashboard = () => {
             activity.push({
               id: `score-${score.id}`,
               type: 'match',
-              description: `Placar: ${score.player1_name || 'P1'} ${score.score1}-${score.score2} ${score.player2_name || 'P2'}`,
-              timestamp: score.timestamp || score.updatedAt || score.createdAt,
-              user: 'Sistema', // TODO: Adicionar quem registrou o placar se disponível
+              description: `Placar: ${score.player1_name || 'P1'} ${score.player1_score}-${score.player2_score} ${score.player2_name || 'P2'}`, // Use player1_score, player2_score
+              timestamp: score.completed_at || score.updated_at || score.created_at, // Prioritize completed_at
+              user: 'Sistema',
             });
           });
         }
@@ -133,34 +224,28 @@ const Dashboard = () => {
               id: `player-${player.id}`,
               type: 'player',
               description: `Jogador: ${player.name}`,
-              timestamp: player.createdAt,
-              user: 'Admin', // TODO: Adicionar quem criou/atualizou
+              timestamp: player.created_at || player.updated_at, // Use created_at or updated_at
+              user: 'Admin',
             });
           });
         }
 
-        const tournamentsForActivity =
-          recentTournamentsData?.tournaments || recentTournamentsData || [];
+        const tournamentsForActivity = recentTournamentsData?.tournaments || [];
         if (tournamentsForActivity.length) {
           tournamentsForActivity.slice(0, 5).forEach((tournament) => {
             activity.push({
               id: `tournament-${tournament.id}`,
               type: 'tournament',
               description: `Torneio: ${tournament.name}`,
-              timestamp: tournament.updatedAt || tournament.createdAt,
-              user: 'Admin', // TODO: Adicionar quem criou/atualizou
+              timestamp: tournament.updated_at || tournament.created_at, // Use updated_at or created_at
+              user: 'Admin',
             });
           });
         }
 
-        activity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        setStats({
-          totalPlayers,
-          totalMatches,
-          pendingMatches,
-          totalTournaments,
-        });
+        activity.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)); // Add fallback for timestamp
         setRecentActivity(activity.slice(0, 10));
+
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
         showError('Falha ao carregar dados do dashboard.');

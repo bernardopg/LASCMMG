@@ -6,11 +6,10 @@ import * as Yup from 'yup';
 import { FaUsers, FaPlusCircle, FaUserShield, FaSpinner } from 'react-icons/fa';
 
 const NewAdminSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(3, 'Username muito curto')
-    .max(50, 'Username muito longo')
-    .matches(/^[a-zA-Z0-9_]+$/, 'Username pode conter apenas letras, números e underscore')
-    .required('Username é obrigatório'),
+  username: Yup.string() // This will be treated as an email by the backend
+    .email('Deve ser um email válido')
+    .required('Email (para username) é obrigatório')
+    .max(100, 'Email muito longo'), // Max length for email
   password: Yup.string()
     .min(8, 'Senha deve ter pelo menos 8 caracteres')
     .matches(/[a-z]/, 'Deve conter uma letra minúscula')
@@ -134,8 +133,8 @@ const AdminUserManagementPage = () => {
               {({ errors, touched, isValid, dirty }) => (
                 <Form className="space-y-4">
                   <div>
-                    <label htmlFor="username" className="label">Username</label>
-                    <Field type="text" name="username" id="username" className={`input mt-1 ${errors.username && touched.username ? 'border-danger' : ''}`} />
+                    <label htmlFor="username" className="label">Email (para Username)</label>
+                    <Field type="email" name="username" id="username" placeholder="exemplo@admin.com" className={`input mt-1 ${errors.username && touched.username ? 'border-danger' : ''}`} />
                     <ErrorMessage name="username" component="div" className="error-message" />
                   </div>
                   <div>

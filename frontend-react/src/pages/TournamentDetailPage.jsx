@@ -172,8 +172,8 @@ const TournamentDetailPage = () => {
             <ul className="divide-y divide-gray-200 dark:divide-slate-700">
               {players.map(player => (
                 <li key={player.id} className="py-3 px-1">
-                  <span className="font-medium text-gray-700 dark:text-gray-200">{player.PlayerName || player.name}</span>
-                  {player.Nickname && <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">({player.Nickname})</span>}
+                  <span className="font-medium text-gray-700 dark:text-gray-200">{player.name}</span>
+                  {player.nickname && <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">({player.nickname})</span>}
                 </li>
               ))}
             </ul>

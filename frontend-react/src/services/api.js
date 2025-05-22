@@ -307,6 +307,12 @@ export const initializeAuth = () => {
 // Initialize auth on module load
 initializeAuth();
 
+let _handleLoginSuccess = null;
+
+export const setAuthSuccessHandler = (handler) => {
+  _handleLoginSuccess = handler;
+};
+
 /**
  * API Request Methods
  * Organized by resource type
@@ -315,14 +321,59 @@ initializeAuth();
 /**
  * Authentication API Methods
  */
-export const loginUser = async (credentials) => {
-  const response = await api.post('/api/auth/login', credentials);
+export const loginUser = async (credentials) => { // This is for Admin login
+  const response = await api.post('/api/auth/login', credentials); // Assuming this is admin login
+  const responseData = response.data;
 
-  // Store token if returned
-  if (response.data.token) {
-    setAuthToken(response.data.token);
+  if (responseData.success && responseData.token && responseData.admin) {
+    setAuthToken(responseData.token); // Stores in localStorage and sets axios header
+    if (_handleLoginSuccess) {
+      _handleLoginSuccess(
+        responseData.admin, // user object
+        responseData.token,
+        responseData.refreshToken,
+        responseData.expiresIn,
+        credentials.rememberMe || false
+      );
+    }
   }
+  return responseData;
+};
 
+export const registerRegularUser = async (userData) => {
+  // Corresponds to POST /api/users/register
+  // Expects { username (email), password }
+  const response = await api.post('/api/users/register', userData);
+  return response.data; // e.g., { success: true, message: "...", userId, username }
+};
+
+export const loginRegularUser = async (credentials) => {
+  // Corresponds to POST /api/users/login
+  // Expects { username (email), password }
+  const response = await api.post('/api/users/login', credentials);
+  const responseData = response.data;
+
+  if (responseData.success && responseData.token && responseData.user) {
+    setAuthToken(responseData.token); // Stores in localStorage and sets axios header
+     // USER_STORAGE_KEY is also set by setAuthToken if needed, or handle here
+    if (_handleLoginSuccess) {
+       _handleLoginSuccess(
+        responseData.user,
+        responseData.token,
+        null, // Regular users might not have refresh tokens from this endpoint
+        responseData.expiresIn, // Assuming backend sends expiresIn for regular users too
+        false // Regular user login typically doesn't have "rememberMe" for refresh tokens
+      );
+    }
+  }
+  return responseData;
+};
+
+export const changeRegularUserPassword = async (passwordData) => {
+  // Corresponds to PUT /api/users/password
+  // Expects { currentPassword, newPassword }
+  // Auth token must be set for this request
+  const response = await api.put('/api/users/password', passwordData);
   return response.data;
 };
 
@@ -375,32 +426,56 @@ export const createTournamentAdmin = async (tournamentData) => {
 };
 
 export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
-  const updates = {};
-  let hasUpdates = false;
+  // Backend has specific PATCH routes for individual fields.
+  // This function will iterate and call them as needed.
+  // Note: This makes multiple API calls if multiple fields are changed.
+  // A backend endpoint for partial updates of multiple fields would be more efficient.
 
-  // Convert the data into a series of patch requests
-  const updateableFields = [
-    'name', 'description', 'date', 'status',
-    'entry_fee', 'prize_pool', 'rules'
-  ];
+  const editableFields = {
+    name: `/api/tournaments/${tournamentId}/name`,
+    description: `/api/tournaments/${tournamentId}/description`,
+    date: `/api/tournaments/${tournamentId}/date`, // Assuming backend has this, if not, it needs to be added or handled
+    status: `/api/tournaments/${tournamentId}/status`,
+    entry_fee: `/api/tournaments/${tournamentId}/entry_fee`,
+    prize_pool: `/api/tournaments/${tournamentId}/prize_pool`,
+    rules: `/api/tournaments/${tournamentId}/rules`,
+    // num_players_expected and bracket_type might not have dedicated PATCH routes
+    // and might be part of a general PUT /api/admin/tournaments/:tournamentId if that exists
+    // or require a different handling strategy.
+    // For now, only handling fields with known specific PATCH routes.
+  };
 
-  // Build consolidated updates object
-  updateableFields.forEach(field => {
-    if (tournamentData[field] !== undefined) {
-      updates[field] = tournamentData[field];
-      hasUpdates = true;
+  let success = true;
+  let errors = [];
+
+  for (const field in tournamentData) {
+    if (Object.hasOwnProperty.call(tournamentData, field) && editableFields[field]) {
+      if (tournamentData[field] !== undefined) { // Ensure value is actually provided
+        try {
+          await api.patch(editableFields[field], { [field]: tournamentData[field] });
+        } catch (error) {
+          console.error(`Error updating tournament field ${field}:`, error);
+          success = false;
+          errors.push({ field, message: error.response?.data?.message || error.message });
+        }
+      }
+    } else if (Object.hasOwnProperty.call(tournamentData, field) && tournamentData[field] !== undefined) {
+      console.warn(`Field ${field} is not directly updatable via a specific PATCH route in updateTournamentAdmin.`);
+      // Potentially add to a list of fields that couldn't be updated this way.
     }
-  });
-
-  // If we have multiple fields to update, use a single PATCH
-  if (hasUpdates) {
-    await api.patch(`/api/tournaments/${tournamentId}`, updates);
   }
 
-  // Return the updated tournament
-  const response = await api.get(`/api/tournaments/${tournamentId}`);
-  return response.data;
+  // After all updates, fetch the latest tournament details
+  try {
+    const response = await api.get(`/api/tournaments/${tournamentId}`);
+    // Include success status and any errors from individual PATCH calls
+    return { success: success && response.data.success, tournament: response.data.tournament, errors };
+  } catch (error) {
+    console.error(`Error fetching tournament details after update for ${tournamentId}:`, error);
+    return { success: false, tournament: null, errors: [...errors, { field: 'general', message: 'Failed to fetch tournament after updates.' }] };
+  }
 };
+
 
 export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
   if (permanent) {
@@ -475,43 +550,47 @@ export const deletePlayerAdmin = async (playerId, permanent = false) => {
   return response.data;
 };
 
-export const bulkDeletePlayersAdmin = async (playerIds, permanent = false) => {
-  const response = await api.post(`/api/admin/players/bulk-delete`, {
-    playerIds,
-    permanent
-  });
-  return response.data;
-};
+// export const bulkDeletePlayersAdmin = async (playerIds, permanent = false) => {
+//   // Endpoint /api/admin/players/bulk-delete does not exist in current backend
+//   const response = await api.post(`/api/admin/players/bulk-delete`, {
+//     playerIds,
+//     permanent
+//   });
+//   return response.data;
+// };
 
-export const importPlayersAdmin = async (playersCsv) => {
-  const formData = new FormData();
-  formData.append('file', playersCsv);
+// export const importPlayersAdmin = async (playersCsv) => {
+//   // Endpoint /api/admin/players/import for CSV does not exist.
+//   // Backend has /api/tournaments/:tournamentId/players/import for JSON.
+//   const formData = new FormData();
+//   formData.append('file', playersCsv);
 
-  const response = await api.post('/api/admin/players/import', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
-};
+//   const response = await api.post('/api/admin/players/import', formData, {
+//     headers: {
+//       'Content-Type': 'multipart/form-data',
+//     },
+//   });
+//   return response.data;
+// };
 
-export const exportPlayersAdmin = async (format = 'csv', filters = {}) => {
-  const response = await api.get('/api/admin/players/export', {
-    params: { format, ...filters },
-    responseType: 'blob',
-  });
+// export const exportPlayersAdmin = async (format = 'csv', filters = {}) => {
+//   // Endpoint /api/admin/players/export does not exist
+//   const response = await api.get('/api/admin/players/export', {
+//     params: { format, ...filters },
+//     responseType: 'blob',
+//   });
 
   // Create download link
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `players_export_${new Date().toISOString().split('T')[0]}.${format}`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+//   const url = window.URL.createObjectURL(new Blob([response.data]));
+//   const link = document.createElement('a');
+//   link.href = url;
+//   link.setAttribute('download', `players_export_${new Date().toISOString().split('T')[0]}.${format}`);
+//   document.body.appendChild(link);
+//   link.click();
+//   link.remove();
 
-  return { success: true, message: `Jogadores exportados em formato ${format.toUpperCase()}` };
-};
+//   return { success: true, message: `Jogadores exportados em formato ${format.toUpperCase()}` };
+// };
 
 export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
   const response = await api.post(
@@ -657,15 +736,17 @@ export const createAdminUser = async (userData) => {
   return response.data;
 };
 
-export const updateAdminUser = async (userId, userData) => {
-  const response = await api.put(`/api/admin/users/${userId}`, userData);
-  return response.data;
-};
+// export const updateAdminUser = async (userId, userData) => {
+//   // Endpoint PUT /api/admin/users/:userId does not exist
+//   const response = await api.put(`/api/admin/users/${userId}`, userData);
+//   return response.data;
+// };
 
-export const deleteAdminUser = async (userId) => {
-  const response = await api.delete(`/api/admin/users/${userId}`);
-  return response.data;
-};
+// export const deleteAdminUser = async (userId) => {
+//   // Endpoint DELETE /api/admin/users/:userId does not exist
+//   const response = await api.delete(`/api/admin/users/${userId}`);
+//   return response.data;
+// };
 
 /**
  * Health Check/Status API

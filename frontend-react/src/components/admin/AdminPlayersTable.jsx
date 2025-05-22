@@ -17,8 +17,9 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
   const initialValues = {
     name: player?.name || '',
     nickname: player?.nickname || '',
+    email: player?.email || '', // Added email
     gender: player?.gender || 'Masculino',
-    level: player?.level || 'Iniciante',
+    skill_level: player?.skill_level || 'Iniciante', // Changed from level to skill_level
   };
 
   const validationSchema = Yup.object().shape({
@@ -26,11 +27,12 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
       .required('Nome é obrigatório')
       .min(2, 'Nome muito curto')
       .max(100, 'Nome muito longo'),
-    nickname: Yup.string().max(50, 'Apelido muito longo'),
+    nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
+    email: Yup.string().email('Email inválido').max(100, 'Email muito longo').nullable(), // Added email validation
     gender: Yup.string()
       .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
       .required('Gênero é obrigatório'),
-    level: Yup.string()
+    skill_level: Yup.string() // Changed from level to skill_level
       .oneOf(
         ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'],
         'Nível inválido'
@@ -82,6 +84,17 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                   className="error-message"
                 />
               </div>
+              <div>
+                <label htmlFor="email" className="label">
+                  Email (Opcional)
+                </label>
+                <Field type="email" name="email" id="email" className="input" />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="error-message"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="gender" className="label">
@@ -104,17 +117,17 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="level" className="label">
+                  <label htmlFor="skill_level" className="label"> {/* Changed from level to skill_level */}
                     Nível de Habilidade
                   </label>
-                  <Field as="select" name="level" id="level" className="input">
+                  <Field as="select" name="skill_level" id="skill_level" className="input"> {/* Changed from level to skill_level */}
                     <option value="Iniciante">Iniciante</option>
                     <option value="Intermediário">Intermediário</option>
                     <option value="Avançado">Avançado</option>
                     <option value="Profissional">Profissional</option>
                   </Field>
                   <ErrorMessage
-                    name="level"
+                    name="skill_level" // Changed from level to skill_level
                     component="div"
                     className="error-message"
                   />
@@ -285,7 +298,7 @@ const AdminPlayersTable = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Nível
+                Nível (Skill)
               </th>
               <th
                 scope="col"
@@ -318,7 +331,7 @@ const AdminPlayersTable = () => {
                     {player.gender || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {player.level || '-'}
+                    {player.skill_level || '-'} {/* Changed from player.level */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button

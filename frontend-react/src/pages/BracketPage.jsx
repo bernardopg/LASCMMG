@@ -28,35 +28,36 @@ const BracketPage = () => {
     } catch (error) {
       console.error('Erro ao carregar dados do chaveamento:', error);
       showError(
-        // Corrigido para showError
-        `Erro ao carregar chaveamento: ${error.message || 'Erro desconhecido'}`
+        `Erro ao carregar chaveamento: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
       );
       setTournamentState(null);
     } finally {
       setLoading(false);
     }
-  }, [currentTournament?.id, showError]); // Corrigido para showError
+  }, [currentTournament?.id, showError]);
 
   useEffect(() => {
     fetchBracketData();
   }, [fetchBracketData]);
 
   const matchesByBracket = useMemo(() => {
-    if (!tournamentState?.matches) return { WB: [], LB: [], GF: [] };
+    // Access matches from tournamentState.tournament.matches
+    if (!tournamentState?.tournament?.matches) return { WB: [], LB: [], GF: [] };
 
     const grouped = { WB: [], LB: [], GF: [] };
-    Object.entries(tournamentState.matches).forEach(([id, match]) => {
+    Object.entries(tournamentState.tournament.matches).forEach(([id, match]) => {
       const bracketKey = match.bracket?.toUpperCase() || 'WB'; // Default to Winners Bracket
       if (grouped[bracketKey]) {
-        grouped[bracketKey].push({ id, ...match });
+        grouped[bracketKey].push({ id: parseInt(id, 10), ...match }); // Ensure id is number if it comes as string key
       } else {
         grouped.WB.push({ id, ...match }); // Fallback if bracketKey is unknown
       }
     });
     return grouped;
-  }, [tournamentState?.matches]);
+  }, [tournamentState?.tournament?.matches]);
 
-  const bracketType = tournamentState?.bracket_type || 'single-elimination';
+  // Access bracket_type from tournamentState.tournament.bracket_type
+  const bracketType = tournamentState?.tournament?.bracket_type || 'single-elimination';
 
   return (
     <div className="p-4 md:p-6 text-gray-100">
@@ -77,10 +78,10 @@ const BracketPage = () => {
               Carregando chaveamento...
             </span>
           </div>
-        ) : !tournamentState?.matches ||
-          Object.keys(tournamentState.matches).length === 0 ? (
+        ) : !tournamentState?.tournament?.matches ||
+          Object.keys(tournamentState.tournament.matches).length === 0 ? (
           <p className="text-center text-gray-400 py-10">
-            Nenhum chaveamento disponível para este torneio.
+            Nenhum chaveamento disponível para este torneio ou o torneio ainda não foi iniciado.
           </p>
         ) : (
           <div className="bracket-display-container">

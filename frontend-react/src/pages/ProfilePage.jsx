@@ -4,7 +4,8 @@ import { FaKey, FaSave, FaUserCircle } from 'react-icons/fa';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
-import api from '../services/api'; // For direct API call
+// Import specific API functions
+import { changeRegularUserPassword, changePassword as changeAdminPassword } from '../services/api';
 
 const ChangePasswordSchema = Yup.object().shape({
   currentPassword: Yup.string().required('Senha atual é obrigatória'),
@@ -21,13 +22,13 @@ const ChangePasswordSchema = Yup.object().shape({
 });
 
 const ProfilePage = () => {
-  const { currentUser, updateCurrentUser } = useAuth(); // Usando currentUser do AuthContext
+  const { currentUser } = useAuth(); // updateCurrentUser is not used
   const { showSuccess, showError } = useMessage();
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
   if (!currentUser) {
     return (
-      <div className="px-4 py-8 text-center"> {/* Removed container mx-auto */}
+      <div className="px-4 py-8 text-center">
         <p>Carregando informações do usuário...</p>
       </div>
     );
@@ -36,17 +37,31 @@ const ProfilePage = () => {
   const handlePasswordChange = async (values, { resetForm }) => {
     setIsSubmittingPassword(true);
     try {
-      // The API expects username, currentPassword, newPassword
-      const payload = {
-        username: currentUser.username, // Get username from the authenticated user context
-        currentPassword: values.currentPassword,
-        newPassword: values.newPassword,
-      };
-      // API endpoint is /api/change-password as per backend/routes/auth.js
-      const response = await api.post('/api/change-password', payload);
-      showSuccess(response.data.message || 'Senha alterada com sucesso!');
-      resetForm();
+      let responseData;
+      if (currentUser.role === 'admin') {
+        // Admin password change
+        responseData = await changeAdminPassword({ // changePassword from api.js maps to /api/change-password (admin)
+          username: currentUser.username, // Admin route expects username
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        });
+      } else {
+        // Regular user password change
+        responseData = await changeRegularUserPassword({
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        });
+      }
+
+      if (responseData.success) {
+        showSuccess(responseData.message || 'Senha alterada com sucesso!');
+        resetForm();
+      } else {
+        // If API call resolves but indicates failure
+        showError(responseData.message || 'Erro ao alterar senha.');
+      }
     } catch (err) {
+      // Catches errors thrown by the API service functions (e.g., network error, non-2xx response)
       showError(err.response?.data?.message || err.message || 'Erro ao alterar senha.');
     } finally {
       setIsSubmittingPassword(false);

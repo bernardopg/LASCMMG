@@ -355,6 +355,12 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
     { expiresIn: expirationTime, jwtid: crypto.randomUUID() }
   );
 
+  if (!finalAdminData || !finalAdminData.id) {
+    logger.error('AdminModel', 'CRITICAL: Admin ID missing after successful file-based auth and DB lookup.', { username: fileCredentials.username });
+    // This indicates a severe issue if file auth passed but DB data is inconsistent.
+    throw new Error('Erro interno crítico ao finalizar login por arquivo.');
+  }
+
   auditLogger.logAction(
     finalAdminData.id.toString(),
     'ADMIN_LOGIN_SUCCESS',
@@ -422,6 +428,13 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
       }
 
       await updateLastLogin(username);
+
+      if (!adminFromDb || !adminFromDb.id) {
+        logger.error('AdminModel', 'CRITICAL: Admin ID missing after successful DB password check.', { username });
+        // This case should ideally not happen if password check passed and user was fetched.
+        // Handle as a failed login for safety, though it indicates a deeper issue.
+        return { success: false, message: 'Erro interno ao processar login do administrador.' };
+      }
 
       auditLogger.logAction(
         adminFromDb.id.toString(),
@@ -619,10 +632,10 @@ async function validateRefreshToken(refreshTokenString) {
     // Embora a remoção do token principal seja a principal forma de invalidação.
     const isTokenInUserSet = await redis.sIsMember(userTokensRedisKey, refreshTokenString);
     if (!isTokenInUserSet) {
-        // Token foi removido do set do usuário (provavelmente por revokeAll), mas o token principal ainda não expirou.
-        // Considerar inválido e limpar o token principal.
-        await redis.del(tokenRedisKey);
-        return { success: false, message: 'Refresh token revogado.' };
+      // Token foi removido do set do usuário (provavelmente por revokeAll), mas o token principal ainda não expirou.
+      // Considerar inválido e limpar o token principal.
+      await redis.del(tokenRedisKey);
+      return { success: false, message: 'Refresh token revogado.' };
     }
 
     // Opcional: Verificar idade do token além do TTL do Redis, se necessário para lógica de negócios específica.

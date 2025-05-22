@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaTimes, FaUpload, FaSpinner } from 'react-icons/fa';
-// import { useMessage } from '../../context/MessageContext'; // If needed for messages
-// import { importPlayersForTournament } from '../../services/api'; // API call
+import { useMessage } from '../../context/MessageContext'; // Uncommented
+import { importTournamentPlayers } from '../../services/api'; // Changed to correct API function
 
 const ImportPlayersModal = ({
   tournamentId,
@@ -11,7 +11,7 @@ const ImportPlayersModal = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
-  // const { showMessage } = useMessage();
+  const { showMessage, showError, showSuccess, showWarning } = useMessage(); // Use MessageContext
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -19,42 +19,44 @@ const ImportPlayersModal = ({
 
   const handleImport = async () => {
     if (!selectedFile) {
-      alert('Por favor, selecione um arquivo JSON para importar.');
-      // showMessage('Por favor, selecione um arquivo JSON para importar.', 'warning');
+      showWarning('Por favor, selecione um arquivo JSON para importar.');
       return;
     }
     if (!tournamentId) {
-      alert('ID do torneio não fornecido.');
-      // showMessage('ID do torneio não fornecido.', 'error');
+      showError('ID do torneio não fornecido.');
       return;
     }
 
     setIsImporting(true);
-    // Simulating API call
-    console.log(
-      `Simulando importação do arquivo ${selectedFile.name} para o torneio ${tournamentId}`
-    );
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
+    try {
+      const formData = new FormData();
+      formData.append('jsonFile', selectedFile); // Backend expects 'jsonFile'
 
-    // try {
-    //   const formData = new FormData();
-    //   formData.append('jsonFile', selectedFile);
-    //   // Assuming an API endpoint like: await importPlayersForTournament(tournamentId, formData);
-    //   showMessage('Jogadores importados com sucesso!', 'success');
-    //   if (onImportSuccess) onImportSuccess();
-    //   onClose();
-    // } catch (error) {
-    //   showMessage(`Erro ao importar jogadores: ${error.response?.data?.message || error.message}`, 'error');
-    // } finally {
-    //   setIsImporting(false);
-    // }
+      const responseData = await importTournamentPlayers(tournamentId, formData);
 
-    setIsImporting(false);
-    alert(
-      `Simulação de importação concluída para ${selectedFile.name}. Implementar API real.`
-    );
-    // showMessage(`Simulação de importação concluída para ${selectedFile.name}. Implementar API real.`, 'info');
-    // onClose(); // Keep modal open for now in simulation
+      if (responseData.success) {
+        let successMsg = `${responseData.importedCount || 0} jogadores processados.`;
+        if (responseData.databaseErrors && responseData.databaseErrors.length > 0) {
+          successMsg += ` ${responseData.databaseErrors.length} falharam ao salvar no banco (ex: duplicados).`;
+          // Log detailed errors for admin if needed
+          console.warn("Erros de banco de dados na importação:", responseData.databaseErrors);
+        }
+        if (responseData.validationErrors && responseData.validationErrors.length > 0) {
+          successMsg += ` ${responseData.validationErrors.length} tinham dados inválidos e foram ignorados.`;
+           console.warn("Erros de validação na importação:", responseData.validationErrors);
+        }
+        showSuccess(successMsg);
+        if (onImportSuccess) onImportSuccess();
+        onClose();
+      } else {
+        // Handle cases where responseData.success is false but no error was thrown
+        showError(responseData.message || 'Erro desconhecido ao importar jogadores.');
+      }
+    } catch (error) {
+      showError(`Erro ao importar jogadores: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   if (!isOpen) return null;

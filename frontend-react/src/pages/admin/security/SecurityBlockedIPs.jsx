@@ -7,7 +7,7 @@ import {
 import { useMessage } from '../../../context/MessageContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { FaPlusCircle, FaTrashAlt, FaSyncAlt } from 'react-icons/fa';
+import { FaPlusCircle, FaTrashAlt, FaSyncAlt, FaLockOpen } from 'react-icons/fa'; // Added FaLockOpen
 
 const SecurityBlockedIPs = () => {
   const [blockedIps, setBlockedIps] = useState([]);
@@ -225,9 +225,7 @@ const SecurityBlockedIPs = () => {
                   <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     IP
                   </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Bloqueado Desde
-                  </th>
+                  {/* Bloqueado Desde column removed as data is not directly available from API per item */}
                   <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Bloqueado Até
                   </th>
@@ -243,7 +241,7 @@ const SecurityBlockedIPs = () => {
                 {blockedIps.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="4"
                       className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                     >
                       Nenhum IP bloqueado atualmente.
@@ -258,9 +256,7 @@ const SecurityBlockedIPs = () => {
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                         <code>{ipInfo.ip_address}</code>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                        {formatDate(ipInfo.blocked_since || ipInfo.timestamp)}
-                      </td>
+                      {/* Removed Bloqueado Desde cell */}
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                         {formatDate(ipInfo.blocked_until)}
                       </td>
@@ -273,8 +269,7 @@ const SecurityBlockedIPs = () => {
                           className="text-green-500 hover:text-green-400 dark:text-green-400 dark:hover:text-green-300"
                           title="Desbloquear IP"
                         >
-                          <FaTrashAlt />{' '}
-                          {/* Alterado para FaTrashAlt ou FaLockOpen */}
+                          <FaLockOpen />
                         </button>
                       </td>
                     </tr>

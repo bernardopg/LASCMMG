@@ -11,6 +11,7 @@ const ITEM_TYPE_LABELS = {
   player: 'Jogador',
   score: 'Placar',
   tournament: 'Torneio',
+  // Add other types if they can be soft-deleted
 };
 
 const TrashPage = () => {
@@ -28,55 +29,55 @@ const TrashPage = () => {
         const data = await getTrashItems({
           page,
           limit: 20,
-          type: type || null,
+          type: type || null, // API expects 'type'
         });
-        setItems(data.items || []);
+        setItems(data.items || []); // API returns 'items'
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
       } catch (error) {
         showError(
-          `Erro ao carregar lixeira: ${error.message || 'Erro desconhecido'}`
-        ); // Corrigido
+          `Erro ao carregar lixeira: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
+        );
         setItems([]);
       } finally {
         setLoading(false);
       }
     },
     [showError]
-  ); // Corrigido
+  );
 
   useEffect(() => {
     fetchTrash(currentPage, filterType);
   }, [fetchTrash, currentPage, filterType]);
 
-  const handleRestore = async (itemId, itemType) => {
+  const handleRestore = async (itemId, itemApiType) => { // Use itemApiType from item.itemType
     if (window.confirm('Deseja restaurar este item?')) {
       try {
-        await restoreTrashItem(itemId, itemType);
-        showSuccess('Item restaurado com sucesso.'); // Corrigido
+        await restoreTrashItem(itemId, itemApiType); // Pass itemApiType to API
+        showSuccess('Item restaurado com sucesso.');
         fetchTrash(currentPage, filterType);
       } catch (error) {
         showError(
-          `Erro ao restaurar item: ${error.message || 'Erro desconhecido'}`
-        ); // Corrigido
+          `Erro ao restaurar item: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
+        );
       }
     }
   };
 
-  const handlePermanentDelete = async (itemId, itemType) => {
+  const handlePermanentDelete = async (itemId, itemApiType) => { // Use itemApiType from item.itemType
     if (
       window.confirm(
         'Deseja excluir permanentemente este item? Esta ação não pode ser desfeita.'
       )
     ) {
       try {
-        await permanentlyDeleteDBItem(itemId, itemType);
-        showSuccess('Item excluído permanentemente.'); // Corrigido
+        await permanentlyDeleteDBItem(itemId, itemApiType); // Pass itemApiType to API
+        showSuccess('Item excluído permanentemente.');
         fetchTrash(currentPage, filterType);
       } catch (error) {
         showError(
-          `Erro ao excluir item: ${error.message || 'Erro desconhecido'}`
-        ); // Corrigido
+          `Erro ao excluir item: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
+        );
       }
     }
   };
@@ -134,25 +135,28 @@ const TrashPage = () => {
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {items.map((item) => (
-                  <tr key={item.id + '-' + item.type}>
+                  // API returns item.id (original entity ID) and item.itemType
+                  <tr key={item.id + '-' + item.itemType}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {ITEM_TYPE_LABELS[item.type] || item.type}
+                      {ITEM_TYPE_LABELS[item.itemType] || item.itemType}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.name || item.description || item.title || '-'}
+                      {item.name || '-'} {/* Backend provides a 'name' field for display */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.deletedAt
-                        ? new Date(item.deletedAt).toLocaleDateString('pt-BR', {
+                      {item.deleted_at  // Use deleted_at from backend
+                        ? new Date(item.deleted_at).toLocaleDateString('pt-BR', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
+                            hour: '2-digit', // Added time
+                            minute: '2-digit' // Added time
                           })
                         : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                       <button
-                        onClick={() => handleRestore(item.id, item.type)}
+                        onClick={() => handleRestore(item.id, item.itemType)}
                         className="text-green-500 hover:text-green-400 dark:text-green-400 dark:hover:text-green-300 flex items-center"
                         title="Restaurar"
                       >
@@ -160,7 +164,7 @@ const TrashPage = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handlePermanentDelete(item.id, item.type)
+                          handlePermanentDelete(item.id, item.itemType)
                         }
                         className="text-red-500 hover:text-red-400 dark:text-red-400 dark:hover:text-red-300 flex items-center"
                         title="Excluir permanentemente"

@@ -54,7 +54,8 @@ const ManageTournamentPage = () => {
       // or a specific backend endpoint for unassigned players.
       // For now, let's assume a filter for `tournament_id: 'NULL'` or similar works.
       // A more robust way would be a dedicated endpoint or ensuring the filter works as expected.
-      const adminPlayersData = await getAdminPlayers({ filters: { tournament_id: 'NULL' } });
+      // Updated to pass null instead of 'NULL'
+      const adminPlayersData = await getAdminPlayers({ filters: { tournament_id: null } });
       setGlobalPlayers(adminPlayersData.players || []);
 
     } catch (err) {
@@ -212,8 +213,12 @@ const ManageTournamentPage = () => {
       <div className="card bg-white dark:bg-slate-800 p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Jogadores Inscritos ({players.length})</h2>
         {players.length > 0 ? (
-          <ul className="list-disc pl-5">
-            {players.map(p => <li key={p.id}>{p.PlayerName || p.name}</li>)}
+          <ul className="list-disc pl-5 space-y-1">
+            {players.map(p => (
+              <li key={p.id} className="text-sm">
+                {p.name} {p.nickname ? `(${p.nickname})` : ''} - ID: {p.id}
+              </li>
+            ))}
           </ul>
         ) : <p>Nenhum jogador inscrito.</p>}
       </div>

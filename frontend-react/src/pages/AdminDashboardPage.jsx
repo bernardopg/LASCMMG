@@ -3,20 +3,10 @@ import { Link } from 'react-router-dom';
 import AdminPlayersTable from '../components/admin/AdminPlayersTable';
 import AdminScoresTable from '../components/admin/AdminScoresTable';
 import AdminTrashTable from '../components/admin/AdminTrashTable';
-import ImportPlayersModal from '../components/admin/ImportPlayersModal';
+// ImportPlayersModal removed as it requires a tournamentId context not available here
 
 const AdminDashboardPage = () => {
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-
-  const handleOpenImportModal = () => setIsImportModalOpen(true);
-  const handleCloseImportModal = () => setIsImportModalOpen(false);
-
-  const handleImportSuccess = () => {
-    // Potentially refresh player list or show a success message
-    console.log('Player import successful, refresh data if needed.');
-    handleCloseImportModal();
-  };
+  // State and handlers for ImportPlayersModal removed
 
   return (
     <div className="p-4 md:p-6">
@@ -35,21 +25,12 @@ const AdminDashboardPage = () => {
             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
               Gerenciamento de Jogadores
             </h3>
-            <button
-              onClick={handleOpenImportModal}
-              className="btn btn-outline btn-sm"
-            >
-              Importar Jogadores
-            </button>
+            {/* Import button removed, should be in a tournament-specific context */}
           </div>
           <AdminPlayersTable />
         </div>
 
-        <ImportPlayersModal
-          isOpen={isImportModalOpen}
-          onClose={handleCloseImportModal}
-          onImportSuccess={handleImportSuccess}
-        />
+        {/* ImportPlayersModal instance removed */}
 
         <div className="admin-card bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">

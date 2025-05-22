@@ -109,13 +109,12 @@ const ScoresPage = () => {
           return false;
         }
         if (activeFilters.dateAfter) {
-          if (!score.timestamp) return false;
+          if (!score.completed_at) return false; // Use completed_at
           try {
             const filterDate = new Date(activeFilters.dateAfter);
-            // Adjust score date to beginning of day for comparison if only date is provided
-            const scoreDate = new Date(score.timestamp);
+            const scoreDate = new Date(score.completed_at); // Use completed_at
             scoreDate.setHours(0, 0, 0, 0);
-            filterDate.setHours(0, 0, 0, 0); // Ensure filterDate is also at start of day
+            filterDate.setHours(0, 0, 0, 0);
             if (scoreDate < filterDate) return false;
           } catch (e) {
             console.warn('Invalid date for filtering', e);
@@ -155,11 +154,12 @@ const ScoresPage = () => {
 
         // Handle specific data types for sorting
         if (sortConfig.key === 'date') {
-          // Assuming 'date' is a string like 'DD/MM/YYYY' or ISO
-          valA = new Date(a.timestamp || 0).getTime(); // Use timestamp for proper date sorting
-          valB = new Date(b.timestamp || 0).getTime();
+          valA = new Date(a.completed_at || 0).getTime(); // Use completed_at
+          valB = new Date(b.completed_at || 0).getTime(); // Use completed_at
         } else if (sortConfig.key === 'score') {
-          valA = (a.score1 ?? 0) + (a.score2 ?? 0);
+          valA = (a.player1_score ?? 0) + (a.player2_score ?? 0); // Use player1_score, player2_score
+          valB = (b.player1_score ?? 0) + (b.player2_score ?? 0); // Use player1_score, player2_score
+        } else if (typeof valA === 'string' && typeof valB === 'string') {
           valB = (b.score1 ?? 0) + (b.score2 ?? 0);
         } else if (typeof valA === 'string' && typeof valB === 'string') {
           valA = valA.toLowerCase();
@@ -420,8 +420,8 @@ const ScoresPage = () => {
                   className="hover:bg-gray-50 dark:hover:bg-slate-700"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {score.timestamp
-                      ? new Date(score.timestamp).toLocaleDateString('pt-BR', {
+                    {score.completed_at
+                      ? new Date(score.completed_at).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit',
                           year: 'numeric',
@@ -431,14 +431,14 @@ const ScoresPage = () => {
                       : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {score.player1_name || score.player1 || '-'}
+                    {score.player1_name || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {score.player2_name || score.player2 || '-'}
+                    {score.player2_name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{`${score.score1 ?? 0} - ${score.score2 ?? 0}`}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{`${score.player1_score ?? 0} - ${score.player2_score ?? 0}`}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600 dark:text-primary-400">
-                    {score.winner_name || score.winner || '-'}
+                    {score.winner_name || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {score.round || '-'}

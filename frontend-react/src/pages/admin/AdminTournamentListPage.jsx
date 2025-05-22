@@ -170,28 +170,20 @@ const AdminTournamentListPage = () => {
                     {tournament.bracket_type?.replace('-', ' ')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                    <button
-                      onClick={() =>
-                        showInfo(
-                          `Editar torneio ${tournament.id} (implementar)`
-                        )
-                      }
+                    <Link
+                      to={`/admin/tournaments/edit/${tournament.id}`}
                       className="text-blue-500 hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300"
                       title="Editar"
                     >
                       <FaEdit />
-                    </button>
-                    <button
-                      onClick={() =>
-                        showInfo(
-                          `Gerenciar estado ${tournament.id} (implementar)`
-                        )
-                      }
+                    </Link>
+                    <Link
+                      to={`/admin/tournaments/manage/${tournament.id}`}
                       className="text-green-500 hover:text-green-400 dark:text-green-400 dark:hover:text-green-300"
-                      title="Gerenciar Estado"
+                      title="Gerenciar Estado e Chaveamento"
                     >
                       <FaCog />
-                    </button>
+                    </Link>
                     <button
                       onClick={() =>
                         handleDeleteTournament(tournament.id, tournament.name)
