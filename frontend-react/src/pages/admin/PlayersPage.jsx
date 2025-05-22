@@ -951,16 +951,26 @@ const PlayersPage = () => {
             <div className="mb-3">
               <FaUsers className="mx-auto text-gray-300 dark:text-gray-600 text-5xl" />
             </div>
-            <p className="text-gray-400 text-lg">Nenhum jogador encontrado.</p>
+            <p className="text-gray-400 text-lg font-semibold">Nenhum jogador encontrado.</p>
             <p className="text-gray-500 mt-2">
               Adicione um novo jogador para começar ou ajuste os filtros de busca.
             </p>
             <button
               onClick={handleOpenCreateModal}
               className="btn btn-primary mt-4"
+              aria-label="Adicionar novo jogador"
             >
               <FaUserPlus className="mr-2" /> Adicionar Jogador
             </button>
+            <div className="mt-6 flex justify-center">
+              <img
+                src="/assets/empty-state-players.svg"
+                alt="Nenhum jogador"
+                className="w-40 h-40 opacity-80"
+                style={{ pointerEvents: 'none' }}
+                aria-hidden="true"
+              />
+            </div>
           </div>
         ) : (
           // Content
