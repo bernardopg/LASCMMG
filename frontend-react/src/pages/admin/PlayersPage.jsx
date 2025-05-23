@@ -22,7 +22,10 @@ import {
   FaThList,
   FaCompress,
   FaExpand,
-  FaSpinner
+  FaSpinner,
+  FaFileUpload,
+  FaFileCsv,
+  FaFileExcel
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -32,7 +35,8 @@ import {
   deletePlayerAdmin,
   getAdminPlayers,
   createPlayerAdmin,
-  updatePlayerAdmin
+  updatePlayerAdmin,
+  importPlayersAdmin
 } from '../../services/api';
 import { useDebounce } from '../../hooks/useDebounce';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -102,9 +106,8 @@ const SkillLevelIndicator = ({ level }) => {
 const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoading, deletingPlayerId }) => {
   return (
     <motion.div
-      className={`bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 border-l-4 ${
-        isSelected ? 'border-blue-500' : 'border-transparent'
-      }`}
+      className={`bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 border-l-4 ${isSelected ? 'border-blue-500' : 'border-transparent'
+        }`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -142,9 +145,8 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
           <button
             onClick={() => onDelete(player.id, player.name)}
             disabled={deleteLoading && deletingPlayerId === player.id}
-            className={`p-2 text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${
-              deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`p-2 text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             aria-label={`Excluir jogador ${player.name}`}
           >
             {deleteLoading && deletingPlayerId === player.id ?
@@ -250,14 +252,221 @@ const ConfirmationModal = ({ isOpen, onClose, title, message, onConfirm, confirm
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${
-              confirmType === "danger"
+            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${confirmType === "danger"
                 ? "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
                 : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white"
-            }`}
+              }`}
           >
             {confirmText || "Confirmar"}
           </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// Import modal component
+const ImportModal = ({ isOpen, onClose, onImport }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
+
+  if (!isOpen) return null;
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!selectedFile) return;
+
+    setImporting(true);
+    try {
+      await onImport(selectedFile);
+      setSelectedFile(null);
+      onClose();
+    } catch (error) {
+      // Error handling is done in the parent component
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (filename) => {
+    const extension = filename.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'csv':
+        return <FaFileCsv className="text-green-500" />;
+      case 'xlsx':
+      case 'xls':
+        return <FaFileExcel className="text-green-600" />;
+      case 'json':
+        return <FaFileUpload className="text-blue-500" />;
+      default:
+        return <FaFileUpload className="text-gray-500" />;
+    }
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        role="dialog"
+        aria-labelledby="import-modal-title"
+        aria-modal="true"
+      >
+        <div className="p-6">
+          <h2 id="import-modal-title" className="text-xl font-semibold mb-4 border-b pb-2 dark:border-gray-700 text-gray-900 dark:text-white">
+            Importar Jogadores
+          </h2>
+
+          <div className="space-y-4">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="mb-2">Formatos suportados:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>JSON:</strong> Array de objetos com campos name, nickname, email, gender, skill_level</li>
+                <li><strong>CSV:</strong> Arquivo com cabeçalhos (name,nickname,email,gender,skill_level)</li>
+                <li><strong>Excel:</strong> Planilha com colunas Name, Nickname, Email, Gender, Skill Level</li>
+              </ul>
+            </div>
+
+            <div
+              className={`border-2 border-dashed p-6 rounded-lg text-center transition-colors ${dragActive
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400'
+                }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              {selectedFile ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center text-2xl">
+                    {getFileIcon(selectedFile.name)}
+                  </div>
+                  <p className="font-medium text-gray-900 dark:text-white">{selectedFile.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatFileSize(selectedFile.size)}
+                  </p>
+                  <button
+                    onClick={() => setSelectedFile(null)}
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                  >
+                    Remover arquivo
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <FaUpload className="mx-auto text-4xl text-gray-400" />
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Arraste um arquivo aqui ou
+                  </p>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="btn btn-outline btn-sm"
+                  >
+                    Escolher Arquivo
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json,.csv,.xlsx,.xls"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+              <div className="flex items-start">
+                <FaInfoCircle className="text-yellow-600 dark:text-yellow-400 mt-0.5 mr-2 flex-shrink-0" />
+                <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <p className="font-medium mb-1">Exemplo de formato JSON:</p>
+                  <pre className="text-xs bg-white dark:bg-slate-700 p-2 rounded border overflow-x-auto">
+                    {`[
+  {
+    "name": "João Silva",
+    "nickname": "João",
+    "email": "joao@email.com",
+    "gender": "Masculino",
+    "skill_level": "Intermediário"
+  }
+]`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+              disabled={importing}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleImport}
+              disabled={!selectedFile || importing}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            >
+              {importing ? (
+                <>
+                  <FaSpinner className="animate-spin mr-2" />
+                  Importando...
+                </>
+              ) : (
+                <>
+                  <FaUpload className="mr-2" />
+                  Importar Jogadores
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </motion.div>
     </motion.div>
@@ -466,630 +675,597 @@ const PlayersPage = () => {
   // State variables
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deletingPlayerId, setDeletingPlayerId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+
+  // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [filtersVisible, setFiltersVisible] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [filterGender, setFilterGender] = useState('');
+  const [filterSkill, setFilterSkill] = useState('');
+  const [sortField, setSortField] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  // UI states
+  const [viewMode, setViewMode] = useState('table');
   const [selectedPlayers, setSelectedPlayers] = useState([]);
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [confirmModalConfig, setConfirmModalConfig] = useState({
-    title: '',
-    message: '',
-    confirmText: '',
-    confirmType: 'primary',
-    onConfirm: () => {}
-  });
-  const [playerFormModalOpen, setPlayerFormModalOpen] = useState(false);
+  const [isCompactView, setIsCompactView] = useState(false);
+
+  // Modal states
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
-  const [viewType, setViewType] = useState('table'); // 'table' or 'card'
-  const [densityLevel, setDensityLevel] = useState('normal'); // 'compact', 'normal', 'spacious'
+  const [playerToDelete, setPlayerToDelete] = useState(null);
 
   // Hooks
-  const { showError, showSuccess } = useMessage();
-  const { isAuthenticated } = useAuth();
-  const searchInputRef = useRef(null);
+  const { showMessage } = useMessage();
+  const { user } = useAuth();
 
-  // Filter options
-  const [filters, setFilters] = useState({
-    gender: '',
-    skill_level: ''
-  });
+  // Debounced search
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Debounced search value
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  // Data fetching - Fixed to avoid infinite loops
-  const fetchPlayers = useCallback(
-    async (page = 1) => {
-      if (!isAuthenticated) {
-        setLoading(false);
-        setInitialLoading(false);
-        setPlayers([]);
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const data = await getAdminPlayers({
-          page,
-          limit: 20,
-          search: debouncedSearchTerm,
-          sortBy: sortConfig.key,
-          sortDirection: sortConfig.direction,
-          ...filters
-        });
-
-        // Clear selected players when fetching new data
-        setSelectedPlayers([]);
-
-        setPlayers(data.players || []);
-        setTotalPages(data.totalPages || 1);
-        setCurrentPage(data.currentPage || 1);
-      } catch (error) {
-        showError(
-          `Erro ao carregar jogadores: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-        );
-        setPlayers([]);
-      } finally {
-        setLoading(false);
-        setInitialLoading(false);
-      }
-    },
-    [isAuthenticated, showError, debouncedSearchTerm, sortConfig, filters]
-  );
-
-  // Effect for initial load and when dependencies change
+  // Load players effect
   useEffect(() => {
-    fetchPlayers(currentPage);
-  }, [debouncedSearchTerm, sortConfig, filters, currentPage]);
+    loadPlayers();
+  }, []);
 
-  // Handle player form submission (create/update)
-  const handleSavePlayer = async (playerData, playerId = null) => {
-    try {
-      if (playerId) {
-        await updatePlayerAdmin(playerId, playerData);
-        showSuccess('Jogador atualizado com sucesso!');
+  // Search effect
+  useEffect(() => {
+    if (debouncedSearchTerm !== undefined) {
+      loadPlayers();
+    }
+  }, [debouncedSearchTerm]);
+
+  // Filter players based on search and filters
+  const filteredPlayers = useMemo(() => {
+    let filtered = players.filter(player => {
+      const matchesSearch = !debouncedSearchTerm ||
+        player.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (player.nickname && player.nickname.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+        (player.email && player.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+
+      const matchesGender = !filterGender || player.gender === filterGender;
+      const matchesSkill = !filterSkill || player.skill_level === filterSkill;
+
+      return matchesSearch && matchesGender && matchesSkill;
+    });
+
+    // Sort players
+    filtered.sort((a, b) => {
+      const aValue = a[sortField] || '';
+      const bValue = b[sortField] || '';
+
+      if (sortDirection === 'asc') {
+        return aValue.toString().localeCompare(bValue.toString());
       } else {
-        await createPlayerAdmin(playerData);
-        showSuccess('Jogador criado com sucesso!');
+        return bValue.toString().localeCompare(aValue.toString());
       }
+    });
 
-      setPlayerFormModalOpen(false);
-      setEditingPlayer(null);
-      fetchPlayers(currentPage);
+    return filtered;
+  }, [players, debouncedSearchTerm, filterGender, filterSkill, sortField, sortDirection]);
+
+  // Load players function
+  const loadPlayers = useCallback(async () => {
+    try {
+      if (!refreshing) setLoading(true);
+
+      const response = await getAdminPlayers({
+        search: debouncedSearchTerm,
+        gender: filterGender,
+        skill_level: filterSkill,
+        sort_by: sortField,
+        sort_direction: sortDirection
+      });
+
+      if (response.success) {
+        setPlayers(response.players || []);
+      } else {
+        showMessage(response.message || 'Erro ao carregar jogadores', 'error');
+      }
     } catch (error) {
-      showError(
-        `Erro ao salvar jogador: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-      );
+      console.error('Erro ao carregar jogadores:', error);
+      showMessage('Erro ao carregar jogadores', 'error');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [debouncedSearchTerm, filterGender, filterSkill, sortField, sortDirection, refreshing, showMessage]);
 
-  // Delete player
-  const handleDeletePlayer = async (playerId, playerName) => {
-    setConfirmModalConfig({
-      title: 'Confirmar Exclusão',
-      message: `Tem certeza que deseja mover o jogador "${playerName}" para a lixeira?`,
-      confirmText: 'Excluir',
-      confirmType: 'danger',
-      onConfirm: async () => {
-        try {
-          setDeleteLoading(true);
-          setDeletingPlayerId(playerId);
+  // Refresh players
+  const refreshPlayers = useCallback(() => {
+    setRefreshing(true);
+    loadPlayers();
+  }, [loadPlayers]);
 
-          await deletePlayerAdmin(playerId);
-
-          // Remove the player from the current list with animation
-          setPlayers((prevPlayers) =>
-            prevPlayers.filter((player) => player.id !== playerId)
-          );
-
-          showSuccess(`Jogador "${playerName}" movido para a lixeira com sucesso.`);
-
-          // After animation completes, refresh the list
-          setTimeout(() => {
-            fetchPlayers(
-              players.length === 1 && currentPage > 1
-                ? currentPage - 1
-                : currentPage
-            );
-          }, 300);
-        } catch (error) {
-          showError(
-            `Erro ao excluir jogador: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-          );
-        } finally {
-          setConfirmModalOpen(false);
-          setDeleteLoading(false);
-          setDeletingPlayerId(null);
-        }
-      }
-    });
-    setConfirmModalOpen(true);
-  };
-
-  // Bulk delete players
-  const handleBulkDelete = () => {
-    if (selectedPlayers.length === 0) {
-      showError('Nenhum jogador selecionado');
-      return;
+  // Handle sort
+  const handleSort = useCallback((field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
     }
+  }, [sortField, sortDirection]);
 
-    setConfirmModalConfig({
-      title: 'Confirmar Exclusão em Massa',
-      message: `Tem certeza que deseja mover ${selectedPlayers.length} jogador(es) para a lixeira?`,
-      confirmText: 'Excluir Selecionados',
-      confirmType: 'danger',
-      onConfirm: async () => {
-        try {
-          await Promise.all(
-            selectedPlayers.map(playerId => deletePlayerAdmin(playerId))
-          );
+  // Clear filters
+  const clearFilters = useCallback(() => {
+    setSearchTerm('');
+    setFilterGender('');
+    setFilterSkill('');
+    setSortField('name');
+    setSortDirection('asc');
+  }, []);
 
-          showSuccess(`${selectedPlayers.length} jogadores movidos para a lixeira com sucesso.`);
-          setSelectedPlayers([]);
-          fetchPlayers(currentPage);
-        } catch (error) {
-          showError(
-            `Erro ao excluir jogadores em massa: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-          );
-        } finally {
-          setConfirmModalOpen(false);
-        }
-      }
-    });
-    setConfirmModalOpen(true);
-  };
-
-  // Search and filter handlers
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
-  };
-
-  const handleSubmitSearch = (e) => {
-    e.preventDefault();
-    fetchPlayers(1);
-  };
-
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+  // Player selection handlers
+  const handleSelectPlayer = useCallback((playerId, checked) => {
+    if (checked) {
+      setSelectedPlayers(prev => [...prev, playerId]);
+    } else {
+      setSelectedPlayers(prev => prev.filter(id => id !== playerId));
     }
-    setSortConfig({ key, direction });
-    setCurrentPage(1); // Reset to first page when sorting
-  };
+  }, []);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    setCurrentPage(1); // Reset to first page when filtering
-  };
-
-  const handleApplyFilters = () => {
-    fetchPlayers(1);
-    setFiltersVisible(false);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      gender: '',
-      skill_level: ''
-    });
-    setCurrentPage(1);
-  };
-
-  // Pagination handlers
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Selection handlers
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedPlayers(players.map(player => player.id));
+  const handleSelectAll = useCallback((checked) => {
+    if (checked) {
+      setSelectedPlayers(filteredPlayers.map(player => player.id));
     } else {
       setSelectedPlayers([]);
     }
-  };
+  }, [filteredPlayers]);
 
-  const handleSelectPlayer = (playerId) => {
-    setSelectedPlayers(prev => {
-      if (prev.includes(playerId)) {
-        return prev.filter(id => id !== playerId);
-      } else {
-        return [...prev, playerId];
-      }
-    });
-  };
-
-  // Edit player handler
-  const handleEditPlayer = (player) => {
-    setEditingPlayer(player);
-    setPlayerFormModalOpen(true);
-  };
-
-  // Add new player handler
-  const handleAddPlayer = () => {
+  // CRUD operations
+  const handleAddPlayer = useCallback(() => {
     setEditingPlayer(null);
-    setPlayerFormModalOpen(true);
-  };
+    setShowPlayerModal(true);
+  }, []);
 
-  // Computed values
-  const allSelected = players.length > 0 && selectedPlayers.length === players.length;
-  const someSelected = selectedPlayers.length > 0 && selectedPlayers.length < players.length;
+  const handleEditPlayer = useCallback((player) => {
+    setEditingPlayer(player);
+    setShowPlayerModal(true);
+  }, []);
+
+  const handleSavePlayer = useCallback(async (playerData, playerId) => {
+    try {
+      let response;
+
+      if (playerId) {
+        response = await updatePlayerAdmin(playerId, playerData);
+        showMessage('Jogador atualizado com sucesso!', 'success');
+      } else {
+        response = await createPlayerAdmin(playerData);
+        showMessage('Jogador criado com sucesso!', 'success');
+      }
+
+      if (response.success) {
+        setShowPlayerModal(false);
+        setEditingPlayer(null);
+        loadPlayers();
+      } else {
+        showMessage(response.message || 'Erro ao salvar jogador', 'error');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar jogador:', error);
+      showMessage('Erro ao salvar jogador', 'error');
+    }
+  }, [loadPlayers, showMessage]);
+
+  const handleDeletePlayer = useCallback((playerId, playerName) => {
+    setPlayerToDelete({ id: playerId, name: playerName });
+    setShowDeleteConfirm(true);
+  }, []);
+
+  const confirmDeletePlayer = useCallback(async () => {
+    if (!playerToDelete) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeletingPlayerId(playerToDelete.id);
+
+      const response = await deletePlayerAdmin(playerToDelete.id);
+
+      if (response.success) {
+        showMessage('Jogador excluído com sucesso!', 'success');
+        setSelectedPlayers(prev => prev.filter(id => id !== playerToDelete.id));
+        loadPlayers();
+      } else {
+        showMessage(response.message || 'Erro ao excluir jogador', 'error');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir jogador:', error);
+      showMessage('Erro ao excluir jogador', 'error');
+    } finally {
+      setDeleteLoading(false);
+      setDeletingPlayerId(null);
+      setShowDeleteConfirm(false);
+      setPlayerToDelete(null);
+    }
+  }, [playerToDelete, loadPlayers, showMessage]);
+
+  const handleBulkDelete = useCallback(() => {
+    if (selectedPlayers.length === 0) return;
+    setShowBulkDeleteConfirm(true);
+  }, [selectedPlayers]);
+
+  const confirmBulkDelete = useCallback(async () => {
+    try {
+      setDeleteLoading(true);
+
+      const deletePromises = selectedPlayers.map(playerId =>
+        deletePlayerAdmin(playerId)
+      );
+
+      await Promise.all(deletePromises);
+
+      showMessage(`${selectedPlayers.length} jogador(es) excluído(s) com sucesso!`, 'success');
+      setSelectedPlayers([]);
+      loadPlayers();
+    } catch (error) {
+      console.error('Erro ao excluir jogadores:', error);
+      showMessage('Erro ao excluir jogadores selecionados', 'error');
+    } finally {
+      setDeleteLoading(false);
+      setShowBulkDeleteConfirm(false);
+    }
+  }, [selectedPlayers, loadPlayers, showMessage]);
+
+  // Import players
+  const handleImportPlayers = useCallback(async (file) => {
+    try {
+      const response = await importPlayersAdmin(file);
+
+      if (response.success) {
+        showMessage(
+          `${response.imported || 0} jogador(es) importado(s) com sucesso!`,
+          'success'
+        );
+        loadPlayers();
+      } else {
+        showMessage(response.message || 'Erro ao importar jogadores', 'error');
+      }
+    } catch (error) {
+      console.error('Erro ao importar jogadores:', error);
+      showMessage('Erro ao importar jogadores', 'error');
+    }
+  }, [loadPlayers, showMessage]);
+
+  // Export players
+  const handleExportPlayers = useCallback(() => {
+    const dataToExport = filteredPlayers.map(player => ({
+      name: player.name,
+      nickname: player.nickname || '',
+      email: player.email || '',
+      gender: player.gender,
+      skill_level: player.skill_level
+    }));
+
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = `jogadores_${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+
+    showMessage('Dados exportados com sucesso!', 'success');
+  }, [filteredPlayers, showMessage]);
 
   // Render sort icon
-  const renderSortIcon = (columnKey) => {
-    if (sortConfig.key !== columnKey) {
+  const renderSortIcon = useCallback((field) => {
+    if (sortField !== field) {
       return <FaSort className="ml-1 text-gray-400" />;
     }
-    return sortConfig.direction === 'asc'
+    return sortDirection === 'asc'
       ? <FaSortUp className="ml-1 text-blue-500" />
       : <FaSortDown className="ml-1 text-blue-500" />;
-  };
-
-  // Generate pagination numbers
-  const generatePaginationNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let end = Math.min(totalPages, start + maxVisible - 1);
-
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  };
+  }, [sortField, sortDirection]);
 
   return (
-    <div className="px-4 py-8">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 flex items-center">
-            <FaUsers className="mr-3 text-primary dark:text-primary-light" />
-            Gerenciar Jogadores
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            {players.length > 0 ? `${players.length} jogador(es) encontrado(s)` : 'Nenhum jogador encontrado'}
-            {selectedPlayers.length > 0 && ` • ${selectedPlayers.length} selecionado(s)`}
-          </p>
+    <div className="px-4 py-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+              <FaUsers className="mr-3 text-blue-600" />
+              Gerenciar Jogadores
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              {filteredPlayers.length} de {players.length} jogador(es)
+              {selectedPlayers.length > 0 && ` • ${selectedPlayers.length} selecionado(s)`}
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2 mt-4 sm:mt-0">
+            {/* View mode toggle */}
+            <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded ${viewMode === 'table'
+                  ? 'bg-white dark:bg-gray-600 shadow-sm'
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                title="Visualização em tabela"
+              >
+                <FaTable className="text-sm" />
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded ${viewMode === 'cards'
+                  ? 'bg-white dark:bg-gray-600 shadow-sm'
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                title="Visualização em cards"
+              >
+                <FaThList className="text-sm" />
+              </button>
+            </div>
+
+            {/* Compact view toggle */}
+            <button
+              onClick={() => setIsCompactView(!isCompactView)}
+              className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+              title={isCompactView ? "Expandir visualização" : "Compactar visualização"}
+            >
+              {isCompactView ? <FaExpand /> : <FaCompress />}
+            </button>
+
+            {/* Refresh button */}
+            <button
+              onClick={refreshPlayers}
+              disabled={refreshing}
+              className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded disabled:opacity-50"
+              title="Atualizar lista"
+            >
+              <FaSync className={refreshing ? 'animate-spin' : ''} />
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
+        {/* Action buttons */}
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={handleAddPlayer}
             className="btn btn-primary flex items-center"
-            aria-label="Adicionar novo jogador"
-          >
-            <FaUserPlus className="mr-2" />
-            Novo Jogador
-          </button>
-          <Link
-            to="/admin/players/create"
-            className="btn btn-outline flex items-center"
-            aria-label="Página dedicada para criar jogador"
           >
             <FaPlus className="mr-2" />
-            Página de Criação
-          </Link>
-        </div>
-      </div>
+            Adicionar Jogador
+          </button>
 
-      {/* Search and Filters */}
-      <div className="card bg-white dark:bg-slate-800 p-4 mb-6 border border-gray-200 dark:border-slate-700">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <form onSubmit={handleSubmitSearch} className="flex-1">
-            <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Buscar por nome, apelido ou email..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="input pl-10 pr-4 w-full"
-                aria-label="Buscar jogadores"
-              />
-            </div>
-          </form>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFiltersVisible(!filtersVisible)}
-              className={`btn btn-outline flex items-center ${filtersVisible ? 'bg-gray-100 dark:bg-slate-700' : ''}`}
-              aria-label="Toggle filtros"
-            >
-              <FaFilter className="mr-2" />
-              Filtros
-            </button>
-
-            <div className="flex border border-gray-300 dark:border-slate-600 rounded-md p-0.5 bg-gray-100 dark:bg-slate-700">
-              <button
-                onClick={() => setViewType('table')}
-                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md flex items-center justify-center transition-colors duration-150 ease-in-out ${
-                  viewType === 'table'
-                    ? 'bg-primary text-white shadow'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                }`}
-                aria-label="Visualização em tabela"
-              >
-                <FaTable className="mr-1" />
-                Tabela
-              </button>
-              <button
-                onClick={() => setViewType('card')}
-                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md flex items-center justify-center transition-colors duration-150 ease-in-out ${
-                  viewType === 'card'
-                    ? 'bg-primary text-white shadow'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                }`}
-                aria-label="Visualização em cartões"
-              >
-                <FaThList className="mr-1" />
-                Cartões
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters Panel */}
-        <AnimatePresence>
-          {filtersVisible && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="filter-gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Gênero
-                  </label>
-                  <select
-                    id="filter-gender"
-                    name="gender"
-                    value={filters.gender}
-                    onChange={handleFilterChange}
-                    className="input w-full"
-                  >
-                    <option value="">Todos os gêneros</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Outro">Outro</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="filter-skill" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nível de Habilidade
-                  </label>
-                  <select
-                    id="filter-skill"
-                    name="skill_level"
-                    value={filters.skill_level}
-                    onChange={handleFilterChange}
-                    className="input w-full"
-                  >
-                    <option value="">Todos os níveis</option>
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                    <option value="Profissional">Profissional</option>
-                  </select>
-                </div>
-                <div className="flex items-end gap-2">
-                  <button
-                    onClick={handleApplyFilters}
-                    className="btn btn-primary flex-1"
-                  >
-                    Aplicar
-                  </button>
-                  <button
-                    onClick={handleClearFilters}
-                    className="btn btn-outline"
-                  >
-                    <FaUndo />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Bulk Actions */}
-      {selectedPlayers.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-4 mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-blue-700 dark:text-blue-300 font-medium">
-                {selectedPlayers.length} jogador(es) selecionado(s)
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleBulkDelete}
-                className="btn btn-sm btn-danger flex items-center"
-                aria-label="Excluir jogadores selecionados"
-              >
-                <FaTrashAlt className="mr-1" />
-                Excluir Selecionados
-              </button>
-              <button
-                onClick={() => setSelectedPlayers([])}
-                className="btn btn-sm btn-outline"
-                aria-label="Limpar seleção"
-              >
-                Limpar Seleção
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Loading State */}
-      {initialLoading && (
-        <div className="card bg-white dark:bg-slate-800 p-8">
-          <div className="flex justify-center items-center">
-            <FaSpinner className="animate-spin text-4xl text-primary mr-4" />
-            <span className="text-lg">Carregando jogadores...</span>
-          </div>
-        </div>
-      )}
-
-      {/* No Players Found */}
-      {!loading && !initialLoading && players.length === 0 && (
-        <div className="card bg-white dark:bg-slate-800 p-8 text-center">
-          <FaUsers className="mx-auto text-6xl text-gray-400 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Nenhum jogador encontrado
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            {searchTerm || Object.values(filters).some(f => f)
-              ? 'Tente ajustar os filtros de busca ou adicionar um novo jogador.'
-              : 'Comece adicionando seu primeiro jogador ao sistema.'}
-          </p>
           <button
-            onClick={handleAddPlayer}
-            className="btn btn-primary flex items-center mx-auto"
+            onClick={() => setShowImportModal(true)}
+            className="btn btn-outline flex items-center"
           >
-            <FaUserPlus className="mr-2" />
-            Adicionar Primeiro Jogador
+            <FaUpload className="mr-2" />
+            Importar
+          </button>
+
+          <button
+            onClick={handleExportPlayers}
+            disabled={filteredPlayers.length === 0}
+            className="btn btn-outline flex items-center disabled:opacity-50"
+          >
+            <FaDownload className="mr-2" />
+            Exportar
+          </button>
+
+          {selectedPlayers.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              disabled={deleteLoading}
+              className="btn btn-danger flex items-center"
+            >
+              <FaTrashAlt className="mr-2" />
+              Excluir Selecionados ({selectedPlayers.length})
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar jogadores..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          {/* Gender filter */}
+          <select
+            value={filterGender}
+            onChange={(e) => setFilterGender(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Todos os gêneros</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Outro">Outro</option>
+          </select>
+
+          {/* Skill level filter */}
+          <select
+            value={filterSkill}
+            onChange={(e) => setFilterSkill(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Todos os níveis</option>
+            <option value="Iniciante">Iniciante</option>
+            <option value="Intermediário">Intermediário</option>
+            <option value="Avançado">Avançado</option>
+            <option value="Profissional">Profissional</option>
+          </select>
+
+          {/* Clear filters */}
+          <button
+            onClick={clearFilters}
+            className="btn btn-outline flex items-center justify-center"
+          >
+            <FaUndo className="mr-2" />
+            Limpar Filtros
           </button>
         </div>
-      )}
+      </div>
 
-      {/* Players List - Table View */}
-      {viewType === 'table' && !initialLoading && players.length > 0 && (
-        <div className="card bg-white dark:bg-slate-800 overflow-hidden border border-gray-200 dark:border-slate-700">
+      {/* Content */}
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+        {loading ? (
+          <div className="p-6">
+            {viewMode === 'table' ? <TableSkeleton /> : <CardSkeleton />}
+          </div>
+        ) : filteredPlayers.length === 0 ? (
+          <div className="text-center py-12">
+            <FaUsers className="mx-auto text-4xl text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Nenhum jogador encontrado
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              {players.length === 0
+                ? 'Adicione o primeiro jogador para começar'
+                : 'Tente ajustar os filtros de busca'
+              }
+            </p>
+            {players.length === 0 && (
+              <button
+                onClick={handleAddPlayer}
+                className="btn btn-primary flex items-center mx-auto"
+              >
+                <FaUserPlus className="mr-2" />
+                Adicionar Primeiro Jogador
+              </button>
+            )}
+          </div>
+        ) : viewMode === 'table' ? (
+          /* Table view */
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <table className="w-full">
               <thead className="bg-gray-50 dark:bg-slate-700">
                 <tr>
                   <th className="px-3 md:px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={allSelected}
-                      ref={(el) => {
-                        if (el) el.indeterminate = someSelected;
-                      }}
-                      onChange={handleSelectAll}
-                      className="h-4 w-4"
+                      checked={selectedPlayers.length === filteredPlayers.length && filteredPlayers.length > 0}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-5 w-5"
                       aria-label="Selecionar todos os jogadores"
                     />
                   </th>
-                  <th
-                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
-                    onClick={() => handleSort('name')}
-                  >
-                    <div className="flex items-center">
+                  <th className="px-3 md:px-6 py-3 text-left">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    >
                       Nome
                       {renderSortIcon('name')}
-                    </div>
+                    </button>
                   </th>
-                  <th
-                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
-                    onClick={() => handleSort('nickname')}
-                  >
-                    <div className="flex items-center">
+                  <th className="px-3 md:px-6 py-3 text-left">
+                    <button
+                      onClick={() => handleSort('nickname')}
+                      className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    >
                       Apelido
                       {renderSortIcon('nickname')}
-                    </div>
+                    </button>
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
-                    Email
-                  </th>
-                  <th
-                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
-                    onClick={() => handleSort('gender')}
-                  >
-                    <div className="flex items-center">
+                  {!isCompactView && (
+                    <th className="px-3 md:px-6 py-3 text-left hidden md:table-cell">
+                      <button
+                        onClick={() => handleSort('email')}
+                        className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      >
+                        Email
+                        {renderSortIcon('email')}
+                      </button>
+                    </th>
+                  )}
+                  <th className="px-3 md:px-6 py-3 text-left">
+                    <button
+                      onClick={() => handleSort('gender')}
+                      className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    >
                       Gênero
                       {renderSortIcon('gender')}
-                    </div>
+                    </button>
                   </th>
-                  <th
-                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
-                    onClick={() => handleSort('skill_level')}
-                  >
-                    <div className="flex items-center">
+                  <th className="px-3 md:px-6 py-3 text-left">
+                    <button
+                      onClick={() => handleSort('skill_level')}
+                      className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    >
                       Nível
                       {renderSortIcon('skill_level')}
-                    </div>
+                    </button>
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Ações
+                  <th className="px-3 md:px-6 py-3 text-right">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      Ações
+                    </span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                {loading && <TableSkeleton />}
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 <AnimatePresence>
-                  {!loading && players.map((player) => (
+                  {filteredPlayers.map((player) => (
                     <motion.tr
                       key={player.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, x: -20 }}
                       className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${
                         selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                       }`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      layout
                     >
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-4">
                         <input
                           type="checkbox"
                           checked={selectedPlayers.includes(player.id)}
-                          onChange={() => handleSelectPlayer(player.id)}
-                          className="h-4 w-4"
+                          onChange={(e) => handleSelectPlayer(player.id, e.target.checked)}
+                          className="h-5 w-5"
                           aria-label={`Selecionar jogador ${player.name}`}
                         />
                       </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      <td className="px-3 md:px-6 py-4">
+                        <div className="font-medium text-gray-900 dark:text-white">
                           {player.name}
                         </div>
                       </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <td className="px-3 md:px-6 py-4">
+                        <div className="text-gray-500 dark:text-gray-400">
                           {player.nickname || '-'}
                         </div>
                       </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          {player.email || '-'}
-                        </div>
+                      {!isCompactView && (
+                        <td className="px-3 md:px-6 py-4 hidden md:table-cell">
+                          <div className="text-gray-500 dark:text-gray-400">
+                            {player.email || '-'}
+                          </div>
+                        </td>
+                      )}
+                      <td className="px-3 md:px-6 py-4">
+                        <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full">
+                          {player.gender}
+                        </span>
                       </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          {player.gender || '-'}
-                        </div>
-                      </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 md:px-6 py-4">
                         <SkillLevelIndicator level={player.skill_level} />
                       </td>
-                      <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
+                      <td className="px-3 md:px-6 py-4 text-right">
+                        <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => handleEditPlayer(player)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                             aria-label={`Editar jogador ${player.name}`}
                           >
                             <FaEdit />
@@ -1097,7 +1273,7 @@ const PlayersPage = () => {
                           <button
                             onClick={() => handleDeletePlayer(player.id, player.name)}
                             disabled={deleteLoading && deletingPlayerId === player.id}
-                            className={`text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 ${
+                            className={`p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${
                               deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                             aria-label={`Excluir jogador ${player.name}`}
@@ -1116,107 +1292,73 @@ const PlayersPage = () => {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {/* Players List - Card View */}
-      {viewType === 'card' && !initialLoading && players.length > 0 && (
-        <div className="space-y-4">
-          {loading && <CardSkeleton />}
-          <AnimatePresence>
-            {!loading && players.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                isSelected={selectedPlayers.includes(player.id)}
-                onSelect={() => handleSelectPlayer(player.id)}
-                onEdit={handleEditPlayer}
-                onDelete={handleDeletePlayer}
-                deleteLoading={deleteLoading}
-                deletingPlayerId={deletingPlayerId}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700 dark:text-gray-300">
-            Página {currentPage} de {totalPages}
+        ) : (
+          /* Cards view */
+          <div className="p-6">
+            <AnimatePresence>
+              {filteredPlayers.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  isSelected={selectedPlayers.includes(player.id)}
+                  onSelect={(e) => handleSelectPlayer(player.id, e.target.checked)}
+                  onEdit={handleEditPlayer}
+                  onDelete={handleDeletePlayer}
+                  deleteLoading={deleteLoading}
+                  deletingPlayerId={deletingPlayerId}
+                />
+              ))}
+            </AnimatePresence>
           </div>
-          <div className="flex space-x-1">
-            <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-              aria-label="Primeira página"
-            >
-              Primeira
-            </button>
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-              aria-label="Página anterior"
-            >
-              Anterior
-            </button>
-
-            {generatePaginationNumbers().map(page => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`btn btn-sm ${
-                  page === currentPage
-                    ? 'btn-primary'
-                    : 'btn-outline'
-                }`}
-                aria-label={`Ir para página ${page}`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-              aria-label="Próxima página"
-            >
-              Próxima
-            </button>
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-              aria-label="Última página"
-            >
-              Última
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modals */}
       <AnimatePresence>
-        {confirmModalOpen && (
-          <ConfirmationModal
-            isOpen={confirmModalOpen}
-            onClose={() => setConfirmModalOpen(false)}
-            {...confirmModalConfig}
-          />
-        )}
-        {playerFormModalOpen && (
+        {showPlayerModal && (
           <PlayerFormModal
-            isOpen={playerFormModalOpen}
+            isOpen={showPlayerModal}
             onClose={() => {
-              setPlayerFormModalOpen(false);
+              setShowPlayerModal(false);
               setEditingPlayer(null);
             }}
             player={editingPlayer}
             onSave={handleSavePlayer}
+          />
+        )}
+
+        {showImportModal && (
+          <ImportModal
+            isOpen={showImportModal}
+            onClose={() => setShowImportModal(false)}
+            onImport={handleImportPlayers}
+          />
+        )}
+
+        {showDeleteConfirm && (
+          <ConfirmationModal
+            isOpen={showDeleteConfirm}
+            onClose={() => {
+              setShowDeleteConfirm(false);
+              setPlayerToDelete(null);
+            }}
+            title="Confirmar Exclusão"
+            message={`Tem certeza que deseja excluir o jogador "${playerToDelete?.name}"? Esta ação não pode ser desfeita.`}
+            onConfirm={confirmDeletePlayer}
+            confirmText="Excluir"
+            confirmType="danger"
+          />
+        )}
+
+        {showBulkDeleteConfirm && (
+          <ConfirmationModal
+            isOpen={showBulkDeleteConfirm}
+            onClose={() => setShowBulkDeleteConfirm(false)}
+            title="Confirmar Exclusão em Lote"
+            message={`Tem certeza que deseja excluir ${selectedPlayers.length} jogador(es) selecionado(s)? Esta ação não pode ser desfeita.`}
+            onConfirm={confirmBulkDelete}
+            confirmText={`Excluir ${selectedPlayers.length} Jogador(es)`}
+            confirmType="danger"
           />
         )}
       </AnimatePresence>

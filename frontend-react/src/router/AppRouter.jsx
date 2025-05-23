@@ -220,7 +220,7 @@ const AppRouter = ({
           }
         />
         <Route
-          path="/brackets/:tournamentId"
+          path="/brackets/:id"
           element={
             <ProtectedRoute>
               <AppLayout layoutProps={layoutProps}>
@@ -252,7 +252,7 @@ const AppRouter = ({
           }
         />
         <Route
-          path="/add-score/:matchId"
+          path="/add-score/:id"
           element={
             <ProtectedRoute>
               <AppLayout layoutProps={layoutProps}>

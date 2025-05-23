@@ -43,14 +43,17 @@ const AdminTournamentListPage = () => {
         `Tem certeza que deseja excluir o torneio "${tournamentName}"? Esta ação pode ser irreversível dependendo da configuração.`
       )
     ) {
+      setActionLoading(tournamentId);
       try {
         await deleteTournamentAdmin(tournamentId);
         showSuccess(`Torneio "${tournamentName}" excluído com sucesso.`);
         fetchTournaments(currentPage);
       } catch (error) {
         showError(
-          `Erro ao excluir torneio: ${error.message || 'Erro desconhecido'}`
+          `Erro ao excluir torneio: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
         );
+      } finally {
+        setActionLoading(null);
       }
     }
   };
@@ -166,7 +169,7 @@ const AdminTournamentListPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex flex-wrap gap-2 items-center justify-start">
                       <Link
-                        to={`/admin/tournaments/edit/${tournament.id}`}
+                        to={`/admin/tournaments/${tournament.id}/edit`}
                         className="btn btn-xs btn-outline flex items-center"
                         title="Editar"
                         aria-label="Editar torneio"
@@ -174,7 +177,7 @@ const AdminTournamentListPage = () => {
                         <FaEdit className="mr-1" /> Editar
                       </Link>
                       <Link
-                        to={`/admin/tournaments/manage/${tournament.id}`}
+                        to={`/admin/tournaments/${tournament.id}/manage`}
                         className="btn btn-xs btn-outline flex items-center"
                         title="Gerenciar Estado e Chaveamento"
                         aria-label="Gerenciar Estado e Chaveamento"
@@ -190,7 +193,12 @@ const AdminTournamentListPage = () => {
                         aria-label="Excluir torneio"
                         disabled={actionLoading === tournament.id}
                       >
-                        <FaTrash className="mr-1" /> Excluir
+                        {actionLoading === tournament.id ? (
+                          <FaSync className="animate-spin mr-1" />
+                        ) : (
+                          <FaTrash className="mr-1" />
+                        )}
+                        Excluir
                       </button>
                       {tournament.status === 'Pendente' && (
                         <button

@@ -185,7 +185,7 @@ const ManageTournamentPage = () => {
             <select
               value={selectedGlobalPlayerId}
               onChange={(e) => setSelectedGlobalPlayerId(e.target.value)}
-              className="select select-bordered flex-grow"
+              className="form-select flex-grow mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
               disabled={assignLoading}
             >
               <option value="">Selecione um jogador global</option>
