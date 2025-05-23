@@ -1,3 +1,74 @@
-/* Boilerplate styles from Vite+React template.
-   These are not actively used by the LASCMMG application's custom theme.
-   Global styles and custom components are defined in src/index.css. */
+/* App-specific styles - LASCMMG
+   Estilos específicos para o componente App principal
+   Complementa os estilos globais definidos em index.css */
+
+/* Estilos para o container principal da aplicação */
+.app-container {
+  @apply min-h-screen flex flex-col;
+}
+
+/* Layout principal da aplicação */
+.app-layout {
+  @apply flex-1 flex flex-col;
+}
+
+/* Estilos para transições de rota */
+.route-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.route-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.route-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.route-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 200ms ease-in, transform 200ms ease-in;
+}
+
+/* Estados de carregamento da aplicação */
+.app-loading {
+  @apply flex items-center justify-center min-h-screen;
+}
+
+.app-loading-spinner {
+  @apply w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin;
+}
+
+/* Estilos para mensagens de erro globais */
+.app-error {
+  @apply p-4 bg-danger-100 border border-danger-300 text-danger-800 rounded-lg;
+  @apply dark:bg-danger-900 dark:border-danger-700 dark:text-danger-200;
+}
+
+/* Container para modais e overlays */
+.app-modal-backdrop {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.app-modal {
+  @apply bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto;
+  @apply dark:bg-slate-800;
+}
+
+/* Estilos responsivos específicos do App */
+@media (max-width: 768px) {
+  .app-container {
+    @apply overflow-x-hidden;
+  }
+}
+
+/* Estados de foco para acessibilidade */
+.app-skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+  @apply bg-primary text-white px-4 py-2 rounded-md text-sm font-medium;
+}

@@ -6,58 +6,58 @@ import {
   Routes,
   useNavigate,
 } from 'react-router-dom';
-import MessageContainer from './components/common/MessageContainer';
-import AdminSecurityLayout from './components/layout/AdminSecurityLayout';
-import Footer from './components/layout/Footer'; // Import Footer
-import Header from './components/layout/Header';
-import Sidebar from './components/layout/Sidebar';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { MessageProvider } from './context/MessageContext';
-import { NotificationProvider } from './context/NotificationContext';
-import ThemeContext from './context/ThemeContext';
-import { TournamentProvider } from './context/TournamentContext';
-import AddScoreLandingPage from './pages/AddScoreLandingPage'; // Import AddScoreLandingPage
-import AddScorePage from './pages/AddScorePage';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import NotFoundPage from './pages/NotFound';
-import PlayerProfilePage from './pages/PlayerProfilePage'; // Import PlayerProfilePage
-import ProfilePage from './pages/ProfilePage';
-import RegisterPage from './pages/RegisterPage'; // Import RegisterPage
-import ScoresPage from './pages/ScoresPage';
-import StatsPage from './pages/StatsPage';
-import TournamentDetailPage from './pages/TournamentDetailPage';
-import TournamentsPage from './pages/TournamentsPage';
-import AdminActivityLogPage from './pages/admin/AdminActivityLogPage';
-import AdminMatchSchedulePage from './pages/admin/AdminMatchSchedulePage';
-import AdminReportsPage from './pages/admin/AdminReportsPage';
-import AdminSecurityPage from './pages/admin/AdminSecurityPage';
-import CreatePlayerPage from './pages/admin/CreatePlayerPage';
-import EditPlayerPage from './pages/admin/EditPlayerPage'; // Import EditPlayerPage
-import EditTournamentPage from './pages/admin/EditTournamentPage';
-import ManageTournamentPage from './pages/admin/ManageTournamentPage';
-import PlayersPage from './pages/admin/PlayersPage'; // Already imported
-import SettingsPage from './pages/admin/SettingsPage';
-import AdminTournamentDetailPage from './pages/admin/AdminTournamentDetailPage';
-import SecurityBlockedIPs from './pages/admin/security/SecurityBlockedIPs';
-import SecurityHoneypots from './pages/admin/security/SecurityHoneypots';
-import SecurityOverview from './pages/admin/security/SecurityOverview';
-import SecurityThreatAnalytics from './pages/admin/security/SecurityThreatAnalytics';
+import MessageContainer from './MessageContainer';
+import AdminSecurityLayout from '../layout/AdminSecurityLayout';
+import Footer from '../layout/Footer'; // Import Footer
+import Header from '../layout/Header';
+import Sidebar from '../layout/Sidebar';
+import { AuthProvider, useAuth } from '../../context/AuthContext';
+import { MessageProvider } from '../../context/MessageContext';
+import { NotificationProvider } from '../../context/NotificationContext';
+import ThemeContext from '../../context/ThemeContext';
+import { TournamentProvider } from '../../context/TournamentContext';
+import AddScoreLandingPage from '../../pages/AddScoreLandingPage'; // Import AddScoreLandingPage
+import AddScorePage from '../../pages/AddScorePage';
+import Home from '../../pages/Home';
+import Login from '../../pages/Login';
+import NotFoundPage from '../../pages/NotFound';
+import PlayerProfilePage from '../../pages/PlayerProfilePage'; // Import PlayerProfilePage
+import ProfilePage from '../../pages/ProfilePage';
+import RegisterPage from '../../pages/RegisterPage'; // Import RegisterPage
+import ScoresPage from '../../pages/ScoresPage';
+import StatsPage from '../../pages/StatsPage';
+import TournamentDetailPage from '../../pages/TournamentDetailPage';
+import TournamentsPage from '../../pages/TournamentsPage';
+import AdminActivityLogPage from '../../pages/admin/AdminActivityLogPage';
+import AdminMatchSchedulePage from '../../pages/admin/AdminMatchSchedulePage';
+import AdminReportsPage from '../../pages/admin/AdminReportsPage';
+import AdminSecurityPage from '../../pages/admin/AdminSecurityPage';
+import CreatePlayerPage from '../../pages/admin/CreatePlayerPage';
+import EditPlayerPage from '../../pages/admin/EditPlayerPage'; // Import EditPlayerPage
+import EditTournamentPage from '../../pages/admin/EditTournamentPage';
+import ManageTournamentPage from '../../pages/admin/ManageTournamentPage';
+import PlayersPage from '../../pages/admin/PlayersPage'; // Already imported
+import SettingsPage from '../../pages/admin/SettingsPage';
+import AdminTournamentDetailPage from '../../pages/admin/AdminTournamentDetailPage';
+import SecurityBlockedIPs from '../../pages/admin/security/SecurityBlockedIPs';
+import SecurityHoneypots from '../../pages/admin/security/SecurityHoneypots';
+import SecurityOverview from '../../pages/admin/security/SecurityOverview';
+import SecurityThreatAnalytics from '../../pages/admin/security/SecurityThreatAnalytics';
 
 // Lazy loaded pages
-const BracketPage = React.lazy(() => import('./pages/BracketPage'));
-const AdminDashboardPage = React.lazy(() => import('./pages/admin/Dashboard'));
+const BracketPage = React.lazy(() => import('../../pages/BracketPage'));
+const AdminDashboardPage = React.lazy(() => import('../../pages/admin/Dashboard'));
 const CreateTournamentPage = React.lazy(
-  () => import('./pages/admin/CreateTournamentPage')
+  () => import('../../pages/admin/CreateTournamentPage')
 );
 const AdminTournamentListPage = React.lazy(
-  () => import('./pages/admin/AdminTournamentListPage')
+  () => import('../../pages/admin/AdminTournamentListPage')
 );
 const AdminSchedulePage = React.lazy(
-  () => import('./pages/admin/AdminSchedulePage')
+  () => import('../../pages/admin/AdminSchedulePage')
 );
 const AdminUserManagementPage = React.lazy(
-  () => import('./pages/admin/AdminUserManagementPage')
+  () => import('../../pages/admin/AdminUserManagementPage')
 );
 
 // Loading fallback component for Suspense
