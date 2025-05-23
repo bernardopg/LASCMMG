@@ -13,7 +13,7 @@ import { FaCog, FaUsers, FaSitemap, FaSpinner, FaEdit, FaListOl, FaPlus } from '
 // import BracketDisplay from '../../components/bracket/BracketDisplay'; // A component to render the bracket
 
 const ManageTournamentPage = () => {
-  const { tournamentId } = useParams();
+  const { id: tournamentId } = useParams();
   const navigate = useNavigate();
   const { showError, showSuccess } = useMessage();
 

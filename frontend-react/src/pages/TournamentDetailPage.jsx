@@ -6,7 +6,7 @@ import { FaCalendarAlt, FaUsers, FaInfoCircle, FaMoneyBillWave, FaListOl, FaSite
 import { useAuth } from '../context/AuthContext'; // To show admin buttons
 
 const TournamentDetailPage = () => {
-  const { tournamentId } = useParams();
+  const { id: tournamentId } = useParams();
   const { showError } = useMessage();
   const { isAuthenticated, hasPermission } = useAuth();
 

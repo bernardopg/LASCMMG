@@ -6,7 +6,7 @@ import { useMessage } from '../../context/MessageContext';
 import { FaSpinner } from 'react-icons/fa';
 
 const EditTournamentPage = () => {
-  const { tournamentId } = useParams();
+  const { id: tournamentId } = useParams();
   const navigate = useNavigate();
   const { showError, showSuccess } = useMessage();
   const [tournament, setTournament] = useState(null);

@@ -5,7 +5,7 @@ import { useMessage } from '../context/MessageContext';
 import { FaUserCircle, FaEnvelope, FaVenusMars, FaStar, FaGamepad, FaTrophy, FaPercentage, FaListOl, FaSpinner } from 'react-icons/fa';
 
 const PlayerProfilePage = () => {
-  const { playerId } = useParams();
+  const { id: playerId } = useParams();
   const { showError } = useMessage();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);

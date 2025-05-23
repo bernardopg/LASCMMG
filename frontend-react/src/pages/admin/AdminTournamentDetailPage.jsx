@@ -4,7 +4,7 @@ import { getTournamentDetails } from '../../services/api';
 import { FaTrophy, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 
 const AdminTournamentDetailPage = () => {
-  const { tournamentId } = useParams();
+  const { id: tournamentId } = useParams();
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

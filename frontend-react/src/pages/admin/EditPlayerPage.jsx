@@ -21,7 +21,7 @@ const PlayerSchema = Yup.object().shape({
 });
 
 const EditPlayerPage = () => {
-  const { playerId } = useParams();
+  const { id: playerId } = useParams();
   const navigate = useNavigate();
   const { showSuccess, showError } = useMessage();
   const [isSubmitting, setIsSubmitting] = useState(false);
