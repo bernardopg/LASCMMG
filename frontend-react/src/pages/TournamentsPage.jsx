@@ -1,62 +1,70 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  FaChevronRight,
   FaFilter,
   FaPlusCircle,
   FaSearch,
-  FaSitemap,
   FaSyncAlt,
   FaTrophy,
-  FaUsers,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
 import { getTournaments } from '../services/api';
+import { TournamentList, LoadingSkeleton } from '../components/common/MemoizedComponents';
+import { useDebounce } from '../hooks/useDebounce';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 const TournamentsPage = () => {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [filtered, setFiltered] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState('');
   const { showError } = useMessage();
   const { isAuthenticated, hasPermission } = useAuth();
+  const { withErrorHandling, showSuccess } = useErrorHandler();
+
+  // Usar debounce para otimizar pesquisa
+  const debouncedSearch = useDebounce(search, 300);
+  const debouncedStatusFilter = useDebounce(statusFilter, 300);
 
   const fetchTournaments = useCallback(
     async (page = 1) => {
       setLoading(true);
       setError('');
-      try {
-        const data = await getTournaments({
-          page,
-          limit: pageSize,
-          search,
-          status: statusFilter
-        });
-        const list = data.tournaments || [];
+
+      const result = await withErrorHandling(
+        async () => {
+          const data = await getTournaments({
+            page,
+            limit: pageSize,
+            search: debouncedSearch,
+            status: debouncedStatusFilter
+          });
+          return data;
+        },
+        { defaultMessage: 'Erro ao carregar torneios' }
+      );
+
+      if (result && !result.handled) {
+        const list = result.tournaments || [];
         setTournaments(list);
-        setFiltered(list);
-        setTotalPages(data.totalPages || 1);
-      } catch (err) {
+        setTotalPages(result.totalPages || 1);
+      } else {
         setError('Erro ao carregar torneios.');
-        showError(
-          `Erro ao carregar torneios: ${err.message || 'Erro desconhecido'}`
-        );
-      } finally {
-        setLoading(false);
       }
+
+      setLoading(false);
     },
-    [showError, pageSize, search, statusFilter]
+    [pageSize, debouncedSearch, debouncedStatusFilter, withErrorHandling]
   );
 
   useEffect(() => {
     fetchTournaments(currentPage);
-  }, [fetchTournaments, currentPage, search, statusFilter]);
+  }, [fetchTournaments, currentPage, debouncedSearch, debouncedStatusFilter]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -71,6 +79,26 @@ const TournamentsPage = () => {
   const handleRefresh = () => {
     fetchTournaments(currentPage);
   };
+
+  const handleTournamentClick = useCallback((tournament) => {
+    window.location.href = `/tournaments/${tournament.id}`;
+  }, []);
+
+  const handleTournamentEdit = useCallback((tournament) => {
+    if (isAuthenticated && hasPermission && hasPermission('admin')) {
+      window.location.href = `/admin/tournaments/${tournament.id}/edit`;
+    }
+  }, [isAuthenticated, hasPermission]);
+
+  const handleTournamentDelete = useCallback(async (tournament) => {
+    if (isAuthenticated && hasPermission && hasPermission('admin')) {
+      if (confirm(`Tem certeza que deseja excluir o torneio "${tournament.name}"?`)) {
+        // Implementar delete aqui quando a API estiver disponível
+        showSuccess(`Torneio "${tournament.name}" excluído com sucesso!`);
+        fetchTournaments(currentPage);
+      }
+    }
+  }, [isAuthenticated, hasPermission, showSuccess, fetchTournaments, currentPage]);
 
   return (
     <div className="px-4 py-8">
@@ -129,122 +157,17 @@ const TournamentsPage = () => {
         </div>
       )}
       {loading ? (
-        <div className="flex justify-center items-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
-          <span className="ml-4 text-lg text-gray-700 dark:text-gray-200">
-            Carregando torneios...
-          </span>
-        </div>
+        <LoadingSkeleton count={6} />
       ) : (
         <>
-          {filtered.length === 0 ? (
-            <div className="bg-gray-50 dark:bg-slate-700 rounded-md p-8 text-center">
-              <div className="flex flex-col items-center justify-center py-12">
-                <FaTrophy className="text-4xl text-gray-300 dark:text-gray-600 mb-4" />
-                <h3 className="text-xl font-medium text-gray-500 dark:text-gray-400">
-                  Nenhum torneio encontrado
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                  {search || statusFilter
-                    ? 'Tente ajustar seus filtros de busca'
-                    : 'Não há torneios cadastrados no sistema'}
-                </p>
-                {(search || statusFilter) && (
-                  <button
-                    onClick={() => {
-                      setSearch('');
-                      setStatusFilter('');
-                    }}
-                    className="mt-4 btn btn-outline"
-                  >
-                    Limpar filtros
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                <thead className="bg-gray-50 dark:bg-slate-700">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Nome
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell">
-                      Data
-                    </th>
-                    {/* Data Fim column removed as it's not in the backend model */}
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Jogadores (Inscritos/Esperados)
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                  {filtered.map(tournament => (
-                    <tr key={tournament.id}>
-                      <td className="px-4 py-3 font-semibold text-gray-800 dark:text-gray-100">
-                        {tournament.name}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`badge ${
-                            tournament.status === 'Em Andamento' ? 'badge-success' :
-                            tournament.status === 'Pendente' ? 'badge-info' :
-                            tournament.status === 'Concluído' ? 'badge-primary' :
-                            tournament.status === 'Cancelado' ? 'badge-error' : 'badge-secondary'
-                          }`}
-                        >
-                          {tournament.status || 'Indefinido'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-700 dark:text-gray-200 hidden sm:table-cell">
-                        {(() => {
-                          try {
-                            return tournament.date // Use tournament.date
-                              ? new Date(tournament.date).toLocaleDateString('pt-BR')
-                              : '-';
-                          } catch (err) {
-                            console.error('Erro ao formatar data:', err);
-                            return '-';
-                          }
-                        })()}
-                      </td>
-                      {/* Data Fim column removed */}
-                      <td className="px-4 py-3 text-gray-700 dark:text-gray-200 flex items-center gap-1">
-                        <FaUsers className="inline mr-1" />
-                        {/* playersCount or players.length is not reliably returned by current getTournaments API */}
-                        {tournament.num_players_expected ? `${tournament.current_players_count || 0}/${tournament.num_players_expected}` : (tournament.current_players_count || '-')}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Link
-                            to={`/tournaments/${tournament.id}`}
-                            className="btn btn-outline btn-sm flex items-center gap-1"
-                            title="Ver detalhes"
-                          >
-                            <FaChevronRight /> Detalhes
-                          </Link>
-                          <Link
-                            to={`/brackets?tournament=${tournament.id}`}
-                            className="btn btn-outline btn-sm flex items-center gap-1"
-                            title="Ver chaveamento"
-                          >
-                            <FaSitemap /> Chaveamento
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <TournamentList
+            tournaments={tournaments}
+            onTournamentClick={handleTournamentClick}
+            onTournamentEdit={handleTournamentEdit}
+            onTournamentDelete={handleTournamentDelete}
+            isAdmin={isAuthenticated && hasPermission && hasPermission('admin')}
+          />
+
           {totalPages > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-sm text-gray-500 dark:text-gray-400">

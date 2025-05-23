@@ -3,7 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { TournamentProvider } from './context/TournamentContext';
-import AppRouter from './router/AppRouter';
+import AppRouter from './router/AppRouterOptimized';
 import { useTheme } from './context/ThemeContext';
 
 function App() {

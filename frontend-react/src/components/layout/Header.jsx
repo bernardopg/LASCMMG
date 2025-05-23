@@ -335,7 +335,7 @@ const Header = ({
   );
 
   // Renderiza barra de ferramentas para mobile
-  const renderMobileToolbar = () => (
+  const renderMobileToolbar = ({ open }) => (
     <div className="-mr-2 flex items-center sm:hidden gap-2">
       {/* Sino de notificações para mobile */}
       <div className="relative">
@@ -347,13 +347,11 @@ const Header = ({
 
       <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-colors duration-200">
         <span className="sr-only">Abrir menu principal</span>
-        {({ open }) =>
-          open ? (
-            <FaTimes className="block h-6 w-6" aria-hidden="true" />
-          ) : (
-            <FaBars className="block h-6 w-6" aria-hidden="true" />
-          )
-        }
+        {open ? (
+          <FaTimes className="block h-6 w-6" aria-hidden="true" />
+        ) : (
+          <FaBars className="block h-6 w-6" aria-hidden="true" />
+        )}
       </Disclosure.Button>
     </div>
   );
@@ -461,7 +459,7 @@ const Header = ({
                 {renderDesktopToolbar()}
 
                 {/* Menu mobile */}
-                {renderMobileToolbar()}
+                {renderMobileToolbar({ open })}
               </div>
             </div>
 
