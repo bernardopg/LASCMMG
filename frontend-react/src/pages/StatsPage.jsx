@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { FaChartBar, FaSyncAlt, FaUsers } from 'react-icons/fa';
+import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import {
-  getTournamentStats,
   getPlayerStats,
   getPlayers,
+  getTournamentStats,
 } from '../services/api';
-import { useMessage } from '../context/MessageContext';
-import { FaSyncAlt, FaChartBar, FaUsers } from 'react-icons/fa';
 
 // Helper function to format bracket type (from old statsHandler)
 const formatBracketType = (type) => {
@@ -32,7 +32,8 @@ const StatsPage = () => {
   const [loadingPlayerStats, setLoadingPlayerStats] = useState(false);
 
   const fetchTournamentStats = useCallback(async () => {
-    if (!currentTournament?.id) {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!currentTournament?.id || currentTournament.id === 'undefined') {
       setTournamentStats(null);
       setAllPlayersForSelect([]);
       return;
@@ -66,7 +67,8 @@ const StatsPage = () => {
   }, [currentTournament?.id, showError]); // Corrigido para showError
 
   const fetchPlayerStats = useCallback(async () => {
-    if (!currentTournament?.id || !selectedPlayerName) {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!currentTournament?.id || currentTournament.id === 'undefined' || !selectedPlayerName) {
       setPlayerStats(null);
       return;
     }
@@ -324,8 +326,8 @@ const StatsPage = () => {
                         <td className="p-2">
                           {match.completed_at // Use completed_at
                             ? new Date(match.completed_at).toLocaleDateString(
-                                'pt-BR'
-                              )
+                              'pt-BR'
+                            )
                             : '-'}
                         </td>
                         <td className="p-2">{opponent || 'N/A'}</td>
@@ -422,10 +424,9 @@ const StatsPage = () => {
           <button
             onClick={() => setActiveTab('tournament')}
             className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-              ${
-                activeTab === 'tournament'
-                  ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
+              ${activeTab === 'tournament'
+                ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
           >
             <FaChartBar className="inline mr-2" /> Torneio
@@ -433,10 +434,9 @@ const StatsPage = () => {
           <button
             onClick={() => setActiveTab('players')}
             className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-              ${
-                activeTab === 'players'
-                  ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
+              ${activeTab === 'players'
+                ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
           >
             <FaUsers className="inline mr-2" /> Jogadores

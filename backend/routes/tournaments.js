@@ -33,6 +33,54 @@ const {
 
 const router = express.Router();
 
+// Middleware para detectar e loggar tentativas de IDs suspeitos
+const detectSuspiciousIds = (req, res, next) => {
+  const { tournamentId } = req.params;
+
+  if (tournamentId) {
+    // Detectar IDs problemáticos
+    const suspiciousPatterns = [
+      'undefined', 'null', 'NaN', '', 'false', 'true',
+      '[object Object]', 'Promise', 'function'
+    ];
+
+    if (suspiciousPatterns.includes(tournamentId)) {
+      logger.warn(
+        'TournamentsRoute',
+        `Tentativa de requisição com ID suspeito: "${tournamentId}"`,
+        {
+          url: req.originalUrl,
+          method: req.method,
+          ip: req.ip,
+          userAgent: req.get('User-Agent'),
+          requestId: req.id
+        }
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: 'ID de torneio inválido.',
+        error: 'INVALID_TOURNAMENT_ID'
+      });
+    }
+
+    // Verificar se o ID tem formato suspeito (muito curto, só números, etc.)
+    if (tournamentId.length < 3 || /^\d+$/.test(tournamentId)) {
+      logger.info(
+        'TournamentsRoute',
+        `Requisição com ID de formato suspeito: "${tournamentId}"`,
+        {
+          url: req.originalUrl,
+          method: req.method,
+          requestId: req.id
+        }
+      );
+    }
+  }
+
+  next();
+};
+
 const storage = multer.memoryStorage(); // Stores file in memory
 
 const MAX_FILE_SIZE_MB = 5;
@@ -212,6 +260,7 @@ router.post(
 // GET /api/tournaments/:tournamentId - Get specific tournament details (public)
 router.get(
   '/:tournamentId',
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -230,7 +279,7 @@ router.get(
           .json({ success: false, message: 'Torneio não encontrado.' });
       }
       const { state_json: _state_json, ...tournamentDetails } = tournament; // Prefix to indicate it's intentionally not used in this specific response.
-                                                              // The primary goal here is to exclude it from tournamentDetails.
+      // The primary goal here is to exclude it from tournamentDetails.
 
       // await redisClient.set(`tournament:${tournamentId}:details`, JSON.stringify(tournamentDetails), 'EX', 3600); // Cache por 1 hora
 
@@ -259,6 +308,7 @@ router.get(
 // GET /api/tournaments/:tournamentId/state - Get tournament state (bracket, etc.) (public)
 router.get(
   '/:tournamentId/state',
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -295,6 +345,7 @@ router.get(
 router.post(
   '/:tournamentId/state',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({ ...tournamentIdParamSchema, ...tournamentStateSchema }),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -339,6 +390,7 @@ router.post(
 // GET /api/tournaments/:tournamentId/players - List players for a tournament (public)
 router.get(
   '/:tournamentId/players',
+  detectSuspiciousIds,
   validateRequest({ ...tournamentIdParamSchema, ...paginationQuerySchema }),
   async (req, res) => {
     const { tournamentId } = req.params; // Validated by tournamentIdParamSchema
@@ -388,6 +440,7 @@ router.get(
 router.post(
   '/:tournamentId/players',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     ...addPlayerToTournamentSchema,
@@ -452,6 +505,7 @@ router.post(
 router.post(
   '/:tournamentId/assign_player',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({ ...tournamentIdParamSchema, ...assignPlayerSchema }),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -510,6 +564,7 @@ router.post(
 router.post(
   '/:tournamentId/players/import',
   authMiddleware, // Auth check
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema), // Validate tournamentId in params first
   upload.single('jsonFile'), // Then Multer for file
   handleMulterError, // Then handle Multer errors
@@ -626,6 +681,7 @@ router.post(
 router.post(
   '/:tournamentId/players/update',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     ...updatePlayersInTournamentSchema,
@@ -665,6 +721,7 @@ router.post(
 // GET /api/tournaments/:tournamentId/scores - List scores for a tournament (public)
 router.get(
   '/:tournamentId/scores',
+  detectSuspiciousIds,
   validateRequest({ ...tournamentIdParamSchema, ...paginationQuerySchema }),
   async (req, res) => {
     const { tournamentId } = req.params; // Validated
@@ -699,6 +756,7 @@ router.get(
 router.post(
   '/:tournamentId/scores/update',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({ ...tournamentIdParamSchema, ...updateScoresSchema }),
   async (req, res) => {
     const { tournamentId } = req.params; // Validated by tournamentIdParamSchema
@@ -740,6 +798,7 @@ router.post(
 router.post(
   '/:tournamentId/generate-bracket',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -851,6 +910,7 @@ router.post(
 router.post(
   '/:tournamentId/reset',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -900,6 +960,7 @@ router.post(
 router.patch(
   '/:tournamentId/name',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('name'),
@@ -970,6 +1031,7 @@ router.patch(
 router.patch(
   '/:tournamentId/description',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('description'),
@@ -1038,6 +1100,7 @@ router.patch(
 router.patch(
   '/:tournamentId/entry_fee',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('entry_fee'),
@@ -1081,6 +1144,7 @@ router.patch(
 router.patch(
   '/:tournamentId/prize_pool',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('prize_pool'),
@@ -1123,6 +1187,7 @@ router.patch(
 router.patch(
   '/:tournamentId/rules',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('rules'),
@@ -1165,6 +1230,7 @@ router.patch(
 router.patch(
   '/:tournamentId/status',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest({
     ...tournamentIdParamSchema,
     body: updateTournamentSchema.body.extract('status'),
@@ -1209,6 +1275,7 @@ router.patch(
 router.patch(
   '/:tournamentId/matches/:matchId/schedule',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(updateMatchScheduleSchema),
   async (req, res) => {
     const { tournamentId, matchId: routeMatchId } = req.params;
@@ -1261,6 +1328,7 @@ router.patch(
 router.patch(
   '/:tournamentId/matches/:matchId/winner',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(updateMatchWinnerSchema),
   async (req, res) => {
     const { tournamentId, matchId: routeMatchId } = req.params;
@@ -1331,6 +1399,7 @@ router.patch(
 router.get(
   '/:tournamentId/stats',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(tournamentIdParamSchema),
   async (req, res) => {
     const { tournamentId } = req.params;
@@ -1403,6 +1472,7 @@ const playerNameParamSchema = {
 router.get(
   '/:tournamentId/players/:playerName/stats',
   authMiddleware,
+  detectSuspiciousIds,
   validateRequest(playerNameParamSchema),
   async (req, res) => {
     const { tournamentId, playerName: routePlayerName } = req.params;

@@ -329,6 +329,12 @@ export const TournamentProvider = ({ children }) => {
   }, [controlRequest, currentTournament, tournaments]);
 
   const getTournamentPlayers = useCallback(async (tournamentId, forceRefresh = false) => {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!tournamentId || tournamentId === 'undefined') {
+      console.warn('getTournamentPlayers: tournamentId inválido:', tournamentId);
+      return { players: [] };
+    }
+
     return controlRequest(`getTournamentPlayers-${tournamentId}`, async () => {
       const cacheKey = tournamentId.toString();
 
@@ -359,6 +365,12 @@ export const TournamentProvider = ({ children }) => {
   }, [controlRequest]);
 
   const getTournamentBrackets = useCallback(async (tournamentId, forceRefresh = false) => {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!tournamentId || tournamentId === 'undefined') {
+      console.warn('getTournamentBrackets: tournamentId inválido:', tournamentId);
+      return { matches: {}, rounds: [] };
+    }
+
     return controlRequest(`getTournamentBrackets-${tournamentId}`, async () => {
       const cacheKey = tournamentId.toString();
 
@@ -397,7 +409,8 @@ export const TournamentProvider = ({ children }) => {
   }, [loadTournaments]);
 
   const refreshCurrentTournament = useCallback(async () => {
-    if (!currentTournament?.id) {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!currentTournament?.id || currentTournament.id === 'undefined') {
       return null;
     }
 

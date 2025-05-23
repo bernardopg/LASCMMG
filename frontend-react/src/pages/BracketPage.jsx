@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import BracketSection from '../components/bracket/BracketSection'; // Import the new component
+import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import { getTournamentDetails } from '../services/api'; // Assuming this fetches matches and bracket_type
-import { useMessage } from '../context/MessageContext';
-import BracketSection from '../components/bracket/BracketSection'; // Import the new component
 
 const BracketPage = () => {
   const { currentTournament } = useTournament();
@@ -16,7 +16,8 @@ const BracketPage = () => {
   }, []);
 
   const fetchBracketData = useCallback(async () => {
-    if (!currentTournament?.id) {
+    // Verificação mais rigorosa para evitar requisições com ID undefined
+    if (!currentTournament?.id || currentTournament.id === 'undefined') {
       setTournamentState(null);
       setLoading(false);
       return;
