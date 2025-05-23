@@ -29,10 +29,17 @@ router.get(
         PlayerName: p.name,
         name: p.name,
         Nickname: p.nickname,
+        nickname: p.nickname,
+        email: p.email,
         gender: p.gender,
         skill_level: p.skill_level,
-        tournament_id: p.tournament_id, // Include tournament_id if relevant for global list
+        games_played: p.games_played || 0,
+        wins: p.wins || 0,
+        losses: p.losses || 0,
+        tournament_id: p.tournament_id,
         is_deleted: p.is_deleted,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
       }));
 
       res.json({

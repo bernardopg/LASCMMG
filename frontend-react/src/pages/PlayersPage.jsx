@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { getPlayers, deletePlayerAdmin } from '../services/api';
 
 const PlayersPage = () => {
   const [players, setPlayers] = useState([]);
@@ -27,69 +28,55 @@ const PlayersPage = () => {
 
   const { hasPermission, currentUser } = useAuth();
 
-  // Mock data para demonstração
-  const mockPlayers = [
-    {
-      id: 1,
-      name: 'João Silva',
-      email: 'joao@email.com',
-      totalMatches: 25,
-      wins: 18,
-      losses: 7,
-      winRate: 72,
-      ranking: 1,
-      status: 'active',
-      createdAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: 2,
-      name: 'Maria Santos',
-      email: 'maria@email.com',
-      totalMatches: 22,
-      wins: 15,
-      losses: 7,
-      winRate: 68,
-      ranking: 2,
-      status: 'active',
-      createdAt: '2024-01-20T14:20:00Z'
-    },
-    {
-      id: 3,
-      name: 'Pedro Oliveira',
-      email: 'pedro@email.com',
-      totalMatches: 18,
-      wins: 10,
-      losses: 8,
-      winRate: 56,
-      ranking: 3,
-      status: 'inactive',
-      createdAt: '2024-02-01T09:15:00Z'
-    },
-    {
-      id: 4,
-      name: 'Ana Costa',
-      email: 'ana@email.com',
-      totalMatches: 30,
-      wins: 20,
-      losses: 10,
-      winRate: 67,
-      ranking: 4,
-      status: 'active',
-      createdAt: '2024-01-10T16:45:00Z'
-    }
-  ];
+  // Função helper para validar se um ID é válido
+  const isValidId = (id) => {
+    return id && typeof id === 'number' && id > 0 && !isNaN(id);
+  };
 
-  // Simular carregamento de dados
+  // Carregar dados reais do backend
   useEffect(() => {
     const loadPlayers = async () => {
       try {
         setLoading(true);
-        // Simular chamada à API
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setPlayers(mockPlayers);
-        setFilteredPlayers(mockPlayers);
+        setError(null);
+
+        const response = await getPlayers();
+
+        if (response.success && response.players) {
+          // Transformar os dados do backend para o formato esperado pelo frontend
+          // Filtrar players com IDs inválidos primeiro - validação rigorosa
+          const validPlayers = response.players.filter(player =>
+            player &&
+            isValidId(player.id) &&
+            player.name &&
+            typeof player.name === 'string' &&
+            player.name.trim() !== ''
+          );
+
+          const transformedPlayers = validPlayers.map((player, index) => ({
+            id: player.id,
+            name: player.name,
+            email: player.email || '',
+            nickname: player.nickname || '',
+            gender: player.gender || '',
+            skill_level: player.skill_level || '',
+            totalMatches: player.games_played || 0,
+            wins: player.wins || 0,
+            losses: player.losses || 0,
+            winRate: player.games_played > 0 ? Math.round((player.wins / player.games_played) * 100) : 0,
+            ranking: index + 1, // Simples ranking baseado na ordem
+            status: player.is_deleted ? 'inactive' : 'active',
+            createdAt: player.created_at
+          }));
+
+          setPlayers(transformedPlayers);
+          setFilteredPlayers(transformedPlayers);
+        } else {
+          setError('Erro ao carregar jogadores. Tente novamente.');
+        }
       } catch (err) {
-        setError('Erro ao carregar jogadores. Tente novamente.');
+        console.error('Erro ao carregar jogadores:', err);
+        setError('Erro ao conectar com o servidor. Verifique sua conexão.');
       } finally {
         setLoading(false);
       }
@@ -106,7 +93,8 @@ const PlayersPage = () => {
     if (searchTerm) {
       filtered = filtered.filter(player =>
         player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        player.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (player.email && player.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (player.nickname && player.nickname.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -136,12 +124,29 @@ const PlayersPage = () => {
   }, [players, searchTerm, sortBy, sortOrder, filterBy]);
 
   const handleDelete = async (playerId) => {
+    if (!isValidId(playerId)) {
+      setError('ID de jogador inválido.');
+      return;
+    }
+
     if (window.confirm('Tem certeza que deseja excluir este jogador?')) {
       try {
-        // Simular exclusão
-        setPlayers(players.filter(p => p.id !== playerId));
+        setLoading(true);
+        const response = await deletePlayerAdmin(playerId, false); // soft delete
+
+        if (response.success) {
+          // Remover o jogador da lista local ou marcar como inativo
+          setPlayers(players.map(p =>
+            p.id === playerId ? { ...p, status: 'inactive' } : p
+          ));
+        } else {
+          setError(response.message || 'Erro ao excluir jogador.');
+        }
       } catch (err) {
+        console.error('Erro ao excluir jogador:', err);
         setError('Erro ao excluir jogador. Tente novamente.');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -353,10 +358,20 @@ const PlayersPage = () => {
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {player.name}
+                            {player.nickname && (
+                              <span className="text-gray-500 dark:text-gray-400 ml-1">
+                                ({player.nickname})
+                              </span>
+                            )}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {player.email}
+                            {player.email || 'Email não informado'}
                           </div>
+                          {player.skill_level && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Nível: {player.skill_level}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -375,14 +390,17 @@ const PlayersPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <Link
-                          to={`/players/${player.id}`}
-                          className="text-primary hover:text-primary-dark transition-colors duration-200"
-                          title="Ver perfil"
-                        >
-                          <FaEye className="w-4 h-4" />
-                        </Link>
-                        {hasPermission('admin') && (
+                        {/* Only show links if player has a valid ID - validação rigorosa */}
+                        {isValidId(player.id) && (
+                          <Link
+                            to={`/players/${player.id}`}
+                            className="text-primary hover:text-primary-dark transition-colors duration-200"
+                            title="Ver perfil"
+                          >
+                            <FaEye className="w-4 h-4" />
+                          </Link>
+                        )}
+                        {hasPermission('admin') && isValidId(player.id) && (
                           <>
                             <Link
                               to={`/admin/players/${player.id}/edit`}
@@ -395,10 +413,17 @@ const PlayersPage = () => {
                               onClick={() => handleDelete(player.id)}
                               className="text-red-600 hover:text-red-900 transition-colors duration-200"
                               title="Excluir jogador"
+                              disabled={loading}
                             >
                               <FaTrash className="w-4 h-4" />
                             </button>
                           </>
+                        )}
+                        {/* Show disabled state if no valid ID */}
+                        {!isValidId(player.id) && (
+                          <span className="text-gray-400" title="Jogador com dados inválidos">
+                            <FaEye className="w-4 h-4" />
+                          </span>
                         )}
                       </div>
                     </td>

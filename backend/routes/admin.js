@@ -437,7 +437,7 @@ router.get(
 
       res.json({
         success: true,
-        trashItems,
+        items: trashItems,
         totalPages: Math.ceil(total / limit),
         currentPage: page,
         totalItems: total,

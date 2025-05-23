@@ -505,11 +505,24 @@ export const updateMatchScoreAdmin = async (tournamentId, matchId, scoreData) =>
 /**
  * Player API Methods
  */
-export const getPlayers = async (tournamentId) => {
+export const getPlayers = async (tournamentId, params = {}) => {
   const url = tournamentId
     ? `/api/tournaments/${tournamentId}/players`
     : '/api/players';
-  const response = await api.get(url);
+
+  // Set default parameters for global players endpoint
+  const defaultParams = {
+    page: 1,
+    limit: 50,
+    sortBy: 'name',
+    order: 'asc',
+    filters: {}
+  };
+
+  // Merge default params with provided params
+  const queryParams = tournamentId ? params : { ...defaultParams, ...params };
+
+  const response = await api.get(url, { params: queryParams });
   return response.data;
 };
 

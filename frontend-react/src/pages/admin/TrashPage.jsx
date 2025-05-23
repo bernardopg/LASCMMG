@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   getTrashItems,
   restoreTrashItem,
-  permanentlyDeleteDBItem,
-} from '../../services/api'; // permanentlyDeleteDBItem já estava importado
+  permanentlyDeleteTrashItem,
+} from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUndo, FaTrashAlt } from 'react-icons/fa'; // Ícones para ações
 
@@ -29,7 +29,7 @@ const TrashPage = () => {
         const data = await getTrashItems({
           page,
           limit: 20,
-          type: type || null, // API expects 'type'
+          itemType: type || null,
         });
         setItems(data.items || []); // API returns 'items'
         setTotalPages(data.totalPages || 1);
@@ -53,7 +53,7 @@ const TrashPage = () => {
   const handleRestore = async (itemId, itemApiType) => { // Use itemApiType from item.itemType
     if (window.confirm('Deseja restaurar este item?')) {
       try {
-        await restoreTrashItem(itemId, itemApiType); // Pass itemApiType to API
+        await restoreTrashItem(itemApiType, itemId); // Correct parameter order: itemType, itemId
         showSuccess('Item restaurado com sucesso.');
         fetchTrash(currentPage, filterType);
       } catch (error) {
@@ -71,7 +71,7 @@ const TrashPage = () => {
       )
     ) {
       try {
-        await permanentlyDeleteDBItem(itemId, itemApiType); // Pass itemApiType to API
+        await permanentlyDeleteTrashItem(itemApiType, itemId); // Correct parameter order: itemType, itemId
         showSuccess('Item excluído permanentemente.');
         fetchTrash(currentPage, filterType);
       } catch (error) {

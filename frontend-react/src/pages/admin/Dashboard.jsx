@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import {
   FaChartBar,
@@ -10,6 +10,8 @@ import {
   FaPlusCircle,
   FaTrophy,
   FaUsers,
+  FaSpinner,
+  FaExclamationTriangle,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -64,198 +66,146 @@ const ActionCard = ({ title, description, icon, to, buttonText }) => (
 );
 
 const Dashboard = () => {
-  const { user } = useAuth(); // currentUser from useAuth is 'user'
-  const { currentTournament, loading: tournamentLoading } = useTournament();
+  const { user } = useAuth();
   const { showError } = useMessage();
 
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    totalPlayers: 0,
+    totalMatches: 0,
+    pendingMatches: 0,
+    totalTournaments: 0,
+  });
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
-  const fetchDashboardDataAttempted = useRef(false); // Add ref
+  const [error, setError] = useState(null);
+
+  // Memoized fetch functions
+  const fetchSystemStats = useCallback(async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) return null;
+
+    const apiUrl = api.defaults.baseURL || 'http://localhost:3000';
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/system/stats`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 10000,
+        withCredentials: true
+      });
+
+      return response.data?.success ? response.data.stats : null;
+    } catch (error) {
+      console.warn('System stats not available:', error.message);
+      return null;
+    }
+  }, []);
+
+  const fetchRecentData = useCallback(async () => {
+    try {
+      const [scoresData, playersData, tournamentsData] = await Promise.allSettled([
+        getAdminScores({ limit: 5, sortBy: 'completed_at', sortDirection: 'desc' }),
+        getAdminPlayers({ limit: 5, sortBy: 'created_at', sortDirection: 'desc' }),
+        getTournaments({ limit: 5, sortBy: 'created_at', sortDirection: 'desc' })
+      ]);
+
+      const activity = [];
+
+      // Process scores
+      if (scoresData.status === 'fulfilled' && scoresData.value?.scores) {
+        scoresData.value.scores.forEach((score) => {
+          activity.push({
+            id: `score-${score.id}`,
+            type: 'match',
+            description: `Placar: ${score.player1_name || 'P1'} ${score.player1_score}-${score.player2_score} ${score.player2_name || 'P2'}`,
+            timestamp: score.completed_at || score.updated_at || score.created_at,
+            user: 'Sistema',
+          });
+        });
+      }
+
+      // Process players
+      if (playersData.status === 'fulfilled' && playersData.value?.players) {
+        playersData.value.players.forEach((player) => {
+          activity.push({
+            id: `player-${player.id}`,
+            type: 'player',
+            description: `Novo jogador: ${player.name}`,
+            timestamp: player.created_at || player.updated_at,
+            user: 'Admin',
+          });
+        });
+      }
+
+      // Process tournaments
+      if (tournamentsData.status === 'fulfilled' && tournamentsData.value?.tournaments) {
+        tournamentsData.value.tournaments.slice(0, 5).forEach((tournament) => {
+          activity.push({
+            id: `tournament-${tournament.id}`,
+            type: 'tournament',
+            description: `Torneio: ${tournament.name}`,
+            timestamp: tournament.updated_at || tournament.created_at,
+            user: 'Admin',
+          });
+        });
+      }
+
+      activity.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+      return activity.slice(0, 10);
+    } catch (error) {
+      console.error('Error fetching recent data:', error);
+      return [];
+    }
+  }, []);
+
+  const fetchDashboardData = useCallback(async () => {
+    const authToken = localStorage.getItem('authToken');
+
+    if (!authToken) {
+      setError('Sessão expirada. Faça login novamente.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch system stats and recent data in parallel
+      const [statsData, activityData] = await Promise.allSettled([
+        fetchSystemStats(),
+        fetchRecentData()
+      ]);
+
+      // Update stats
+      if (statsData.status === 'fulfilled' && statsData.value) {
+        setStats({
+          totalPlayers: statsData.value.entities?.players || 0,
+          totalMatches: statsData.value.entities?.scores || 0,
+          pendingMatches: 0,
+          totalTournaments: statsData.value.tournaments?.total || 0,
+        });
+      }
+
+      // Update activity
+      if (activityData.status === 'fulfilled') {
+        setRecentActivity(activityData.value);
+      }
+
+    } catch (error) {
+      console.error('Dashboard data fetch error:', error);
+      setError('Falha ao carregar dados do dashboard.');
+      showError('Falha ao carregar dados do dashboard.');
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSystemStats, fetchRecentData, showError]);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (
-        fetchDashboardDataAttempted.current &&
-        import.meta.env.MODE === 'development' // Use Vite's way to access env variables
-      ) {
-        // Check if already attempted in dev
-        return;
-      }
-      fetchDashboardDataAttempted.current = true; // Mark as attempted
-
-      try {
-        setLoading(true);
-
-        // Get the auth token from localStorage
-        const authToken = localStorage.getItem('authToken');
-
-        // If no token, redirect to login
-        if (!authToken) {
-          console.error('No auth token found in localStorage');
-          showError('Sessão expirada ou inválida. Por favor, faça login novamente.');
-          window.location.href = '/login'; // Force redirect to login
-          return;
-        }
-
-        // Force reset token in global API instance
-        api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-
-        // Create a new axios instance specifically for this component to ensure fresh headers
-        const axiosInstance = axios.create({
-          baseURL: api.defaults.baseURL,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          timeout: 20000,
-          withCredentials: true
-        });
-
-        // Debug authentication token - enhanced to show full format
-        console.log('Auth token available:', !!authToken);
-        console.log('User authenticated:', !!user);
-        console.log('Auth token header value:', `Bearer ${authToken.substring(0, 15)}...`);
-
-        // Initialize default stats
-        let dashboardDisplayStats = {
-          totalPlayers: 0,
-          totalMatches: 0,
-          pendingMatches: 0,
-          totalTournaments: 0,
-        };
-
-        // Define a function to get system stats
-        const getSystemStats = async (token) => {
-          // Make sure we have the right endpoint
-          const apiUrl = api.defaults.baseURL || 'http://localhost:3000';
-          console.log('Trying system stats endpoint:', `${apiUrl}/api/system/stats`);
-
-          try {
-            const response = await axios.get(`${apiUrl}/api/system/stats`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-              },
-              withCredentials: true
-            });
-
-            if (response.data && response.data.success) {
-              return response.data.stats;
-            }
-          } catch (error) {
-            console.error('Failed to get system stats:', error.response?.status, error.message);
-            // Try the security endpoint instead
-            try {
-              console.log('Trying alternative endpoint:', `${apiUrl}/api/system/security/stats`);
-              const secResponse = await axios.get(`${apiUrl}/api/system/security/stats`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                  'X-Requested-With': 'XMLHttpRequest'
-                },
-                withCredentials: true
-              });
-
-              if (secResponse.data && secResponse.data.success) {
-                return secResponse.data.stats;
-              }
-            } catch (secError) {
-              console.error('Failed on alternative endpoint too:', secError.message);
-            }
-          }
-          return null;
-        };
-
-        // Try to get system stats
-        const statsData = await getSystemStats(authToken);
-        console.log('Stats data received:', statsData ? 'Yes' : 'No');
-
-        if (statsData) {
-          dashboardDisplayStats = {
-            totalPlayers: statsData.entities?.players || 0,
-            totalMatches: statsData.entities?.scores || 0,
-            pendingMatches: 0,
-            totalTournaments: statsData.tournaments?.total || 0,
-          };
-          setStats(dashboardDisplayStats);
-        } else {
-          console.warn('Could not fetch system stats, using default values');
-        }
-
-        // Now fetch the rest of the data using the API service functions
-        const recentScoresData = await getAdminScores({
-          limit: 5,
-          sortBy: 'completed_at',
-          sortDirection: 'desc'
-        });
-
-        const recentPlayersData = await getAdminPlayers({
-          limit: 5,
-          sortBy: 'created_at',
-          sortDirection: 'desc'
-        });
-
-        const recentTournamentsData = await getTournaments({
-          limit: 5,
-          sortBy: 'created_at',
-          sortDirection: 'desc'
-        });
-
-        const activity = [];
-
-        if (recentScoresData?.scores) {
-          recentScoresData.scores.forEach((score) => {
-            activity.push({
-              id: `score-${score.id}`,
-              type: 'match',
-              description: `Placar: ${score.player1_name || 'P1'} ${score.player1_score}-${score.player2_score} ${score.player2_name || 'P2'}`, // Use player1_score, player2_score
-              timestamp: score.completed_at || score.updated_at || score.created_at, // Prioritize completed_at
-              user: 'Sistema',
-            });
-          });
-        }
-
-        if (recentPlayersData?.players) {
-          recentPlayersData.players.forEach((player) => {
-            activity.push({
-              id: `player-${player.id}`,
-              type: 'player',
-              description: `Jogador: ${player.name}`,
-              timestamp: player.created_at || player.updated_at, // Use created_at or updated_at
-              user: 'Admin',
-            });
-          });
-        }
-
-        const tournamentsForActivity = recentTournamentsData?.tournaments || [];
-        if (tournamentsForActivity.length) {
-          tournamentsForActivity.slice(0, 5).forEach((tournament) => {
-            activity.push({
-              id: `tournament-${tournament.id}`,
-              type: 'tournament',
-              description: `Torneio: ${tournament.name}`,
-              timestamp: tournament.updated_at || tournament.created_at, // Use updated_at or created_at
-              user: 'Admin',
-            });
-          });
-        }
-
-        activity.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0)); // Add fallback for timestamp
-        setRecentActivity(activity.slice(0, 10));
-
-      } catch (error) {
-        console.error('Erro ao carregar dados do dashboard:', error);
-        showError('Falha ao carregar dados do dashboard.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
-  }, [showError]); // Removido currentTournament de dependências para evitar re-fetch desnecessário
+  }, [fetchDashboardData]);
 
   // Obter a data formatada para exibição
   const formatDate = (dateString) => {
@@ -341,9 +291,21 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {loading || tournamentLoading ? (
+        {loading ? (
           <div className="loading-spinner flex justify-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
+            <FaSpinner className="animate-spin text-4xl text-primary dark:border-primary-light" />
+            <p className="ml-4 text-lg text-gray-600 dark:text-gray-300">Carregando dados...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state flex flex-col items-center justify-center py-16">
+            <FaExclamationTriangle className="text-4xl text-red-500 mb-4" />
+            <p className="text-lg text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <button
+              onClick={fetchDashboardData}
+              className="btn btn-primary"
+            >
+              Tentar Novamente
+            </button>
           </div>
         ) : (
           <div className="dashboard-content">

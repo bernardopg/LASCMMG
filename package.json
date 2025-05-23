@@ -17,7 +17,11 @@
     "frontend:preview": "cd frontend-react && npm run preview",
     "frontend:lint": "cd frontend-react && npm run lint",
     "frontend:lint:fix": "cd frontend-react && npm run lint:fix",
-    "dev:full": "concurrently \"npm run dev\" \"npm run frontend:dev\""
+    "dev:full": "concurrently \"npm run dev\" \"npm run frontend:dev\"",
+    "generate-keys": "node scripts/generate-keys.js",
+    "generate-keys:backup": "node scripts/generate-keys.js backup",
+    "setup:env": "node scripts/generate-keys.js all",
+    "setup:db": "node backend/setup-db.js"
   },
   "keywords": [
     "torneio",

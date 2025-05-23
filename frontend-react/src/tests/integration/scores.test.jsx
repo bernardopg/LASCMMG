@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
+import { NotificationProvider } from '../../context/NotificationContext';
 import { TournamentProvider } from '../../context/TournamentContext';
 import AdminScoresTable from '../../components/admin/AdminScoresTable';
 import AddScorePage from '../../pages/AddScorePage';
@@ -24,9 +25,11 @@ const TestWrapper = ({ children }) => {
     <BrowserRouter>
       <MessageProvider>
         <AuthProvider>
-          <TournamentProvider>
-            {children}
-          </TournamentProvider>
+          <NotificationProvider>
+            <TournamentProvider>
+              {children}
+            </TournamentProvider>
+          </NotificationProvider>
         </AuthProvider>
       </MessageProvider>
     </BrowserRouter>

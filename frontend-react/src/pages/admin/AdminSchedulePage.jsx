@@ -69,7 +69,7 @@ const AdminSchedulePage = () => {
             </button>
           </div>
         </div>
-      </div> {/* This closing div was missing / misplaced in the corrupted version */}
+      </div>
 
       {viewMode === 'calendar' && (
         <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6 md:p-8">

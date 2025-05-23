@@ -8,7 +8,7 @@ import {
   FaSortUp,
   FaSortDown,
   FaFilter,
-  FaRedo,
+  FaSync,
   FaStar,
   FaRegStar,
   FaUserPlus,
@@ -21,7 +21,8 @@ import {
   FaTable,
   FaThList,
   FaCompress,
-  FaExpand
+  FaExpand,
+  FaSpinner
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -32,11 +33,8 @@ import {
   getAdminPlayers,
   createPlayerAdmin,
   updatePlayerAdmin
-  // bulkDeletePlayersAdmin, // This function is not exported from api.js as the backend endpoint doesn't exist
 } from '../../services/api';
 import { useDebounce } from '../../hooks/useDebounce';
-import { useErrorHandler } from '../../hooks/useErrorHandler';
-import { PlayerList, LoadingSkeleton } from '../../components/common/MemoizedComponents';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
@@ -74,19 +72,16 @@ const Tooltip = ({ children, content }) => {
 
 // Skill level indicator component
 const SkillLevelIndicator = ({ level }) => {
-  // Align with backend: 'Iniciante', 'Intermediário', 'Avançado', 'Profissional'
   const levels = {
     'Iniciante': 1,
     'Intermediário': 2,
     'Avançado': 3,
-    'Profissional': 4, // Assuming 4 stars for Profissional
+    'Profissional': 4,
   };
-  const maxStars = 4; // Max stars to display
+  const maxStars = 4;
 
   const stars = levels[level] || 0;
-  // Label is already the Portuguese value from `level` prop if it matches keys
   const label = Object.keys(levels).includes(level) ? level : 'Desconhecido';
-
 
   return (
     <div
@@ -153,7 +148,7 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
             aria-label={`Excluir jogador ${player.name}`}
           >
             {deleteLoading && deletingPlayerId === player.id ?
-              <span className="animate-spin block"><FaRedo /></span> :
+              <FaSpinner className="animate-spin" /> :
               <FaTrash />
             }
           </button>
@@ -163,7 +158,6 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
       <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600 flex justify-between items-center">
         <div className="text-sm">
           <span className="text-gray-500 dark:text-gray-400 mr-2">Gênero:</span>
-          {/* Assuming player.gender is already 'Masculino', 'Feminino', 'Outro' from backend */}
           <span className="font-medium">{player.gender || 'N/A'}</span>
         </div>
         <div className="flex items-center">
@@ -278,8 +272,8 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
     name: player?.name || '',
     nickname: player?.nickname || '',
     email: player?.email || '',
-    gender: player?.gender || 'Masculino', // Align with backend
-    skill_level: player?.skill_level || 'Iniciante', // Align with backend
+    gender: player?.gender || 'Masculino',
+    skill_level: player?.skill_level || 'Iniciante',
   };
 
   const validationSchema = Yup.object().shape({
@@ -289,9 +283,9 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
       .max(100, 'Nome muito longo'),
     nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
     email: Yup.string().email('Email inválido').nullable(),
-    gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').required('Gênero é obrigatório'), // Align
+    gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').required('Gênero é obrigatório'),
     skill_level: Yup.string().oneOf(
-      ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], // Align
+      ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'],
       'Nível inválido'
     ).required('Nível é obrigatório'),
   });
@@ -505,84 +499,54 @@ const PlayersPage = () => {
     skill_level: ''
   });
 
-  // Debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((term) => {
-      fetchPlayers(1, term);
-    }, 500),
-    [filters, sortConfig]
-  );
+  // Debounced search value
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Data fetching
+  // Data fetching - Fixed to avoid infinite loops
   const fetchPlayers = useCallback(
-    async (page = 1, searchTermParam = searchTerm) => {
-      let isMounted = true;
-
+    async (page = 1) => {
       if (!isAuthenticated) {
-        if (isMounted) {
-          setLoading(false);
-          setInitialLoading(false);
-          setPlayers([]);
-        }
+        setLoading(false);
+        setInitialLoading(false);
+        setPlayers([]);
         return;
       }
 
-      if (isMounted) setLoading(true);
+      setLoading(true);
 
       try {
         const data = await getAdminPlayers({
           page,
           limit: 20,
-          search: searchTermParam,
+          search: debouncedSearchTerm,
           sortBy: sortConfig.key,
           sortDirection: sortConfig.direction,
           ...filters
         });
 
-        if (isMounted) {
-          // Clear selected players when fetching new data
-          setSelectedPlayers([]);
+        // Clear selected players when fetching new data
+        setSelectedPlayers([]);
 
-          setPlayers(data.players || []);
-          setTotalPages(data.totalPages || 1);
-          setCurrentPage(data.currentPage || 1);
-        }
+        setPlayers(data.players || []);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.currentPage || 1);
       } catch (error) {
-        if (isMounted) {
-          showError(
-            `Erro ao carregar jogadores: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
-          );
-          setPlayers([]);
-        }
+        showError(
+          `Erro ao carregar jogadores: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
+        );
+        setPlayers([]);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-          setInitialLoading(false);
-        }
+        setLoading(false);
+        setInitialLoading(false);
       }
     },
-    [isAuthenticated, showError, searchTerm, sortConfig, filters]
+    [isAuthenticated, showError, debouncedSearchTerm, sortConfig, filters]
   );
 
+  // Effect for initial load and when dependencies change
   useEffect(() => {
-    let isMounted = true;
-
-    if (isAuthenticated) {
-      fetchPlayers(currentPage);
-    } else if (isMounted) {
-      setLoading(false);
-      setInitialLoading(false);
-      setPlayers([]);
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetchPlayers, currentPage, isAuthenticated]);
-
-  useEffect(() => {
-    debouncedSearch(searchTerm);
-  }, [searchTerm, debouncedSearch]);
+    fetchPlayers(currentPage);
+  }, [debouncedSearchTerm, sortConfig, filters, currentPage]);
 
   // Handle player form submission (create/update)
   const handleSavePlayer = async (playerData, playerId = null) => {
@@ -684,6 +648,7 @@ const PlayersPage = () => {
   // Search and filter handlers
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleSubmitSearch = (e) => {
@@ -697,7 +662,7 @@ const PlayersPage = () => {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
-    fetchPlayers(1);
+    setCurrentPage(1); // Reset to first page when sorting
   };
 
   const handleFilterChange = (e) => {
@@ -706,6 +671,7 @@ const PlayersPage = () => {
       ...prev,
       [name]: value
     }));
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   const handleApplyFilters = () => {
@@ -718,486 +684,542 @@ const PlayersPage = () => {
       gender: '',
       skill_level: ''
     });
-    setTimeout(() => fetchPlayers(1), 0);
+    setCurrentPage(1);
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   // Selection handlers
-  const handleSelectPlayer = (playerId) => {
-    setSelectedPlayers(prev =>
-      prev.includes(playerId)
-        ? prev.filter(id => id !== playerId)
-        : [...prev, playerId]
-    );
-  };
-
-  const handleSelectAllPlayers = () => {
-    if (selectedPlayers.length === players.length) {
-      setSelectedPlayers([]);
-    } else {
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
       setSelectedPlayers(players.map(player => player.id));
+    } else {
+      setSelectedPlayers([]);
     }
   };
 
-  // View and display options handlers
-  const handleChangeViewType = (type) => {
-    setViewType(type);
+  const handleSelectPlayer = (playerId) => {
+    setSelectedPlayers(prev => {
+      if (prev.includes(playerId)) {
+        return prev.filter(id => id !== playerId);
+      } else {
+        return [...prev, playerId];
+      }
+    });
   };
 
-  const handleChangeDensity = (level) => {
-    setDensityLevel(level);
-  };
-
-  // Modal handlers
-  const handleOpenEditModal = (player) => {
+  // Edit player handler
+  const handleEditPlayer = (player) => {
     setEditingPlayer(player);
     setPlayerFormModalOpen(true);
   };
 
-  const handleOpenCreateModal = () => {
+  // Add new player handler
+  const handleAddPlayer = () => {
     setEditingPlayer(null);
     setPlayerFormModalOpen(true);
   };
 
-  // Get CSS class and style based on density setting
-  const getDensityProps = () => {
-    switch (densityLevel) {
-      case 'compact':
-        return { className: 'px-2 py-1', style: { minHeight: 32 } };
-      case 'spacious':
-        return { className: 'px-6 py-5', style: { minHeight: 64 } };
-      default: // normal
-        return { className: 'px-4 py-3', style: { minHeight: 48 } };
+  // Computed values
+  const allSelected = players.length > 0 && selectedPlayers.length === players.length;
+  const someSelected = selectedPlayers.length > 0 && selectedPlayers.length < players.length;
+
+  // Render sort icon
+  const renderSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <FaSort className="ml-1 text-gray-400" />;
     }
+    return sortConfig.direction === 'asc'
+      ? <FaSortUp className="ml-1 text-blue-500" />
+      : <FaSortDown className="ml-1 text-blue-500" />;
+  };
+
+  // Generate pagination numbers
+  const generatePaginationNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   };
 
   return (
-    <div className="py-4 md:py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-0">
-          Gerenciamento de Jogadores
-        </h1>
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center mr-4">
-            <div className="btn-group">
-              <button
-                onClick={() => handleChangeViewType('table')}
-                className={`btn btn-sm ${viewType === 'table' ? 'btn-active' : 'btn-outline'}`}
-                aria-label="Visualização em tabela"
-                aria-pressed={viewType === 'table'}
-              >
-                <FaTable className="mr-1" /> Tabela
-              </button>
-              <button
-                onClick={() => handleChangeViewType('card')}
-                className={`btn btn-sm ${viewType === 'card' ? 'btn-active' : 'btn-outline'}`}
-                aria-label="Visualização em cards"
-                aria-pressed={viewType === 'card'}
-              >
-                <FaThList className="mr-1" /> Cards
-              </button>
-            </div>
-          </div>
+    <div className="px-4 py-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 flex items-center">
+            <FaUsers className="mr-3 text-primary dark:text-primary-light" />
+            Gerenciar Jogadores
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            {players.length > 0 ? `${players.length} jogador(es) encontrado(s)` : 'Nenhum jogador encontrado'}
+            {selectedPlayers.length > 0 && ` • ${selectedPlayers.length} selecionado(s)`}
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
-            onClick={handleOpenCreateModal}
-            className="btn btn-primary"
+            onClick={handleAddPlayer}
+            className="btn btn-primary flex items-center"
             aria-label="Adicionar novo jogador"
           >
-            <FaPlus className="mr-2" /> Adicionar Jogador
+            <FaUserPlus className="mr-2" />
+            Novo Jogador
           </button>
+          <Link
+            to="/admin/players/create"
+            className="btn btn-outline flex items-center"
+            aria-label="Página dedicada para criar jogador"
+          >
+            <FaPlus className="mr-2" />
+            Página de Criação
+          </Link>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-3 md:p-6">
-        {/* Search and filters */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
-          <form
-            onSubmit={handleSubmitSearch}
-            className="flex flex-col sm:flex-row items-stretch gap-2 w-full md:w-auto"
-          >
-            <div className="relative flex-1">
+      {/* Search and Filters */}
+      <div className="card bg-white dark:bg-slate-800 p-4 mb-6 border border-gray-200 dark:border-slate-700">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <form onSubmit={handleSubmitSearch} className="flex-1">
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
+                ref={searchInputRef}
                 type="text"
-                placeholder="Buscar jogadores..."
+                placeholder="Buscar por nome, apelido ou email..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                ref={searchInputRef}
-                className="input input-bordered pr-10 w-full"
+                className="input pl-10 pr-4 w-full"
                 aria-label="Buscar jogadores"
               />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                aria-label="Buscar"
-              >
-                <FaSearch />
-              </button>
             </div>
           </form>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full md:w-auto">
-            {selectedPlayers.length > 0 && (
-              <button
-                onClick={handleBulkDelete}
-                className="btn btn-error btn-sm w-full sm:w-auto"
-                aria-label={`Excluir ${selectedPlayers.length} jogadores selecionados`}
-              >
-                <FaTrashAlt className="mr-1" /> Excluir ({selectedPlayers.length})
-              </button>
-            )}
-            <div className="flex flex-row gap-1 w-full sm:w-auto" role="group" aria-label="Densidade da tabela">
-              <button
-                type="button"
-                onClick={() => handleChangeDensity('compact')}
-                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'compact' ? 'btn-primary' : 'btn-outline'}`}
-                aria-pressed={densityLevel === 'compact'}
-                aria-label="Densidade Compacta"
-              >
-                <FaCompress className="mr-1" /> Compacto
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangeDensity('normal')}
-                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'normal' ? 'btn-primary' : 'btn-outline'}`}
-                aria-pressed={densityLevel === 'normal'}
-                aria-label="Densidade Normal"
-              >
-                <FaUsers className="mr-1" /> Normal
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangeDensity('spacious')}
-                className={`btn btn-xs flex-1 sm:flex-none ${densityLevel === 'spacious' ? 'btn-primary' : 'btn-outline'}`}
-                aria-pressed={densityLevel === 'spacious'}
-                aria-label="Densidade Espaçosa"
-              >
-                <FaExpand className="mr-1" /> Espaçoso
-              </button>
-            </div>
+
+          <div className="flex gap-2">
             <button
               onClick={() => setFiltersVisible(!filtersVisible)}
-              className={`btn btn-outline btn-sm w-full sm:w-auto ${filtersVisible ? 'btn-active' : ''}`}
-              aria-expanded={filtersVisible}
-              aria-controls="filter-panel"
+              className={`btn btn-outline flex items-center ${filtersVisible ? 'bg-gray-100 dark:bg-slate-700' : ''}`}
+              aria-label="Toggle filtros"
             >
-              <FaFilter className="mr-2" /> Filtros
+              <FaFilter className="mr-2" />
+              Filtros
             </button>
+
+            <div className="flex border border-gray-300 dark:border-slate-600 rounded-md p-0.5 bg-gray-100 dark:bg-slate-700">
+              <button
+                onClick={() => setViewType('table')}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md flex items-center justify-center transition-colors duration-150 ease-in-out ${
+                  viewType === 'table'
+                    ? 'bg-primary text-white shadow'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                }`}
+                aria-label="Visualização em tabela"
+              >
+                <FaTable className="mr-1" />
+                Tabela
+              </button>
+              <button
+                onClick={() => setViewType('card')}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md flex items-center justify-center transition-colors duration-150 ease-in-out ${
+                  viewType === 'card'
+                    ? 'bg-primary text-white shadow'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                }`}
+                aria-label="Visualização em cartões"
+              >
+                <FaThList className="mr-1" />
+                Cartões
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Filters panel */}
-        {filtersVisible && (
-          <div id="filter-panel" className="mb-4 bg-gray-50 dark:bg-slate-700 p-4 rounded-md">
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-              <div className="w-full md:w-1/3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Gênero
-                </label>
-                <select
-                  name="gender"
-                  value={filters.gender}
-                  onChange={handleFilterChange}
-                  className="select select-bordered w-full"
-                  aria-label="Filtrar por gênero"
-                >
-                  <option value="">Todos</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Feminino">Feminino</option>
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
-              <div className="w-full md:w-1/3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Nível de Habilidade
-                </label>
-                <select
-                  name="skill_level"
-                  value={filters.skill_level}
-                  onChange={handleFilterChange}
-                  className="select select-bordered w-full"
-                  aria-label="Filtrar por nível de habilidade"
-                >
-                  <option value="">Todos</option>
-                  <option value="Iniciante">Iniciante</option>
-                  <option value="Intermediário">Intermediário</option>
-                  <option value="Avançado">Avançado</option>
-                  <option value="Profissional">Profissional</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={handleClearFilters}
-                className="btn btn-outline btn-sm mr-2"
-                aria-label="Limpar filtros"
-              >
-                <FaRedo className="mr-2" /> Limpar Filtros
-              </button>
-              <button
-                onClick={handleApplyFilters}
-                className="btn btn-primary btn-sm"
-                aria-label="Aplicar filtros"
-              >
-                Aplicar Filtros
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Loading states */}
-        {initialLoading ? (
-          <div className="text-center py-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-gray-400">Carregando jogadores...</p>
-          </div>
-        ) : players.length === 0 ? (
-          // Empty state
-          <div className="text-center py-10">
-            <div className="mb-3">
-              <FaUsers className="mx-auto text-gray-300 dark:text-gray-600 text-5xl" />
-            </div>
-            <p className="text-gray-400 text-lg font-semibold">Nenhum jogador encontrado.</p>
-            <p className="text-gray-500 mt-2">
-              Adicione um novo jogador para começar ou ajuste os filtros de busca.
-            </p>
-            <button
-              onClick={handleOpenCreateModal}
-              className="btn btn-primary mt-4"
-              aria-label="Adicionar novo jogador"
+        {/* Filters Panel */}
+        <AnimatePresence>
+          {filtersVisible && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700"
             >
-              <FaUserPlus className="mr-2" /> Adicionar Jogador
-            </button>
-            <div className="mt-6 flex justify-center">
-              <img
-                src="/assets/empty-state-players.svg"
-                alt="Nenhum jogador"
-                className="w-40 h-40 opacity-80"
-                style={{ pointerEvents: 'none' }}
-                aria-hidden="true"
-              />
-            </div>
-          </div>
-        ) : (
-          // Content
-          <>
-            {/* Table View */}
-            {viewType === 'table' && (
-              <div className="overflow-x-auto -mx-3 md:mx-0">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                  <thead className="bg-gray-50 dark:bg-slate-700">
-                    <tr>
-                      <th {...getDensityProps()} className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-10 ${getDensityProps().className}`}>
-                        <input
-                          type="checkbox"
-                          checked={selectedPlayers.length === players.length && players.length > 0}
-                          onChange={handleSelectAllPlayers}
-                          className="checkbox checkbox-sm"
-                          aria-label="Selecionar todos os jogadores"
-                        />
-                      </th>
-                      <th
-                        {...getDensityProps()}
-                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer ${getDensityProps().className}`}
-                        onClick={() => handleSort('name')}
-                        aria-sort={sortConfig.key === 'name' ? sortConfig.direction : 'none'}
-                      >
-                        <div className="flex items-center">
-                          Nome
-                          {sortConfig.key === 'name' && (
-                            sortConfig.direction === 'asc' ? <FaSortUp className="ml-1" /> : <FaSortDown className="ml-1" />
-                          )}
-                          {sortConfig.key !== 'name' && <FaSort className="ml-1 text-gray-400" />}
-                        </div>
-                      </th>
-                      <th
-                        {...getDensityProps()}
-                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer ${getDensityProps().className}`}
-                        onClick={() => handleSort('nickname')}
-                        aria-sort={sortConfig.key === 'nickname' ? sortConfig.direction : 'none'}
-                      >
-                        <div className="flex items-center">
-                          Apelido
-                          {sortConfig.key === 'nickname' && (
-                            sortConfig.direction === 'asc' ? <FaSortUp className="ml-1" /> : <FaSortDown className="ml-1" />
-                          )}
-                          {sortConfig.key !== 'nickname' && <FaSort className="ml-1 text-gray-400" />}
-                        </div>
-                      </th>
-                      <th
-                        {...getDensityProps()}
-                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell cursor-pointer ${getDensityProps().className}`}
-                        onClick={() => handleSort('email')}
-                        aria-sort={sortConfig.key === 'email' ? sortConfig.direction : 'none'}
-                      >
-                        <div className="flex items-center">
-                          E-mail
-                          {sortConfig.key === 'email' && (
-                            sortConfig.direction === 'asc' ? <FaSortUp className="ml-1" /> : <FaSortDown className="ml-1" />
-                          )}
-                          {sortConfig.key !== 'email' && <FaSort className="ml-1 text-gray-400" />}
-                        </div>
-                      </th>
-                      <th
-                        {...getDensityProps()}
-                        className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell ${getDensityProps().className}`}
-                      >
-                        Nível
-                      </th>
-                      <th {...getDensityProps()} className={`text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider ${getDensityProps().className}`}>
-                        Ações
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                    {loading ? <TableSkeleton /> : (
-                      <AnimatePresence>
-                        {players.map((player) => (
-                          <motion.tr
-                            key={player.id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className={selectedPlayers.includes(player.id) ? "bg-blue-50 dark:bg-slate-700" : ""}
-                          >
-                            <td {...getDensityProps()} className={getDensityProps().className}>
-                              <input
-                                type="checkbox"
-                                checked={selectedPlayers.includes(player.id)}
-                                onChange={() => handleSelectPlayer(player.id)}
-                                className="checkbox checkbox-sm"
-                                aria-label={`Selecionar jogador ${player.name}`}
-                              />
-                            </td>
-                            <td {...getDensityProps()} className={`font-medium text-gray-900 dark:text-white ${getDensityProps().className}`}>
-                              {player.name}
-                            </td>
-                            <td {...getDensityProps()} className={`text-gray-700 dark:text-gray-300 ${getDensityProps().className}`}>
-                              {player.nickname || '-'}
-                            </td>
-                            <td {...getDensityProps()} className={`text-gray-700 dark:text-gray-300 hidden md:table-cell ${getDensityProps().className}`}>
-                              {player.email || '-'}
-                            </td>
-                            <td {...getDensityProps()} className={`hidden md:table-cell ${getDensityProps().className}`}>
-                              <SkillLevelIndicator level={player.skill_level} />
-                            </td>
-                            <td {...getDensityProps()} className={`space-x-3 whitespace-nowrap ${getDensityProps().className}`}>
-                              <Tooltip content="Editar jogador">
-                                <button
-                                  onClick={() => handleOpenEditModal(player)}
-                                  className="text-blue-500 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
-                                  aria-label={`Editar jogador ${player.name}`}
-                                >
-                                  <FaEdit />
-                                </button>
-                              </Tooltip>
-                              <Tooltip content="Excluir jogador">
-                                <button
-                                  onClick={() => handleDeletePlayer(player.id, player.name)}
-                                  className="text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
-                                  aria-label={`Excluir jogador ${player.name}`}
-                                  disabled={deleteLoading && deletingPlayerId === player.id}
-                                >
-                                  {deleteLoading && deletingPlayerId === player.id ? (
-                                    <span className="animate-spin block"><FaRedo /></span>
-                                  ) : (
-                                    <FaTrash />
-                                  )}
-                                </button>
-                              </Tooltip>
-                            </td>
-                          </motion.tr>
-                        ))}
-                      </AnimatePresence>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Card View */}
-            {viewType === 'card' && (
-              <div className="space-y-4">
-                {loading ? <CardSkeleton /> : (
-                  <AnimatePresence>
-                    {players.map(player => (
-                      <motion.div
-                        key={player.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        layout
-                        className={`rounded-lg shadow-sm mb-3 border-l-4 ${selectedPlayers.includes(player.id) ? 'border-blue-500' : 'border-transparent'}
-                          bg-white dark:bg-slate-700
-                          ${densityLevel === 'compact' ? 'p-2' : densityLevel === 'spacious' ? 'p-8' : 'p-4'}`}
-                        style={{
-                          minHeight: densityLevel === 'compact' ? 32 : densityLevel === 'spacious' ? 64 : 48,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <PlayerCard
-                          player={player}
-                          isSelected={selectedPlayers.includes(player.id)}
-                          onSelect={() => handleSelectPlayer(player.id)}
-                          onEdit={() => handleOpenEditModal(player)}
-                          onDelete={handleDeletePlayer}
-                          deleteLoading={deleteLoading}
-                          deletingPlayerId={deletingPlayerId}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                )}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="py-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                <span className="mb-2 md:mb-0">
-                  Página {currentPage} de {totalPages}
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={() => fetchPlayers(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1 || loading}
-                    className="btn btn-outline btn-sm disabled:opacity-50"
-                    aria-label="Página anterior"
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="filter-gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Gênero
+                  </label>
+                  <select
+                    id="filter-gender"
+                    name="gender"
+                    value={filters.gender}
+                    onChange={handleFilterChange}
+                    className="input w-full"
                   >
-                    Anterior
+                    <option value="">Todos os gêneros</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="filter-skill" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Nível de Habilidade
+                  </label>
+                  <select
+                    id="filter-skill"
+                    name="skill_level"
+                    value={filters.skill_level}
+                    onChange={handleFilterChange}
+                    className="input w-full"
+                  >
+                    <option value="">Todos os níveis</option>
+                    <option value="Iniciante">Iniciante</option>
+                    <option value="Intermediário">Intermediário</option>
+                    <option value="Avançado">Avançado</option>
+                    <option value="Profissional">Profissional</option>
+                  </select>
+                </div>
+                <div className="flex items-end gap-2">
+                  <button
+                    onClick={handleApplyFilters}
+                    className="btn btn-primary flex-1"
+                  >
+                    Aplicar
                   </button>
                   <button
-                    onClick={() => fetchPlayers(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages || loading}
-                    className="btn btn-outline btn-sm disabled:opacity-50"
-                    aria-label="Próxima página"
+                    onClick={handleClearFilters}
+                    className="btn btn-outline"
                   >
-                    Próxima
+                    <FaUndo />
                   </button>
                 </div>
               </div>
-            )}
-          </>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Modals */}
-      <PlayerFormModal
-        isOpen={playerFormModalOpen}
-        onClose={() => setPlayerFormModalOpen(false)}
-        player={editingPlayer}
-        onSave={handleSavePlayer}
-      />
+      {/* Bulk Actions */}
+      {selectedPlayers.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-4 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-blue-700 dark:text-blue-300 font-medium">
+                {selectedPlayers.length} jogador(es) selecionado(s)
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleBulkDelete}
+                className="btn btn-sm btn-danger flex items-center"
+                aria-label="Excluir jogadores selecionados"
+              >
+                <FaTrashAlt className="mr-1" />
+                Excluir Selecionados
+              </button>
+              <button
+                onClick={() => setSelectedPlayers([])}
+                className="btn btn-sm btn-outline"
+                aria-label="Limpar seleção"
+              >
+                Limpar Seleção
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
-      <ConfirmationModal
-        isOpen={confirmModalOpen}
-        onClose={() => setConfirmModalOpen(false)}
-        title={confirmModalConfig.title}
-        message={confirmModalConfig.message}
-        confirmText={confirmModalConfig.confirmText}
-        confirmType={confirmModalConfig.confirmType}
-        onConfirm={confirmModalConfig.onConfirm}
-      />
+      {/* Loading State */}
+      {initialLoading && (
+        <div className="card bg-white dark:bg-slate-800 p-8">
+          <div className="flex justify-center items-center">
+            <FaSpinner className="animate-spin text-4xl text-primary mr-4" />
+            <span className="text-lg">Carregando jogadores...</span>
+          </div>
+        </div>
+      )}
+
+      {/* No Players Found */}
+      {!loading && !initialLoading && players.length === 0 && (
+        <div className="card bg-white dark:bg-slate-800 p-8 text-center">
+          <FaUsers className="mx-auto text-6xl text-gray-400 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Nenhum jogador encontrado
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
+            {searchTerm || Object.values(filters).some(f => f)
+              ? 'Tente ajustar os filtros de busca ou adicionar um novo jogador.'
+              : 'Comece adicionando seu primeiro jogador ao sistema.'}
+          </p>
+          <button
+            onClick={handleAddPlayer}
+            className="btn btn-primary flex items-center mx-auto"
+          >
+            <FaUserPlus className="mr-2" />
+            Adicionar Primeiro Jogador
+          </button>
+        </div>
+      )}
+
+      {/* Players List - Table View */}
+      {viewType === 'table' && !initialLoading && players.length > 0 && (
+        <div className="card bg-white dark:bg-slate-800 overflow-hidden border border-gray-200 dark:border-slate-700">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead className="bg-gray-50 dark:bg-slate-700">
+                <tr>
+                  <th className="px-3 md:px-6 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected;
+                      }}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4"
+                      aria-label="Selecionar todos os jogadores"
+                    />
+                  </th>
+                  <th
+                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center">
+                      Nome
+                      {renderSortIcon('name')}
+                    </div>
+                  </th>
+                  <th
+                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
+                    onClick={() => handleSort('nickname')}
+                  >
+                    <div className="flex items-center">
+                      Apelido
+                      {renderSortIcon('nickname')}
+                    </div>
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                    Email
+                  </th>
+                  <th
+                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
+                    onClick={() => handleSort('gender')}
+                  >
+                    <div className="flex items-center">
+                      Gênero
+                      {renderSortIcon('gender')}
+                    </div>
+                  </th>
+                  <th
+                    className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600"
+                    onClick={() => handleSort('skill_level')}
+                  >
+                    <div className="flex items-center">
+                      Nível
+                      {renderSortIcon('skill_level')}
+                    </div>
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                {loading && <TableSkeleton />}
+                <AnimatePresence>
+                  {!loading && players.map((player) => (
+                    <motion.tr
+                      key={player.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                        selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      }`}
+                    >
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedPlayers.includes(player.id)}
+                          onChange={() => handleSelectPlayer(player.id)}
+                          className="h-4 w-4"
+                          aria-label={`Selecionar jogador ${player.name}`}
+                        />
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {player.name}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {player.nickname || '-'}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {player.email || '-'}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {player.gender || '-'}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <SkillLevelIndicator level={player.skill_level} />
+                      </td>
+                      <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditPlayer(player)}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            aria-label={`Editar jogador ${player.name}`}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={() => handleDeletePlayer(player.id, player.name)}
+                            disabled={deleteLoading && deletingPlayerId === player.id}
+                            className={`text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 ${
+                              deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            aria-label={`Excluir jogador ${player.name}`}
+                          >
+                            {deleteLoading && deletingPlayerId === player.id ? (
+                              <FaSpinner className="animate-spin" />
+                            ) : (
+                              <FaTrash />
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Players List - Card View */}
+      {viewType === 'card' && !initialLoading && players.length > 0 && (
+        <div className="space-y-4">
+          {loading && <CardSkeleton />}
+          <AnimatePresence>
+            {!loading && players.map((player) => (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                isSelected={selectedPlayers.includes(player.id)}
+                onSelect={() => handleSelectPlayer(player.id)}
+                onEdit={handleEditPlayer}
+                onDelete={handleDeletePlayer}
+                deleteLoading={deleteLoading}
+                deletingPlayerId={deletingPlayerId}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            Página {currentPage} de {totalPages}
+          </div>
+          <div className="flex space-x-1">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              className="btn btn-outline btn-sm disabled:opacity-50"
+              aria-label="Primeira página"
+            >
+              Primeira
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="btn btn-outline btn-sm disabled:opacity-50"
+              aria-label="Página anterior"
+            >
+              Anterior
+            </button>
+
+            {generatePaginationNumbers().map(page => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`btn btn-sm ${
+                  page === currentPage
+                    ? 'btn-primary'
+                    : 'btn-outline'
+                }`}
+                aria-label={`Ir para página ${page}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="btn btn-outline btn-sm disabled:opacity-50"
+              aria-label="Próxima página"
+            >
+              Próxima
+            </button>
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="btn btn-outline btn-sm disabled:opacity-50"
+              aria-label="Última página"
+            >
+              Última
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      <AnimatePresence>
+        {confirmModalOpen && (
+          <ConfirmationModal
+            isOpen={confirmModalOpen}
+            onClose={() => setConfirmModalOpen(false)}
+            {...confirmModalConfig}
+          />
+        )}
+        {playerFormModalOpen && (
+          <PlayerFormModal
+            isOpen={playerFormModalOpen}
+            onClose={() => {
+              setPlayerFormModalOpen(false);
+              setEditingPlayer(null);
+            }}
+            player={editingPlayer}
+            onSave={handleSavePlayer}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

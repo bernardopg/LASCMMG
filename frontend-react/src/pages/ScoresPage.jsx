@@ -230,21 +230,14 @@ const ScoresPage = () => {
                 >
                   Jogador:
                 </label>
-                <select
+                <input
+                  type="text"
                   id="filter-player"
-                  className="filter-select mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+                  placeholder="Buscar por jogador"
+                  className="filter-input mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                   onChange={(e) => handleFilterChange('player', e.target.value)}
                   value={activeFilters.player || ''}
-                >
-                  <option value="">Todos os jogadores</option>
-                  {allPlayers.map((player) => (
-                    <option key={player.id || player.name} value={player.name}>
-                      {player.nickname
-                        ? `${player.name} (${player.nickname})`
-                        : player.name}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div className="filter-group">
                 <label
@@ -255,6 +248,7 @@ const ScoresPage = () => {
                 </label>
                 <select
                   id="filter-round"
+                  aria-label="Filtrar por rodada"
                   className="filter-select mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
                   onChange={(e) => handleFilterChange('round', e.target.value)}
                   value={activeFilters.round || ''}

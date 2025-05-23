@@ -29,9 +29,14 @@ const validateRequest = (schema) => {
     }
 
     if (schema.params) {
+      // Enable conversion for params to handle string->number conversion from URL params
+      const paramsOptions = {
+        ...options,
+        convert: true,
+      };
       const { error: paramsError, value: paramsValue } = schema.params.validate(
         req.params,
-        options
+        paramsOptions
       );
       if (paramsError) {
         return res.status(400).json({
@@ -248,7 +253,7 @@ const scoreUpdateSchema = {
 };
 
 const trashItemSchema = {
-  body: Joi.object({
+  params: Joi.object({
     itemId: Joi.alternatives()
       .try(Joi.string(), Joi.number())
       .required()
@@ -588,14 +593,14 @@ const adminGetTrashQuerySchema = {
         'number.min': 'Limite deve ser no mínimo 1.',
         'number.max': 'Limite deve ser no máximo 100.',
       }),
-    type: Joi.string()
+    itemType: Joi.string()
       .trim()
       .valid('player', 'score', 'tournament')
       .optional()
       .messages({
-        'string.base': 'Tipo de item (type) deve ser uma string.',
+        'string.base': 'Tipo de item (itemType) deve ser uma string.',
         'any.only':
-          'Tipo de item (type) deve ser "player", "score", ou "tournament".',
+          'Tipo de item (itemType) deve ser "player", "score", ou "tournament".',
       }),
   }),
 };
@@ -663,6 +668,22 @@ const userLoginSchema = {
   }),
 };
 
+// Schema for Admin User Creation
+const adminUserCreateSchema = {
+  body: Joi.object({
+    username: Joi.string().email().required().messages({
+      'string.base': `"username" deve ser do tipo texto`,
+      'string.empty': `"username" não pode estar vazio`,
+      'string.email': `"username" deve ser um email válido`,
+      'any.required': `"username" é um campo obrigatório`,
+    }),
+    password: passwordSchema,
+    role: Joi.string().valid('admin', 'super_admin').optional().default('admin').messages({
+      'any.only': 'Papel deve ser "admin" ou "super_admin".',
+    }),
+  }),
+};
+
 module.exports = {
   validateRequest,
   validateUsername, // Export new function
@@ -702,4 +723,5 @@ module.exports = {
   userRegistrationSchema, // Export new schema
   userPasswordChangeSchema, // Export new schema
   userLoginSchema, // Export new schema for user login
+  adminUserCreateSchema, // Export new schema for admin user creation
 };
