@@ -99,8 +99,6 @@ const MainLayout = ({ children }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { theme, toggleTheme } = useContext(ThemeContext);
-
   const toggleSidebarCollapse = () => {
     setIsSidebarCollapsed((prev) => {
       const newState = !prev;
@@ -145,8 +143,6 @@ const MainLayout = ({ children }) => {
         toggleSidebarCollapse={toggleSidebarCollapse}
         toggleMobileSidebar={toggleMobileSidebar}
         isMobile={isMobile}
-        currentTheme={theme}
-        toggleTheme={toggleTheme}
       />
 
       {/* Overlay for mobile sidebar */}

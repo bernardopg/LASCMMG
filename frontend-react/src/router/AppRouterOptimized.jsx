@@ -23,13 +23,14 @@ const ScoresPage = lazy(() => import('../pages/ScoresPage'));
 const StatsPage = lazy(() => import('../pages/StatsPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const PlayerProfilePage = lazy(() => import('../pages/PlayerProfilePage'));
+const PlayersPage = lazy(() => import('../pages/PlayersPage'));
 const AddScoreLandingPage = lazy(() => import('../pages/AddScoreLandingPage'));
 const AddScorePage = lazy(() => import('../pages/AddScorePage'));
 
 // Lazy load admin pages
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'));
 const Dashboard = lazy(() => import('../pages/admin/Dashboard'));
-const PlayersPage = lazy(() => import('../pages/admin/PlayersPage'));
+const AdminPlayersPage = lazy(() => import('../pages/admin/PlayersPage'));
 const CreatePlayerPage = lazy(() => import('../pages/admin/CreatePlayerPage'));
 const EditPlayerPage = lazy(() => import('../pages/admin/EditPlayerPage'));
 const CreateTournamentPage = lazy(() => import('../pages/admin/CreateTournamentPage'));
@@ -309,6 +310,16 @@ const AppRouterOptimized = ({
             }
           />
           <Route
+            path="/players"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <PlayersPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/players/:id"
             element={
               <ProtectedRoute>
@@ -326,6 +337,18 @@ const AppRouterOptimized = ({
               <ProtectedRoute>
                 <AppLayout layoutProps={layoutProps}>
                   <ProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Settings Route */}
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <SettingsPage />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -359,7 +382,7 @@ const AppRouterOptimized = ({
             element={
               <AdminRoute>
                 <AppLayout layoutProps={layoutProps}>
-                  <PlayersPage />
+                  <AdminPlayersPage />
                 </AppLayout>
               </AdminRoute>
             }

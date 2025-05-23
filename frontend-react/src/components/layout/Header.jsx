@@ -11,8 +11,9 @@ import {
   FaTimes,
   FaUser
 } from 'react-icons/fa';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import NotificationBell from '../common/NotificationBell';
 import TournamentSelector from '../common/TournamentSelector';
 
@@ -21,11 +22,11 @@ const Header = ({
   toggleSidebarCollapse,
   toggleMobileSidebar,
   isMobile,
-  currentTheme,
-  toggleTheme,
 }) => {
   // Contextos e hooks
   const { currentUser, logout } = useAuth();
+  const { theme, toggleTheme, isDarkTheme } = useTheme();
+  const location = useLocation();
 
   // Referencias para navegação por teclado
   const menuButtonRef = useRef(null);
@@ -43,6 +44,11 @@ const Header = ({
     { name: 'Chaves', path: '/brackets' },
     { name: 'Estatísticas', path: '/stats' },
   ];
+
+  // Função para verificar se um caminho está ativo
+  const isPathActive = (path) => {
+    return location.pathname === path;
+  };
 
   // Coleta itens de navegação na montagem do componente
   useEffect(() => {
@@ -104,12 +110,12 @@ const Header = ({
     if (!metaThemeColor) {
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
-      meta.content = currentTheme === 'dark' ? '#1e293b' : '#ffffff';
+      meta.content = isDarkTheme ? '#1e293b' : '#ffffff';
       document.head.appendChild(meta);
     } else {
-      metaThemeColor.content = currentTheme === 'dark' ? '#1e293b' : '#ffffff';
+      metaThemeColor.content = isDarkTheme ? '#1e293b' : '#ffffff';
     }
-  }, [currentTheme]);
+  }, [isDarkTheme]);
 
   // Handlers
   const handleLogout = async () => {
@@ -118,6 +124,10 @@ const Header = ({
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
+  };
+
+  const handleThemeToggle = () => {
+    toggleTheme();
   };
 
   // Registra referência para cada item do menu do usuário
@@ -198,29 +208,21 @@ const Header = ({
   // Renderiza botão de alternância de tema
   const renderThemeToggle = (additionalClasses = '') => (
     <button
-      onClick={toggleTheme}
+      onClick={handleThemeToggle}
       className={`p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-300 ${additionalClasses}`}
       aria-label={
-        currentTheme === 'dark'
+        isDarkTheme
           ? 'Ativar modo claro'
           : 'Ativar modo escuro'
       }
+      title={isDarkTheme ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
     >
       <div className="relative w-5 h-5">
-        <FaSun
-          className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${
-            currentTheme === 'dark'
-              ? 'opacity-100 transform rotate-0'
-              : 'opacity-0 transform rotate-90'
-          }`}
-        />
-        <FaMoon
-          className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${
-            currentTheme === 'dark'
-              ? 'opacity-0 transform -rotate-90'
-              : 'opacity-100 transform rotate-0'
-          }`}
-        />
+        {isDarkTheme ? (
+          <FaSun className="h-5 w-5 transition-all duration-300 transform rotate-0" />
+        ) : (
+          <FaMoon className="h-5 w-5 transition-all duration-300 transform rotate-0" />
+        )}
       </div>
     </button>
   );
@@ -359,21 +361,23 @@ const Header = ({
   // Renderiza navegação mobile
   const renderMobileNavigation = () => (
     <div className="pt-2 pb-3 space-y-1 animate-fadeIn">
-      {navigationItems.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={({ isActive }) =>
-            isActive
-              ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
-              : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
-          }
-        >
-          {({ isActive }) => (
-            <Disclosure.Button as="span">{item.name}</Disclosure.Button>
-          )}
-        </NavLink>
-      ))}
+      {navigationItems.map((item) => {
+        const isActive = isPathActive(item.path);
+        return (
+          <Disclosure.Button
+            key={item.path}
+            as={Link}
+            to={item.path}
+            className={
+              isActive
+                ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
+                : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
+            }
+          >
+            {item.name}
+          </Disclosure.Button>
+        );
+      })}
     </div>
   );
 
