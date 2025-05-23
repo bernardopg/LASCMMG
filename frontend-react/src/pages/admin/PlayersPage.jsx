@@ -173,27 +173,65 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
 
 // Skeleton loader for table rows
 const TableSkeleton = () => (
-  <>
-    {[...Array(5)].map((_, index) => (
-      <tr key={index} className="animate-pulse">
-        <td className="px-3 md:px-6 py-4">
-          <div className="h-4 w-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
-        </td>
-        <td className="px-3 md:px-6 py-4">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-        </td>
-        <td className="px-3 md:px-6 py-4">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
-        </td>
-        <td className="px-3 md:px-6 py-4 hidden md:table-cell">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3"></div>
-        </td>
-        <td className="px-3 md:px-6 py-4">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
-        </td>
-      </tr>
-    ))}
-  </>
+  <div className="overflow-x-auto">
+    <table className="w-full">
+      <thead className="bg-gray-50 dark:bg-slate-700">
+        <tr>
+          <th className="px-3 md:px-6 py-3 text-left">
+            <div className="h-4 w-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-left">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16 animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-left">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-20 animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-left hidden md:table-cell">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16 animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-left">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16 animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-left">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-12 animate-pulse"></div>
+          </th>
+          <th className="px-3 md:px-6 py-3 text-right">
+            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16 animate-pulse"></div>
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+        {[...Array(5)].map((_, index) => (
+          <tr key={index} className="animate-pulse">
+            <td className="px-3 md:px-6 py-4">
+              <div className="h-4 w-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4">
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4">
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4 hidden md:table-cell">
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4">
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4">
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-20"></div>
+            </td>
+            <td className="px-3 md:px-6 py-4 text-right">
+              <div className="flex items-center justify-end space-x-2">
+                <div className="h-8 w-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                <div className="h-8 w-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
 
 // Skeleton loader for card view

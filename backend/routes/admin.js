@@ -28,10 +28,23 @@ const adminModel = require('../lib/models/adminModel'); // Import adminModel
 const upload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+    const allowedMimes = [
+      'text/csv',
+      'application/json',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    const allowedExtensions = ['.csv', '.json', '.xlsx', '.xls'];
+
+    const hasValidMime = allowedMimes.includes(file.mimetype);
+    const hasValidExtension = allowedExtensions.some(ext =>
+      file.originalname.toLowerCase().endsWith(ext)
+    );
+
+    if (hasValidMime || hasValidExtension) {
       cb(null, true);
     } else {
-      cb(new Error('Apenas arquivos CSV são permitidos'), false);
+      cb(new Error('Apenas arquivos CSV, JSON ou Excel são permitidos'), false);
     }
   },
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
@@ -599,60 +612,109 @@ router.post(
       if (!req.file) {
         return res.status(400).json({
           success: false,
-          message: 'Arquivo CSV é obrigatório.',
+          message: 'Arquivo é obrigatório.',
         });
       }
 
       const { tournamentId } = req.body;
       const filePath = req.file.path;
+      const fileExtension = req.file.originalname.toLowerCase().split('.').pop();
 
-      // Process CSV file
+      // Process file based on extension
       const fs = require('fs');
-      const csv = require('csv-parser'); // You'll need to install csv-parser
-      const players = [];
+      const csv = require('csv-parser');
+      let players = [];
 
-      const stream = fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          // Expected CSV format: name, nickname, email, gender, skill_level
-          players.push({
-            name: row.name?.trim(),
-            nickname: row.nickname?.trim() || null,
-            email: row.email?.trim() || null,
-            gender: row.gender?.trim() || null,
-            skill_level: row.skill_level?.trim() || null,
-            tournament_id: tournamentId || null,
-          });
-        })
-        .on('end', async () => {
-          try {
-            const imported = await playerModel.importPlayers(players);
+      const processFile = () => {
+        return new Promise((resolve, reject) => {
+          if (fileExtension === 'json') {
+            // Process JSON file
+            try {
+              const fileContent = fs.readFileSync(filePath, 'utf8');
+              const jsonData = JSON.parse(fileContent);
 
-            // Clean up uploaded file
-            fs.unlinkSync(filePath);
+              // Handle both array format and object with players array
+              const playersArray = Array.isArray(jsonData) ? jsonData : (jsonData.players || []);
 
-            logger.info(
-              {
-                component: 'AdminImportRoute',
-                imported,
-                total: players.length,
-                requestId: req.id,
-              },
-              `Importação de jogadores concluída (admin): ${imported}/${players.length}.`
-            );
+              players = playersArray.map(player => ({
+                name: player.name?.trim() || player.PlayerName?.trim(),
+                nickname: player.nickname?.trim() || player.Nickname?.trim() || null,
+                email: player.email?.trim() || null,
+                gender: player.gender?.trim() || null,
+                skill_level: player.skill_level?.trim() || player.skillLevel?.trim() || null,
+                tournament_id: tournamentId || null,
+              })).filter(player => player.name); // Filter out players without names
 
-            res.json({
-              success: true,
-              imported,
-              total: players.length,
-              message: `${imported} jogadores importados com sucesso de ${players.length} registros.`,
-            });
-          } catch (importError) {
-            // Clean up uploaded file on error
-            fs.unlinkSync(filePath);
-            throw importError;
+              resolve();
+            } catch (error) {
+              reject(new Error(`Erro ao processar arquivo JSON: ${error.message}`));
+            }
+          } else {
+            // Process CSV file
+            const stream = fs.createReadStream(filePath)
+              .pipe(csv())
+              .on('data', (row) => {
+                // Expected CSV format: name, nickname, email, gender, skill_level
+                players.push({
+                  name: row.name?.trim(),
+                  nickname: row.nickname?.trim() || null,
+                  email: row.email?.trim() || null,
+                  gender: row.gender?.trim() || null,
+                  skill_level: row.skill_level?.trim() || null,
+                  tournament_id: tournamentId || null,
+                });
+              })
+              .on('end', () => resolve())
+              .on('error', (error) => reject(error));
           }
         });
+      };
+
+      await processFile();
+
+      let result;
+
+      if (tournamentId) {
+        // Import players for a specific tournament
+        result = await playerModel.importPlayers(tournamentId, players);
+      } else {
+        // Import players as global players (no tournament assignment)
+        let importedCount = 0;
+        const errors = [];
+
+        for (const playerData of players) {
+          try {
+            await playerModel.createGlobalPlayer(playerData);
+            importedCount++;
+          } catch (error) {
+            errors.push(`Erro ao importar jogador ${playerData.name}: ${error.message}`);
+          }
+        }
+
+        result = { count: importedCount, errors };
+      }
+
+      // Clean up uploaded file
+      fs.unlinkSync(filePath);
+
+      logger.info(
+        {
+          component: 'AdminImportRoute',
+          imported: result.count,
+          total: players.length,
+          errors: result.errors?.length || 0,
+          requestId: req.id,
+        },
+        `Importação de jogadores concluída (admin): ${result.count}/${players.length}. Erros: ${result.errors?.length || 0}.`
+      );
+
+      res.json({
+        success: true,
+        imported: result.count,
+        total: players.length,
+        errors: result.errors || [],
+        message: `${result.count} jogadores importados com sucesso de ${players.length} registros.${result.errors?.length ? ` ${result.errors.length} erros encontrados.` : ''}`,
+      });
 
     } catch (error) {
       logger.error(
@@ -663,6 +725,13 @@ router.post(
         },
         'Erro ao importar jogadores (admin).'
       );
+
+      // Clean up uploaded file on error
+      const fs = require('fs');
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+
       res
         .status(500)
         .json({ success: false, message: 'Erro ao importar jogadores.' });

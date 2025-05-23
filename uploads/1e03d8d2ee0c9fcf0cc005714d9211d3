@@ -1,0 +1,864 @@
+[
+  {
+    "name": "Ana Paula Santos",
+    "nickname": "Ana",
+    "email": "ana.santos@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Carlos Eduardo Silva",
+    "nickname": "Cadu",
+    "email": "carlos.silva@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Maria Fernanda Costa",
+    "nickname": "Mafe",
+    "email": "maria.costa@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "João Pedro Oliveira",
+    "nickname": "JP",
+    "email": "joao.oliveira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Beatriz Almeida",
+    "nickname": "Bia",
+    "email": "beatriz.almeida@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Rafael Mendes",
+    "nickname": "Rafa",
+    "email": "rafael.mendes@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Larissa Rodrigues",
+    "nickname": "Lari",
+    "email": "larissa.rodrigues@email.com",
+    "gender": "Feminino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Gabriel Ferreira",
+    "nickname": "Gabs",
+    "email": "gabriel.ferreira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Camila Souza",
+    "nickname": "Cami",
+    "email": "camila.souza@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Bruno Lima",
+    "nickname": "Bruno",
+    "email": "bruno.lima@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Juliana Pereira",
+    "nickname": "Ju",
+    "email": "juliana.pereira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Lucas Barbosa",
+    "nickname": "Luke",
+    "email": "lucas.barbosa@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Fernanda Carvalho",
+    "nickname": "Fê",
+    "email": "fernanda.carvalho@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Thiago Martins",
+    "nickname": "Thi",
+    "email": "thiago.martins@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Isabella Gomes",
+    "nickname": "Isa",
+    "email": "isabella.gomes@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Mateus Araújo",
+    "nickname": "Matt",
+    "email": "mateus.araujo@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Natália Cardoso",
+    "nickname": "Nat",
+    "email": "natalia.cardoso@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Felipe Ribeiro",
+    "nickname": "Lipe",
+    "email": "felipe.ribeiro@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Amanda Torres",
+    "nickname": "Manda",
+    "email": "amanda.torres@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Diego Nascimento",
+    "nickname": "Di",
+    "email": "diego.nascimento@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Priscila Moreira",
+    "nickname": "Pri",
+    "email": "priscila.moreira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "André Cunha",
+    "nickname": "Dré",
+    "email": "andre.cunha@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Tatiana Freitas",
+    "nickname": "Tati",
+    "email": "tatiana.freitas@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Vinícius Teixeira",
+    "nickname": "Vini",
+    "email": "vinicius.teixeira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Carolina Castro",
+    "nickname": "Carol",
+    "email": "carolina.castro@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Eduardo Pinto",
+    "nickname": "Edu",
+    "email": "eduardo.pinto@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Vanessa Dias",
+    "nickname": "Van",
+    "email": "vanessa.dias@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Gustavo Nunes",
+    "nickname": "Guto",
+    "email": "gustavo.nunes@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Renata Machado",
+    "nickname": "Re",
+    "email": "renata.machado@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Rodrigo Campos",
+    "nickname": "Rod",
+    "email": "rodrigo.campos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Débora Lopes",
+    "nickname": "Deb",
+    "email": "debora.lopes@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Marcelo Ramos",
+    "nickname": "Marce",
+    "email": "marcelo.ramos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Patrícia Monteiro",
+    "nickname": "Pati",
+    "email": "patricia.monteiro@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Leandro Correia",
+    "nickname": "Leo",
+    "email": "leandro.correia@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Adriana Vieira",
+    "nickname": "Dri",
+    "email": "adriana.vieira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Paulo Roberto",
+    "nickname": "Paulo",
+    "email": "paulo.roberto@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Luciana Xavier",
+    "nickname": "Lu",
+    "email": "luciana.xavier@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Alexandre Moura",
+    "nickname": "Alex",
+    "email": "alexandre.moura@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Cristina Farias",
+    "nickname": "Cris",
+    "email": "cristina.farias@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Fábio Santana",
+    "nickname": "Fabs",
+    "email": "fabio.santana@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Simone Coelho",
+    "nickname": "Si",
+    "email": "simone.coelho@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Ricardo Azevedo",
+    "nickname": "Rick",
+    "email": "ricardo.azevedo@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Michele Barros",
+    "nickname": "Mi",
+    "email": "michele.barros@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Danilo Siqueira",
+    "nickname": "Dani",
+    "email": "danilo.siqueira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Raquel Melo",
+    "nickname": "Raque",
+    "email": "raquel.melo@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Maurício Duarte",
+    "nickname": "Mauri",
+    "email": "mauricio.duarte@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Eliana Batista",
+    "nickname": "Eli",
+    "email": "eliana.batista@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Sérgio Nogueira",
+    "nickname": "Sérgio",
+    "email": "sergio.nogueira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Cláudia Viana",
+    "nickname": "Clau",
+    "email": "claudia.viana@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Marcos Paulo",
+    "nickname": "MP",
+    "email": "marcos.paulo@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Solange Miranda",
+    "nickname": "Sol",
+    "email": "solange.miranda@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Henrique Fonseca",
+    "nickname": "Henri",
+    "email": "henrique.fonseca@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Rosana Brito",
+    "nickname": "Rosa",
+    "email": "rosana.brito@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Igor Rezende",
+    "nickname": "Igor",
+    "email": "igor.rezende@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Denise Caldeira",
+    "nickname": "Den",
+    "email": "denise.caldeira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Roberto Carlos",
+    "nickname": "Beto",
+    "email": "roberto.carlos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Márcia Paiva",
+    "nickname": "Má",
+    "email": "marcia.paiva@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Antônio José",
+    "nickname": "Toninho",
+    "email": "antonio.jose@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Sandra Regina",
+    "nickname": "San",
+    "email": "sandra.regina@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Wellington Silva",
+    "nickname": "Well",
+    "email": "wellington.silva@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Mônica Tavares",
+    "nickname": "Mô",
+    "email": "monica.tavares@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Júlio César",
+    "nickname": "JC",
+    "email": "julio.cesar@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Vera Lúcia",
+    "nickname": "Vera",
+    "email": "vera.lucia@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Nelson Alves",
+    "nickname": "Nel",
+    "email": "nelson.alves@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Lilian Moraes",
+    "nickname": "Lili",
+    "email": "lilian.moraes@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "César Augusto",
+    "nickname": "César",
+    "email": "cesar.augusto@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Tereza Cristina",
+    "nickname": "Tê",
+    "email": "tereza.cristina@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Francisco José",
+    "nickname": "Chico",
+    "email": "francisco.jose@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Elizabete Souza",
+    "nickname": "Beth",
+    "email": "elizabete.souza@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Valter Gomes",
+    "nickname": "Val",
+    "email": "valter.gomes@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Silvia Helena",
+    "nickname": "Sil",
+    "email": "silvia.helena@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Pedro Henrique",
+    "nickname": "PH",
+    "email": "pedro.henrique@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Regina Santos",
+    "nickname": "Regi",
+    "email": "regina.santos@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "José Carlos",
+    "nickname": "Zé",
+    "email": "jose.carlos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Maria José",
+    "nickname": "Zezé",
+    "email": "maria.jose@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Edson Luiz",
+    "nickname": "Ed",
+    "email": "edson.luiz@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Aparecida Silva",
+    "nickname": "Cida",
+    "email": "aparecida.silva@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Luiz Fernando",
+    "nickname": "Luizão",
+    "email": "luiz.fernando@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Rosa Maria",
+    "nickname": "Rosinha",
+    "email": "rosa.maria@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Wanderlei Costa",
+    "nickname": "Wander",
+    "email": "wanderlei.costa@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Neuza Oliveira",
+    "nickname": "Neuza",
+    "email": "neuza.oliveira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Ailton Pereira",
+    "nickname": "Ton",
+    "email": "ailton.pereira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Zilda Barbosa",
+    "nickname": "Zil",
+    "email": "zilda.barbosa@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Geraldo Mendes",
+    "nickname": "Gê",
+    "email": "geraldo.mendes@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Yara Ferreira",
+    "nickname": "Ya",
+    "email": "yara.ferreira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Osvaldo Lima",
+    "nickname": "Valdo",
+    "email": "osvaldo.lima@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Sueli Carvalho",
+    "nickname": "Sue",
+    "email": "sueli.carvalho@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Evandro Martins",
+    "nickname": "Evandro",
+    "email": "evandro.martins@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Neide Rodrigues",
+    "nickname": "Nei",
+    "email": "neide.rodrigues@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Sebastião Almeida",
+    "nickname": "Tião",
+    "email": "sebastiao.almeida@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Vilma Torres",
+    "nickname": "Vil",
+    "email": "vilma.torres@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Claudio Ribeiro",
+    "nickname": "Cláudio",
+    "email": "claudio.ribeiro@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Terezinha Araújo",
+    "nickname": "Tereza",
+    "email": "terezinha.araujo@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Milton Cardoso",
+    "nickname": "Miltão",
+    "email": "milton.cardoso@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Célia Regina",
+    "nickname": "Célia",
+    "email": "celia.regina@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Ronaldo Moreira",
+    "nickname": "Ronaldinho",
+    "email": "ronaldo.moreira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Dulce Maria",
+    "nickname": "Dulce",
+    "email": "dulce.maria@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Orlando Cunha",
+    "nickname": "Lando",
+    "email": "orlando.cunha@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Conceição Freitas",
+    "nickname": "Concy",
+    "email": "conceicao.freitas@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Ivanildo Teixeira",
+    "nickname": "Ivan",
+    "email": "ivanildo.teixeira@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Dalva Castro",
+    "nickname": "Dal",
+    "email": "dalva.castro@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Benedito Pinto",
+    "nickname": "Bené",
+    "email": "benedito.pinto@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Ivone Dias",
+    "nickname": "Ivo",
+    "email": "ivone.dias@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Ademir Nunes",
+    "nickname": "Mir",
+    "email": "ademir.nunes@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Dirce Machado",
+    "nickname": "Dir",
+    "email": "dirce.machado@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Valdecir Campos",
+    "nickname": "Valde",
+    "email": "valdecir.campos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Carmem Lopes",
+    "nickname": "Car",
+    "email": "carmem.lopes@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Domingos Ramos",
+    "nickname": "Dom",
+    "email": "domingos.ramos@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Lurdes Monteiro",
+    "nickname": "Lu",
+    "email": "lurdes.monteiro@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Expedito Correia",
+    "nickname": "Dito",
+    "email": "expedito.correia@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Ieda Vieira",
+    "nickname": "Iê",
+    "email": "ieda.vieira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Raimundo Xavier",
+    "nickname": "Raimundo",
+    "email": "raimundo.xavier@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Cleide Moura",
+    "nickname": "Clei",
+    "email": "cleide.moura@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Alcides Farias",
+    "nickname": "Alci",
+    "email": "alcides.farias@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Eunice Santana",
+    "nickname": "Euni",
+    "email": "eunice.santana@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Lindomar Coelho",
+    "nickname": "Lindo",
+    "email": "lindomar.coelho@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Norma Azevedo",
+    "nickname": "Nor",
+    "email": "norma.azevedo@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Evaldo Barros",
+    "nickname": "Eval",
+    "email": "evaldo.barros@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Odete Siqueira",
+    "nickname": "Ode",
+    "email": "odete.siqueira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  },
+  {
+    "name": "Manoel Melo",
+    "nickname": "Mané",
+    "email": "manoel.melo@email.com",
+    "gender": "Masculino",
+    "skill_level": "Iniciante"
+  },
+  {
+    "name": "Francisca Duarte",
+    "nickname": "Chica",
+    "email": "francisca.duarte@email.com",
+    "gender": "Feminino",
+    "skill_level": "Intermediário"
+  },
+  {
+    "name": "Severino Batista",
+    "nickname": "Severo",
+    "email": "severino.batista@email.com",
+    "gender": "Masculino",
+    "skill_level": "Avançado"
+  },
+  {
+    "name": "Antônia Nogueira",
+    "nickname": "Antônia",
+    "email": "antonia.nogueira@email.com",
+    "gender": "Feminino",
+    "skill_level": "Expert"
+  }
+]
+

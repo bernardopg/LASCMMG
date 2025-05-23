@@ -1,0 +1,2212 @@
+{
+  "users": {
+    "SYSTEM": [
+      {
+        "id": "014cf522-f324-42c9-8bd1-67c68422c620",
+        "timestamp": "2025-05-23T18:36:14.881Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "3"
+      },
+      {
+        "id": "deb31158-fcb9-4b54-999d-fe4f39c93eed",
+        "timestamp": "2025-05-23T18:36:14.882Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "4"
+      },
+      {
+        "id": "e56e6842-f52e-4a9c-ab6c-e2404057be0a",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "5"
+      },
+      {
+        "id": "a8b67561-30ac-4f3f-98d4-6ee9f76e2771",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "6"
+      },
+      {
+        "id": "06ec6570-1735-42fe-aa13-81461787c2db",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "7"
+      },
+      {
+        "id": "2eac0e10-17df-462d-90c7-e87cc35e98fd",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "8"
+      },
+      {
+        "id": "85b5a953-7e5a-42ab-bbc7-1a21e6df03a7",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "9"
+      },
+      {
+        "id": "b9e90bc5-53bc-4eeb-be07-b2f91dff7c47",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "10"
+      },
+      {
+        "id": "b92f6938-b6d3-4f8f-889d-826931281f06",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "11"
+      },
+      {
+        "id": "cf19e72b-1926-445a-aa5c-bebf4cfbe43e",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "12"
+      },
+      {
+        "id": "e24384f5-14c0-42d8-b296-cdbe593ffe31",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "13"
+      },
+      {
+        "id": "78c77130-1177-4b00-bc8e-1ddcac004e35",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "14"
+      },
+      {
+        "id": "86dff064-a899-4b99-9f55-21d5ec4b710b",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "15"
+      },
+      {
+        "id": "98466bd9-f743-4174-be91-c6d23d0095b6",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "16"
+      },
+      {
+        "id": "feb4a506-13cc-49b2-90d0-a13da2c5b1da",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "17"
+      },
+      {
+        "id": "6857e4d9-8613-40aa-9abe-e8d81fb91ccc",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "18"
+      },
+      {
+        "id": "64c8b7ed-348a-4a39-8ee7-86798805f4c0",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "19"
+      },
+      {
+        "id": "63354734-079a-4d10-b6cb-2c17bcf7b1ea",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "20"
+      },
+      {
+        "id": "7ae7bbbb-77d9-479f-810c-06f32dedbcef",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "21"
+      },
+      {
+        "id": "943d97e6-bb10-4b9e-b0c0-23deee46128a",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "22"
+      },
+      {
+        "id": "62bf5dfc-c004-4114-8986-6e677e3f4011",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "23"
+      },
+      {
+        "id": "d2f5e64b-2cba-49b6-95cc-557c263be3ee",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "24"
+      },
+      {
+        "id": "09e2f651-a175-4a78-b24e-42f83ae3f874",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "25"
+      },
+      {
+        "id": "fa68eb94-906e-4eef-863f-a230827e95ad",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "26"
+      },
+      {
+        "id": "319d8f3c-31a4-47b9-a21b-5c8e275916bb",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "27"
+      },
+      {
+        "id": "f5902352-d024-4661-8799-920405291bec",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "28"
+      },
+      {
+        "id": "835abca1-4a05-4c5e-b9cb-04e226a21260",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "29"
+      },
+      {
+        "id": "ffe94aa7-7cd8-4f09-9934-c054b03d839e",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "30"
+      },
+      {
+        "id": "d9a8d32d-d914-47e6-9856-cb94dad6cba2",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "31"
+      },
+      {
+        "id": "01193d05-46d7-49bc-a82e-2f6fe2297376",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "32"
+      },
+      {
+        "id": "2ed248c9-0876-4458-bc68-86246b1de87b",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "33"
+      },
+      {
+        "id": "1aedb71f-cb44-493a-9640-3810b5e0e37c",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "34"
+      },
+      {
+        "id": "8d0aa325-161f-4cf1-8c0a-fad2e2d256c6",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "35"
+      },
+      {
+        "id": "e46287aa-4c23-4f8d-99ec-22e448430a4a",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "36"
+      },
+      {
+        "id": "9363dc8d-2206-4e94-8e4d-a14e4b8031ac",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "37"
+      },
+      {
+        "id": "33a4cdb5-bb14-4a66-bc98-0ac3a518cb64",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "38"
+      },
+      {
+        "id": "475bd418-8e75-42ec-97d3-f749ef51e7a9",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "39"
+      },
+      {
+        "id": "5c828e12-c113-4511-989c-594644e1161c",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "40"
+      },
+      {
+        "id": "d089b735-2a05-4632-b3cf-5506f8406156",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "41"
+      },
+      {
+        "id": "7cd9ac42-5676-4714-8346-99661419cc94",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "42"
+      },
+      {
+        "id": "fc76fdaf-6f39-47d0-b418-d151d24d6628",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "43"
+      },
+      {
+        "id": "39be5cef-a738-4bab-8463-2fbdb5ab6218",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "44"
+      },
+      {
+        "id": "45146f39-2a27-4f09-8962-7b03d1c628b4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "45"
+      },
+      {
+        "id": "29e4c9ac-9d1a-4d12-b9e0-51a22ebb387d",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "46"
+      },
+      {
+        "id": "688d8d64-bb3c-4de8-82b5-7d674a36cb6f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "47"
+      },
+      {
+        "id": "692d88f1-bdfa-4f64-a417-3ee56f0b23a4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "48"
+      },
+      {
+        "id": "a1aa0d77-e487-4250-a402-c4e16f300b5f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "49"
+      },
+      {
+        "id": "8871b846-2067-400e-8e3b-c3174ec8b530",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "50"
+      },
+      {
+        "id": "ca018648-4b54-4dac-b564-39b77b0c71d6",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "51"
+      },
+      {
+        "id": "38530b4f-16e0-4402-9612-8a7d65a21297",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "52"
+      },
+      {
+        "id": "4df1dbcb-18b7-4cab-820e-521037607c57",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "53"
+      },
+      {
+        "id": "56d3ce00-1fae-4467-b4f6-e1bad784783f",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "54"
+      },
+      {
+        "id": "ffc749b9-54be-4e00-9f65-d2065b7f5c02",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "55"
+      },
+      {
+        "id": "8970dbc5-f723-4030-922e-562a4ff3d9c0",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "56"
+      },
+      {
+        "id": "1b36f8e1-dc5e-4f21-8995-b3919fd413fe",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "57"
+      },
+      {
+        "id": "e0747f33-7626-4cb2-be37-7351c4eee49e",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "58"
+      },
+      {
+        "id": "b310fecf-48f8-421d-8de4-bc5bf172c1ef",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "59"
+      },
+      {
+        "id": "515bc9f9-2f97-47c6-ab22-56a715063d15",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "60"
+      },
+      {
+        "id": "8d92faef-21d1-4afe-9152-450fd083ff75",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "61"
+      },
+      {
+        "id": "06c1e242-89b4-4239-b3fa-f47a2eaaa432",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "62"
+      },
+      {
+        "id": "3641aedc-4414-49a6-809d-65bc281829d3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "63"
+      },
+      {
+        "id": "e53adfbf-d925-4b21-a5b5-4f290a58f2e3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "64"
+      },
+      {
+        "id": "87ed8642-4acb-4e4f-988f-cf4835b4fc0a",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "65"
+      },
+      {
+        "id": "37e4c2a6-e511-4c7c-88cf-8670ec0deb9d",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "66"
+      },
+      {
+        "id": "56a1fd68-4098-4b34-98cb-271f6762300d",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "67"
+      },
+      {
+        "id": "bf97793e-5235-4e9a-b4c0-5e72ce36e8cb",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "68"
+      },
+      {
+        "id": "3618364d-3808-4e9e-b73f-2ef916ce9338",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "69"
+      },
+      {
+        "id": "befd47fa-76e7-436f-958d-4465473c224d",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "70"
+      },
+      {
+        "id": "16087fc3-a0f1-41cb-8486-abf30189775c",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "71"
+      },
+      {
+        "id": "4fac6197-f729-4e8a-b3bb-1a6236a5d183",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "72"
+      },
+      {
+        "id": "29fc3656-8c22-4012-89cb-3ac2c7fd4633",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "73"
+      },
+      {
+        "id": "4a62fad9-f590-481c-ba65-67049f03ccf1",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "74"
+      },
+      {
+        "id": "13db4e6f-f5bd-49ad-8549-2dc62467513f",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "75"
+      },
+      {
+        "id": "879d3496-3d7f-45a3-b185-72c810876767",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "76"
+      },
+      {
+        "id": "c6bb5b82-5483-4b7d-ad02-5b5d5699fa76",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "77"
+      },
+      {
+        "id": "06080760-7785-4094-9177-eff505b31645",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "78"
+      },
+      {
+        "id": "f095cd89-fba5-46a1-8b56-37f89f3db69a",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "79"
+      },
+      {
+        "id": "66dc2e00-fb68-4369-be8b-ad8272857375",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "80"
+      },
+      {
+        "id": "818f2d21-b926-45d5-848e-bc10a7e6685f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "81"
+      },
+      {
+        "id": "c9271be4-9245-4699-8a16-40756fb13ba6",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "82"
+      },
+      {
+        "id": "9a38d3c2-7ee8-49f2-a867-94c840e4a925",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "83"
+      },
+      {
+        "id": "8ec37c3e-7eb0-40b9-947e-c3ce3257e79f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "84"
+      },
+      {
+        "id": "80d6a34b-04bb-43db-9905-140b34ade1e9",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "85"
+      },
+      {
+        "id": "30f499ba-e278-4d08-8d15-0219f73372c0",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "86"
+      },
+      {
+        "id": "44f8af24-a8c6-455c-a3b5-e19448b48778",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "87"
+      },
+      {
+        "id": "1bc239ba-b625-4c5d-aa92-f9059f7db838",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "88"
+      },
+      {
+        "id": "21598535-df90-404b-88a8-45f2fecae6c6",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "89"
+      },
+      {
+        "id": "6a5c044f-f027-4ecd-bd90-171520b3b04f",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "90"
+      },
+      {
+        "id": "4f275f8b-e772-419f-9893-52c25d004a75",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "91"
+      },
+      {
+        "id": "c2fd25d7-4769-48fb-b090-af92372be8de",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "92"
+      },
+      {
+        "id": "1130c533-5247-4bec-982f-c7a5f0ac99df",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "93"
+      },
+      {
+        "id": "10c76bf2-5ff6-4127-96c0-ca8b0b08f8c7",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "94"
+      },
+      {
+        "id": "e2094490-c4d9-400c-a18b-b490f4f454e3",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "95"
+      },
+      {
+        "id": "8e50eab5-ce88-409a-8433-d7f38de4acb8",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "96"
+      },
+      {
+        "id": "7c85b5ab-39ed-4870-b7ef-80fdd4a68f7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "97"
+      },
+      {
+        "id": "bbdc616a-4ff7-411b-8b40-19aa044fec7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "98"
+      },
+      {
+        "id": "d8b74255-8e75-4ada-aa5a-b75b2d240b19",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "99"
+      },
+      {
+        "id": "0548053e-ef0d-427b-85d9-cf2380e069d0",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "100"
+      },
+      {
+        "id": "43ba28e5-96a7-440e-8dab-5ca280881c01",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "101"
+      },
+      {
+        "id": "395c05c5-6d4e-4f35-b0d0-da4ae979bcc0",
+        "timestamp": "2025-05-23T18:36:14.904Z",
+        "action": "GLOBAL_PLAYER_CREATE",
+        "entity": "player",
+        "entityId": "102"
+      }
+    ]
+  },
+  "actions": {
+    "GLOBAL_PLAYER_CREATE": [
+      {
+        "id": "014cf522-f324-42c9-8bd1-67c68422c620",
+        "timestamp": "2025-05-23T18:36:14.881Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "3"
+      },
+      {
+        "id": "deb31158-fcb9-4b54-999d-fe4f39c93eed",
+        "timestamp": "2025-05-23T18:36:14.882Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "4"
+      },
+      {
+        "id": "e56e6842-f52e-4a9c-ab6c-e2404057be0a",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "5"
+      },
+      {
+        "id": "a8b67561-30ac-4f3f-98d4-6ee9f76e2771",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "6"
+      },
+      {
+        "id": "06ec6570-1735-42fe-aa13-81461787c2db",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "7"
+      },
+      {
+        "id": "2eac0e10-17df-462d-90c7-e87cc35e98fd",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "8"
+      },
+      {
+        "id": "85b5a953-7e5a-42ab-bbc7-1a21e6df03a7",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "9"
+      },
+      {
+        "id": "b9e90bc5-53bc-4eeb-be07-b2f91dff7c47",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "10"
+      },
+      {
+        "id": "b92f6938-b6d3-4f8f-889d-826931281f06",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "11"
+      },
+      {
+        "id": "cf19e72b-1926-445a-aa5c-bebf4cfbe43e",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "12"
+      },
+      {
+        "id": "e24384f5-14c0-42d8-b296-cdbe593ffe31",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "13"
+      },
+      {
+        "id": "78c77130-1177-4b00-bc8e-1ddcac004e35",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "14"
+      },
+      {
+        "id": "86dff064-a899-4b99-9f55-21d5ec4b710b",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "15"
+      },
+      {
+        "id": "98466bd9-f743-4174-be91-c6d23d0095b6",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "16"
+      },
+      {
+        "id": "feb4a506-13cc-49b2-90d0-a13da2c5b1da",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "17"
+      },
+      {
+        "id": "6857e4d9-8613-40aa-9abe-e8d81fb91ccc",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "18"
+      },
+      {
+        "id": "64c8b7ed-348a-4a39-8ee7-86798805f4c0",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "19"
+      },
+      {
+        "id": "63354734-079a-4d10-b6cb-2c17bcf7b1ea",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "20"
+      },
+      {
+        "id": "7ae7bbbb-77d9-479f-810c-06f32dedbcef",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "21"
+      },
+      {
+        "id": "943d97e6-bb10-4b9e-b0c0-23deee46128a",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "22"
+      },
+      {
+        "id": "62bf5dfc-c004-4114-8986-6e677e3f4011",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "23"
+      },
+      {
+        "id": "d2f5e64b-2cba-49b6-95cc-557c263be3ee",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "24"
+      },
+      {
+        "id": "09e2f651-a175-4a78-b24e-42f83ae3f874",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "25"
+      },
+      {
+        "id": "fa68eb94-906e-4eef-863f-a230827e95ad",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "26"
+      },
+      {
+        "id": "319d8f3c-31a4-47b9-a21b-5c8e275916bb",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "27"
+      },
+      {
+        "id": "f5902352-d024-4661-8799-920405291bec",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "28"
+      },
+      {
+        "id": "835abca1-4a05-4c5e-b9cb-04e226a21260",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "29"
+      },
+      {
+        "id": "ffe94aa7-7cd8-4f09-9934-c054b03d839e",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "30"
+      },
+      {
+        "id": "d9a8d32d-d914-47e6-9856-cb94dad6cba2",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "31"
+      },
+      {
+        "id": "01193d05-46d7-49bc-a82e-2f6fe2297376",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "32"
+      },
+      {
+        "id": "2ed248c9-0876-4458-bc68-86246b1de87b",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "33"
+      },
+      {
+        "id": "1aedb71f-cb44-493a-9640-3810b5e0e37c",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "34"
+      },
+      {
+        "id": "8d0aa325-161f-4cf1-8c0a-fad2e2d256c6",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "35"
+      },
+      {
+        "id": "e46287aa-4c23-4f8d-99ec-22e448430a4a",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "36"
+      },
+      {
+        "id": "9363dc8d-2206-4e94-8e4d-a14e4b8031ac",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "37"
+      },
+      {
+        "id": "33a4cdb5-bb14-4a66-bc98-0ac3a518cb64",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "38"
+      },
+      {
+        "id": "475bd418-8e75-42ec-97d3-f749ef51e7a9",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "39"
+      },
+      {
+        "id": "5c828e12-c113-4511-989c-594644e1161c",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "40"
+      },
+      {
+        "id": "d089b735-2a05-4632-b3cf-5506f8406156",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "41"
+      },
+      {
+        "id": "7cd9ac42-5676-4714-8346-99661419cc94",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "42"
+      },
+      {
+        "id": "fc76fdaf-6f39-47d0-b418-d151d24d6628",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "43"
+      },
+      {
+        "id": "39be5cef-a738-4bab-8463-2fbdb5ab6218",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "44"
+      },
+      {
+        "id": "45146f39-2a27-4f09-8962-7b03d1c628b4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "45"
+      },
+      {
+        "id": "29e4c9ac-9d1a-4d12-b9e0-51a22ebb387d",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "46"
+      },
+      {
+        "id": "688d8d64-bb3c-4de8-82b5-7d674a36cb6f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "47"
+      },
+      {
+        "id": "692d88f1-bdfa-4f64-a417-3ee56f0b23a4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "48"
+      },
+      {
+        "id": "a1aa0d77-e487-4250-a402-c4e16f300b5f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "49"
+      },
+      {
+        "id": "8871b846-2067-400e-8e3b-c3174ec8b530",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "50"
+      },
+      {
+        "id": "ca018648-4b54-4dac-b564-39b77b0c71d6",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "51"
+      },
+      {
+        "id": "38530b4f-16e0-4402-9612-8a7d65a21297",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "52"
+      },
+      {
+        "id": "4df1dbcb-18b7-4cab-820e-521037607c57",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "53"
+      },
+      {
+        "id": "56d3ce00-1fae-4467-b4f6-e1bad784783f",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "54"
+      },
+      {
+        "id": "ffc749b9-54be-4e00-9f65-d2065b7f5c02",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "55"
+      },
+      {
+        "id": "8970dbc5-f723-4030-922e-562a4ff3d9c0",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "56"
+      },
+      {
+        "id": "1b36f8e1-dc5e-4f21-8995-b3919fd413fe",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "57"
+      },
+      {
+        "id": "e0747f33-7626-4cb2-be37-7351c4eee49e",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "58"
+      },
+      {
+        "id": "b310fecf-48f8-421d-8de4-bc5bf172c1ef",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "59"
+      },
+      {
+        "id": "515bc9f9-2f97-47c6-ab22-56a715063d15",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "60"
+      },
+      {
+        "id": "8d92faef-21d1-4afe-9152-450fd083ff75",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "61"
+      },
+      {
+        "id": "06c1e242-89b4-4239-b3fa-f47a2eaaa432",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "62"
+      },
+      {
+        "id": "3641aedc-4414-49a6-809d-65bc281829d3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "63"
+      },
+      {
+        "id": "e53adfbf-d925-4b21-a5b5-4f290a58f2e3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "64"
+      },
+      {
+        "id": "87ed8642-4acb-4e4f-988f-cf4835b4fc0a",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "65"
+      },
+      {
+        "id": "37e4c2a6-e511-4c7c-88cf-8670ec0deb9d",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "66"
+      },
+      {
+        "id": "56a1fd68-4098-4b34-98cb-271f6762300d",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "67"
+      },
+      {
+        "id": "bf97793e-5235-4e9a-b4c0-5e72ce36e8cb",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "68"
+      },
+      {
+        "id": "3618364d-3808-4e9e-b73f-2ef916ce9338",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "69"
+      },
+      {
+        "id": "befd47fa-76e7-436f-958d-4465473c224d",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "70"
+      },
+      {
+        "id": "16087fc3-a0f1-41cb-8486-abf30189775c",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "71"
+      },
+      {
+        "id": "4fac6197-f729-4e8a-b3bb-1a6236a5d183",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "72"
+      },
+      {
+        "id": "29fc3656-8c22-4012-89cb-3ac2c7fd4633",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "73"
+      },
+      {
+        "id": "4a62fad9-f590-481c-ba65-67049f03ccf1",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "74"
+      },
+      {
+        "id": "13db4e6f-f5bd-49ad-8549-2dc62467513f",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "75"
+      },
+      {
+        "id": "879d3496-3d7f-45a3-b185-72c810876767",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "76"
+      },
+      {
+        "id": "c6bb5b82-5483-4b7d-ad02-5b5d5699fa76",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "77"
+      },
+      {
+        "id": "06080760-7785-4094-9177-eff505b31645",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "78"
+      },
+      {
+        "id": "f095cd89-fba5-46a1-8b56-37f89f3db69a",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "79"
+      },
+      {
+        "id": "66dc2e00-fb68-4369-be8b-ad8272857375",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "80"
+      },
+      {
+        "id": "818f2d21-b926-45d5-848e-bc10a7e6685f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "81"
+      },
+      {
+        "id": "c9271be4-9245-4699-8a16-40756fb13ba6",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "82"
+      },
+      {
+        "id": "9a38d3c2-7ee8-49f2-a867-94c840e4a925",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "83"
+      },
+      {
+        "id": "8ec37c3e-7eb0-40b9-947e-c3ce3257e79f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "84"
+      },
+      {
+        "id": "80d6a34b-04bb-43db-9905-140b34ade1e9",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "85"
+      },
+      {
+        "id": "30f499ba-e278-4d08-8d15-0219f73372c0",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "86"
+      },
+      {
+        "id": "44f8af24-a8c6-455c-a3b5-e19448b48778",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "87"
+      },
+      {
+        "id": "1bc239ba-b625-4c5d-aa92-f9059f7db838",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "88"
+      },
+      {
+        "id": "21598535-df90-404b-88a8-45f2fecae6c6",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "89"
+      },
+      {
+        "id": "6a5c044f-f027-4ecd-bd90-171520b3b04f",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "90"
+      },
+      {
+        "id": "4f275f8b-e772-419f-9893-52c25d004a75",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "91"
+      },
+      {
+        "id": "c2fd25d7-4769-48fb-b090-af92372be8de",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "92"
+      },
+      {
+        "id": "1130c533-5247-4bec-982f-c7a5f0ac99df",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "93"
+      },
+      {
+        "id": "10c76bf2-5ff6-4127-96c0-ca8b0b08f8c7",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "94"
+      },
+      {
+        "id": "e2094490-c4d9-400c-a18b-b490f4f454e3",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "95"
+      },
+      {
+        "id": "8e50eab5-ce88-409a-8433-d7f38de4acb8",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "96"
+      },
+      {
+        "id": "7c85b5ab-39ed-4870-b7ef-80fdd4a68f7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "97"
+      },
+      {
+        "id": "bbdc616a-4ff7-411b-8b40-19aa044fec7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "98"
+      },
+      {
+        "id": "d8b74255-8e75-4ada-aa5a-b75b2d240b19",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "99"
+      },
+      {
+        "id": "0548053e-ef0d-427b-85d9-cf2380e069d0",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "100"
+      },
+      {
+        "id": "43ba28e5-96a7-440e-8dab-5ca280881c01",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "101"
+      },
+      {
+        "id": "395c05c5-6d4e-4f35-b0d0-da4ae979bcc0",
+        "timestamp": "2025-05-23T18:36:14.904Z",
+        "userId": "SYSTEM",
+        "entity": "player",
+        "entityId": "102"
+      }
+    ]
+  },
+  "entities": {
+    "player:3": [
+      {
+        "id": "014cf522-f324-42c9-8bd1-67c68422c620",
+        "timestamp": "2025-05-23T18:36:14.881Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:4": [
+      {
+        "id": "deb31158-fcb9-4b54-999d-fe4f39c93eed",
+        "timestamp": "2025-05-23T18:36:14.882Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:5": [
+      {
+        "id": "e56e6842-f52e-4a9c-ab6c-e2404057be0a",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:6": [
+      {
+        "id": "a8b67561-30ac-4f3f-98d4-6ee9f76e2771",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:7": [
+      {
+        "id": "06ec6570-1735-42fe-aa13-81461787c2db",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:8": [
+      {
+        "id": "2eac0e10-17df-462d-90c7-e87cc35e98fd",
+        "timestamp": "2025-05-23T18:36:14.883Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:9": [
+      {
+        "id": "85b5a953-7e5a-42ab-bbc7-1a21e6df03a7",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:10": [
+      {
+        "id": "b9e90bc5-53bc-4eeb-be07-b2f91dff7c47",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:11": [
+      {
+        "id": "b92f6938-b6d3-4f8f-889d-826931281f06",
+        "timestamp": "2025-05-23T18:36:14.884Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:12": [
+      {
+        "id": "cf19e72b-1926-445a-aa5c-bebf4cfbe43e",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:13": [
+      {
+        "id": "e24384f5-14c0-42d8-b296-cdbe593ffe31",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:14": [
+      {
+        "id": "78c77130-1177-4b00-bc8e-1ddcac004e35",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:15": [
+      {
+        "id": "86dff064-a899-4b99-9f55-21d5ec4b710b",
+        "timestamp": "2025-05-23T18:36:14.885Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:16": [
+      {
+        "id": "98466bd9-f743-4174-be91-c6d23d0095b6",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:17": [
+      {
+        "id": "feb4a506-13cc-49b2-90d0-a13da2c5b1da",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:18": [
+      {
+        "id": "6857e4d9-8613-40aa-9abe-e8d81fb91ccc",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:19": [
+      {
+        "id": "64c8b7ed-348a-4a39-8ee7-86798805f4c0",
+        "timestamp": "2025-05-23T18:36:14.886Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:20": [
+      {
+        "id": "63354734-079a-4d10-b6cb-2c17bcf7b1ea",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:21": [
+      {
+        "id": "7ae7bbbb-77d9-479f-810c-06f32dedbcef",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:22": [
+      {
+        "id": "943d97e6-bb10-4b9e-b0c0-23deee46128a",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:23": [
+      {
+        "id": "62bf5dfc-c004-4114-8986-6e677e3f4011",
+        "timestamp": "2025-05-23T18:36:14.887Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:24": [
+      {
+        "id": "d2f5e64b-2cba-49b6-95cc-557c263be3ee",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:25": [
+      {
+        "id": "09e2f651-a175-4a78-b24e-42f83ae3f874",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:26": [
+      {
+        "id": "fa68eb94-906e-4eef-863f-a230827e95ad",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:27": [
+      {
+        "id": "319d8f3c-31a4-47b9-a21b-5c8e275916bb",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:28": [
+      {
+        "id": "f5902352-d024-4661-8799-920405291bec",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:29": [
+      {
+        "id": "835abca1-4a05-4c5e-b9cb-04e226a21260",
+        "timestamp": "2025-05-23T18:36:14.888Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:30": [
+      {
+        "id": "ffe94aa7-7cd8-4f09-9934-c054b03d839e",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:31": [
+      {
+        "id": "d9a8d32d-d914-47e6-9856-cb94dad6cba2",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:32": [
+      {
+        "id": "01193d05-46d7-49bc-a82e-2f6fe2297376",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:33": [
+      {
+        "id": "2ed248c9-0876-4458-bc68-86246b1de87b",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:34": [
+      {
+        "id": "1aedb71f-cb44-493a-9640-3810b5e0e37c",
+        "timestamp": "2025-05-23T18:36:14.889Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:35": [
+      {
+        "id": "8d0aa325-161f-4cf1-8c0a-fad2e2d256c6",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:36": [
+      {
+        "id": "e46287aa-4c23-4f8d-99ec-22e448430a4a",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:37": [
+      {
+        "id": "9363dc8d-2206-4e94-8e4d-a14e4b8031ac",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:38": [
+      {
+        "id": "33a4cdb5-bb14-4a66-bc98-0ac3a518cb64",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:39": [
+      {
+        "id": "475bd418-8e75-42ec-97d3-f749ef51e7a9",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:40": [
+      {
+        "id": "5c828e12-c113-4511-989c-594644e1161c",
+        "timestamp": "2025-05-23T18:36:14.890Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:41": [
+      {
+        "id": "d089b735-2a05-4632-b3cf-5506f8406156",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:42": [
+      {
+        "id": "7cd9ac42-5676-4714-8346-99661419cc94",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:43": [
+      {
+        "id": "fc76fdaf-6f39-47d0-b418-d151d24d6628",
+        "timestamp": "2025-05-23T18:36:14.891Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:44": [
+      {
+        "id": "39be5cef-a738-4bab-8463-2fbdb5ab6218",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:45": [
+      {
+        "id": "45146f39-2a27-4f09-8962-7b03d1c628b4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:46": [
+      {
+        "id": "29e4c9ac-9d1a-4d12-b9e0-51a22ebb387d",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:47": [
+      {
+        "id": "688d8d64-bb3c-4de8-82b5-7d674a36cb6f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:48": [
+      {
+        "id": "692d88f1-bdfa-4f64-a417-3ee56f0b23a4",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:49": [
+      {
+        "id": "a1aa0d77-e487-4250-a402-c4e16f300b5f",
+        "timestamp": "2025-05-23T18:36:14.892Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:50": [
+      {
+        "id": "8871b846-2067-400e-8e3b-c3174ec8b530",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:51": [
+      {
+        "id": "ca018648-4b54-4dac-b564-39b77b0c71d6",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:52": [
+      {
+        "id": "38530b4f-16e0-4402-9612-8a7d65a21297",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:53": [
+      {
+        "id": "4df1dbcb-18b7-4cab-820e-521037607c57",
+        "timestamp": "2025-05-23T18:36:14.893Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:54": [
+      {
+        "id": "56d3ce00-1fae-4467-b4f6-e1bad784783f",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:55": [
+      {
+        "id": "ffc749b9-54be-4e00-9f65-d2065b7f5c02",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:56": [
+      {
+        "id": "8970dbc5-f723-4030-922e-562a4ff3d9c0",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:57": [
+      {
+        "id": "1b36f8e1-dc5e-4f21-8995-b3919fd413fe",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:58": [
+      {
+        "id": "e0747f33-7626-4cb2-be37-7351c4eee49e",
+        "timestamp": "2025-05-23T18:36:14.894Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:59": [
+      {
+        "id": "b310fecf-48f8-421d-8de4-bc5bf172c1ef",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:60": [
+      {
+        "id": "515bc9f9-2f97-47c6-ab22-56a715063d15",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:61": [
+      {
+        "id": "8d92faef-21d1-4afe-9152-450fd083ff75",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:62": [
+      {
+        "id": "06c1e242-89b4-4239-b3fa-f47a2eaaa432",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:63": [
+      {
+        "id": "3641aedc-4414-49a6-809d-65bc281829d3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:64": [
+      {
+        "id": "e53adfbf-d925-4b21-a5b5-4f290a58f2e3",
+        "timestamp": "2025-05-23T18:36:14.895Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:65": [
+      {
+        "id": "87ed8642-4acb-4e4f-988f-cf4835b4fc0a",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:66": [
+      {
+        "id": "37e4c2a6-e511-4c7c-88cf-8670ec0deb9d",
+        "timestamp": "2025-05-23T18:36:14.896Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:67": [
+      {
+        "id": "56a1fd68-4098-4b34-98cb-271f6762300d",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:68": [
+      {
+        "id": "bf97793e-5235-4e9a-b4c0-5e72ce36e8cb",
+        "timestamp": "2025-05-23T18:36:14.897Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:69": [
+      {
+        "id": "3618364d-3808-4e9e-b73f-2ef916ce9338",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:70": [
+      {
+        "id": "befd47fa-76e7-436f-958d-4465473c224d",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:71": [
+      {
+        "id": "16087fc3-a0f1-41cb-8486-abf30189775c",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:72": [
+      {
+        "id": "4fac6197-f729-4e8a-b3bb-1a6236a5d183",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:73": [
+      {
+        "id": "29fc3656-8c22-4012-89cb-3ac2c7fd4633",
+        "timestamp": "2025-05-23T18:36:14.898Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:74": [
+      {
+        "id": "4a62fad9-f590-481c-ba65-67049f03ccf1",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:75": [
+      {
+        "id": "13db4e6f-f5bd-49ad-8549-2dc62467513f",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:76": [
+      {
+        "id": "879d3496-3d7f-45a3-b185-72c810876767",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:77": [
+      {
+        "id": "c6bb5b82-5483-4b7d-ad02-5b5d5699fa76",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:78": [
+      {
+        "id": "06080760-7785-4094-9177-eff505b31645",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:79": [
+      {
+        "id": "f095cd89-fba5-46a1-8b56-37f89f3db69a",
+        "timestamp": "2025-05-23T18:36:14.899Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:80": [
+      {
+        "id": "66dc2e00-fb68-4369-be8b-ad8272857375",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:81": [
+      {
+        "id": "818f2d21-b926-45d5-848e-bc10a7e6685f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:82": [
+      {
+        "id": "c9271be4-9245-4699-8a16-40756fb13ba6",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:83": [
+      {
+        "id": "9a38d3c2-7ee8-49f2-a867-94c840e4a925",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:84": [
+      {
+        "id": "8ec37c3e-7eb0-40b9-947e-c3ce3257e79f",
+        "timestamp": "2025-05-23T18:36:14.900Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:85": [
+      {
+        "id": "80d6a34b-04bb-43db-9905-140b34ade1e9",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:86": [
+      {
+        "id": "30f499ba-e278-4d08-8d15-0219f73372c0",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:87": [
+      {
+        "id": "44f8af24-a8c6-455c-a3b5-e19448b48778",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:88": [
+      {
+        "id": "1bc239ba-b625-4c5d-aa92-f9059f7db838",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:89": [
+      {
+        "id": "21598535-df90-404b-88a8-45f2fecae6c6",
+        "timestamp": "2025-05-23T18:36:14.901Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:90": [
+      {
+        "id": "6a5c044f-f027-4ecd-bd90-171520b3b04f",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:91": [
+      {
+        "id": "4f275f8b-e772-419f-9893-52c25d004a75",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:92": [
+      {
+        "id": "c2fd25d7-4769-48fb-b090-af92372be8de",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:93": [
+      {
+        "id": "1130c533-5247-4bec-982f-c7a5f0ac99df",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:94": [
+      {
+        "id": "10c76bf2-5ff6-4127-96c0-ca8b0b08f8c7",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:95": [
+      {
+        "id": "e2094490-c4d9-400c-a18b-b490f4f454e3",
+        "timestamp": "2025-05-23T18:36:14.902Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:96": [
+      {
+        "id": "8e50eab5-ce88-409a-8433-d7f38de4acb8",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:97": [
+      {
+        "id": "7c85b5ab-39ed-4870-b7ef-80fdd4a68f7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:98": [
+      {
+        "id": "bbdc616a-4ff7-411b-8b40-19aa044fec7c",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:99": [
+      {
+        "id": "d8b74255-8e75-4ada-aa5a-b75b2d240b19",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:100": [
+      {
+        "id": "0548053e-ef0d-427b-85d9-cf2380e069d0",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:101": [
+      {
+        "id": "43ba28e5-96a7-440e-8dab-5ca280881c01",
+        "timestamp": "2025-05-23T18:36:14.903Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ],
+    "player:102": [
+      {
+        "id": "395c05c5-6d4e-4f35-b0d0-da4ae979bcc0",
+        "timestamp": "2025-05-23T18:36:14.904Z",
+        "userId": "SYSTEM",
+        "action": "GLOBAL_PLAYER_CREATE"
+      }
+    ]
+  }
+}
