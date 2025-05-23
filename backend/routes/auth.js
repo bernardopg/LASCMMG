@@ -1,5 +1,6 @@
 const express = require('express');
 const adminModel = require('../lib/models/adminModel');
+const userModel = require('../lib/models/userModel');
 const router = express.Router();
 const { logger } = require('../lib/logger/logger');
 const {
@@ -7,6 +8,7 @@ const {
   adminLoginSchema,
   changePasswordSchema,
   refreshTokenSchema,
+  userRegistrationSchema,
 } = require('../lib/utils/validationUtils');
 const {
   authMiddleware,
@@ -21,12 +23,36 @@ const { JWT_SECRET, JWT_EXPIRATION } = require('../lib/config/config');
 const crypto = require('crypto');
 
 const rateLimit = require('express-rate-limit');
+
+// Rate limiters específicos
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // máximo 10 tentativas por IP
   message: {
     success: false,
     message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 3, // máximo 3 tentativas de recuperação por IP por hora
+  message: {
+    success: false,
+    message: 'Muitas tentativas de recuperação de senha. Tente novamente em 1 hora.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registrationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // máximo 5 tentativas de registro por IP por 15 minutos
+  message: {
+    success: false,
+    message: 'Muitas tentativas de registro. Tente novamente em 15 minutos.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -47,7 +73,9 @@ router.post(
         );
         return res.status(429).json({
           success: false,
-          message: `Muitas tentativas de login falhas. Conta bloqueada por ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
+          message: `Conta temporariamente bloqueada devido a múltiplas tentativas de login incorretas. Tente novamente em ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
+          errorCode: 'ACCOUNT_LOCKED',
+          retryAfter: AUTH_CONFIG.lockoutDurationMinutes * 60, // em segundos
         });
       }
 
@@ -59,21 +87,28 @@ router.post(
       );
 
       if (authResult.success) {
-      if (authResult.admin && authResult.admin.id) {
-        await clearFailedAttempts(username);
-        await updateUserActivity(authResult.admin.id); // Register initial activity
-        logger.info(
-          { username, userId: authResult.admin.id, success: true, requestId: req.id, ip: req.ip },
-          'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
-        );
-      } else {
-        // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
-         logger.warn(
-          { username, success: true, requestId: req.id, ip: req.ip },
-          'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
-        );
-      }
-        res.json(authResult);
+        if (authResult.admin && authResult.admin.id) {
+          await clearFailedAttempts(username);
+          await updateUserActivity(authResult.admin.id); // Register initial activity
+          logger.info(
+            { username, userId: authResult.admin.id, success: true, requestId: req.id, ip: req.ip },
+            'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
+          );
+        } else {
+          // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
+          logger.warn(
+            { username, success: true, requestId: req.id, ip: req.ip },
+            'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
+          );
+        }
+        res.json({
+          success: true,
+          message: 'Login realizado com sucesso.',
+          token: authResult.token,
+          refreshToken: authResult.refreshToken,
+          admin: authResult.admin,
+          expiresIn: authResult.expiresIn,
+        });
       } else {
         await trackFailedAttempt(username);
         logger.warn(
@@ -86,7 +121,11 @@ router.post(
           },
           'Falha na autenticação do admin.'
         );
-        res.status(401).json(authResult);
+        res.status(401).json({
+          success: false,
+          message: 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.',
+          errorCode: 'INVALID_CREDENTIALS',
+        });
       }
     } catch (error) {
       // Log internal server errors, but avoid tracking them as failed login attempts for specific user
@@ -96,7 +135,8 @@ router.post(
       );
       res.status(500).json({
         success: false,
-        message: 'Erro interno do servidor durante o login.',
+        message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
+        errorCode: 'INTERNAL_ERROR',
       });
     }
   }
@@ -118,6 +158,7 @@ router.post(
       return res.status(403).json({
         success: false,
         message: 'Não autorizado a alterar a senha de outro usuário.',
+        errorCode: 'UNAUTHORIZED',
       });
     }
 
@@ -134,7 +175,10 @@ router.post(
           { username, success: true, requestId: req.id, ip: req.ip },
           'Senha alterada com sucesso'
         );
-        res.json(result);
+        res.json({
+          success: true,
+          message: 'Senha alterada com sucesso.',
+        });
       } else {
         logger.warn(
           {
@@ -146,7 +190,11 @@ router.post(
           },
           'Falha ao alterar senha'
         );
-        res.status(400).json(result);
+        res.status(400).json({
+          success: false,
+          message: result.message,
+          errorCode: 'PASSWORD_CHANGE_FAILED',
+        });
       }
     } catch (error) {
       logger.error(
@@ -156,12 +204,88 @@ router.post(
       res.status(500).json({
         success: false,
         message: 'Erro interno do servidor ao alterar senha.',
+        errorCode: 'INTERNAL_ERROR',
       });
     }
   }
 );
 
-// authMiddleware is already imported at the top
+// Rota para solicitar recuperação de senha
+router.post('/auth/forgot-password', passwordResetLimiter, async (req, res) => {
+  const { email } = req.body;
+
+  // Validação básica do email
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email inválido.',
+      errorCode: 'INVALID_EMAIL',
+    });
+  }
+
+  try {
+    // Por segurança, sempre retorna sucesso mesmo se o email não existir
+    // Isso previne enumeração de usuários
+    logger.info(
+      { email, ip: req.ip, requestId: req.id },
+      'Solicitação de recuperação de senha recebida.'
+    );
+
+    // TODO: Implementar envio de email de recuperação
+    // Por ora, apenas logamos a tentativa
+    res.json({
+      success: true,
+      message: 'Se o email estiver cadastrado, você receberá instruções para redefinir sua senha.',
+    });
+  } catch (error) {
+    logger.error(
+      { err: error, email, requestId: req.id, ip: req.ip },
+      'Erro interno ao processar recuperação de senha.'
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
+      errorCode: 'INTERNAL_ERROR',
+    });
+  }
+});
+
+// Rota para redefinir senha com token
+router.post('/auth/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Token e nova senha são obrigatórios.',
+      errorCode: 'MISSING_FIELDS',
+    });
+  }
+
+  try {
+    // TODO: Implementar validação do token e redefinição da senha
+    logger.info(
+      { ip: req.ip, requestId: req.id },
+      'Tentativa de redefinição de senha com token.'
+    );
+
+    res.json({
+      success: false,
+      message: 'Funcionalidade de redefinição de senha ainda não implementada.',
+      errorCode: 'NOT_IMPLEMENTED',
+    });
+  } catch (error) {
+    logger.error(
+      { err: error, requestId: req.id, ip: req.ip },
+      'Erro interno ao redefinir senha.'
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
+      errorCode: 'INTERNAL_ERROR',
+    });
+  }
+});
 
 // Rota para obter informações do usuário logado (baseado no token)
 router.get('/me', authMiddleware, async (req, res) => {
@@ -178,20 +302,25 @@ router.get('/me', authMiddleware, async (req, res) => {
       },
       'Dados do usuário atual recuperados com sucesso.'
     );
-    res.json({ success: true, user: { id, username, name, role } });
+    res.json({
+      success: true,
+      user: { id, username, name, role }
+    });
   } else {
     // Isso não deveria acontecer se authMiddleware estiver funcionando corretamente
     logger.error(
       { requestId: req.id, ip: req.ip },
       'Erro: /api/auth/me acessado mas req.user não definido após authMiddleware.'
     );
-    res
-      .status(401)
-      .json({ success: false, message: 'Não autenticado ou token inválido.' });
+    res.status(401).json({
+      success: false,
+      message: 'Não autenticado ou token inválido.',
+      errorCode: 'UNAUTHORIZED',
+    });
   }
 });
 
-router.post('/logout', authMiddleware, async (req, res) => {
+router.post('/auth/logout', authMiddleware, async (req, res) => {
   try {
     // req.user é garantido pelo authMiddleware
     const username = req.user.username;
@@ -213,7 +342,10 @@ router.post('/logout', authMiddleware, async (req, res) => {
       { username, success: true, requestId: req.id, ip: req.ip },
       'Logout processado (sem revogação de token ou falha na revogação).'
     );
-    return res.json({ success: true, message: 'Logout processado.' });
+    return res.json({
+      success: true,
+      message: 'Logout realizado com sucesso.'
+    });
   } catch (error) {
     const username = req.user ? req.user.username : 'unknown_user_on_error';
     logger.error(
@@ -223,6 +355,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Erro interno ao processar logout.',
+      errorCode: 'INTERNAL_ERROR',
     });
   }
 });
@@ -236,7 +369,8 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
     if (!refreshToken) {
       return res.status(400).json({
         success: false,
-        message: 'Refresh token não fornecido.'
+        message: 'Refresh token não fornecido.',
+        errorCode: 'MISSING_REFRESH_TOKEN',
       });
     }
 
@@ -249,7 +383,8 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
       if (!isValid.success || !isValid.userId) {
         return res.status(401).json({
           success: false,
-          message: 'Refresh token inválido, expirado ou não associado a um usuário.'
+          message: 'Refresh token inválido ou expirado. Faça login novamente.',
+          errorCode: 'INVALID_REFRESH_TOKEN',
         });
       }
 
@@ -286,7 +421,8 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
       );
       return res.status(401).json({
         success: false,
-        message: 'Refresh token inválido ou expirado.'
+        message: 'Refresh token inválido ou expirado. Faça login novamente.',
+        errorCode: 'INVALID_REFRESH_TOKEN',
       });
     }
   } catch (error) {
@@ -297,8 +433,88 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor durante o refresh de token.',
+      errorCode: 'INTERNAL_ERROR',
     });
   }
 });
+
+// Rota para registro de usuários regulares
+router.post(
+  '/auth/register',
+  registrationLimiter,
+  validateRequest(userRegistrationSchema),
+  async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+      // Verificar se usuário já existe
+      const userExists = await userModel.userExists(username);
+      if (userExists) {
+        logger.warn(
+          { username, ip: req.ip, requestId: req.id },
+          'Tentativa de registro com email já existente.'
+        );
+        return res.status(409).json({
+          success: false,
+          message: 'Este email já está cadastrado. Tente fazer login ou use outro email.',
+          errorCode: 'EMAIL_ALREADY_EXISTS',
+        });
+      }
+
+      // Criar novo usuário
+      const newUser = await userModel.createUser({
+        username,
+        password,
+        ipAddress: req.ip,
+      });
+
+      logger.info(
+        { username: newUser.username, userId: newUser.id, ip: req.ip, requestId: req.id },
+        'Usuário regular registrado com sucesso.'
+      );
+
+      // Gerar token para o novo usuário
+      const token = jwt.sign(
+        { id: newUser.id, username: newUser.username, role: newUser.role },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRATION, jwtid: crypto.randomUUID() }
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Usuário registrado com sucesso! Bem-vindo ao LASCMMG.',
+        token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          role: newUser.role,
+        },
+        expiresIn: parseInt(JWT_EXPIRATION) || 86400,
+      });
+    } catch (error) {
+      if (error.message === 'Username already taken') {
+        logger.warn(
+          { username, ip: req.ip, requestId: req.id },
+          'Tentativa de registro com email já existente (erro do model).'
+        );
+        return res.status(409).json({
+          success: false,
+          message: 'Este email já está cadastrado. Tente fazer login ou use outro email.',
+          errorCode: 'EMAIL_ALREADY_EXISTS',
+        });
+      }
+
+      logger.error(
+        { err: error, username, ip: req.ip, requestId: req.id },
+        'Erro interno durante registro de usuário.'
+      );
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor durante o registro. Tente novamente em alguns minutos.',
+        errorCode: 'INTERNAL_ERROR',
+      });
+    }
+  }
+);
 
 module.exports = router;

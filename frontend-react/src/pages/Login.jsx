@@ -1,50 +1,32 @@
-import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
-import { loginRegularUser, loginUser as loginAdminUser } from '../services/api'; // Import specific login functions
+import { loginRegularUser, loginUser as loginAdminUser } from '../services/api';
+import AuthLayout from '../components/auth/AuthLayout';
+import FormField from '../components/auth/FormField';
 
+/**
+ * Página de Login refatorada com melhor UX/UI e responsividade
+ */
 const Login = () => {
   const navigate = useNavigate();
-  const { login: authContextLogin } = useAuth(); // Renamed to avoid conflict if we add local login function
+  const { login: authContextLogin } = useAuth();
   const { showError, showSuccess } = useMessage();
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
-  const [password, setPassword] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [loginType, setLoginType] = useState('user'); // 'user' ou 'admin'
 
-  // Função para calcular a força da senha
-  useEffect(() => {
-    if (!password) {
-      setPasswordStrength(0);
-      return;
-    }
-
-    let strength = 0;
-    // Critérios de força
-    if (password.length >= 8) strength += 1;
-    if (/[a-z]/.test(password)) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[!@#$%^&*]/.test(password)) strength += 1;
-
-    setPasswordStrength(strength);
-  }, [password]);
-
-  // Esquema de validação com Yup
+  // Esquema de validação
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
       .email('Email inválido')
       .required('Email é obrigatório'),
     password: Yup.string()
       .min(8, 'A senha deve ter pelo menos 8 caracteres')
-      .matches(/[a-z]/, 'Deve conter uma letra minúscula')
-      .matches(/[A-Z]/, 'Deve conter uma letra maiúscula')
-      .matches(/[0-9]/, 'Deve conter um número')
-      .matches(/[!@#$%^&*]/, 'Deve conter um caractere especial')
       .required('Senha é obrigatória'),
+    rememberMe: Yup.boolean(),
     // Campo honeypot para proteção contra bots
     botField: Yup.string().test(
       'is-empty',
@@ -57,40 +39,31 @@ const Login = () => {
   const initialValues = {
     email: '',
     password: '',
-    rememberMe: false, // Adicionado para controlar o checkbox
-    botField: '', // Campo honeypot que deve permanecer vazio
+    rememberMe: false,
+    botField: '',
   };
 
-  // Função de submit do formulário
+  // Função de submit
   const handleSubmit = async (values, { setSubmitting }) => {
-    // For this example, we'll try regular user login.
-    // A more complex UI might have a switch or try admin login on failure.
-    // The `authContextLogin` now expects the API function as its first argument.
-
-    // Determine if it's an admin login attempt (e.g., based on email domain or a UI switch)
-    // This is a simplified heuristic. A real app might have a separate admin login page or a role selector.
-    const isAdminAttempt = values.email.includes('@admin.lascmmg.com') || values.email.startsWith('admin@'); // Example heuristic
-
-    const loginApiFunc = isAdminAttempt ? loginAdminUser : loginRegularUser;
-    const credentials = { username: values.email, password: values.password, rememberMe: values.rememberMe };
-
     try {
       setIsLoading(true);
-      // Pass the specific API login function to AuthContext's login
+
+      const loginApiFunc = loginType === 'admin' ? loginAdminUser : loginRegularUser;
+      const credentials = {
+        username: values.email,
+        password: values.password,
+        rememberMe: values.rememberMe
+      };
+
       await authContextLogin(loginApiFunc, credentials, values.rememberMe);
       showSuccess('Login realizado com sucesso!');
 
-      // Redirect based on role after successful login (AuthContext.currentUser should be updated)
-      // This part needs access to the updated currentUser from AuthContext, which might not be immediate.
-      // It's often better to handle redirection in a useEffect hook in App.jsx or a protected route wrapper
-      // that reacts to `isAuthenticated` and `currentUser.role`.
-      // For now, a simple redirect to home.
-      navigate(isAdminAttempt ? '/admin' : '/');
+      // Redirecionamento baseado no tipo de login
+      navigate(loginType === 'admin' ? '/admin' : '/');
 
     } catch (error) {
       console.error('Erro no login:', error);
       showError(
-        // error.message should now be the one from AuthContext or API service
         error.message || 'Falha na autenticação. Verifique suas credenciais.'
       );
     } finally {
@@ -99,247 +72,183 @@ const Login = () => {
     }
   };
 
+  // Ícones para os campos
+  const EmailIcon = ({ className }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+    </svg>
+  );
+
+  const LockIcon = ({ className }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+    </svg>
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 p-4 sm:p-8 bg-white dark:bg-slate-800 shadow-xl rounded-xl">
-        <div className="flex justify-center mb-6 md:mb-8">
-          <img
-            src="/assets/logo-lascmmg.png"
-            alt="LASCMMG Logo"
-            className="h-16 w-auto transition-transform duration-300 hover:scale-105"
-          />
-        </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white mb-6 md:mb-8">
-          Login - LASCMMG
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Sistema de gerenciamento de torneios da Liga Academica de Sinuca -
-          CMMG
-        </p>
+    <AuthLayout
+      title="Entrar no Sistema"
+      subtitle="Acesse sua conta para gerenciar torneios"
+      alternativeText="Não tem uma conta?"
+      alternativeLink="/register"
+      alternativeLinkText="Crie uma agora"
+      maxWidth="md"
+    >
+      <Formik
+        initialValues={initialValues}
+        validationSchema={LoginSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ errors, touched, values, setFieldValue }) => (
+          <Form className="space-y-6">
+            {/* Seletor de tipo de login */}
+            <div className="flex rounded-lg p-1 bg-gray-100 dark:bg-slate-700">
+              <button
+                type="button"
+                onClick={() => setLoginType('user')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                  loginType === 'user'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                }`}
+              >
+                Usuário
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginType('admin')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                  loginType === 'admin'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                }`}
+              >
+                Administrador
+              </button>
+            </div>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={LoginSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ errors, touched, isSubmitting, setFieldValue }) => (
-            <Form className="mt-8 space-y-6">
-              {/* Removed -space-y-px to allow space for labels */}
-              <div className="rounded-md shadow-sm">
-                <div className="mb-4">
-                  {' '}
-                  {/* Added margin for spacing */}
-                  <label htmlFor="email" className="label mb-1">
-                    {' '}
-                    {/* Changed htmlFor and text to email */}{' '}
-                    {/* Use .label class */}
-                    Email
-                  </label>
-                  <Field
-                    id="email"
-                    name="email" // Changed name to email
-                    type="email" // Changed type to email
-                    autoComplete="email" // Changed autoComplete
-                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email && touched.email // Changed to email
-                      ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                      } rounded-t-md focus:outline-none focus:z-10 sm:text-sm`}
-                    placeholder="Endereço de email" // Changed placeholder
-                  />
-                  <ErrorMessage
-                    name="email" // Changed to email
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
-                </div>
-                <div className="mb-4">
-                  {' '}
-                  {/* Added margin for spacing */}
-                  <label htmlFor="password" className="label mb-1">
-                    {' '}
-                    {/* Use .label class */}
-                    Senha
-                  </label>
-                  <div className="relative">
-                    <Field
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password && touched.password
-                        ? 'border-red-500 text-red-700 dark:text-red-400 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 dark:border-slate-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-primary focus:border-primary dark:bg-slate-700'
-                        } rounded-b-md focus:outline-none focus:z-10 sm:text-sm`}
-                      placeholder="Senha"
-                      onChange={(e) => {
-                        setFieldValue('password', e.target.value);
-                        setPassword(e.target.value);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"
-                    >
-                      {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500 dark:text-gray-400">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                        </svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-500 dark:text-gray-400">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
+            {/* Campo de Email */}
+            <FormField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="seu@email.com"
+              required
+              icon={EmailIcon}
+              errors={errors}
+              touched={touched}
+            />
 
-                  {password && (
-                    <div className="mt-1">
-                      <div className="flex items-center mb-1">
-                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                          <div
-                            className={`h-2 rounded-full ${passwordStrength === 0 ? 'bg-red-500 w-0' :
-                              passwordStrength === 1 ? 'bg-red-500 w-1/5' :
-                                passwordStrength === 2 ? 'bg-yellow-500 w-2/5' :
-                                  passwordStrength === 3 ? 'bg-yellow-500 w-3/5' :
-                                    passwordStrength === 4 ? 'bg-green-500 w-4/5' :
-                                      'bg-green-500 w-full'
-                              }`}
-                          ></div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {passwordStrength === 0 && 'Senha muito fraca'}
-                        {passwordStrength === 1 && 'Senha fraca'}
-                        {passwordStrength === 2 && 'Senha razoável'}
-                        {passwordStrength === 3 && 'Senha média'}
-                        {passwordStrength === 4 && 'Senha forte'}
-                        {passwordStrength === 5 && 'Senha muito forte'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+            {/* Campo de Senha */}
+            <FormField
+              name="password"
+              label="Senha"
+              type="password"
+              placeholder="Sua senha"
+              required
+              showPasswordToggle
+              icon={LockIcon}
+              errors={errors}
+              touched={touched}
+            />
 
-              {/* Campo honeypot - invisível para usuários humanos, mas bots podem preenchê-lo */}
-              <div className="hidden" aria-hidden="true">
-                <Field
-                  id="botField"
-                  name="botField"
-                  type="text"
-                  tabIndex="-1"
-                  autoComplete="off"
+            {/* Campo honeypot - invisível */}
+            <div className="hidden" aria-hidden="true">
+              <FormField
+                name="botField"
+                type="text"
+                tabIndex="-1"
+                autoComplete="off"
+              />
+            </div>
+
+            {/* Opções adicionais */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={values.rememberMe}
+                  onChange={(e) => setFieldValue('rememberMe', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700"
                 />
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  Lembrar-me
+                </label>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Field
-                    id="rememberMe"
-                    name="rememberMe"
-                    type="checkbox"
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-slate-600 rounded dark:bg-slate-700"
-                  />
-                  <label
-                    htmlFor="rememberMe"
-                    className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
-                  >
-                    Lembrar-me
-                  </label>
-                </div>
-
-                <div className="text-sm">
-                  <Link
-                    to="/forgot-password"
-                    className="font-medium text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
-                  >
-                    Esqueceu sua senha?
-                  </Link>
-                </div>
-              </div>
-
-              <div>
+              <div className="text-sm">
                 <button
-                  type="submit"
-                  disabled={isSubmitting || isLoading}
-                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${(isSubmitting || isLoading) &&
-                    'opacity-70 cursor-not-allowed'
-                    }`}
+                  type="button"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                  onClick={() => {
+                    // TODO: Implementar modal de recuperação de senha
+                    showError('Funcionalidade em desenvolvimento');
+                  }}
                 >
-                  {isLoading || isSubmitting ? (
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  ) : (
-                    <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                      <svg
-                        className="h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </span>
-                  )}
-                  {isLoading || isSubmitting ? 'Entrando...' : 'Entrar'}
+                  Esqueceu sua senha?
                 </button>
               </div>
-            </Form>
-          )}
-        </Formik>
+            </div>
 
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400">
-                LASCMMG &copy; {new Date().getFullYear()}
-              </span>
-            </div>
-          </div>
-        </div>
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          Não tem uma conta?{' '}
-          <Link
-            to="/register"
-            className="font-medium text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary"
-          >
-            Crie uma agora
-          </Link>
-        </p>
-      </div>
-    </div>
+            {/* Botão de submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`
+                group relative w-full flex justify-center py-3 px-4
+                border border-transparent text-sm font-medium rounded-lg
+                text-white bg-gradient-to-r from-blue-600 to-indigo-600
+                hover:from-blue-700 hover:to-indigo-700
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
+                shadow-lg hover:shadow-xl
+              `}
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Entrando...
+                </>
+              ) : (
+                <>
+                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                    <LockIcon className="h-5 w-5 text-white opacity-75" />
+                  </span>
+                  Entrar {loginType === 'admin' ? 'como Admin' : ''}
+                </>
+              )}
+            </button>
+
+            {/* Informação adicional para admin */}
+            {loginType === 'admin' && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Acesso Administrativo
+                    </h3>
+                    <div className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                      <p>Você está fazendo login como administrador do sistema.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Form>
+        )}
+      </Formik>
+    </AuthLayout>
   );
 };
 
