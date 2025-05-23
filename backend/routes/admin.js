@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi'); // Import Joi
+const multer = require('multer'); // For file uploads
 const { authMiddleware } = require('../lib/middleware/authMiddleware');
 const { roleMiddleware } = require('../lib/middleware/roleMiddleware'); // Import roleMiddleware
 const playerModel = require('../lib/models/playerModel');
@@ -22,6 +23,19 @@ const {
   paginationQuerySchema, // Generic pagination schema
 } = require('../lib/utils/validationUtils');
 const adminModel = require('../lib/models/adminModel'); // Import adminModel
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos CSV são permitidos'), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 router.use(authMiddleware);
 router.use(roleMiddleware('admin')); // Use the new roleMiddleware
@@ -201,23 +215,20 @@ router.delete(
   }
 );
 
-// == SCORE MANAGEMENT ==
+// == SCORES MANAGEMENT ==
 router.get(
   '/scores',
-  validateRequest(adminGetPlayersQuerySchema),
+  validateRequest(paginationQuerySchema),
   async (req, res) => {
-    // Using adminGetPlayersQuerySchema for now
     try {
-      // Query parameters are now validated and coerced
-      const { page, limit, sortBy, order, filters } = req.query;
+      const { page, limit, sortBy, order } = req.query;
 
-      // Assuming scoreModel.getAllScores supports pagination and filtering
       const { scores, total } = await scoreModel.getAllScores({
         limit,
         offset: (page - 1) * limit,
         sortBy,
         order,
-        filters,
+        includeDeleted: false, // Admin can see all scores but not deleted ones by default
       });
 
       res.json({
@@ -230,11 +241,48 @@ router.get(
     } catch (error) {
       logger.error(
         { component: 'AdminScoresRoute', err: error, requestId: req.id },
-        'Erro ao buscar todos os placares (admin).'
+        'Erro ao buscar todas as pontuações (admin).'
       );
       res
         .status(500)
-        .json({ success: false, message: 'Erro ao buscar placares.' });
+        .json({ success: false, message: 'Erro ao buscar pontuações.' });
+    }
+  }
+);
+
+router.post(
+  '/scores',
+  validateRequest({ body: scoreUpdateSchema.body }),
+  async (req, res) => {
+    const scoreData = req.body;
+    try {
+      const newScore = await scoreModel.createScore(scoreData);
+      logger.info(
+        {
+          component: 'AdminScoresRoute',
+          scoreId: newScore.id,
+          requestId: req.id,
+        },
+        `Nova pontuação criada (admin): ${newScore.id}.`
+      );
+      res.status(201).json({
+        success: true,
+        score: newScore,
+        message: 'Pontuação criada com sucesso.',
+      });
+    } catch (error) {
+      logger.error(
+        {
+          component: 'AdminScoresRoute',
+          err: error,
+          body: req.body,
+          requestId: req.id,
+        },
+        'Erro ao criar pontuação (admin).'
+      );
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro ao criar pontuação.' });
     }
   }
 );
@@ -246,23 +294,23 @@ router.put(
     body: scoreUpdateSchema.body,
   }),
   async (req, res) => {
-    const { scoreId } = req.params; // Validated
-    const scoreData = req.body; // Validated
+    const { scoreId } = req.params;
+    const scoreData = req.body;
     try {
       const updatedScore = await scoreModel.updateScore(scoreId, scoreData);
       if (!updatedScore) {
         return res
           .status(404)
-          .json({ success: false, message: 'Placar não encontrado.' });
+          .json({ success: false, message: 'Pontuação não encontrada.' });
       }
       logger.info(
         { component: 'AdminScoresRoute', scoreId, requestId: req.id },
-        `Placar atualizado (admin): ${scoreId}.`
+        `Pontuação atualizada (admin): ${scoreId}.`
       );
       res.json({
         success: true,
         score: updatedScore,
-        message: 'Placar atualizado com sucesso.',
+        message: 'Pontuação atualizada com sucesso.',
       });
     } catch (error) {
       logger.error(
@@ -273,11 +321,11 @@ router.put(
           body: scoreData,
           requestId: req.id,
         },
-        `Erro ao atualizar placar ${scoreId} (admin).`
+        `Erro ao atualizar pontuação ${scoreId} (admin).`
       );
       res
         .status(500)
-        .json({ success: false, message: 'Erro ao atualizar placar.' });
+        .json({ success: false, message: 'Erro ao atualizar pontuação.' });
     }
   }
 );
@@ -286,14 +334,14 @@ router.delete(
   '/scores/:scoreId',
   validateRequest({ params: scoreIdParamSchema.params }),
   async (req, res) => {
-    const { scoreId } = req.params; // Validated
+    const { scoreId } = req.params;
     const permanent = req.query.permanent === 'true';
     try {
       const success = await scoreModel.deleteScore(scoreId, permanent);
       if (!success) {
         return res.status(404).json({
           success: false,
-          message: 'Placar não encontrado ou já excluído.',
+          message: 'Pontuação não encontrada ou já excluída.',
         });
       }
       logger.info(
@@ -303,11 +351,11 @@ router.delete(
           permanent,
           requestId: req.id,
         },
-        `Placar ${permanent ? 'permanentemente excluído' : 'movido para lixeira'} (admin): ${scoreId}.`
+        `Pontuação ${permanent ? 'permanentemente excluída' : 'movida para lixeira'} (admin): ${scoreId}.`
       );
       res.json({
         success: true,
-        message: `Placar ${permanent ? 'permanentemente excluído' : 'movido para lixeira'} com sucesso.`,
+        message: `Pontuação ${permanent ? 'permanentemente excluída' : 'movida para lixeira'} com sucesso.`,
       });
     } catch (error) {
       logger.error(
@@ -318,11 +366,11 @@ router.delete(
           permanent,
           requestId: req.id,
         },
-        `Erro ao excluir placar ${scoreId} (admin).`
+        `Erro ao excluir pontuação ${scoreId} (admin).`
       );
       res
         .status(500)
-        .json({ success: false, message: 'Erro ao excluir placar.' });
+        .json({ success: false, message: 'Erro ao excluir pontuação.' });
     }
   }
 );
@@ -333,103 +381,66 @@ router.get(
   validateRequest(adminGetTrashQuerySchema),
   async (req, res) => {
     try {
-      // Query parameters are now validated and coerced
-      const { page, limit, type: itemTypeFilter } = req.query;
+      const { page, limit, itemType } = req.query;
 
-      let allItems = [];
-      let totalPlayers = 0,
-        totalScores = 0,
-        totalTournaments = 0;
+      let trashItems = [];
+      let total = 0;
 
-      if (!itemTypeFilter || itemTypeFilter === 'player') {
-        const { players, total } = await playerModel.getAllPlayers({
+      if (!itemType || itemType === 'players') {
+        const { players, total: playersTotal } = await playerModel.getAllPlayers({
+          limit: itemType === 'players' ? limit : undefined,
+          offset: itemType === 'players' ? (page - 1) * limit : 0,
           includeDeleted: true,
-          filters: { is_deleted: 1 },
-          limit,
-          offset: (page - 1) * limit,
+          deletedOnly: true,
         });
-        players.forEach((p) =>
-          allItems.push({
-            ...p,
-            itemType: 'player',
-            deleted_at: p.deleted_at || 'N/A',
-            name: p.name || p.id,
-          })
+        trashItems = trashItems.concat(
+          players.map(player => ({ ...player, type: 'player' }))
         );
-        totalPlayers = total;
-      }
-      if (!itemTypeFilter || itemTypeFilter === 'score') {
-        // Assuming getAllScores can filter by is_deleted and join for names
-        const { scores, total } = await scoreModel.getAllScores({
-          includeDeleted: true,
-          filters: { is_deleted: 1 },
-          limit,
-          offset: (page - 1) * limit,
-        });
-        scores.forEach((s) =>
-          allItems.push({
-            ...s,
-            itemType: 'score',
-            deleted_at: s.deleted_at || 'N/A',
-            name: `Placar ID ${s.id} (Partida ${s.match_id})`,
-          })
-        );
-        totalScores = total;
-      }
-      if (!itemTypeFilter || itemTypeFilter === 'tournament') {
-        const { tournaments, total } = await tournamentModel.getAllTournaments({
-          includeDeleted: true,
-          filters: { is_deleted: 1 },
-          limit,
-          offset: (page - 1) * limit,
-        });
-        tournaments.forEach((t) =>
-          allItems.push({
-            ...t,
-            itemType: 'tournament',
-            deleted_at: t.deleted_at || 'N/A',
-            name: t.name,
-          })
-        );
-        totalTournaments = total;
+        total += playersTotal;
       }
 
-      // Simple combined pagination for now, might need more sophisticated approach if totals are very different
-      const totalItems = totalPlayers + totalScores + totalTournaments;
-      // Sorting can be complex across types, for now, by deleted_at if available, then by type/name
-      allItems.sort((a, b) => {
-        const dateA =
-          a.deleted_at && a.deleted_at !== 'N/A' ? new Date(a.deleted_at) : 0;
-        const dateB =
-          b.deleted_at && b.deleted_at !== 'N/A' ? new Date(b.deleted_at) : 0;
-        if (dateB - dateA !== 0) return dateB - dateA;
-        if (a.itemType !== b.itemType)
-          return a.itemType.localeCompare(b.itemType);
-        return (a.name || '').localeCompare(b.name || '');
-      });
+      if (!itemType || itemType === 'tournaments') {
+        const { tournaments, total: tournamentsTotal } = await tournamentModel.getAllTournaments({
+          limit: itemType === 'tournaments' ? limit : undefined,
+          offset: itemType === 'tournaments' ? (page - 1) * limit : 0,
+          includeDeleted: true,
+        });
+        const deletedTournaments = tournaments.filter(t => t.is_deleted);
+        trashItems = trashItems.concat(
+          deletedTournaments.map(tournament => ({ ...tournament, type: 'tournament' }))
+        );
+        total += deletedTournaments.length;
+      }
 
-      // Manual pagination if results were fetched without it per type or if combining types
-      // This is a simplified pagination for the combined list.
-      // For accurate pagination per type or globally, the model queries would need to be more complex or run separately.
-      const paginatedItems = allItems.slice((page - 1) * limit, page * limit);
+      if (!itemType || itemType === 'scores') {
+        const { scores, total: scoresTotal } = await scoreModel.getAllScores({
+          limit: itemType === 'scores' ? limit : undefined,
+          offset: itemType === 'scores' ? (page - 1) * limit : 0,
+          includeDeleted: true,
+          deletedOnly: true,
+        });
+        trashItems = trashItems.concat(
+          scores.map(score => ({ ...score, type: 'score' }))
+        );
+        total += scoresTotal;
+      }
 
-      logger.info(
-        {
-          component: 'AdminTrashRoute',
-          page,
-          limit,
-          itemTypeFilter,
-          retrievedCount: allItems.length,
-          requestId: req.id,
-        },
-        'Listando itens da lixeira (admin).'
-      );
+      // Sort by deleted_at desc
+      trashItems.sort((a, b) => new Date(b.deleted_at) - new Date(a.deleted_at));
+
+      // Apply pagination if getting all types
+      if (!itemType) {
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        trashItems = trashItems.slice(startIndex, endIndex);
+      }
+
       res.json({
         success: true,
-        items: paginatedItems, // Send only the paginated slice
-        totalPages: Math.ceil(totalItems / limit), // This is an approximation if limits were applied per type
+        trashItems,
+        totalPages: Math.ceil(total / limit),
         currentPage: page,
-        totalItems: totalItems, // Sum of totals if fetched per type
+        totalItems: total,
       });
     } catch (error) {
       logger.error(
@@ -444,53 +455,65 @@ router.get(
 );
 
 router.post(
-  '/trash/restore',
-  validateRequest(trashItemSchema),
+  '/trash/:itemType/:itemId/restore',
+  validateRequest({ params: trashItemSchema.params }),
   async (req, res) => {
-    const { itemId, itemType } = req.body; // Validated
-    // Manual check for itemId and itemType can be removed
-
+    const { itemType, itemId } = req.params;
     try {
       let success = false;
-      if (itemType === 'player') {
-        success = await playerModel.restorePlayer(itemId);
-      } else if (itemType === 'score') {
-        success = await scoreModel.restoreScore(itemId);
-      } else if (itemType === 'tournament') {
-        success = await tournamentModel.restoreTournament(itemId);
-      }
-      // Joi validation already ensures itemType is one of the valid ones,
-      // so the 'else' case for invalid itemType is handled by the validator.
+      let itemName = '';
 
-      if (success) {
-        logger.info(
-          { component: 'AdminTrashRoute', itemId, itemType, requestId: req.id },
-          `Item ${itemType} ${itemId} restaurado da lixeira (admin).`
-        );
-        res.json({
-          success: true,
-          message: `Item (${itemType}) restaurado com sucesso.`,
-        });
-      } else {
-        logger.warn(
-          { component: 'AdminTrashRoute', itemId, itemType, requestId: req.id },
-          `Falha ao restaurar item ${itemType} ${itemId} da lixeira (admin). Item não encontrado ou não restaurável.`
-        );
-        res.status(404).json({
+      switch (itemType) {
+        case 'player':
+          success = await playerModel.restorePlayer(itemId);
+          itemName = 'Jogador';
+          break;
+        case 'tournament':
+          success = await tournamentModel.restoreTournament(itemId);
+          itemName = 'Torneio';
+          break;
+        case 'score':
+          success = await scoreModel.restoreScore(itemId);
+          itemName = 'Pontuação';
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: 'Tipo de item inválido.',
+          });
+      }
+
+      if (!success) {
+        return res.status(404).json({
           success: false,
-          message: 'Item não encontrado ou não pôde ser restaurado.',
+          message: `${itemName} não encontrado na lixeira.`,
         });
       }
+
+      logger.info(
+        {
+          component: 'AdminTrashRoute',
+          itemType,
+          itemId,
+          requestId: req.id,
+        },
+        `${itemName} restaurado da lixeira (admin): ${itemId}.`
+      );
+
+      res.json({
+        success: true,
+        message: `${itemName} restaurado com sucesso.`,
+      });
     } catch (error) {
       logger.error(
         {
           component: 'AdminTrashRoute',
           err: error,
-          itemId,
           itemType,
+          itemId,
           requestId: req.id,
         },
-        `Erro ao restaurar item ${itemId} (${itemType}) da lixeira (admin).`
+        `Erro ao restaurar item ${itemId} da lixeira (admin).`
       );
       res
         .status(500)
@@ -499,130 +522,329 @@ router.post(
   }
 );
 
-// Changed to use path parameters for itemId and itemType
-const trashItemPathSchema = {
-  params: Joi.object({
-    itemType: Joi.string().valid('player', 'score', 'tournament').required(),
-    itemId: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
-  }),
-};
-
 router.delete(
-  '/trash/item/:itemType/:itemId', // Changed route to use path parameters
-  validateRequest(trashItemPathSchema), // Use a new schema for path parameters
+  '/trash/:itemType/:itemId',
+  validateRequest({ params: trashItemSchema.params }),
   async (req, res) => {
-    const { itemId, itemType } = req.params; // Get from path parameters
-
+    const { itemType, itemId } = req.params;
     try {
       let success = false;
-      if (itemType === 'player') {
-        success = await playerModel.deletePlayer(itemId, true); // true for permanent
-      } else if (itemType === 'score') {
-        success = await scoreModel.deleteScore(itemId, true); // true for permanent
-      } else if (itemType === 'tournament') {
-        success = await tournamentModel.deleteTournament(itemId, true); // true for permanent
-      }
-      // Joi validation handles invalid itemType
+      let itemName = '';
 
-      if (success) {
-        logger.info(
-          { component: 'AdminTrashRoute', itemId, itemType, requestId: req.id },
-          `Item ${itemType} ${itemId} excluído permanentemente da lixeira (admin).`
-        );
-        res.json({
-          success: true,
-          message: `Item (${itemType}) excluído permanentemente.`,
-        });
-      } else {
-        logger.warn(
-          { component: 'AdminTrashRoute', itemId, itemType, requestId: req.id },
-          `Falha ao excluir permanentemente item ${itemType} ${itemId} (admin). Item não encontrado.`
-        );
-        res.status(404).json({
+      switch (itemType) {
+        case 'player':
+          success = await playerModel.deletePlayer(itemId, true); // permanent = true
+          itemName = 'Jogador';
+          break;
+        case 'tournament':
+          success = await tournamentModel.deleteTournament(itemId, true); // permanent = true
+          itemName = 'Torneio';
+          break;
+        case 'score':
+          success = await scoreModel.deleteScore(itemId, true); // permanent = true
+          itemName = 'Pontuação';
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: 'Tipo de item inválido.',
+          });
+      }
+
+      if (!success) {
+        return res.status(404).json({
           success: false,
-          message: 'Item não encontrado para exclusão permanente.',
+          message: `${itemName} não encontrado.`,
         });
       }
+
+      logger.info(
+        {
+          component: 'AdminTrashRoute',
+          itemType,
+          itemId,
+          requestId: req.id,
+        },
+        `${itemName} excluído permanentemente (admin): ${itemId}.`
+      );
+
+      res.json({
+        success: true,
+        message: `${itemName} excluído permanentemente.`,
+      });
     } catch (error) {
       logger.error(
         {
           component: 'AdminTrashRoute',
           err: error,
-          itemId,
           itemType,
+          itemId,
           requestId: req.id,
         },
-        `Erro ao excluir permanentemente item ${itemId} (${itemType}) (admin).`
+        `Erro ao excluir permanentemente item ${itemId} (admin).`
       );
-      res.status(500).json({
-        success: false,
-        message: 'Erro ao excluir item permanentemente.',
-      });
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro ao excluir item permanentemente.' });
+    }
+  }
+);
+
+// == IMPORT/UPLOAD MANAGEMENT ==
+router.post(
+  '/import/players',
+  upload.single('file'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Arquivo CSV é obrigatório.',
+        });
+      }
+
+      const { tournamentId } = req.body;
+      const filePath = req.file.path;
+
+      // Process CSV file
+      const fs = require('fs');
+      const csv = require('csv-parser'); // You'll need to install csv-parser
+      const players = [];
+
+      const stream = fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          // Expected CSV format: name, nickname, email, gender, skill_level
+          players.push({
+            name: row.name?.trim(),
+            nickname: row.nickname?.trim() || null,
+            email: row.email?.trim() || null,
+            gender: row.gender?.trim() || null,
+            skill_level: row.skill_level?.trim() || null,
+            tournament_id: tournamentId || null,
+          });
+        })
+        .on('end', async () => {
+          try {
+            const imported = await playerModel.importPlayers(players);
+
+            // Clean up uploaded file
+            fs.unlinkSync(filePath);
+
+            logger.info(
+              {
+                component: 'AdminImportRoute',
+                imported,
+                total: players.length,
+                requestId: req.id,
+              },
+              `Importação de jogadores concluída (admin): ${imported}/${players.length}.`
+            );
+
+            res.json({
+              success: true,
+              imported,
+              total: players.length,
+              message: `${imported} jogadores importados com sucesso de ${players.length} registros.`,
+            });
+          } catch (importError) {
+            // Clean up uploaded file on error
+            fs.unlinkSync(filePath);
+            throw importError;
+          }
+        });
+
+    } catch (error) {
+      logger.error(
+        {
+          component: 'AdminImportRoute',
+          err: error,
+          requestId: req.id,
+        },
+        'Erro ao importar jogadores (admin).'
+      );
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro ao importar jogadores.' });
+    }
+  }
+);
+
+router.post(
+  '/import/tournaments',
+  upload.single('file'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Arquivo CSV é obrigatório.',
+        });
+      }
+
+      const filePath = req.file.path;
+
+      // Process CSV file
+      const fs = require('fs');
+      const csv = require('csv-parser');
+      const tournaments = [];
+
+      const stream = fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          // Expected CSV format: id, name, date, description, num_players_expected, bracket_type, status
+          tournaments.push({
+            id: row.id?.trim(),
+            name: row.name?.trim(),
+            date: row.date?.trim(),
+            description: row.description?.trim() || null,
+            num_players_expected: parseInt(row.num_players_expected) || null,
+            bracket_type: row.bracket_type?.trim() || 'single-elimination',
+            status: row.status?.trim() || 'Pendente',
+            entry_fee: parseFloat(row.entry_fee) || 0.0,
+            prize_pool: row.prize_pool?.trim() || '',
+            rules: row.rules?.trim() || '',
+          });
+        })
+        .on('end', async () => {
+          try {
+            const imported = await tournamentModel.importTournaments(tournaments);
+
+            // Clean up uploaded file
+            fs.unlinkSync(filePath);
+
+            logger.info(
+              {
+                component: 'AdminImportRoute',
+                imported,
+                total: tournaments.length,
+                requestId: req.id,
+              },
+              `Importação de torneios concluída (admin): ${imported}/${tournaments.length}.`
+            );
+
+            res.json({
+              success: true,
+              imported,
+              total: tournaments.length,
+              message: `${imported} torneios importados com sucesso de ${tournaments.length} registros.`,
+            });
+          } catch (importError) {
+            // Clean up uploaded file on error
+            fs.unlinkSync(filePath);
+            throw importError;
+          }
+        });
+
+    } catch (error) {
+      logger.error(
+        {
+          component: 'AdminImportRoute',
+          err: error,
+          requestId: req.id,
+        },
+        'Erro ao importar torneios (admin).'
+      );
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro ao importar torneios.' });
     }
   }
 );
 
 // == ADMIN USER MANAGEMENT ==
-// GET /api/admin/users - List admin users
-// The global router.use(roleMiddleware('admin')) at the top of this file already protects this.
-router.get(
-  '/users',
-  // roleMiddleware('admin'), // Redundant, removed.
-  validateRequest(paginationQuerySchema), // Use generic pagination for now
-  async (req, res) => {
-    try {
-      // const { page, limit } = req.query; // For pagination if implemented in model
-      const admins = await adminModel.getAllAdmins();
-      res.json({ success: true, users: admins });
-    } catch (error) {
-      logger.error(
-        { component: 'AdminUsersRoute', err: error, requestId: req.id },
-        'Erro ao buscar lista de administradores.'
-      );
-      res.status(500).json({ success: false, message: 'Erro ao buscar administradores.' });
-    }
-  }
-);
-
-// POST /api/admin/users - Create a new admin user
-// The global router.use(roleMiddleware('admin')) at the top of this file already protects this.
 router.post(
   '/users',
-  // roleMiddleware('admin'), // Redundant, removed.
-  validateRequest(adminUserCreateSchema),
+  validateRequest({ body: adminUserCreateSchema.body }),
   async (req, res) => {
-    const { username, password, role, name } = req.body; // 'name' might be optional or part of a profile
+    const userData = req.body;
     try {
-      const existingAdmin = await adminModel.getAdminByUsername(username);
-      if (existingAdmin) {
-        return res.status(409).json({ success: false, message: 'Nome de usuário já existe.' });
-      }
-      // adminModel.createAdmin expects an object with username and password.
-      // Role is set to 'admin' by default in createAdmin. If a different role is passed,
-      // createAdmin might need adjustment or use a different function.
-      // For now, assuming createAdmin sets role to 'admin'.
-      // If 'name' is part of the users table, createAdmin should handle it or an update is needed.
-      const newAdmin = await adminModel.createAdmin({
-        username,
-        password,
-        // name: name, // If your createAdmin and users table support a 'name' field
-        // role: role || 'admin' // If role can be specified and createAdmin supports it
-        ipAddress: req.ip // Pass IP for audit logging
+      const newUser = await adminModel.createAdminUser(userData);
+      logger.info(
+        {
+          component: 'AdminUsersRoute',
+          userId: newUser.id,
+          username: newUser.username,
+          requestId: req.id,
+        },
+        `Novo usuário admin criado: ${newUser.username}.`
+      );
+      res.status(201).json({
+        success: true,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          role: newUser.role,
+          created_at: newUser.created_at,
+        },
+        message: 'Usuário administrativo criado com sucesso.',
       });
-
-      // Exclude hashedPassword from the response
-      const { hashedPassword, ...adminDetails } = newAdmin;
-
-      res.status(201).json({ success: true, message: 'Administrador criado com sucesso.', user: adminDetails });
     } catch (error) {
       logger.error(
-        { component: 'AdminUsersRoute', err: error, body: req.body, requestId: req.id },
-        'Erro ao criar administrador.'
+        {
+          component: 'AdminUsersRoute',
+          err: error,
+          body: req.body,
+          requestId: req.id,
+        },
+        'Erro ao criar usuário admin.'
       );
-      res.status(500).json({ success: false, message: 'Erro ao criar administrador.' });
+      if (error.message && error.message.includes('UNIQUE constraint failed')) {
+        return res.status(409).json({
+          success: false,
+          message: 'Nome de usuário já existe.',
+        });
+      }
+      res
+        .status(500)
+        .json({ success: false, message: 'Erro ao criar usuário.' });
     }
   }
 );
 
+// == STATISTICS ==
+router.get('/stats', async (req, res) => {
+  try {
+    const [
+      tournamentStats,
+      playerStats,
+      scoreStats,
+    ] = await Promise.all([
+      tournamentModel.getTournamentStats(),
+      playerModel.getPlayerStats(),
+      scoreModel.getScoreStats(),
+    ]);
+
+    const overallStats = {
+      tournaments: tournamentStats,
+      players: playerStats,
+      scores: scoreStats,
+      summary: {
+        totalTournaments: tournamentStats.total,
+        totalPlayers: playerStats.total,
+        totalScores: scoreStats.total,
+        activeTournaments: tournamentStats.active,
+        deletedItems: {
+          tournaments: tournamentStats.softDeleted || 0,
+          players: playerStats.softDeleted || 0,
+          scores: scoreStats.softDeleted || 0,
+        },
+      },
+    };
+
+    res.json({
+      success: true,
+      stats: overallStats,
+    });
+  } catch (error) {
+    logger.error(
+      { component: 'AdminStatsRoute', err: error, requestId: req.id },
+      'Erro ao buscar estatísticas administrativas.'
+    );
+    res
+      .status(500)
+      .json({ success: false, message: 'Erro ao buscar estatísticas.' });
+  }
+});
 
 module.exports = router;

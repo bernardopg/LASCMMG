@@ -34,6 +34,7 @@ const {
 const { globalErrorHandler } = require('./lib/middleware/errorHandler');
 const { applyDatabaseMigrations } = require('./lib/db/db-init');
 const { connectToRedis } = require('./lib/db/redisClient'); // Import Redis connection
+const performanceInitializer = require('./lib/performance/performanceInitializer');
 const { logger, httpLogger } = require('./lib/logger/logger');
 
 const app = express();
@@ -282,9 +283,11 @@ const authRoutes = require('./routes/auth');
 const tournamentRoutes = require('./routes/tournaments.js');
 const securityRoutes = require('./routes/security.js');
 const adminRoutes = require('./routes/admin'); // Novo router para admin
+const backupRoutes = require('./routes/backup'); // Rotas de backup
 const scoresRoutes = require('./routes/scores'); // Novo router para scores
 const playerRoutes = require('./routes/player'); // Import player routes
 const userRoutes = require('./routes/users'); // Added for user routes
+const performanceRoutes = require('./routes/performance'); // Performance monitoring routes
 // const statsRoutes = require('./routes/stats'); // Removido pois as rotas foram movidas
 const { checkDbConnection } = require('./lib/db/database');
 
@@ -292,6 +295,8 @@ app.use('/api', authRoutes);
 app.use('/api/tournaments', tournamentRoutes); // Agora inclui as rotas de estatísticas de torneio e jogador
 app.use('/api/system', securityRoutes);
 app.use('/api/admin', adminRoutes); // Montar as rotas de admin
+app.use('/api/admin/backup', backupRoutes); // Montar as rotas de backup
+app.use('/api/admin/performance', performanceRoutes); // Performance monitoring routes
 app.use('/api/scores', scoresRoutes); // Montar as rotas de scores
 app.use('/api/players', playerRoutes); // Mount player routes
 app.use('/api/users', userRoutes); // Use the user routes
@@ -409,6 +414,24 @@ async function startServer() {
   try {
     await applyDatabaseMigrations();
     await connectToRedis(); // Initialize Redis connection
+
+    // Initialize performance optimizations
+    try {
+      await performanceInitializer.initialize();
+      logger.info('Sistema de performance inicializado com sucesso');
+    } catch (err) {
+      logger.warn({ err }, 'Falha ao inicializar sistema de performance, continuando sem otimizações');
+    }
+
+    // Initialize backup system
+    try {
+      const backupManager = require('./lib/backup/backupManager');
+      await backupManager.initialize();
+      logger.info('Sistema de backup inicializado com sucesso');
+    } catch (err) {
+      logger.warn({ err }, 'Falha ao inicializar sistema de backup, continuando sem backups automáticos');
+    }
+
     const server = httpServer.listen(port, () => {
       logger.info(`Servidor rodando em http://localhost:${port}`);
     });

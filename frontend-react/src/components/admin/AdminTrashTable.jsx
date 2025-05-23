@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   getTrashItems,
   restoreTrashItem,
-  permanentlyDeleteDBItem,
+  permanentlyDeleteTrashItem,
 } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUndo, FaTrashAlt, FaFilter } from 'react-icons/fa';
@@ -16,15 +16,15 @@ const AdminTrashTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
-  const [itemTypeFilter, setItemTypeFilter] = useState(''); // 'player', 'score', or '' for all
+  const [itemTypeFilter, setItemTypeFilter] = useState(''); // 'player', 'score', 'tournament' or '' for all
 
   const fetchTrashItems = useCallback(
     async (page = 1, type = '') => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getTrashItems({ page, limit, type: type || null });
-        setTrashItems(data.items || []);
+        const data = await getTrashItems({ page, limit, itemType: type || null });
+        setTrashItems(data.trashItems || []);
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
       } catch (err) {
@@ -52,7 +52,7 @@ const AdminTrashTable = () => {
       )
     ) {
       try {
-        await restoreTrashItem(itemId, itemType);
+        await restoreTrashItem(itemType, itemId);
         showMessage('Item restaurado com sucesso!', 'success');
         fetchTrashItems(currentPage, itemTypeFilter); // Refresh list
       } catch (err) {
@@ -71,7 +71,7 @@ const AdminTrashTable = () => {
       )
     ) {
       try {
-        await permanentlyDeleteDBItem(itemId, itemType);
+        await permanentlyDeleteTrashItem(itemType, itemId);
         showMessage('Item excluído permanentemente.', 'success');
         fetchTrashItems(currentPage, itemTypeFilter); // Refresh list
       } catch (err) {
@@ -84,20 +84,28 @@ const AdminTrashTable = () => {
   };
 
   const getItemDescription = (item) => {
-    // The backend GET /api/admin/trash flattens properties onto the item.
-    // 'name' is a common property added by the backend for display.
-    // 'id' is the original entity ID.
-    switch (item.itemType) { // item.itemType is what backend sends
+    switch (item.type) {
       case 'player':
-        return `Jogador: ${item.name || item.id}`;
+        return `Jogador: ${item.name || item.nickname || item.id}`;
       case 'score':
-        // Backend constructs a 'name' for score: `Placar ID ${s.id} (Partida ${s.match_id})`
-        // We can use that or reconstruct if more detail is needed from item properties.
-        return item.name || `Placar ID: ${item.id} (Partida: ${item.match_id}, ${item.player1_score}x${item.player2_score})`;
+        return `Placar: ${item.player1_name || 'Jogador 1'} vs ${item.player2_name || 'Jogador 2'} (${item.player1_score || 0}-${item.player2_score || 0})`;
       case 'tournament':
         return `Torneio: ${item.name || item.id}`;
       default:
-        return `ID: ${item.id} (Tipo: ${item.itemType})`;
+        return `ID: ${item.id} (Tipo: ${item.type})`;
+    }
+  };
+
+  const getItemTypeName = (type) => {
+    switch (type) {
+      case 'player':
+        return 'Jogador';
+      case 'score':
+        return 'Placar';
+      case 'tournament':
+        return 'Torneio';
+      default:
+        return type;
     }
   };
 
@@ -127,9 +135,9 @@ const AdminTrashTable = () => {
           className="input text-sm py-1.5"
         >
           <option value="">Todos</option>
-          <option value="player">Jogador</option>
-          <option value="score">Placar</option>
-          <option value="tournament">Torneio</option>
+          <option value="players">Jogadores</option>
+          <option value="scores">Placares</option>
+          <option value="tournaments">Torneios</option>
         </select>
       </div>
       <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
@@ -163,21 +171,21 @@ const AdminTrashTable = () => {
             ) : (
               trashItems.map((item) => (
                 <tr
-                  key={`${item.itemType}-${item.id}`} // Use item.id (original entity ID) and item.itemType
+                  key={`${item.type}-${item.id}`}
                   className="hover:bg-gray-700"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                     {getItemDescription(item)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {item.itemType} {/* Use item.itemType */}
+                    {getItemTypeName(item.type)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                     {item.deleted_at ? new Date(item.deleted_at).toLocaleString('pt-BR') : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
-                      onClick={() => handleRestore(item.id, item.itemType)} // Use item.id and item.itemType
+                      onClick={() => handleRestore(item.id, item.type)}
                       className="text-green-400 hover:text-green-300"
                       title="Restaurar Item"
                     >
@@ -185,7 +193,7 @@ const AdminTrashTable = () => {
                     </button>
                     <button
                       onClick={() =>
-                        handlePermanentDelete(item.id, item.itemType) // Use item.id and item.itemType
+                        handlePermanentDelete(item.id, item.type)
                       }
                       className="text-red-500 hover:text-red-400"
                       title="Excluir Permanentemente"

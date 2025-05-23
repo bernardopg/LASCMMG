@@ -6,8 +6,8 @@
  * all API endpoints.
  *
  * @module api
- * @version 2.2.0
- * @lastUpdated 2025-05-21
+ * @version 2.3.0
+ * @lastUpdated 2025-05-23
  */
 
 /* eslint-env browser */
@@ -476,10 +476,9 @@ export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
   }
 };
 
-
 export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
   if (permanent) {
-    const response = await api.delete(`/api/admin/trash/item/tournament/${tournamentId}`);
+    const response = await api.delete(`/api/admin/trash/tournament/${tournamentId}`);
     return response.data;
   } else {
     const response = await api.patch(
@@ -550,48 +549,6 @@ export const deletePlayerAdmin = async (playerId, permanent = false) => {
   return response.data;
 };
 
-// export const bulkDeletePlayersAdmin = async (playerIds, permanent = false) => {
-//   // Endpoint /api/admin/players/bulk-delete does not exist in current backend
-//   const response = await api.post(`/api/admin/players/bulk-delete`, {
-//     playerIds,
-//     permanent
-//   });
-//   return response.data;
-// };
-
-// export const importPlayersAdmin = async (playersCsv) => {
-//   // Endpoint /api/admin/players/import for CSV does not exist.
-//   // Backend has /api/tournaments/:tournamentId/players/import for JSON.
-//   const formData = new FormData();
-//   formData.append('file', playersCsv);
-
-//   const response = await api.post('/api/admin/players/import', formData, {
-//     headers: {
-//       'Content-Type': 'multipart/form-data',
-//     },
-//   });
-//   return response.data;
-// };
-
-// export const exportPlayersAdmin = async (format = 'csv', filters = {}) => {
-//   // Endpoint /api/admin/players/export does not exist
-//   const response = await api.get('/api/admin/players/export', {
-//     params: { format, ...filters },
-//     responseType: 'blob',
-//   });
-
-  // Create download link
-//   const url = window.URL.createObjectURL(new Blob([response.data]));
-//   const link = document.createElement('a');
-//   link.href = url;
-//   link.setAttribute('download', `players_export_${new Date().toISOString().split('T')[0]}.${format}`);
-//   document.body.appendChild(link);
-//   link.click();
-//   link.remove();
-
-//   return { success: true, message: `Jogadores exportados em formato ${format.toUpperCase()}` };
-// };
-
 export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
   const response = await api.post(
     `/api/tournaments/${tournamentId}/assign_player`,
@@ -617,12 +574,17 @@ export const getAdminScores = async ({
   page = 1,
   limit = 10,
   sortBy = 'timestamp',
-  sortDirection = 'desc',
+  order = 'desc',
   ...filters
 } = {}) => {
   const response = await api.get('/api/admin/scores', {
-    params: { page, limit, sortBy, sortDirection, ...filters },
+    params: { page, limit, sortBy, order, ...filters },
   });
+  return response.data;
+};
+
+export const createScoreAdmin = async (scoreData) => {
+  const response = await api.post('/api/admin/scores', scoreData);
   return response.data;
 };
 
@@ -654,32 +616,62 @@ export const getPlayerStats = async (tournamentId, playerName) => {
   return response.data;
 };
 
+export const getAdminStats = async () => {
+  const response = await api.get('/api/admin/stats');
+  return response.data;
+};
+
 /**
  * Admin - Trash Management
  */
 export const getTrashItems = async ({
   page = 1,
   limit = 10,
-  type = null,
+  itemType = null,
 } = {}) => {
   const response = await api.get('/api/admin/trash', {
-    params: { page, limit, type },
+    params: { page, limit, itemType },
   });
   return response.data;
 };
 
-export const restoreTrashItem = async (itemId, itemType) => {
-  const response = await api.post(`/api/admin/trash/restore`, {
-    itemId,
-    itemType,
+export const restoreTrashItem = async (itemType, itemId) => {
+  const response = await api.post(`/api/admin/trash/${itemType}/${itemId}/restore`);
+  return response.data;
+};
+
+export const permanentlyDeleteTrashItem = async (itemType, itemId) => {
+  const response = await api.delete(`/api/admin/trash/${itemType}/${itemId}`);
+  return response.data;
+};
+
+/**
+ * Admin - Import/Upload Management
+ */
+export const importPlayersAdmin = async (file, tournamentId = null) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (tournamentId) {
+    formData.append('tournamentId', tournamentId);
+  }
+
+  const response = await api.post('/api/admin/import/players', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
   return response.data;
 };
 
-export const permanentlyDeleteDBItem = async (itemId, itemType) => {
-  const response = await api.delete(
-    `/api/admin/trash/item/${itemType}/${itemId}`
-  );
+export const importTournamentsAdmin = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await api.post('/api/admin/import/tournaments', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 
@@ -735,18 +727,6 @@ export const createAdminUser = async (userData) => {
   const response = await api.post('/api/admin/users', userData);
   return response.data;
 };
-
-// export const updateAdminUser = async (userId, userData) => {
-//   // Endpoint PUT /api/admin/users/:userId does not exist
-//   const response = await api.put(`/api/admin/users/${userId}`, userData);
-//   return response.data;
-// };
-
-// export const deleteAdminUser = async (userId) => {
-//   // Endpoint DELETE /api/admin/users/:userId does not exist
-//   const response = await api.delete(`/api/admin/users/${userId}`);
-//   return response.data;
-// };
 
 /**
  * Health Check/Status API

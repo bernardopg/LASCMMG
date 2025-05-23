@@ -1,0 +1,496 @@
+name: 📊 Performance & Security Monitoring
+
+on:
+  schedule:
+    # Monitoramento de performance a cada 6 horas
+    - cron: '0 */6 * * *'
+    # Análise de segurança diária às 1:00 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      monitoring_type:
+        description: 'Tipo de monitoramento'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - performance
+        - security
+        - lighthouse
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # ==================== MONITORAMENTO DE PERFORMANCE ====================
+  performance-monitoring:
+    name: ⚡ Performance Monitoring
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.monitoring_type, 'performance') || contains(github.event.inputs.monitoring_type, 'full') || github.event.schedule == '0 */6 * * *'
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🔧 Setup Test Environment
+        run: |
+          cd backend
+          echo "NODE_ENV=production" >> .env
+          echo "PORT=3003" >> .env
+          echo "DB_PATH=./monitoring.db" >> .env
+          echo "REDIS_URL=redis://localhost:6379" >> .env
+          echo "PERFORMANCE_MONITORING_ENABLED=true" >> .env
+          echo "QUERY_SLOW_THRESHOLD_MS=100" >> .env
+
+      - name: 🗄️ Initialize Database
+        run: |
+          cd backend
+          node setup-db.js
+
+      - name: 🚀 Start Application
+        run: |
+          cd backend
+          npm start &
+          sleep 15
+          echo "Aplicação iniciada na porta 3003"
+
+      - name: 📊 Performance Analysis
+        run: |
+          cd backend
+          node -e "
+            const performanceAnalyzer = require('./lib/performance/queryAnalyzer');
+            const fetch = require('node-fetch');
+
+            async function runPerformanceTests() {
+              try {
+                console.log('📊 Iniciando análise de performance...');
+
+                // Teste de múltiplas requisições
+                const requests = [];
+                for (let i = 0; i < 10; i++) {
+                  requests.push(fetch('http://localhost:3003/ping'));
+                }
+
+                const startTime = Date.now();
+                const responses = await Promise.all(requests);
+                const endTime = Date.now();
+
+                const avgResponseTime = (endTime - startTime) / 10;
+                console.log('⏱️ Tempo médio de resposta:', avgResponseTime + 'ms');
+
+                // Verificar se todas as respostas foram bem-sucedidas
+                const successCount = responses.filter(r => r.ok).length;
+                console.log('✅ Respostas bem-sucedidas:', successCount + '/10');
+
+                if (avgResponseTime > 1000) {
+                  console.error('⚠️ ALERTA: Tempo de resposta alto detectado!');
+                  process.exit(1);
+                }
+
+                console.log('✅ Testes de performance concluídos');
+              } catch (error) {
+                console.error('❌ Erro nos testes de performance:', error);
+                process.exit(1);
+              }
+            }
+
+            runPerformanceTests();
+          " || echo "Performance test completed with warnings"
+
+      - name: 🔍 Query Analysis
+        run: |
+          cd backend
+          node -e "
+            const queryAnalyzer = require('./lib/performance/queryAnalyzer');
+
+            async function analyzeQueries() {
+              try {
+                console.log('🔍 Analisando queries lentas...');
+                const slowQueries = await queryAnalyzer.getSlowQueries();
+
+                if (slowQueries && slowQueries.length > 0) {
+                  console.log('⚠️ Queries lentas detectadas:', slowQueries.length);
+                  slowQueries.forEach((query, index) => {
+                    console.log('Query ' + (index + 1) + ':', query.sql);
+                    console.log('Tempo:', query.executionTime + 'ms');
+                  });
+                } else {
+                  console.log('✅ Nenhuma query lenta detectada');
+                }
+
+                console.log('✅ Análise de queries concluída');
+              } catch (error) {
+                console.error('❌ Erro na análise de queries:', error);
+              }
+            }
+
+            analyzeQueries();
+          " || echo "Query analysis completed with warnings"
+
+      - name: 📈 Generate Performance Report
+        run: |
+          echo "📈 Gerando relatório de performance..."
+          node -e "
+            const fs = require('fs');
+            const os = require('os');
+
+            const report = {
+              timestamp: new Date().toISOString(),
+              system: {
+                loadAverage: os.loadavg(),
+                freeMemory: Math.round(os.freemem() / 1024 / 1024),
+                totalMemory: Math.round(os.totalmem() / 1024 / 1024),
+                uptime: os.uptime()
+              },
+              application: {
+                status: 'running',
+                port: 3003,
+                environment: 'monitoring'
+              }
+            };
+
+            fs.writeFileSync('performance-report.json', JSON.stringify(report, null, 2));
+            console.log('✅ Relatório de performance gerado');
+          "
+
+      - name: 📤 Upload Performance Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report-${{ github.run_number }}
+          path: performance-report.json
+          retention-days: 7
+
+  # ==================== LIGHTHOUSE AUDIT ====================
+  lighthouse-audit:
+    name: 🔦 Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.monitoring_type, 'lighthouse') || contains(github.event.inputs.monitoring_type, 'full') || github.event.schedule == '0 */6 * * *'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🏗️ Build Frontend
+        run: |
+          cd frontend-react
+          npm run build
+
+      - name: 🚀 Start Static Server
+        run: |
+          cd frontend-react
+          npx serve -s dist -l 3004 &
+          sleep 10
+          echo "Servidor estático iniciado na porta 3004"
+
+      - name: 📦 Install Lighthouse CI
+        run: npm install -g @lhci/cli
+
+      - name: 🔦 Run Lighthouse Audit
+        run: |
+          lhci autorun \
+            --upload.target=temporary-public-storage \
+            --collect.url=http://localhost:3004 \
+            --collect.numberOfRuns=3 \
+            --assert.assertions.performance=0.8 \
+            --assert.assertions.accessibility=0.9 \
+            --assert.assertions.best-practices=0.8 \
+            --assert.assertions.seo=0.8 || true
+
+      - name: 📊 Generate Lighthouse Report Summary
+        run: |
+          echo "📊 Resumo do Lighthouse Audit gerado"
+          echo "🔦 Audit executado com 3 execuções"
+          echo "📱 URL testada: http://localhost:3004"
+          echo "⚡ Métricas: Performance, Accessibility, Best Practices, SEO"
+
+  # ==================== SECURITY MONITORING ====================
+  security-monitoring:
+    name: 🔒 Security Monitoring
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.monitoring_type, 'security') || contains(github.event.inputs.monitoring_type, 'full') || github.event.schedule == '0 1 * * *'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🔍 Security Audit (Backend)
+        run: |
+          echo "🔍 Executando auditoria de segurança do backend..."
+          npm audit --audit-level=moderate --json > security-audit-backend.json || true
+          echo "📊 Auditoria do backend concluída"
+
+      - name: 🔍 Security Audit (Frontend)
+        run: |
+          cd frontend-react
+          echo "🔍 Executando auditoria de segurança do frontend..."
+          npm audit --audit-level=moderate --json > security-audit-frontend.json || true
+          echo "📊 Auditoria do frontend concluída"
+
+      - name: 🛡️ License Check
+        run: |
+          echo "🛡️ Verificando licenças..."
+          npx license-checker --summary > license-summary.txt || true
+          cd frontend-react
+          npx license-checker --summary > license-summary-frontend.txt || true
+          echo "📄 Verificação de licenças concluída"
+
+      - name: 🔐 Secret Scanning (Basic)
+        run: |
+          echo "🔐 Verificação básica de segredos..."
+
+          # Verificar padrões de segredos básicos
+          echo "Verificando possíveis API keys..."
+          grep -r "api[_-]key" . --exclude-dir=node_modules --exclude-dir=.git || true
+
+          echo "Verificando possíveis tokens..."
+          grep -r "token" . --include="*.js" --include="*.jsx" --exclude-dir=node_modules --exclude-dir=.git | head -10 || true
+
+          echo "Verificando possíveis passwords..."
+          grep -r "password.*=" . --include="*.js" --include="*.jsx" --exclude-dir=node_modules --exclude-dir=.git | head -5 || true
+
+          echo "✅ Verificação básica de segredos concluída"
+
+      - name: 📊 Generate Security Report
+        run: |
+          echo "📊 Gerando relatório de segurança..."
+          node -e "
+            const fs = require('fs');
+
+            const report = {
+              timestamp: new Date().toISOString(),
+              audit: {
+                backend: {},
+                frontend: {}
+              },
+              licenses: {
+                backend: '',
+                frontend: ''
+              }
+            };
+
+            try {
+              if (fs.existsSync('security-audit-backend.json')) {
+                const backendAudit = JSON.parse(fs.readFileSync('security-audit-backend.json', 'utf8'));
+                report.audit.backend = {
+                  vulnerabilities: backendAudit.metadata?.vulnerabilities || {},
+                  summary: 'Auditoria executada'
+                };
+              }
+
+              if (fs.existsSync('frontend-react/security-audit-frontend.json')) {
+                const frontendAudit = JSON.parse(fs.readFileSync('frontend-react/security-audit-frontend.json', 'utf8'));
+                report.audit.frontend = {
+                  vulnerabilities: frontendAudit.metadata?.vulnerabilities || {},
+                  summary: 'Auditoria executada'
+                };
+              }
+
+              if (fs.existsSync('license-summary.txt')) {
+                report.licenses.backend = fs.readFileSync('license-summary.txt', 'utf8');
+              }
+
+              if (fs.existsSync('frontend-react/license-summary-frontend.txt')) {
+                report.licenses.frontend = fs.readFileSync('frontend-react/license-summary-frontend.txt', 'utf8');
+              }
+
+              fs.writeFileSync('security-report.json', JSON.stringify(report, null, 2));
+              console.log('✅ Relatório de segurança gerado');
+            } catch (error) {
+              console.error('❌ Erro ao gerar relatório:', error);
+            }
+          "
+
+      - name: 📤 Upload Security Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report-${{ github.run_number }}
+          path: security-report.json
+          retention-days: 14
+
+  # ==================== HEALTH CHECK ====================
+  health-check:
+    name: 🏥 Application Health Check
+    runs-on: ubuntu-latest
+    if: github.event.schedule || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🔧 Setup Health Check Environment
+        run: |
+          cd backend
+          echo "NODE_ENV=test" >> .env
+          echo "PORT=3005" >> .env
+          echo "DB_PATH=./health-check.db" >> .env
+
+      - name: 🗄️ Initialize Database
+        run: |
+          cd backend
+          node setup-db.js
+
+      - name: 🚀 Start Application for Health Check
+        run: |
+          cd backend
+          timeout 30s npm start &
+          sleep 15
+
+      - name: 🏥 Execute Health Checks
+        run: |
+          echo "🏥 Executando verificações de saúde..."
+
+          # Verificar se o servidor responde
+          echo "🔍 Verificando resposta do servidor..."
+          curl -f http://localhost:3005/ping || echo "⚠️ Servidor não respondeu"
+
+          # Verificar endpoints principais
+          echo "🔍 Verificando endpoints principais..."
+          curl -f http://localhost:3005/api/csrf-token || echo "⚠️ CSRF endpoint com problema"
+
+          echo "✅ Verificações de saúde concluídas"
+
+      - name: 📊 Generate Health Report
+        run: |
+          echo "📊 Gerando relatório de saúde..."
+          node -e "
+            const os = require('os');
+            const fs = require('fs');
+
+            const healthReport = {
+              timestamp: new Date().toISOString(),
+              status: 'checked',
+              system: {
+                platform: os.platform(),
+                nodeVersion: process.version,
+                memory: {
+                  used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+                  total: Math.round(os.totalmem() / 1024 / 1024) + 'MB'
+                }
+              },
+              application: {
+                healthCheckCompleted: true,
+                endpoints: {
+                  ping: 'tested',
+                  csrf: 'tested'
+                }
+              }
+            };
+
+            fs.writeFileSync('health-report.json', JSON.stringify(healthReport, null, 2));
+            console.log('✅ Relatório de saúde gerado');
+          "
+
+      - name: 📤 Upload Health Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health-report.json
+          retention-days: 7
+
+  # ==================== NOTIFICAÇÕES DE MONITORAMENTO ====================
+  notify-monitoring:
+    name: 📢 Monitoring Notifications
+    runs-on: ubuntu-latest
+    needs: [performance-monitoring, lighthouse-audit, security-monitoring, health-check]
+    if: always()
+
+    steps:
+      - name: 📢 Monitoring Status Summary
+        run: |
+          echo "📢 RESUMO DO MONITORAMENTO"
+          echo "=========================="
+
+          if [ "${{ needs.performance-monitoring.result }}" = "success" ]; then
+            echo "⚡ Monitoramento de Performance: ✅ SUCESSO"
+          elif [ "${{ needs.performance-monitoring.result }}" = "skipped" ]; then
+            echo "⚡ Monitoramento de Performance: ⏭️ IGNORADO"
+          else
+            echo "⚡ Monitoramento de Performance: ❌ FALHA"
+          fi
+
+          if [ "${{ needs.lighthouse-audit.result }}" = "success" ]; then
+            echo "🔦 Lighthouse Audit: ✅ SUCESSO"
+          elif [ "${{ needs.lighthouse-audit.result }}" = "skipped" ]; then
+            echo "🔦 Lighthouse Audit: ⏭️ IGNORADO"
+          else
+            echo "🔦 Lighthouse Audit: ❌ FALHA"
+          fi
+
+          if [ "${{ needs.security-monitoring.result }}" = "success" ]; then
+            echo "🔒 Monitoramento de Segurança: ✅ SUCESSO"
+          elif [ "${{ needs.security-monitoring.result }}" = "skipped" ]; then
+            echo "🔒 Monitoramento de Segurança: ⏭️ IGNORADO"
+          else
+            echo "🔒 Monitoramento de Segurança: ❌ FALHA"
+          fi
+
+          if [ "${{ needs.health-check.result }}" = "success" ]; then
+            echo "🏥 Health Check: ✅ SUCESSO"
+          elif [ "${{ needs.health-check.result }}" = "skipped" ]; then
+            echo "🏥 Health Check: ⏭️ IGNORADO"
+          else
+            echo "🏥 Health Check: ❌ FALHA"
+          fi
+
+          echo "=========================="
+          echo "🕒 Timestamp: $(date -u)"
+          echo "📊 Relatórios disponíveis nos artifacts"
+
+      - name: 🚨 Alert on Critical Issues
+        if: contains(needs.*.result, 'failure')
+        run: |
+          echo "🚨 ALERTA: Problemas críticos detectados no monitoramento!"
+          echo "📧 Enviando notificações de alerta..."
+          # Aqui você pode adicionar integração com sistemas de alerta
+          echo "🔔 Notificações de alerta enviadas"

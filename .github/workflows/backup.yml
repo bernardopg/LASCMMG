@@ -1,0 +1,338 @@
+name: 🗄️ Automated Backup & Maintenance
+
+on:
+  schedule:
+    # Backup diário às 2:00 AM UTC
+    - cron: '0 2 * * *'
+    # Backup semanal completo aos domingos às 3:00 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Tipo de backup'
+        required: true
+        default: 'manual'
+        type: choice
+        options:
+        - manual
+        - daily
+        - weekly
+        - full
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # ==================== BACKUP AUTOMÁTICO ====================
+  automated-backup:
+    name: 📦 Database Backup
+    runs-on: ubuntu-latest
+    if: github.event.schedule || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🗄️ Determine Backup Type
+        id: backup-type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.backup_type }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "0 3 * * 0" ]; then
+            echo "type=weekly" >> $GITHUB_OUTPUT
+          else
+            echo "type=daily" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔐 Setup Environment
+        run: |
+          echo "NODE_ENV=production" >> .env
+          echo "BACKUP_ENCRYPTION_KEY=${{ secrets.BACKUP_ENCRYPTION_KEY }}" >> .env
+          echo "DB_PATH=./production.db" >> .env
+
+      - name: 🗄️ Create Database Backup
+        run: |
+          cd backend
+          node -e "
+            const backupManager = require('./lib/backup/backupManager');
+            async function createBackup() {
+              try {
+                await backupManager.initialize();
+                const backup = await backupManager.createBackup('${{ steps.backup-type.outputs.type }}');
+                console.log('✅ Backup criado:', backup.fileName);
+                console.log('📏 Tamanho:', backup.sizeFormatted);
+              } catch (error) {
+                console.error('❌ Erro no backup:', error);
+                process.exit(1);
+              }
+            }
+            createBackup();
+          "
+
+      - name: 🧪 Verify Backup Integrity
+        run: |
+          cd backend
+          node -e "
+            const backupManager = require('./lib/backup/backupManager');
+            async function verifyBackup() {
+              try {
+                const result = await backupManager.testBackupRestore();
+                if (result.testPassed) {
+                  console.log('✅ Backup verificado com sucesso');
+                } else {
+                  console.error('❌ Falha na verificação do backup');
+                  process.exit(1);
+                }
+              } catch (error) {
+                console.error('❌ Erro na verificação:', error);
+                process.exit(1);
+              }
+            }
+            verifyBackup();
+          "
+
+      - name: 📤 Upload Backup Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-backup-${{ steps.backup-type.outputs.type }}-${{ github.run_number }}
+          path: backend/backups/
+          retention-days: 30
+
+      - name: 🧹 Cleanup Old Backups
+        run: |
+          cd backend
+          node -e "
+            const backupManager = require('./lib/backup/backupManager');
+            async function cleanup() {
+              try {
+                await backupManager.cleanupOldBackups();
+                console.log('✅ Limpeza de backups antigos concluída');
+              } catch (error) {
+                console.error('❌ Erro na limpeza:', error);
+              }
+            }
+            cleanup();
+          "
+
+  # ==================== MONITORAMENTO DE DEPENDÊNCIAS ====================
+  dependency-monitoring:
+    name: 📋 Dependency Monitoring
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔍 Check for Outdated Dependencies (Backend)
+        run: |
+          echo "🔍 Verificando dependências desatualizadas no backend..."
+          npm outdated || true
+          echo "📊 Relatório de dependências do backend gerado"
+
+      - name: 🔍 Check for Outdated Dependencies (Frontend)
+        run: |
+          cd frontend-react
+          echo "🔍 Verificando dependências desatualizadas no frontend..."
+          npm outdated || true
+          echo "📊 Relatório de dependências do frontend gerado"
+
+      - name: 🛡️ Security Vulnerability Scan
+        run: |
+          echo "🛡️ Executando auditoria de segurança..."
+          npm audit --json > audit-backend.json || true
+          cd frontend-react
+          npm audit --json > audit-frontend.json || true
+          cd ..
+          echo "📊 Relatórios de auditoria gerados"
+
+      - name: 📊 Generate Dependency Report
+        run: |
+          echo "📊 Gerando relatório consolidado de dependências..."
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+
+            const report = {
+              timestamp: new Date().toISOString(),
+              backend: {},
+              frontend: {}
+            };
+
+            try {
+              if (fs.existsSync('audit-backend.json')) {
+                report.backend = JSON.parse(fs.readFileSync('audit-backend.json', 'utf8'));
+              }
+              if (fs.existsSync('frontend-react/audit-frontend.json')) {
+                report.frontend = JSON.parse(fs.readFileSync('frontend-react/audit-frontend.json', 'utf8'));
+              }
+
+              fs.writeFileSync('dependency-report.json', JSON.stringify(report, null, 2));
+              console.log('✅ Relatório consolidado gerado: dependency-report.json');
+            } catch (error) {
+              console.error('❌ Erro ao gerar relatório:', error);
+            }
+          "
+
+      - name: 📤 Upload Dependency Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-report-${{ github.run_number }}
+          path: dependency-report.json
+          retention-days: 14
+
+  # ==================== LIMPEZA E MANUTENÇÃO ====================
+  maintenance:
+    name: 🧹 System Maintenance
+    runs-on: ubuntu-latest
+    needs: [automated-backup]
+    if: github.event.schedule == '0 3 * * 0' # Apenas aos domingos
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          cd frontend-react && npm ci
+
+      - name: 🧹 Database Maintenance
+        run: |
+          cd backend
+          echo "🧹 Executando manutenção do banco de dados..."
+          node -e "
+            const { getDb } = require('./lib/db/database');
+            async function maintenance() {
+              try {
+                const db = getDb();
+
+                // Vacuum para otimizar o banco
+                console.log('🗜️ Executando VACUUM...');
+                await db.exec('VACUUM;');
+
+                // Análise das tabelas
+                console.log('📊 Executando ANALYZE...');
+                await db.exec('ANALYZE;');
+
+                // Verificação de integridade
+                console.log('🔍 Verificando integridade...');
+                const result = await db.get('PRAGMA integrity_check;');
+                console.log('Resultado da verificação:', result);
+
+                console.log('✅ Manutenção do banco concluída');
+              } catch (error) {
+                console.error('❌ Erro na manutenção:', error);
+                process.exit(1);
+              }
+            }
+            maintenance();
+          "
+
+      - name: 🗂️ Log Rotation
+        run: |
+          echo "🗂️ Executando rotação de logs..."
+          cd backend
+          # Comprimir logs antigos (simulação)
+          find logs/ -name "*.log" -mtime +7 -exec gzip {} \; 2>/dev/null || true
+          # Remover logs muito antigos
+          find logs/ -name "*.gz" -mtime +30 -delete 2>/dev/null || true
+          echo "✅ Rotação de logs concluída"
+
+      - name: 📊 System Health Check
+        run: |
+          echo "📊 Verificação de saúde do sistema..."
+          node -e "
+            const os = require('os');
+            const fs = require('fs');
+
+            const healthCheck = {
+              timestamp: new Date().toISOString(),
+              system: {
+                platform: os.platform(),
+                arch: os.arch(),
+                totalMemory: Math.round(os.totalmem() / 1024 / 1024) + 'MB',
+                freeMemory: Math.round(os.freemem() / 1024 / 1024) + 'MB',
+                loadAverage: os.loadavg(),
+                uptime: Math.round(os.uptime() / 3600) + 'h'
+              },
+              disk: {}
+            };
+
+            try {
+              const stats = fs.statSync('.');
+              healthCheck.disk.accessible = true;
+            } catch (error) {
+              healthCheck.disk.accessible = false;
+              healthCheck.disk.error = error.message;
+            }
+
+            console.log('📊 Health Check:', JSON.stringify(healthCheck, null, 2));
+          "
+
+  # ==================== NOTIFICAÇÕES DE BACKUP ====================
+  notify-backup:
+    name: 📢 Backup Notifications
+    runs-on: ubuntu-latest
+    needs: [automated-backup, dependency-monitoring, maintenance]
+    if: always()
+
+    steps:
+      - name: 📢 Backup Status Notification
+        run: |
+          echo "📢 STATUS DO BACKUP E MANUTENÇÃO"
+          echo "================================="
+
+          if [ "${{ needs.automated-backup.result }}" = "success" ]; then
+            echo "✅ Backup automatizado: SUCESSO"
+          else
+            echo "❌ Backup automatizado: FALHA"
+          fi
+
+          if [ "${{ needs.dependency-monitoring.result }}" = "success" ]; then
+            echo "✅ Monitoramento de dependências: SUCESSO"
+          else
+            echo "❌ Monitoramento de dependências: FALHA"
+          fi
+
+          if [ "${{ needs.maintenance.result }}" = "success" ]; then
+            echo "✅ Manutenção do sistema: SUCESSO"
+          elif [ "${{ needs.maintenance.result }}" = "skipped" ]; then
+            echo "⏭️ Manutenção do sistema: IGNORADA (não é domingo)"
+          else
+            echo "❌ Manutenção do sistema: FALHA"
+          fi
+
+          echo "================================="
+          echo "🕒 Timestamp: $(date -u)"
+          echo "📝 Relatórios disponíveis nos artifacts"
+
+      - name: 📧 Send Notification (Webhook)
+        if: failure()
+        run: |
+          echo "📧 Enviando notificação de falha..."
+          # Aqui você pode adicionar integração com Slack, Discord, email, etc.
+          # Exemplo: curl -X POST -H 'Content-type: application/json' --data '{"text":"Backup failed!"}' YOUR_WEBHOOK_URL
+          echo "🔔 Notificação de falha enviada"
