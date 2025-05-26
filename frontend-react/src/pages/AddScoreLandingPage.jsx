@@ -28,7 +28,8 @@ const AddScoreLandingPage = () => {
               to={`/admin/tournaments/manage/${currentTournament.id}`}
               className="btn btn-primary inline-flex items-center mr-4"
             >
-              <FaEdit className="mr-2" /> Gerenciar Partidas de &ldquo;{currentTournament.name}&rdquo;
+              <FaEdit className="mr-2" /> Gerenciar Partidas de &ldquo;{currentTournament.name}
+              &rdquo;
             </Link>
             <p className="text-sm mt-2 text-gray-500 dark:text-gray-500">
               (Você poderá adicionar/editar placares na página de gerenciamento do torneio)

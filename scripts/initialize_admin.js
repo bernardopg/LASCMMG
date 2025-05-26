@@ -71,8 +71,8 @@ async function initializeAdmin() {
       console.error('Erro: Argumentos --username ou --password ausentes.');
       console.log(
         'Uso: node scripts/initialize_admin.js --username <email> --password <senha> [--role <papel>]\n' +
-        '  ou: node scripts/initialize_admin.js --default\n' +
-        '  ou: node scripts/initialize_admin.js --test'
+          '  ou: node scripts/initialize_admin.js --default\n' +
+          '  ou: node scripts/initialize_admin.js --test'
       );
       return;
     }

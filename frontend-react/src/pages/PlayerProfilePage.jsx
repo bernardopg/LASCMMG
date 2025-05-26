@@ -7,7 +7,7 @@ import {
   FaStar,
   FaTrophy,
   FaUserCircle,
-  FaVenusMars
+  FaVenusMars,
 } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 import { useMessage } from '../context/MessageContext';
@@ -83,7 +83,9 @@ const PlayerProfilePage = () => {
               {player.name}
             </h1>
             {player.nickname && (
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-1">&ldquo;{player.nickname}&rdquo;</p>
+              <p className="text-xl text-gray-600 dark:text-gray-400 mb-1">
+                &ldquo;{player.nickname}&rdquo;
+              </p>
             )}
             {player.email && (
               <p className="text-md text-gray-500 dark:text-gray-300 flex items-center mb-1">

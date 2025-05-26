@@ -258,8 +258,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar
               <Link
                 ref={registerUserMenuItem}
                 to="/profile"
-                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                  } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${
+                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaUser className="mr-2 h-4 w-4" aria-hidden="true" />
                 Meu Perfil
@@ -271,8 +272,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar
               <Link
                 ref={registerUserMenuItem}
                 to="/settings"
-                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                  } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${
+                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaCog className="mr-2 h-4 w-4" aria-hidden="true" />
                 Configurações
@@ -284,8 +286,9 @@ const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar
               <button
                 ref={registerUserMenuItem}
                 onClick={handleLogout}
-                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                  } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${
+                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaSignOutAlt className="mr-2 h-4 w-4" aria-hidden="true" />
                 Sair

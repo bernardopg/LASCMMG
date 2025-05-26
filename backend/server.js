@@ -90,20 +90,20 @@ app.use(
     contentSecurityPolicy:
       NODE_ENV === 'production'
         ? {
-          directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", (req) => `'nonce-${req.id}'`],
-            styleSrc: ["'self'", (req) => `'nonce-${req.id}'`],
-            imgSrc: ["'self'", 'data:'],
-            connectSrc: ["'self'"],
-            fontSrc: ["'self'"],
-            objectSrc: ["'none'"],
-            frameAncestors: ["'none'"],
-            baseUri: ["'self'"],
-            formAction: ["'self'"],
-            upgradeInsecureRequests: NODE_ENV === 'production' ? [] : null,
-          },
-        }
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: ["'self'", (req) => `'nonce-${req.id}'`],
+              styleSrc: ["'self'", (req) => `'nonce-${req.id}'`],
+              imgSrc: ["'self'", 'data:'],
+              connectSrc: ["'self'"],
+              fontSrc: ["'self'"],
+              objectSrc: ["'none'"],
+              frameAncestors: ["'none'"],
+              baseUri: ["'self'"],
+              formAction: ["'self'"],
+              upgradeInsecureRequests: NODE_ENV === 'production' ? [] : null,
+            },
+          }
         : false,
     crossOriginEmbedderPolicy: NODE_ENV === 'production',
     crossOriginOpenerPolicy: NODE_ENV === 'production',

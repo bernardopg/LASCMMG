@@ -27,11 +27,11 @@ router.get('/status', async (req, res) => {
       lastBackup:
         backups.length > 0
           ? {
-            fileName: backups[0].fileName,
-            size: backups[0].sizeFormatted,
-            created: backups[0].created,
-            age: Math.round((Date.now() - new Date(backups[0].created)) / (60 * 60 * 1000)),
-          }
+              fileName: backups[0].fileName,
+              size: backups[0].sizeFormatted,
+              created: backups[0].created,
+              age: Math.round((Date.now() - new Date(backups[0].created)) / (60 * 60 * 1000)),
+            }
           : null,
     };
 

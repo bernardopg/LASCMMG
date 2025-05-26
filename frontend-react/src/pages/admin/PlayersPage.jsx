@@ -114,8 +114,9 @@ const PlayerCard = ({
 }) => {
   return (
     <motion.div
-      className={`bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 border-l-4 ${isSelected ? 'border-blue-500' : 'border-transparent'
-        }`}
+      className={`bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 border-l-4 ${
+        isSelected ? 'border-blue-500' : 'border-transparent'
+      }`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -151,8 +152,9 @@ const PlayerCard = ({
           <button
             onClick={() => onDelete(player.id, player.name)}
             disabled={deleteLoading && deletingPlayerId === player.id}
-            className={`p-2 text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+            className={`p-2 text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${
+              deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             aria-label={`Excluir jogador ${player.name}`}
           >
             {deleteLoading && deletingPlayerId === player.id ? (
@@ -308,10 +310,11 @@ const ConfirmationModal = ({
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${confirmType === 'danger'
+            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${
+              confirmType === 'danger'
                 ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white'
                 : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white'
-              }`}
+            }`}
           >
             {confirmText || 'Confirmar'}
           </button>
@@ -438,10 +441,11 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
             </div>
 
             <div
-              className={`border-2 border-dashed p-6 rounded-lg text-center transition-colors ${dragActive
+              className={`border-2 border-dashed p-6 rounded-lg text-center transition-colors ${
+                dragActive
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-300 dark:border-gray-600 hover:border-blue-400'
-                }`}
+              }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
@@ -1088,20 +1092,22 @@ const PlayersPage = () => {
             <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('table')}
-                className={`p-2 rounded ${viewMode === 'table'
+                className={`p-2 rounded ${
+                  viewMode === 'table'
                     ? 'bg-white dark:bg-gray-600 shadow-sm'
                     : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                }`}
                 title="Visualização em tabela"
               >
                 <FaTable className="text-sm" />
               </button>
               <button
                 onClick={() => setViewMode('cards')}
-                className={`p-2 rounded ${viewMode === 'cards'
+                className={`p-2 rounded ${
+                  viewMode === 'cards'
                     ? 'bg-white dark:bg-gray-600 shadow-sm'
                     : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                }`}
                 title="Visualização em cards"
               >
                 <FaThList className="text-sm" />
@@ -1317,8 +1323,9 @@ const PlayersPage = () => {
                   {filteredPlayers.map((player) => (
                     <motion.tr
                       key={player.id}
-                      className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                        }`}
+                      className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                        selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      }`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
@@ -1370,10 +1377,11 @@ const PlayersPage = () => {
                           <button
                             onClick={() => handleDeletePlayer(player.id, player.name)}
                             disabled={deleteLoading && deletingPlayerId === player.id}
-                            className={`p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${deleteLoading && deletingPlayerId === player.id
+                            className={`p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${
+                              deleteLoading && deletingPlayerId === player.id
                                 ? 'opacity-50 cursor-not-allowed'
                                 : ''
-                              }`}
+                            }`}
                             aria-label={`Excluir jogador ${player.name}`}
                           >
                             {deleteLoading && deletingPlayerId === player.id ? (
