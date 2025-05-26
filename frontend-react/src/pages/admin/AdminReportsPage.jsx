@@ -10,9 +10,12 @@ const AdminReportsPage = () => {
       </h1>
       <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-          Esta seção será dedicada à geração e visualização de relatórios detalhados sobre torneios, jogadores, finanças e atividades do sistema.
+          Esta seção será dedicada à geração e visualização de relatórios detalhados sobre torneios,
+          jogadores, finanças e atividades do sistema.
         </p>
-        <p className="font-semibold text-gray-600 dark:text-gray-400">Funcionalidades planejadas:</p>
+        <p className="font-semibold text-gray-600 dark:text-gray-400">
+          Funcionalidades planejadas:
+        </p>
         <ul className="list-disc list-inside pl-5 mt-2 text-gray-600 dark:text-gray-400 space-y-1">
           <li>Relatórios de participação em torneios.</li>
           <li>Relatórios financeiros (taxas de inscrição, premiações).</li>
@@ -26,7 +29,8 @@ const AdminReportsPage = () => {
             Em Desenvolvimento
           </p>
           <p className="text-blue-600 dark:text-blue-400">
-            A funcionalidade completa de relatórios está sendo desenvolvida e estará disponível em breve.
+            A funcionalidade completa de relatórios está sendo desenvolvida e estará disponível em
+            breve.
           </p>
         </div>
       </div>

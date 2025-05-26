@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminPlayersTable from '../components/admin/AdminPlayersTable';
 import AdminScoresTable from '../components/admin/AdminScoresTable';
@@ -47,9 +46,7 @@ const AdminDashboardPage = () => {
         </div>
 
         <div className="admin-card bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
-            Segurança
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">Segurança</h3>
           <p className="text-gray-600 dark:text-gray-400 mb-3">
             Monitoramento e configurações de segurança do sistema.
           </p>

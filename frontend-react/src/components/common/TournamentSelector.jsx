@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTournament } from '../../context/TournamentContext';
 
 const TournamentSelector = () => {
-  const { tournaments, currentTournament, selectTournament, loading } =
-    useTournament();
+  const { tournaments, currentTournament, selectTournament, loading } = useTournament();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,14 +15,8 @@ const TournamentSelector = () => {
     // Defensive: always treat tournaments as array
     const safeTournaments = Array.isArray(tournaments) ? tournaments : [];
 
-    if (
-      urlTournamentId &&
-      safeTournaments.find((t) => t.id.toString() === urlTournamentId)
-    ) {
-      if (
-        !currentTournament ||
-        currentTournament.id.toString() !== urlTournamentId
-      ) {
+    if (urlTournamentId && safeTournaments.find((t) => t.id.toString() === urlTournamentId)) {
+      if (!currentTournament || currentTournament.id.toString() !== urlTournamentId) {
         selectTournament(urlTournamentId);
       }
     }
@@ -53,10 +46,7 @@ const TournamentSelector = () => {
   if (loading && safeTournaments.length === 0) {
     return (
       <div className="select-wrapper">
-        <label
-          htmlFor="tournament-select"
-          className="select-label text-sm text-gray-400"
-        >
+        <label htmlFor="tournament-select" className="select-label text-sm text-gray-400">
           Torneio Atual:
         </label>
         <select
@@ -73,10 +63,7 @@ const TournamentSelector = () => {
   if (!safeTournaments || safeTournaments.length === 0) {
     return (
       <div className="select-wrapper">
-        <label
-          htmlFor="tournament-select"
-          className="select-label text-sm text-gray-400"
-        >
+        <label htmlFor="tournament-select" className="select-label text-sm text-gray-400">
           Torneio Atual:
         </label>
         <select

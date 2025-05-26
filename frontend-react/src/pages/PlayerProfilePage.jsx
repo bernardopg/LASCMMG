@@ -1,8 +1,17 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getPlayerDetails } from '../services/api';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  FaEnvelope,
+  FaGamepad,
+  FaPercentage,
+  FaSpinner,
+  FaStar,
+  FaTrophy,
+  FaUserCircle,
+  FaVenusMars
+} from 'react-icons/fa';
+import { Link, useParams } from 'react-router-dom';
 import { useMessage } from '../context/MessageContext';
-import { FaUserCircle, FaEnvelope, FaVenusMars, FaStar, FaGamepad, FaTrophy, FaPercentage, FaListOl, FaSpinner } from 'react-icons/fa';
+import { getPlayerDetails } from '../services/api';
 
 const PlayerProfilePage = () => {
   const { id: playerId } = useParams();
@@ -15,7 +24,6 @@ const PlayerProfilePage = () => {
     setLoading(true);
     setError('');
     try {
-
       const data = await getPlayerDetails(playerId);
       if (data.success && data.player) {
         setPlayer(data.player);
@@ -47,7 +55,9 @@ const PlayerProfilePage = () => {
 
   if (error || !player) {
     return (
-      <div className="px-4 py-8 text-center"> {/* Removed container mx-auto */}
+      <div className="px-4 py-8 text-center">
+        {' '}
+        {/* Removed container mx-auto */}
         <h1 className="text-2xl font-semibold text-red-600 mb-2">Erro ao Carregar Perfil</h1>
         <p className="text-gray-600 dark:text-gray-300">{error || 'Jogador não encontrado.'}</p>
         <Link to="/players" className="btn btn-primary mt-6">
@@ -58,10 +68,13 @@ const PlayerProfilePage = () => {
   }
 
   // Placeholder for more detailed stats - e.g., win rate, tournament history
-  const winRate = player.games_played > 0 ? ((player.wins / player.games_played) * 100).toFixed(1) : 0;
+  const winRate =
+    player.games_played > 0 ? ((player.wins / player.games_played) * 100).toFixed(1) : 0;
 
   return (
-    <div className="px-4 py-8"> {/* Removed container mx-auto */}
+    <div className="px-4 py-8">
+      {' '}
+      {/* Removed container mx-auto */}
       <div className="card bg-white dark:bg-slate-800 shadow-xl rounded-lg p-6 md:p-8">
         <div className="flex flex-col md:flex-row items-center md:items-start">
           <FaUserCircle className="text-8xl md:text-9xl text-primary dark:text-primary-light mb-4 md:mb-0 md:mr-8" />
@@ -70,9 +83,7 @@ const PlayerProfilePage = () => {
               {player.name}
             </h1>
             {player.nickname && (
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-1">
-                "{player.nickname}"
-              </p>
+              <p className="text-xl text-gray-600 dark:text-gray-400 mb-1">&ldquo;{player.nickname}&rdquo;</p>
             )}
             {player.email && (
               <p className="text-md text-gray-500 dark:text-gray-300 flex items-center mb-1">
@@ -116,12 +127,14 @@ const PlayerProfilePage = () => {
 
         {/* TODO: Add section for Tournament History / Detailed Stats per Tournament */}
         <div className="mt-8">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Histórico em Torneios</h2>
-            <p className="text-gray-500 dark:text-gray-400">
-                (Visualização de participação e desempenho em torneios individuais será implementada aqui.)
-            </p>
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            Histórico em Torneios
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400">
+            (Visualização de participação e desempenho em torneios individuais será implementada
+            aqui.)
+          </p>
         </div>
-
       </div>
     </div>
   );

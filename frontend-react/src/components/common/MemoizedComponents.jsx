@@ -11,7 +11,7 @@ export const TournamentCard = memo(({ tournament, onClick, onEdit, onDelete, isA
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -38,9 +38,7 @@ export const TournamentCard = memo(({ tournament, onClick, onEdit, onDelete, isA
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {tournament.name}
           </h3>
-          <span className={`badge ${getStatusColor(tournament.status)}`}>
-            {tournament.status}
-          </span>
+          <span className={`badge ${getStatusColor(tournament.status)}`}>{tournament.status}</span>
         </div>
 
         {tournament.description && (
@@ -56,7 +54,9 @@ export const TournamentCard = memo(({ tournament, onClick, onEdit, onDelete, isA
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-500 dark:text-gray-400">Participantes:</span>
-            <span className="font-medium">{tournament.current_participants || 0}/{tournament.max_participants || 'N/A'}</span>
+            <span className="font-medium">
+              {tournament.current_participants || 0}/{tournament.max_participants || 'N/A'}
+            </span>
           </div>
           {tournament.entry_fee && (
             <div className="flex justify-between text-sm">
@@ -67,24 +67,15 @@ export const TournamentCard = memo(({ tournament, onClick, onEdit, onDelete, isA
         </div>
 
         <div className="flex space-x-2">
-          <button
-            onClick={() => onClick?.(tournament)}
-            className="btn btn-primary btn-sm flex-1"
-          >
+          <button onClick={() => onClick?.(tournament)} className="btn btn-primary btn-sm flex-1">
             Ver Detalhes
           </button>
           {isAdmin && (
             <>
-              <button
-                onClick={() => onEdit?.(tournament)}
-                className="btn btn-outline btn-sm"
-              >
+              <button onClick={() => onEdit?.(tournament)} className="btn btn-outline btn-sm">
                 Editar
               </button>
-              <button
-                onClick={() => onDelete?.(tournament)}
-                className="btn btn-danger btn-sm"
-              >
+              <button onClick={() => onDelete?.(tournament)} className="btn btn-danger btn-sm">
                 Excluir
               </button>
             </>
@@ -98,40 +89,52 @@ export const TournamentCard = memo(({ tournament, onClick, onEdit, onDelete, isA
 TournamentCard.displayName = 'TournamentCard';
 
 // Lista de Torneios memoizada
-export const TournamentList = memo(({ tournaments, onTournamentClick, onTournamentEdit, onTournamentDelete, isAdmin = false }) => {
-  if (!tournaments || tournaments.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 dark:text-gray-500 mb-4">
-          <svg className="mx-auto w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
+export const TournamentList = memo(
+  ({ tournaments, onTournamentClick, onTournamentEdit, onTournamentDelete, isAdmin = false }) => {
+    if (!tournaments || tournaments.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-400 dark:text-gray-500 mb-4">
+            <svg
+              className="mx-auto w-12 h-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            Nenhum torneio encontrado
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Não há torneios disponíveis no momento.
+          </p>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-          Nenhum torneio encontrado
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Não há torneios disponíveis no momento.
-        </p>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {tournaments.map((tournament) => (
+          <TournamentCard
+            key={tournament.id}
+            tournament={tournament}
+            onClick={onTournamentClick}
+            onEdit={onTournamentEdit}
+            onDelete={onTournamentDelete}
+            isAdmin={isAdmin}
+          />
+        ))}
       </div>
     );
   }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {tournaments.map((tournament) => (
-        <TournamentCard
-          key={tournament.id}
-          tournament={tournament}
-          onClick={onTournamentClick}
-          onEdit={onTournamentEdit}
-          onDelete={onTournamentDelete}
-          isAdmin={isAdmin}
-        />
-      ))}
-    </div>
-  );
-});
+);
 
 TournamentList.displayName = 'TournamentList';
 
@@ -151,9 +154,7 @@ export const PlayerCard = memo(({ player, onClick, onEdit, onDelete, showActions
               {player.name}
             </h3>
             {player.email && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {player.email}
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{player.email}</p>
             )}
           </div>
         </div>
@@ -183,25 +184,16 @@ export const PlayerCard = memo(({ player, onClick, onEdit, onDelete, showActions
 
         {showActions && (
           <div className="flex space-x-2">
-            <button
-              onClick={() => onClick?.(player)}
-              className="btn btn-primary btn-sm flex-1"
-            >
+            <button onClick={() => onClick?.(player)} className="btn btn-primary btn-sm flex-1">
               Ver Perfil
             </button>
             {onEdit && (
-              <button
-                onClick={() => onEdit(player)}
-                className="btn btn-outline btn-sm"
-              >
+              <button onClick={() => onEdit(player)} className="btn btn-outline btn-sm">
                 Editar
               </button>
             )}
             {onDelete && (
-              <button
-                onClick={() => onDelete(player)}
-                className="btn btn-danger btn-sm"
-              >
+              <button onClick={() => onDelete(player)} className="btn btn-danger btn-sm">
                 Excluir
               </button>
             )}
@@ -215,40 +207,52 @@ export const PlayerCard = memo(({ player, onClick, onEdit, onDelete, showActions
 PlayerCard.displayName = 'PlayerCard';
 
 // Lista de Jogadores memoizada
-export const PlayerList = memo(({ players, onPlayerClick, onPlayerEdit, onPlayerDelete, showActions = true }) => {
-  if (!players || players.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 dark:text-gray-500 mb-4">
-          <svg className="mx-auto w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+export const PlayerList = memo(
+  ({ players, onPlayerClick, onPlayerEdit, onPlayerDelete, showActions = true }) => {
+    if (!players || players.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-400 dark:text-gray-500 mb-4">
+            <svg
+              className="mx-auto w-12 h-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            Nenhum jogador encontrado
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Não há jogadores cadastrados no momento.
+          </p>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-          Nenhum jogador encontrado
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Não há jogadores cadastrados no momento.
-        </p>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {players.map((player) => (
+          <PlayerCard
+            key={player.id}
+            player={player}
+            onClick={onPlayerClick}
+            onEdit={onPlayerEdit}
+            onDelete={onPlayerDelete}
+            showActions={showActions}
+          />
+        ))}
       </div>
     );
   }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {players.map((player) => (
-        <PlayerCard
-          key={player.id}
-          player={player}
-          onClick={onPlayerClick}
-          onEdit={onPlayerEdit}
-          onDelete={onPlayerDelete}
-          showActions={showActions}
-        />
-      ))}
-    </div>
-  );
-});
+);
 
 PlayerList.displayName = 'PlayerList';
 
@@ -284,85 +288,91 @@ export const LoadingSkeleton = memo(({ count = 1, className = '' }) => {
 LoadingSkeleton.displayName = 'LoadingSkeleton';
 
 // Componente de Paginação memoizado
-export const Pagination = memo(({
-  currentPage,
-  totalPages,
-  onPageChange,
-  onPreviousPage,
-  onNextPage,
-  showPageNumbers = true,
-  maxPageNumbers = 5
-}) => {
-  if (totalPages <= 1) return null;
+export const Pagination = memo(
+  ({
+    currentPage,
+    totalPages,
+    onPageChange,
+    onPreviousPage,
+    onNextPage,
+    showPageNumbers = true,
+    maxPageNumbers = 5,
+  }) => {
+    if (totalPages <= 1) return null;
 
-  const getPageNumbers = () => {
-    const delta = Math.floor(maxPageNumbers / 2);
-    const range = [];
-    const rangeWithDots = [];
+    const getPageNumbers = () => {
+      const delta = Math.floor(maxPageNumbers / 2);
+      const range = [];
+      const rangeWithDots = [];
 
-    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-      range.push(i);
-    }
+      for (
+        let i = Math.max(2, currentPage - delta);
+        i <= Math.min(totalPages - 1, currentPage + delta);
+        i++
+      ) {
+        range.push(i);
+      }
 
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
-    } else {
-      rangeWithDots.push(1);
-    }
+      if (currentPage - delta > 2) {
+        rangeWithDots.push(1, '...');
+      } else {
+        rangeWithDots.push(1);
+      }
 
-    rangeWithDots.push(...range);
+      rangeWithDots.push(...range);
 
-    if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
-    } else {
-      rangeWithDots.push(totalPages);
-    }
+      if (currentPage + delta < totalPages - 1) {
+        rangeWithDots.push('...', totalPages);
+      } else {
+        rangeWithDots.push(totalPages);
+      }
 
-    return rangeWithDots;
-  };
+      return rangeWithDots;
+    };
 
-  const pageNumbers = showPageNumbers ? getPageNumbers() : [];
+    const pageNumbers = showPageNumbers ? getPageNumbers() : [];
 
-  return (
-    <div className="flex items-center justify-center space-x-2 mt-6">
-      <button
-        onClick={onPreviousPage}
-        disabled={currentPage === 1}
-        className="btn btn-outline btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Anterior
-      </button>
+    return (
+      <div className="flex items-center justify-center space-x-2 mt-6">
+        <button
+          onClick={onPreviousPage}
+          disabled={currentPage === 1}
+          className="btn btn-outline btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Anterior
+        </button>
 
-      {showPageNumbers && (
-        <div className="flex space-x-1">
-          {pageNumbers.map((page, index) => (
-            <button
-              key={index}
-              onClick={() => typeof page === 'number' ? onPageChange(page) : null}
-              disabled={page === '...' || page === currentPage}
-              className={`btn btn-sm min-w-[40px] ${
-                page === currentPage
-                  ? 'btn-primary'
-                  : page === '...'
-                  ? 'btn-ghost cursor-default'
-                  : 'btn-outline'
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-        </div>
-      )}
+        {showPageNumbers && (
+          <div className="flex space-x-1">
+            {pageNumbers.map((page, index) => (
+              <button
+                key={index}
+                onClick={() => (typeof page === 'number' ? onPageChange(page) : null)}
+                disabled={page === '...' || page === currentPage}
+                className={`btn btn-sm min-w-[40px] ${
+                  page === currentPage
+                    ? 'btn-primary'
+                    : page === '...'
+                      ? 'btn-ghost cursor-default'
+                      : 'btn-outline'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        )}
 
-      <button
-        onClick={onNextPage}
-        disabled={currentPage === totalPages}
-        className="btn btn-outline btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Próximo
-      </button>
-    </div>
-  );
-});
+        <button
+          onClick={onNextPage}
+          disabled={currentPage === totalPages}
+          className="btn btn-outline btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Próximo
+        </button>
+      </div>
+    );
+  }
+);
 
 Pagination.displayName = 'Pagination';

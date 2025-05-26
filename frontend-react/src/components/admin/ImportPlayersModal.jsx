@@ -1,17 +1,12 @@
-import React, { useState } from 'react';
-import { FaTimes, FaUpload, FaSpinner } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaSpinner, FaTimes, FaUpload } from 'react-icons/fa';
 import { useMessage } from '../../context/MessageContext'; // Uncommented
 import { importTournamentPlayers } from '../../services/api'; // Changed to correct API function
 
-const ImportPlayersModal = ({
-  tournamentId,
-  isOpen,
-  onClose,
-  onImportSuccess,
-}) => {
+const ImportPlayersModal = ({ tournamentId, isOpen, onClose, onImportSuccess }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
-  const { showMessage, showError, showSuccess, showWarning } = useMessage(); // Use MessageContext
+  const { showMessage: _showMessage, showError, showSuccess, showWarning } = useMessage(); // Use MessageContext
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -39,11 +34,11 @@ const ImportPlayersModal = ({
         if (responseData.databaseErrors && responseData.databaseErrors.length > 0) {
           successMsg += ` ${responseData.databaseErrors.length} falharam ao salvar no banco (ex: duplicados).`;
           // Log detailed errors for admin if needed
-          console.warn("Erros de banco de dados na importação:", responseData.databaseErrors);
+          console.warn('Erros de banco de dados na importação:', responseData.databaseErrors);
         }
         if (responseData.validationErrors && responseData.validationErrors.length > 0) {
           successMsg += ` ${responseData.validationErrors.length} tinham dados inválidos e foram ignorados.`;
-           console.warn("Erros de validação na importação:", responseData.validationErrors);
+          console.warn('Erros de validação na importação:', responseData.validationErrors);
         }
         showSuccess(successMsg);
         if (onImportSuccess) onImportSuccess();
@@ -87,24 +82,17 @@ const ImportPlayersModal = ({
             className="input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-dark file:text-white hover:file:bg-primary-darker"
           />
           {selectedFile && (
-            <p className="text-xs text-gray-400 mt-1">
-              Arquivo selecionado: {selectedFile.name}
-            </p>
+            <p className="text-xs text-gray-400 mt-1">Arquivo selecionado: {selectedFile.name}</p>
           )}
         </div>
 
         <p className="text-xs text-gray-400 mb-4">
-          O arquivo JSON deve ser um array de objetos, onde cada objeto
-          representa um jogador e pode conter os campos: `PlayerName`
-          (obrigatório), `Nickname`, `gender`, `skill_level`.
+          O arquivo JSON deve ser um array de objetos, onde cada objeto representa um jogador e pode
+          conter os campos: `PlayerName` (obrigatório), `Nickname`, `gender`, `skill_level`.
         </p>
 
         <div className="flex justify-end space-x-3">
-          <button
-            onClick={onClose}
-            disabled={isImporting}
-            className="btn btn-secondary"
-          >
+          <button onClick={onClose} disabled={isImporting} className="btn btn-secondary">
             Cancelar
           </button>
           <button

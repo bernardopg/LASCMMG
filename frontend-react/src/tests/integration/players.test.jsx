@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import AdminPlayersTable from '../../components/admin/AdminPlayersTable';
 import { AuthProvider } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
 import { TournamentProvider } from '../../context/TournamentContext';
-import AdminPlayersTable from '../../components/admin/AdminPlayersTable';
 import CreatePlayerPage from '../../pages/admin/CreatePlayerPage';
 import EditPlayerPage from '../../pages/admin/EditPlayerPage';
 import PlayersPage from '../../pages/PlayersPage';
@@ -25,9 +25,7 @@ const TestWrapper = ({ children }) => {
     <BrowserRouter>
       <MessageProvider>
         <AuthProvider>
-          <TournamentProvider>
-            {children}
-          </TournamentProvider>
+          <TournamentProvider>{children}</TournamentProvider>
         </AuthProvider>
       </MessageProvider>
     </BrowserRouter>
@@ -437,9 +435,13 @@ describe('Players Management Integration Tests', () => {
 
       // Simular upload de arquivo
       const fileInput = screen.getByLabelText(/arquivo csv/i);
-      const csvFile = new File(['name,nickname,email\nTeste,TestPlayer,teste@import.com'], 'players.csv', {
-        type: 'text/csv',
-      });
+      const csvFile = new File(
+        ['name,nickname,email\nTeste,TestPlayer,teste@import.com'],
+        'players.csv',
+        {
+          type: 'text/csv',
+        }
+      );
 
       await user.upload(fileInput, csvFile);
 

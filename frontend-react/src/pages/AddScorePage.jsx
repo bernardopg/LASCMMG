@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { getPlayers, createScoreAdmin } from '../services/api';
-import { useMessage } from '../context/MessageContext';
-import { useNavigate } from 'react-router-dom';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useCallback, useEffect, useState } from 'react';
 import { FaSpinner } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
+import { useMessage } from '../context/MessageContext';
+import { createScoreAdmin, getPlayers } from '../services/api';
 
 const AddScorePage = () => {
   const { showError, showSuccess } = useMessage();
@@ -31,29 +31,31 @@ const AddScorePage = () => {
     fetchPlayers();
   }, [fetchPlayers]);
 
-  const validationSchema = Yup.object().shape({
-    player1Id: Yup.string().required('Jogador 1 é obrigatório'),
-    player2Id: Yup.string().required('Jogador 2 é obrigatório'),
-    player1Score: Yup.number()
-      .required('Placar é obrigatório')
-      .min(0, 'Placar deve ser entre 0 e 21')
-      .max(21, 'Placar deve ser entre 0 e 21')
-      .integer('Placar deve ser um número inteiro'),
-    player2Score: Yup.number()
-      .required('Placar é obrigatório')
-      .min(0, 'Placar deve ser entre 0 e 21')
-      .max(21, 'Placar deve ser entre 0 e 21')
-      .integer('Placar deve ser um número inteiro'),
-    round: Yup.string().required('Rodada é obrigatória'),
-  }).test('different-players', 'Jogadores devem ser diferentes', function(values) {
-    if (values.player1Id && values.player2Id && values.player1Id === values.player2Id) {
-      return this.createError({
-        path: 'player2Id',
-        message: 'Jogadores devem ser diferentes'
-      });
-    }
-    return true;
-  });
+  const validationSchema = Yup.object()
+    .shape({
+      player1Id: Yup.string().required('Jogador 1 é obrigatório'),
+      player2Id: Yup.string().required('Jogador 2 é obrigatório'),
+      player1Score: Yup.number()
+        .required('Placar é obrigatório')
+        .min(0, 'Placar deve ser entre 0 e 21')
+        .max(21, 'Placar deve ser entre 0 e 21')
+        .integer('Placar deve ser um número inteiro'),
+      player2Score: Yup.number()
+        .required('Placar é obrigatório')
+        .min(0, 'Placar deve ser entre 0 e 21')
+        .max(21, 'Placar deve ser entre 0 e 21')
+        .integer('Placar deve ser um número inteiro'),
+      round: Yup.string().required('Rodada é obrigatória'),
+    })
+    .test('different-players', 'Jogadores devem ser diferentes', function (values) {
+      if (values.player1Id && values.player2Id && values.player1Id === values.player2Id) {
+        return this.createError({
+          path: 'player2Id',
+          message: 'Jogadores devem ser diferentes',
+        });
+      }
+      return true;
+    });
 
   const calculateWinner = (player1Score, player2Score, player1Id, player2Id) => {
     if (!player1Score && player1Score !== 0) return null;
@@ -67,8 +69,8 @@ const AddScorePage = () => {
       return 'Empate';
     }
 
-    const player1 = players.find(p => p.id.toString() === player1Id);
-    const player2 = players.find(p => p.id.toString() === player2Id);
+    const player1 = players.find((p) => p.id.toString() === player1Id);
+    const player2 = players.find((p) => p.id.toString() === player2Id);
 
     if (score1 > score2) {
       return player1 ? `Vencedor: ${player1.name}` : 'Jogador 1';
@@ -78,8 +80,8 @@ const AddScorePage = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    const player1 = players.find(p => p.id.toString() === values.player1Id);
-    const player2 = players.find(p => p.id.toString() === values.player2Id);
+    const player1 = players.find((p) => p.id.toString() === values.player1Id);
+    const player2 = players.find((p) => p.id.toString() === values.player2Id);
 
     if (!player1 || !player2) {
       showError('Jogadores selecionados não encontrados.');
@@ -92,11 +94,12 @@ const AddScorePage = () => {
       player2_name: player2.name,
       player1_score: Number(values.player1Score),
       player2_score: Number(values.player2Score),
-      winner_name: Number(values.player1Score) > Number(values.player2Score)
-        ? player1.name
-        : Number(values.player2Score) > Number(values.player1Score)
-        ? player2.name
-        : null, // Handle ties
+      winner_name:
+        Number(values.player1Score) > Number(values.player2Score)
+          ? player1.name
+          : Number(values.player2Score) > Number(values.player1Score)
+            ? player2.name
+            : null, // Handle ties
       round: values.round,
     };
 
@@ -137,7 +140,7 @@ const AddScorePage = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, dirty, isValid, values, setFieldValue }) => {
+          {({ isSubmitting, dirty, isValid, values /* setFieldValue */ }) => {
             // Update winner display when scores change
             const currentWinner = calculateWinner(
               values.player1Score,
@@ -157,9 +160,15 @@ const AddScorePage = () => {
                     <label htmlFor="player1Id" className="label">
                       Jogador 1
                     </label>
-                    <Field as="select" name="player1Id" id="player1Id" className="input" aria-label="Jogador 1">
+                    <Field
+                      as="select"
+                      name="player1Id"
+                      id="player1Id"
+                      className="input"
+                      aria-label="Jogador 1"
+                    >
                       <option value="">Selecione o Jogador 1</option>
-                      {players.map(player => (
+                      {players.map((player) => (
                         <option key={player.id} value={player.id}>
                           {player.name}
                         </option>
@@ -172,9 +181,15 @@ const AddScorePage = () => {
                     <label htmlFor="player2Id" className="label">
                       Jogador 2
                     </label>
-                    <Field as="select" name="player2Id" id="player2Id" className="input" aria-label="Jogador 2">
+                    <Field
+                      as="select"
+                      name="player2Id"
+                      id="player2Id"
+                      className="input"
+                      aria-label="Jogador 2"
+                    >
                       <option value="">Selecione o Jogador 2</option>
-                      {players.map(player => (
+                      {players.map((player) => (
                         <option key={player.id} value={player.id}>
                           {player.name}
                         </option>
@@ -232,9 +247,7 @@ const AddScorePage = () => {
 
                 {winner && (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <p className="text-blue-800 dark:text-blue-200 font-medium">
-                      {winner}
-                    </p>
+                    <p className="text-blue-800 dark:text-blue-200 font-medium">{winner}</p>
                   </div>
                 )}
 

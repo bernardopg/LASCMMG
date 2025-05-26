@@ -41,16 +41,12 @@ async function getAdminByUsername(username) {
     throw new Error('Nome de usuário não fornecido');
   }
 
-  const sql =
-    'SELECT id, username, hashedPassword, role FROM users WHERE username = ?';
+  const sql = 'SELECT id, username, hashedPassword, role FROM users WHERE username = ?';
 
   try {
     return await getOneAsync(sql, [username]);
   } catch (err) {
-    logger.error(
-      { component: 'AdminModel', err, username },
-      `Erro ao buscar admin ${username}.`
-    );
+    logger.error({ component: 'AdminModel', err, username }, `Erro ao buscar admin ${username}.`);
     throw err;
   }
 }
@@ -60,8 +56,7 @@ async function getAdminById(id) {
     throw new Error('ID de usuário não fornecido');
   }
 
-  const sql =
-    'SELECT id, username, hashedPassword, role FROM users WHERE id = ?';
+  const sql = 'SELECT id, username, hashedPassword, role FROM users WHERE id = ?';
 
   try {
     return await getOneAsync(sql, [id]);
@@ -116,8 +111,7 @@ async function updateLastLogin(username) {
     throw new Error('Nome de usuário não fornecido');
   }
 
-  const sql =
-    'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = ?';
+  const sql = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = ?';
 
   try {
     const result = await runAsync(sql, [username]);
@@ -147,9 +141,7 @@ async function migrateAdminCredentials() {
 
     let fileCredentials;
     try {
-      fileCredentials = JSON.parse(
-        fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
-      );
+      fileCredentials = JSON.parse(fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8'));
     } catch (parseError) {
       logger.error(
         {
@@ -166,11 +158,7 @@ async function migrateAdminCredentials() {
       };
     }
 
-    if (
-      !fileCredentials ||
-      !fileCredentials.username ||
-      !fileCredentials.hashedPassword
-    ) {
+    if (!fileCredentials || !fileCredentials.username || !fileCredentials.hashedPassword) {
       logger.warn(
         { component: 'AdminModel', filePath: CREDENTIALS_FILE_PATH },
         'Arquivo admin_credentials.json está incompleto ou malformado (username ou hashedPassword ausente).'
@@ -182,8 +170,7 @@ async function migrateAdminCredentials() {
       };
     }
 
-    const checkUserSql =
-      'SELECT COUNT(*) as count FROM users WHERE username = ?';
+    const checkUserSql = 'SELECT COUNT(*) as count FROM users WHERE username = ?';
     const result = await getOneAsync(checkUserSql, [fileCredentials.username]);
 
     if (result && result.count > 0) {
@@ -203,10 +190,7 @@ async function migrateAdminCredentials() {
       VALUES (?, ?, 'admin')
     `;
 
-    await runAsync(insertSql, [
-      fileCredentials.username,
-      fileCredentials.hashedPassword,
-    ]);
+    await runAsync(insertSql, [fileCredentials.username, fileCredentials.hashedPassword]);
 
     logger.info(
       { component: 'AdminModel', username: fileCredentials.username },
@@ -250,16 +234,12 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
     // Consistent with DB not found, throw error to indicate no admin config.
     // Or, return a specific failure if this path is considered a "soft" failure.
     // For now, throwing to indicate system misconfiguration if file is expected.
-    throw new Error(
-      'Credenciais de administrador não configuradas no sistema (arquivo ausente).'
-    );
+    throw new Error('Credenciais de administrador não configuradas no sistema (arquivo ausente).');
   }
 
   let fileCredentials;
   try {
-    fileCredentials = JSON.parse(
-      fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8')
-    );
+    fileCredentials = JSON.parse(fs.readFileSync(CREDENTIALS_FILE_PATH, 'utf8'));
   } catch (parseError) {
     logger.error(
       {
@@ -269,16 +249,10 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
       },
       'File-based auth: Error parsing admin_credentials.json.'
     );
-    throw new Error(
-      'Erro ao processar arquivo de credenciais do administrador (JSON inválido).'
-    );
+    throw new Error('Erro ao processar arquivo de credenciais do administrador (JSON inválido).');
   }
 
-  if (
-    !fileCredentials ||
-    !fileCredentials.username ||
-    !fileCredentials.hashedPassword
-  ) {
+  if (!fileCredentials || !fileCredentials.username || !fileCredentials.hashedPassword) {
     logger.warn(
       { component: 'AdminModel', filePath: CREDENTIALS_FILE_PATH },
       'File-based auth: admin_credentials.json is incomplete or malformed.'
@@ -289,37 +263,22 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
   }
 
   if (username !== fileCredentials.username) {
-    auditLogger.logAction(
+    auditLogger.logAction(username, 'ADMIN_LOGIN_FAILURE', 'admin', username, {
       username,
-      'ADMIN_LOGIN_FAILURE',
-      'admin',
-      username,
-      {
-        username,
-        reason: 'Admin username mismatch (file credentials)',
-        ipAddress: ipAddress || 'unknown',
-      }
-    );
+      reason: 'Admin username mismatch (file credentials)',
+      ipAddress: ipAddress || 'unknown',
+    });
     return { success: false, message: 'Credenciais inválidas.' };
   }
 
-  const isPasswordCorrect = await bcrypt.compare(
-    password,
-    fileCredentials.hashedPassword
-  );
+  const isPasswordCorrect = await bcrypt.compare(password, fileCredentials.hashedPassword);
 
   if (!isPasswordCorrect) {
-    auditLogger.logAction(
+    auditLogger.logAction(username, 'ADMIN_LOGIN_FAILURE', 'admin', username, {
       username,
-      'ADMIN_LOGIN_FAILURE',
-      'admin',
-      username,
-      {
-        username,
-        reason: 'Incorrect password (file credentials)',
-        ipAddress: ipAddress || 'unknown',
-      }
-    );
+      reason: 'Incorrect password (file credentials)',
+      ipAddress: ipAddress || 'unknown',
+    });
     return { success: false, message: 'Credenciais inválidas.' };
   }
 
@@ -356,7 +315,11 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
   );
 
   if (!finalAdminData || !finalAdminData.id) {
-    logger.error('AdminModel', 'CRITICAL: Admin ID missing after successful file-based auth and DB lookup.', { username: fileCredentials.username });
+    logger.error(
+      'AdminModel',
+      'CRITICAL: Admin ID missing after successful file-based auth and DB lookup.',
+      { username: fileCredentials.username }
+    );
     // This indicates a severe issue if file auth passed but DB data is inconsistent.
     throw new Error('Erro interno crítico ao finalizar login por arquivo.');
   }
@@ -379,7 +342,6 @@ async function _handleFileBasedAdminAuthAndMigration(username, password, ipAddre
     : expirationTime.endsWith('h')
       ? parseInt(expirationTime) * 60 * 60
       : parseInt(expirationTime);
-
 
   return {
     success: true,
@@ -407,10 +369,7 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
 
     if (adminFromDb) {
       // Admin found in the database, proceed with DB authentication
-      const isPasswordCorrect = await bcrypt.compare(
-        password,
-        adminFromDb.hashedPassword
-      );
+      const isPasswordCorrect = await bcrypt.compare(password, adminFromDb.hashedPassword);
 
       if (!isPasswordCorrect) {
         auditLogger.logAction(
@@ -430,7 +389,11 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
       await updateLastLogin(username);
 
       if (!adminFromDb || !adminFromDb.id) {
-        logger.error('AdminModel', 'CRITICAL: Admin ID missing after successful DB password check.', { username });
+        logger.error(
+          'AdminModel',
+          'CRITICAL: Admin ID missing after successful DB password check.',
+          { username }
+        );
         // This case should ideally not happen if password check passed and user was fetched.
         // Handle as a failed login for safety, though it indicates a deeper issue.
         return { success: false, message: 'Erro interno ao processar login do administrador.' };
@@ -441,7 +404,11 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
         'ADMIN_LOGIN_SUCCESS',
         'admin',
         adminFromDb.id.toString(),
-        { username: adminFromDb.username, authMethod: 'database', ipAddress: ipAddress || 'unknown' }
+        {
+          username: adminFromDb.username,
+          authMethod: 'database',
+          ipAddress: ipAddress || 'unknown',
+        }
       );
 
       const expirationTime = rememberMe ? '30d' : JWT_EXPIRATION;
@@ -497,12 +464,7 @@ async function authenticateAdmin(username, password, ipAddress, rememberMe = fal
   }
 }
 
-async function changePassword(
-  username,
-  currentPassword,
-  newPassword,
-  ipAddress
-) {
+async function changePassword(username, currentPassword, newPassword, ipAddress) {
   // Added ipAddress
   if (!username || !currentPassword || !newPassword) {
     throw new Error('Dados incompletos para alteração de senha');
@@ -518,10 +480,7 @@ async function changePassword(
       };
     }
 
-    const isPasswordCorrect = await bcrypt.compare(
-      currentPassword,
-      admin.hashedPassword
-    );
+    const isPasswordCorrect = await bcrypt.compare(currentPassword, admin.hashedPassword);
     if (!isPasswordCorrect) {
       return { success: false, message: 'Senha atual incorreta' };
     }
@@ -560,15 +519,13 @@ async function changePassword(
 async function getAllAdmins() {
   // This function will list users who have an admin-like role.
   // Adjust role names ('admin', 'super_admin') as per your system's roles.
-  const sql = "SELECT id, username, role, last_login, created_at FROM users WHERE role = 'admin' OR role = 'super_admin' ORDER BY username ASC";
+  const sql =
+    "SELECT id, username, role, last_login, created_at FROM users WHERE role = 'admin' OR role = 'super_admin' ORDER BY username ASC";
   try {
     // Usando queryAsync importado no topo do arquivo
     return await queryAsync(sql, []);
   } catch (err) {
-    logger.error(
-      { component: 'AdminModel', err },
-      'Erro ao buscar todos os administradores.'
-    );
+    logger.error({ component: 'AdminModel', err }, 'Erro ao buscar todos os administradores.');
     throw err; // Re-throw to be caught by service/route layer
   }
 }
@@ -588,10 +545,14 @@ async function generateRefreshToken(userId) {
     const userTokensRedisKey = `user:${userId}:refreshTokens`;
 
     // Armazenar o token principal com seus detalhes e TTL
-    await redis.set(tokenRedisKey, JSON.stringify({
-      userId: userId,
-      createdAt: Date.now()
-    }), { EX: refreshTokenTTL });
+    await redis.set(
+      tokenRedisKey,
+      JSON.stringify({
+        userId: userId,
+        createdAt: Date.now(),
+      }),
+      { EX: refreshTokenTTL }
+    );
 
     // Adicionar o token ao Set do usuário
     await redis.sAdd(userTokensRedisKey, refreshTokenString);
@@ -600,10 +561,7 @@ async function generateRefreshToken(userId) {
 
     return refreshTokenString;
   } catch (err) {
-    logger.error(
-      { component: 'AdminModel', err, userId },
-      'Erro ao gerar refresh token.'
-    );
+    logger.error({ component: 'AdminModel', err, userId }, 'Erro ao gerar refresh token.');
     throw err;
   }
 }
@@ -625,7 +583,7 @@ async function validateRefreshToken(refreshTokenString) {
       return { success: false, message: 'Refresh token não encontrado ou expirado.' };
     }
 
-    const { userId, createdAt } = JSON.parse(tokenDataString);
+    const { userId } = JSON.parse(tokenDataString);
     const userTokensRedisKey = `user:${userId}:refreshTokens`;
 
     // Verificar se o token ainda está no Set do usuário (proteção contra alguns cenários de race condition pós-revogação)
@@ -662,9 +620,8 @@ async function validateRefreshToken(refreshTokenString) {
       success: true,
       userId: admin.id,
       username: admin.username,
-      role: admin.role
+      role: admin.role,
     };
-
   } catch (err) {
     logger.error(
       { component: 'AdminModel', err, refreshTokenString },
@@ -688,14 +645,20 @@ async function revokeAllRefreshTokens(userId) {
     const tokenStrings = await redis.sMembers(userTokensRedisKey);
     if (tokenStrings && tokenStrings.length > 0) {
       const multi = redis.multi();
-      tokenStrings.forEach(tokenString => {
+      tokenStrings.forEach((tokenString) => {
         multi.del(`refresh:${tokenString}`);
       });
       multi.del(userTokensRedisKey); // Remove o Set do usuário
       await multi.exec();
-      logger.info({ component: 'AdminModel', userId, count: tokenStrings.length }, `Todos os ${tokenStrings.length} refresh tokens para o usuário ${userId} foram revogados.`);
+      logger.info(
+        { component: 'AdminModel', userId, count: tokenStrings.length },
+        `Todos os ${tokenStrings.length} refresh tokens para o usuário ${userId} foram revogados.`
+      );
     } else {
-      logger.info({ component: 'AdminModel', userId }, `Nenhum refresh token ativo encontrado para o usuário ${userId} para revogar.`);
+      logger.info(
+        { component: 'AdminModel', userId },
+        `Nenhum refresh token ativo encontrado para o usuário ${userId} para revogar.`
+      );
     }
     return true;
   } catch (err) {

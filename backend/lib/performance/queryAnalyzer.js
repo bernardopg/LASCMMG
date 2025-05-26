@@ -25,7 +25,7 @@ class QueryAnalyzer {
       maxTime: 0,
       slowExecutions: 0,
       lastExecuted: null,
-      params: []
+      params: [],
     };
 
     stats.count++;
@@ -39,13 +39,16 @@ class QueryAnalyzer {
       stats.slowExecutions++;
 
       // Log query lenta
-      logger.warn({
-        component: 'QueryAnalyzer',
-        sql: sql,
-        params: params,
-        executionTime: executionTime,
-        rowCount: rowCount
-      }, `Query lenta detectada: ${executionTime}ms`);
+      logger.warn(
+        {
+          component: 'QueryAnalyzer',
+          sql: sql,
+          params: params,
+          executionTime: executionTime,
+          rowCount: rowCount,
+        },
+        `Query lenta detectada: ${executionTime}ms`
+      );
     }
 
     // Armazenar exemplos de parâmetros para análise
@@ -66,11 +69,7 @@ class QueryAnalyzer {
    * Normaliza a query removendo valores específicos para agrupamento
    */
   normalizeQuery(sql) {
-    return sql
-      .replace(/\?/g, '?')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
+    return sql.replace(/\?/g, '?').replace(/\s+/g, ' ').trim().toLowerCase();
   }
 
   /**
@@ -82,13 +81,13 @@ class QueryAnalyzer {
       .sort((a, b) => b[1].maxTime - a[1].maxTime)
       .slice(0, 20);
 
-    return slowQueries.map(([queryKey, stats]) => ({
+    return slowQueries.map(([, stats]) => ({
       query: stats.query,
       count: stats.count,
       slowExecutions: stats.slowExecutions,
       avgTime: Math.round(stats.avgTime * 100) / 100,
       maxTime: stats.maxTime,
-      slowRatio: (stats.slowExecutions / stats.count * 100).toFixed(2) + '%'
+      slowRatio: ((stats.slowExecutions / stats.count) * 100).toFixed(2) + '%',
     }));
   }
 
@@ -100,12 +99,12 @@ class QueryAnalyzer {
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 20);
 
-    return frequentQueries.map(([queryKey, stats]) => ({
+    return frequentQueries.map(([, stats]) => ({
       query: stats.query,
       count: stats.count,
       avgTime: Math.round(stats.avgTime * 100) / 100,
       totalTime: Math.round(stats.totalTime),
-      lastExecuted: stats.lastExecuted
+      lastExecuted: stats.lastExecuted,
     }));
   }
 
@@ -129,12 +128,15 @@ class QueryAnalyzer {
 
       return this.parseQueryPlan(plan);
     } catch (err) {
-      logger.error({
-        component: 'QueryAnalyzer',
-        err,
-        sql,
-        params
-      }, 'Erro ao analisar plano de execução');
+      logger.error(
+        {
+          component: 'QueryAnalyzer',
+          err,
+          sql,
+          params,
+        },
+        'Erro ao analisar plano de execução'
+      );
       return null;
     }
   }
@@ -148,7 +150,7 @@ class QueryAnalyzer {
       hasIndexScan: false,
       missingIndexes: [],
       recommendations: [],
-      operations: []
+      operations: [],
     };
 
     for (const step of plan) {
@@ -157,7 +159,7 @@ class QueryAnalyzer {
       analysis.operations.push({
         id: step.id,
         parent: step.parent,
-        detail: step.detail
+        detail: step.detail,
       });
 
       // Detectar table scans
@@ -177,8 +179,7 @@ class QueryAnalyzer {
       }
 
       // Detectar potential missing indexes
-      if (detail.includes('using covering index') === false &&
-          detail.includes('search table')) {
+      if (detail.includes('using covering index') === false && detail.includes('search table')) {
         const tableName = this.extractTableName(detail);
         if (tableName) {
           analysis.missingIndexes.push(tableName);
@@ -203,7 +204,7 @@ class QueryAnalyzer {
   suggestIndexes() {
     const suggestions = [];
 
-    for (const [_, stats] of this.queryStats) {
+    for (const [, stats] of this.queryStats) {
       if (stats.avgTime > this.slowQueryThreshold || stats.slowExecutions > 0) {
         const sql = stats.query.toLowerCase();
 
@@ -218,13 +219,15 @@ class QueryAnalyzer {
               table: this.extractTableFromQuery(sql),
               column: column,
               reason: `Frequent WHERE clause usage (${stats.count} times, avg: ${stats.avgTime}ms)`,
-              priority: stats.slowExecutions > 0 ? 'HIGH' : 'MEDIUM'
+              priority: stats.slowExecutions > 0 ? 'HIGH' : 'MEDIUM',
             });
           }
         }
 
         // Analisar JOINs
-        const joinMatches = sql.match(/join\s+(\w+)\s+.*?on\s+(.+?)(?:\s+where|\s+order|\s+group|$)/gi);
+        const joinMatches = sql.match(
+          /join\s+(\w+)\s+.*?on\s+(.+?)(?:\s+where|\s+order|\s+group|$)/gi
+        );
         if (joinMatches) {
           for (const joinMatch of joinMatches) {
             const onClause = joinMatch.match(/on\s+(.+?)(?:\s+where|\s+order|\s+group|$)/i);
@@ -235,7 +238,7 @@ class QueryAnalyzer {
                   table: 'detected_in_join',
                   column: column,
                   reason: `JOIN condition optimization (${stats.count} times)`,
-                  priority: 'HIGH'
+                  priority: 'HIGH',
                 });
               }
             }
@@ -258,7 +261,7 @@ class QueryAnalyzer {
       /(\w+\.?\w+)\s*[=<>!]/g,
       /(\w+\.?\w+)\s+in\s*\(/gi,
       /(\w+\.?\w+)\s+like\s/gi,
-      /(\w+\.?\w+)\s+between\s/gi
+      /(\w+\.?\w+)\s+between\s/gi,
     ];
 
     for (const pattern of patterns) {
@@ -292,12 +295,11 @@ class QueryAnalyzer {
       }
     }
 
-    return Array.from(unique.values())
-      .sort((a, b) => {
-        if (a.priority === 'HIGH' && b.priority !== 'HIGH') return -1;
-        if (b.priority === 'HIGH' && a.priority !== 'HIGH') return 1;
-        return 0;
-      });
+    return Array.from(unique.values()).sort((a, b) => {
+      if (a.priority === 'HIGH' && b.priority !== 'HIGH') return -1;
+      if (b.priority === 'HIGH' && a.priority !== 'HIGH') return 1;
+      return 0;
+    });
   }
 
   /**
@@ -307,16 +309,19 @@ class QueryAnalyzer {
     return {
       summary: {
         totalQueries: this.queryStats.size,
-        totalExecutions: Array.from(this.queryStats.values())
-          .reduce((sum, stats) => sum + stats.count, 0),
-        slowQueries: Array.from(this.queryStats.values())
-          .filter(stats => stats.slowExecutions > 0).length,
-        avgQueryTime: this.calculateOverallAvgTime()
+        totalExecutions: Array.from(this.queryStats.values()).reduce(
+          (sum, stats) => sum + stats.count,
+          0
+        ),
+        slowQueries: Array.from(this.queryStats.values()).filter(
+          (stats) => stats.slowExecutions > 0
+        ).length,
+        avgQueryTime: this.calculateOverallAvgTime(),
       },
       slowQueries: this.getSlowQueriesReport(),
       frequentQueries: this.getFrequentQueriesReport(),
       indexSuggestions: this.suggestIndexes(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -346,10 +351,13 @@ class QueryAnalyzer {
    */
   setSlowQueryThreshold(ms) {
     this.slowQueryThreshold = ms;
-    logger.info({
-      component: 'QueryAnalyzer',
-      threshold: ms
-    }, 'Threshold de query lenta atualizado');
+    logger.info(
+      {
+        component: 'QueryAnalyzer',
+        threshold: ms,
+      },
+      'Threshold de query lenta atualizado'
+    );
   }
 }
 

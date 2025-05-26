@@ -2,11 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app, serverInstance } from '../../server'; // Assuming app and serverInstance are exportable
 import { getClient, quitRedis } from '../../lib/db/redisClient';
-import {
-  db as sqliteDB,
-  closeSyncConnection,
-  initializeDatabase,
-} from '../../lib/db/database'; // For direct DB checks/cleanup and setup
+import { db as sqliteDB, closeSyncConnection, initializeDatabase } from '../../lib/db/database'; // For direct DB checks/cleanup and setup
 import { runMigrations } from '../../lib/db/schema';
 
 describe('Tournament Flow Integration Tests', () => {
@@ -25,9 +21,7 @@ describe('Tournament Flow Integration Tests', () => {
     if (redisClient && typeof redisClient.flushDb === 'function') {
       await redisClient.flushDb(); // Clean Redis before tests
     } else {
-      console.warn(
-        'Redis client not available or flushDb not a function in test setup.'
-      );
+      console.warn('Redis client not available or flushDb not a function in test setup.');
     }
 
     // TODO: Authenticate as admin once to get a token for protected routes

@@ -23,62 +23,72 @@ const SECURITY_PATTERNS = {
     {
       name: 'Hardcoded Password',
       pattern: /(password|pwd|pass)\s*[:=]\s*['"][^'"]{8,}/gi,
-      severity: 'HIGH'
+      severity: 'HIGH',
     },
     {
       name: 'API Key',
       pattern: /(api[_-]?key|apikey)\s*[:=]\s*['"][^'"]{16,}/gi,
-      severity: 'HIGH'
+      severity: 'HIGH',
     },
     {
       name: 'JWT Secret',
       pattern: /(jwt[_-]?secret|jwtsecret)\s*[:=]\s*['"][^'"]{16,}/gi,
-      severity: 'HIGH'
+      severity: 'HIGH',
     },
     {
       name: 'Database URL',
       pattern: /(mongodb|mysql|postgres|redis):\/\/[^\s'"]+/g,
-      severity: 'HIGH'
+      severity: 'HIGH',
     },
     {
       name: 'Private Key',
       pattern: /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/g,
-      severity: 'CRITICAL'
-    }
+      severity: 'CRITICAL',
+    },
   ],
   MEDIUM_RISK: [
     {
       name: 'Hardcoded Token',
       pattern: /(token|auth)\s*[:=]\s*['"][^'"]{16,}/gi,
-      severity: 'MEDIUM'
+      severity: 'MEDIUM',
     },
     {
       name: 'Base64 Secrets (potential)',
       pattern: /['"][A-Za-z0-9+/]{32,}={0,2}['"]/g,
-      severity: 'MEDIUM'
+      severity: 'MEDIUM',
     },
     {
       name: 'Console.log with sensitive data',
       pattern: /console\.log\([^)]*(?:password|token|secret|key)[^)]*\)/gi,
-      severity: 'MEDIUM'
-    }
+      severity: 'MEDIUM',
+    },
   ],
   LOW_RISK: [
     {
       name: 'TODO Security',
       pattern: /todo.*(?:security|auth|password|token)/gi,
-      severity: 'LOW'
+      severity: 'LOW',
     },
     {
       name: 'FIXME Security',
       pattern: /fixme.*(?:security|auth|password|token)/gi,
-      severity: 'LOW'
-    }
-  ]
+      severity: 'LOW',
+    },
+  ],
 };
 
 // File extensions to scan
-const SCAN_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.json', '.env', '.yaml', '.yml', '.config.js'];
+const SCAN_EXTENSIONS = [
+  '.js',
+  '.jsx',
+  '.ts',
+  '.tsx',
+  '.json',
+  '.env',
+  '.yaml',
+  '.yml',
+  '.config.js',
+];
 
 // Files to exclude from scanning
 const EXCLUDE_PATTERNS = [
@@ -89,7 +99,7 @@ const EXCLUDE_PATTERNS = [
   '.cache',
   'coverage',
   '*.min.js',
-  '*.log'
+  '*.log',
 ];
 
 class SecurityAuditor {
@@ -99,7 +109,7 @@ class SecurityAuditor {
       vulnerabilities: [],
       patterns: [],
       recommendations: [],
-      score: 0
+      score: 0,
     };
     this.scannedFiles = 0;
     this.startTime = Date.now();
@@ -129,7 +139,6 @@ class SecurityAuditor {
 
       // 6. Generate report
       this.generateReport();
-
     } catch (error) {
       console.error('❌ Erro durante auditoria:', error.message);
       process.exit(1);
@@ -183,9 +192,8 @@ class SecurityAuditor {
    * Check if file should be excluded
    */
   shouldExclude(filePath) {
-    return EXCLUDE_PATTERNS.some(pattern =>
-      filePath.includes(pattern) ||
-      path.basename(filePath).includes(pattern)
+    return EXCLUDE_PATTERNS.some(
+      (pattern) => filePath.includes(pattern) || path.basename(filePath).includes(pattern)
     );
   }
 
@@ -217,7 +225,7 @@ class SecurityAuditor {
                 pattern: pattern.name,
                 severity: pattern.severity,
                 match: this.sanitizeMatch(match),
-                line: this.getLineNumber(content, match)
+                line: this.getLineNumber(content, match),
               });
             }
           }
@@ -226,7 +234,6 @@ class SecurityAuditor {
 
       // Check for specific security issues
       this.checkSpecificSecurityIssues(filePath, content);
-
     } catch (error) {
       console.warn(`⚠️  Erro ao escanear ${filePath}: ${error.message}`);
     }
@@ -264,18 +271,22 @@ class SecurityAuditor {
         pattern: 'Dangerous eval() usage',
         severity: 'HIGH',
         match: 'eval(...)',
-        line: this.getLineNumber(content, 'eval(')
+        line: this.getLineNumber(content, 'eval('),
       });
     }
 
     // Check for innerHTML without sanitization
-    if (content.includes('.innerHTML') && !content.includes('xss-clean') && !content.includes('DOMPurify')) {
+    if (
+      content.includes('.innerHTML') &&
+      !content.includes('xss-clean') &&
+      !content.includes('DOMPurify')
+    ) {
       this.results.patterns.push({
         file: filePath,
         pattern: 'Potential XSS via innerHTML',
         severity: 'MEDIUM',
         match: '.innerHTML',
-        line: this.getLineNumber(content, '.innerHTML')
+        line: this.getLineNumber(content, '.innerHTML'),
       });
     }
 
@@ -288,7 +299,7 @@ class SecurityAuditor {
         pattern: 'Potential SQL injection risk',
         severity: 'HIGH',
         match: this.sanitizeMatch(sqlMatches[0]),
-        line: this.getLineNumber(content, sqlMatches[0])
+        line: this.getLineNumber(content, sqlMatches[0]),
       });
     }
   }
@@ -301,13 +312,15 @@ class SecurityAuditor {
 
     try {
       // Check root dependencies
-      const rootAudit = await execAsync('npm audit --json').catch(e => e);
+      const rootAudit = await execAsync('npm audit --json').catch((e) => e);
       if (rootAudit.stdout) {
         this.parseNpmAudit(JSON.parse(rootAudit.stdout), 'root');
       }
 
       // Check frontend dependencies
-      const frontendAudit = await execAsync('cd frontend-react && npm audit --json').catch(e => e);
+      const frontendAudit = await execAsync('cd frontend-react && npm audit --json').catch(
+        (e) => e
+      );
       if (frontendAudit.stdout) {
         this.parseNpmAudit(JSON.parse(frontendAudit.stdout), 'frontend');
       }
@@ -327,7 +340,7 @@ class SecurityAuditor {
           severity: vulnerability.severity,
           context: context,
           title: vulnerability.via[0]?.title || 'Unknown vulnerability',
-          range: vulnerability.range
+          range: vulnerability.range,
         });
       }
     }
@@ -360,7 +373,7 @@ class SecurityAuditor {
         this.results.recommendations.push({
           type: 'Environment',
           severity: 'MEDIUM',
-          message: `Arquivo ${envFile} encontrado - certifique-se de que está no .gitignore`
+          message: `Arquivo ${envFile} encontrado - certifique-se de que está no .gitignore`,
         });
       }
     }
@@ -378,7 +391,7 @@ class SecurityAuditor {
         'helmet',
         'X-Frame-Options',
         'Content-Security-Policy',
-        'X-Content-Type-Options'
+        'X-Content-Type-Options',
       ];
 
       for (const header of securityHeaders) {
@@ -386,7 +399,7 @@ class SecurityAuditor {
           this.results.recommendations.push({
             type: 'Security Headers',
             severity: 'MEDIUM',
-            message: `Header de segurança ${header} não encontrado em ${serverFile}`
+            message: `Header de segurança ${header} não encontrado em ${serverFile}`,
           });
         }
       }
@@ -401,7 +414,7 @@ class SecurityAuditor {
     this.results.recommendations.push({
       type: 'HTTPS',
       severity: 'HIGH',
-      message: 'Certifique-se de que HTTPS está configurado para produção'
+      message: 'Certifique-se de que HTTPS está configurado para produção',
     });
   }
 
@@ -411,11 +424,7 @@ class SecurityAuditor {
   async checkFilePermissions() {
     console.log('📋 Verificando permissões de arquivos...');
 
-    const sensitiveFiles = [
-      '.env',
-      'backend/.env',
-      'scripts/generate-keys.js'
-    ];
+    const sensitiveFiles = ['.env', 'backend/.env', 'scripts/generate-keys.js'];
 
     for (const file of sensitiveFiles) {
       if (fs.existsSync(file)) {
@@ -426,7 +435,7 @@ class SecurityAuditor {
           this.results.recommendations.push({
             type: 'File Permissions',
             severity: 'MEDIUM',
-            message: `Arquivo ${file} tem permissões ${permissions} - considere usar 600 ou 644`
+            message: `Arquivo ${file} tem permissões ${permissions} - considere usar 600 ou 644`,
           });
         }
       }
@@ -527,7 +536,9 @@ class SecurityAuditor {
       const groupedVulns = this.groupBy(this.results.vulnerabilities, 'severity');
 
       for (const [severity, vulns] of Object.entries(groupedVulns)) {
-        console.log(`\n${this.getSeverityIcon(severity)} ${severity.toUpperCase()} (${vulns.length}):`);
+        console.log(
+          `\n${this.getSeverityIcon(severity)} ${severity.toUpperCase()} (${vulns.length}):`
+        );
         for (const vuln of vulns) {
           console.log(`  📦 ${vuln.package} (${vuln.context}) - ${vuln.title}`);
         }
@@ -557,14 +568,14 @@ class SecurityAuditor {
    */
   getSeverityIcon(severity) {
     const icons = {
-      'CRITICAL': '🔴',
-      'HIGH': '🟠',
-      'MEDIUM': '🟡',
-      'LOW': '🔵',
-      'critical': '🔴',
-      'high': '🟠',
-      'moderate': '🟡',
-      'low': '🔵'
+      CRITICAL: '🔴',
+      HIGH: '🟠',
+      MEDIUM: '🟡',
+      LOW: '🔵',
+      critical: '🔴',
+      high: '🟠',
+      moderate: '🟡',
+      low: '🔵',
     };
     return icons[severity] || '⚪';
   }
@@ -592,14 +603,14 @@ class SecurityAuditor {
         timestamp: new Date().toISOString(),
         duration: ((Date.now() - this.startTime) / 1000).toFixed(2),
         filesScanned: this.scannedFiles,
-        score: this.results.score
+        score: this.results.score,
       },
       summary: {
         patterns: this.results.patterns.length,
         vulnerabilities: this.results.vulnerabilities.length,
-        recommendations: this.results.recommendations.length
+        recommendations: this.results.recommendations.length,
       },
-      details: this.results
+      details: this.results,
     };
 
     fs.writeFileSync('security-audit-report.json', JSON.stringify(report, null, 2));

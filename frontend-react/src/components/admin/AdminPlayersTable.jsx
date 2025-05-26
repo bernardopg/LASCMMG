@@ -33,10 +33,7 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
       .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
       .required('Gênero é obrigatório'),
     skill_level: Yup.string() // Changed from level to skill_level
-      .oneOf(
-        ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'],
-        'Nível inválido'
-      )
+      .oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido')
       .required('Nível é obrigatório'),
   });
 
@@ -62,65 +59,43 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                   Nome Completo
                 </label>
                 <Field type="text" name="name" id="name" className="input" />
-                <ErrorMessage
-                  name="name"
-                  component="div"
-                  className="error-message"
-                />
+                <ErrorMessage name="name" component="div" className="error-message" />
               </div>
               <div>
                 <label htmlFor="nickname" className="label">
                   Apelido (Opcional)
                 </label>
-                <Field
-                  type="text"
-                  name="nickname"
-                  id="nickname"
-                  className="input"
-                />
-                <ErrorMessage
-                  name="nickname"
-                  component="div"
-                  className="error-message"
-                />
+                <Field type="text" name="nickname" id="nickname" className="input" />
+                <ErrorMessage name="nickname" component="div" className="error-message" />
               </div>
               <div>
                 <label htmlFor="email" className="label">
                   Email (Opcional)
                 </label>
                 <Field type="email" name="email" id="email" className="input" />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className="error-message"
-                />
+                <ErrorMessage name="email" component="div" className="error-message" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="gender" className="label">
                     Gênero
                   </label>
-                  <Field
-                    as="select"
-                    name="gender"
-                    id="gender"
-                    className="input"
-                  >
+                  <Field as="select" name="gender" id="gender" className="input">
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                     <option value="Outro">Outro</option>
                   </Field>
-                  <ErrorMessage
-                    name="gender"
-                    component="div"
-                    className="error-message"
-                  />
+                  <ErrorMessage name="gender" component="div" className="error-message" />
                 </div>
                 <div>
-                  <label htmlFor="skill_level" className="label"> {/* Changed from level to skill_level */}
+                  <label htmlFor="skill_level" className="label">
+                    {' '}
+                    {/* Changed from level to skill_level */}
                     Nível de Habilidade
                   </label>
-                  <Field as="select" name="skill_level" id="skill_level" className="input"> {/* Changed from level to skill_level */}
+                  <Field as="select" name="skill_level" id="skill_level" className="input">
+                    {' '}
+                    {/* Changed from level to skill_level */}
                     <option value="Iniciante">Iniciante</option>
                     <option value="Intermediário">Intermediário</option>
                     <option value="Avançado">Avançado</option>
@@ -186,10 +161,7 @@ const AdminPlayersTable = () => {
         setCurrentPage(data.currentPage || 1);
       } catch (err) {
         setError(err.message || 'Erro ao buscar jogadores.');
-        showMessage(
-          `Erro ao buscar jogadores: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+        showMessage(`Erro ao buscar jogadores: ${err.message || 'Erro desconhecido'}`, 'error');
         setPlayers([]);
       } finally {
         setLoading(false);
@@ -208,20 +180,13 @@ const AdminPlayersTable = () => {
   };
 
   const handleDelete = async (playerId) => {
-    if (
-      window.confirm(
-        'Tem certeza que deseja enviar este jogador para a lixeira?'
-      )
-    ) {
+    if (window.confirm('Tem certeza que deseja enviar este jogador para a lixeira?')) {
       try {
         await deletePlayerAdmin(playerId); // Soft delete by default
         showMessage('Jogador enviado para a lixeira.', 'success');
         fetchPlayers(currentPage); // Refresh list
       } catch (err) {
-        showMessage(
-          `Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+        showMessage(`Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`, 'error');
       }
     }
   };
@@ -239,10 +204,7 @@ const AdminPlayersTable = () => {
       setIsModalOpen(false);
       setEditingPlayer(null);
     } catch (err) {
-      showMessage(
-        `Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`,
-        'error'
-      );
+      showMessage(`Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`, 'error');
     }
   };
 
@@ -311,10 +273,7 @@ const AdminPlayersTable = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {players.length === 0 ? (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-6 py-4 text-center text-sm text-gray-400"
-                >
+                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-400">
                   Nenhum jogador encontrado.
                 </td>
               </tr>

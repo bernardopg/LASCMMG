@@ -1,27 +1,22 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 import {
   FaChartBar,
   FaClock,
   FaCog,
+  FaExclamationTriangle,
   FaInfoCircle,
   FaListOl,
   FaPlus,
   FaPlusCircle,
+  FaSpinner,
   FaTrophy,
   FaUsers,
-  FaSpinner,
-  FaExclamationTriangle,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
-import { useTournament } from '../../context/TournamentContext';
-import api, {
-  getAdminPlayers,
-  getAdminScores,
-  getTournaments,
-} from '../../services/api';
+import api, { getAdminPlayers, getAdminScores, getTournaments } from '../../services/api';
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => (
   <div className="stat-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
@@ -29,17 +24,11 @@ const StatCard = ({ title, value, icon, color = 'primary' }) => (
       <div
         className={`icon-wrapper mr-4 p-3 rounded-full bg-${color}-100 dark:bg-${color}-700 dark:bg-opacity-50`}
       >
-        <span className={`text-${color}-600 dark:text-${color}-300 text-2xl`}>
-          {icon}
-        </span>
+        <span className={`text-${color}-600 dark:text-${color}-300 text-2xl`}>{icon}</span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          {title}
-        </h3>
-        <p className="text-2xl font-semibold mt-1 text-gray-800 dark:text-gray-100">
-          {value}
-        </p>
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+        <p className="text-2xl font-semibold mt-1 text-gray-800 dark:text-gray-100">{value}</p>
       </div>
     </div>
   </div>
@@ -47,15 +36,9 @@ const StatCard = ({ title, value, icon, color = 'primary' }) => (
 
 const ActionCard = ({ title, description, icon, to, buttonText }) => (
   <div className="action-card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col h-full">
-    <div className="icon-wrapper mb-4 text-primary dark:text-primary-light text-3xl">
-      {icon}
-    </div>
-    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">
-      {title}
-    </h3>
-    <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-      {description}
-    </p>
+    <div className="icon-wrapper mb-4 text-primary dark:text-primary-light text-3xl">{icon}</div>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
+    <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">{description}</p>
     <Link
       to={to}
       className="btn btn-outline btn-primary mt-auto" // Using global button styles
@@ -89,11 +72,11 @@ const Dashboard = () => {
     try {
       const response = await axios.get(`${apiUrl}/api/system/stats`, {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
         timeout: 10000,
-        withCredentials: true
+        withCredentials: true,
       });
 
       return response.data?.success ? response.data.stats : null;
@@ -108,7 +91,7 @@ const Dashboard = () => {
       const [scoresData, playersData, tournamentsData] = await Promise.allSettled([
         getAdminScores({ limit: 5, sortBy: 'completed_at', sortDirection: 'desc' }),
         getAdminPlayers({ limit: 5, sortBy: 'created_at', sortDirection: 'desc' }),
-        getTournaments({ limit: 5, sortBy: 'created_at', sortDirection: 'desc' })
+        getTournaments({ limit: 5, sortBy: 'created_at', sortDirection: 'desc' }),
       ]);
 
       const activity = [];
@@ -176,7 +159,7 @@ const Dashboard = () => {
       // Fetch system stats and recent data in parallel
       const [statsData, activityData] = await Promise.allSettled([
         fetchSystemStats(),
-        fetchRecentData()
+        fetchRecentData(),
       ]);
 
       // Update stats
@@ -193,7 +176,6 @@ const Dashboard = () => {
       if (activityData.status === 'fulfilled') {
         setRecentActivity(activityData.value);
       }
-
     } catch (error) {
       console.error('Dashboard data fetch error:', error);
       setError('Falha ao carregar dados do dashboard.');
@@ -218,7 +200,7 @@ const Dashboard = () => {
         hour: '2-digit',
         minute: '2-digit',
       });
-    } catch (e) {
+    } catch {
       return 'Data inválida';
     }
   };
@@ -267,23 +249,16 @@ const Dashboard = () => {
                 Dashboard Administrativo
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Bem-vindo, {user?.name || 'Administrador'}! Gerencie torneios,
-                jogadores e partidas.
+                Bem-vindo, {user?.name || 'Administrador'}! Gerencie torneios, jogadores e partidas.
               </p>
             </div>
 
             <div className="mt-4 md:mt-0 flex gap-2">
-              <Link
-                to="/admin/reports"
-                className="btn btn-outline btn-white text-sm"
-              >
+              <Link to="/admin/reports" className="btn btn-outline btn-white text-sm">
                 <FaChartBar className="w-4 h-4 mr-2" />
                 Relatórios
               </Link>
-              <Link
-                to="/admin/tournaments/create"
-                className="btn btn-primary text-sm"
-              >
+              <Link to="/admin/tournaments/create" className="btn btn-primary text-sm">
                 <FaPlus className="w-4 h-4 mr-2" />
                 Novo Torneio
               </Link>
@@ -300,10 +275,7 @@ const Dashboard = () => {
           <div className="error-state flex flex-col items-center justify-center py-16">
             <FaExclamationTriangle className="text-4xl text-red-500 mb-4" />
             <p className="text-lg text-red-600 dark:text-red-400 mb-4">{error}</p>
-            <button
-              onClick={fetchDashboardData}
-              className="btn btn-primary"
-            >
+            <button onClick={fetchDashboardData} className="btn btn-primary">
               Tentar Novamente
             </button>
           </div>
@@ -399,9 +371,7 @@ const Dashboard = () => {
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-between">
                                 <div>
-                                  <span className="mr-2">
-                                    por {activity.user}
-                                  </span>
+                                  <span className="mr-2">por {activity.user}</span>
                                 </div>
                                 <div>{formatDate(activity.timestamp)}</div>
                               </div>

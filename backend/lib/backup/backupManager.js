@@ -32,17 +32,22 @@ class BackupManager {
       this.scheduleAutomaticBackup();
 
       this.initialized = true;
-      logger.info({
-        component: 'BackupManager',
-        backupDir: this.backupDir,
-        maxBackups: this.maxBackups
-      }, 'Sistema de backup inicializado');
-
+      logger.info(
+        {
+          component: 'BackupManager',
+          backupDir: this.backupDir,
+          maxBackups: this.maxBackups,
+        },
+        'Sistema de backup inicializado'
+      );
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err
-      }, 'Erro ao inicializar sistema de backup');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+        },
+        'Erro ao inicializar sistema de backup'
+      );
       throw err;
     }
   }
@@ -56,10 +61,13 @@ class BackupManager {
     } catch (err) {
       if (err.code === 'ENOENT') {
         await fs.mkdir(this.backupDir, { recursive: true });
-        logger.info({
-          component: 'BackupManager',
-          dir: this.backupDir
-        }, 'Diretório de backup criado');
+        logger.info(
+          {
+            component: 'BackupManager',
+            dir: this.backupDir,
+          },
+          'Diretório de backup criado'
+        );
       } else {
         throw err;
       }
@@ -71,18 +79,23 @@ class BackupManager {
    */
   async createBackup(type = 'scheduled') {
     const startTime = Date.now();
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' +
-                     new Date().toISOString().replace(/[:.]/g, '-').split('T')[1].split('Z')[0];
+    const timestamp =
+      new Date().toISOString().replace(/[:.]/g, '-').split('T')[0] +
+      '_' +
+      new Date().toISOString().replace(/[:.]/g, '-').split('T')[1].split('Z')[0];
 
     const backupFileName = `lascmmg_backup_${timestamp}.db${this.compressionEnabled ? '.gz' : ''}`;
     const backupPath = path.join(this.backupDir, backupFileName);
 
     try {
-      logger.info({
-        component: 'BackupManager',
-        type,
-        backupPath
-      }, 'Iniciando backup do banco de dados');
+      logger.info(
+        {
+          component: 'BackupManager',
+          type,
+          backupPath,
+        },
+        'Iniciando backup do banco de dados'
+      );
 
       // Checkpoint do WAL (Write-Ahead Logging) para garantir consistência
       await this.checkpointDatabase();
@@ -118,7 +131,7 @@ class BackupManager {
         duration,
         compressed: this.compressionEnabled,
         integrity: integrityCheck,
-        stats
+        stats,
       };
 
       // Salvar metadata do backup
@@ -127,26 +140,31 @@ class BackupManager {
       // Limpar backups antigos
       await this.cleanupOldBackups();
 
-      logger.info({
-        component: 'BackupManager',
-        ...backupInfo,
-        duration: `${duration}ms`
-      }, 'Backup criado com sucesso');
+      logger.info(
+        {
+          component: 'BackupManager',
+          ...backupInfo,
+          duration: `${duration}ms`,
+        },
+        'Backup criado com sucesso'
+      );
 
       return backupInfo;
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err,
-        backupPath,
-        type
-      }, 'Erro ao criar backup');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+          backupPath,
+          type,
+        },
+        'Erro ao criar backup'
+      );
 
       // Limpar backup parcial se existir
       try {
         await fs.unlink(backupPath);
-      } catch (cleanupErr) {
+      } catch {
         // Ignorar erro de limpeza
       }
 
@@ -160,14 +178,20 @@ class BackupManager {
   async checkpointDatabase() {
     try {
       await runAsync('PRAGMA wal_checkpoint(TRUNCATE)');
-      logger.debug({
-        component: 'BackupManager'
-      }, 'Checkpoint do banco executado');
+      logger.debug(
+        {
+          component: 'BackupManager',
+        },
+        'Checkpoint do banco executado'
+      );
     } catch (err) {
-      logger.warn({
-        component: 'BackupManager',
-        err
-      }, 'Aviso: Falha no checkpoint do banco');
+      logger.warn(
+        {
+          component: 'BackupManager',
+          err,
+        },
+        'Aviso: Falha no checkpoint do banco'
+      );
     }
   }
 
@@ -176,21 +200,14 @@ class BackupManager {
    */
   async createCompressedBackup(backupPath) {
     const gzip = createGzip({ level: 6 });
-    await pipeline(
-      createReadStream(this.dbPath),
-      gzip,
-      createWriteStream(backupPath)
-    );
+    await pipeline(createReadStream(this.dbPath), gzip, createWriteStream(backupPath));
   }
 
   /**
    * Criar backup não comprimido
    */
   async createUncompressedBackup(backupPath) {
-    await pipeline(
-      createReadStream(this.dbPath),
-      createWriteStream(backupPath)
-    );
+    await pipeline(createReadStream(this.dbPath), createWriteStream(backupPath));
   }
 
   /**
@@ -204,13 +221,13 @@ class BackupManager {
       return {
         isValid,
         result: result[0]?.integrity_check || 'unknown',
-        error: isValid ? null : 'Falha na verificação de integridade'
+        error: isValid ? null : 'Falha na verificação de integridade',
       };
     } catch (err) {
       return {
         isValid: false,
         result: null,
-        error: err.message
+        error: err.message,
       };
     }
   }
@@ -228,14 +245,17 @@ class BackupManager {
         fileSize: fileStats.size,
         created: fileStats.birthtime,
         modified: fileStats.mtime,
-        compressed: this.compressionEnabled
+        compressed: this.compressionEnabled,
       };
     } catch (err) {
-      logger.warn({
-        component: 'BackupManager',
-        err,
-        backupPath
-      }, 'Não foi possível obter estatísticas do backup');
+      logger.warn(
+        {
+          component: 'BackupManager',
+          err,
+          backupPath,
+        },
+        'Não foi possível obter estatísticas do backup'
+      );
 
       return null;
     }
@@ -254,7 +274,7 @@ class BackupManager {
       try {
         const existingData = await fs.readFile(metadataPath, 'utf8');
         metadata = JSON.parse(existingData);
-      } catch (err) {
+      } catch {
         // Arquivo não existe ou é inválido, começar com array vazio
       }
 
@@ -268,13 +288,15 @@ class BackupManager {
 
       // Salvar metadata atualizada
       await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err,
-        metadataPath
-      }, 'Erro ao salvar metadata do backup');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+          metadataPath,
+        },
+        'Erro ao salvar metadata do backup'
+      );
     }
   }
 
@@ -287,12 +309,15 @@ class BackupManager {
     const restoreStartTime = Date.now();
 
     try {
-      logger.info({
-        component: 'BackupManager',
-        backupFileName,
-        force,
-        verify
-      }, 'Iniciando restauração do backup');
+      logger.info(
+        {
+          component: 'BackupManager',
+          backupFileName,
+          force,
+          verify,
+        },
+        'Iniciando restauração do backup'
+      );
 
       // Verificar se backup existe
       await fs.access(backupPath);
@@ -316,10 +341,7 @@ class BackupManager {
         if (backupFileName.endsWith('.gz')) {
           await this.decompressBackup(backupPath, tempRestorePath);
         } else {
-          await pipeline(
-            createReadStream(backupPath),
-            createWriteStream(tempRestorePath)
-          );
+          await pipeline(createReadStream(backupPath), createWriteStream(tempRestorePath));
         }
 
         // Verificar integridade do backup restaurado
@@ -343,33 +365,37 @@ class BackupManager {
           duration,
           verified: verify,
           originalBackedUpAs: path.basename(originalBackupPath),
-          preRestoreBackup: currentBackup.fileName
+          preRestoreBackup: currentBackup.fileName,
         };
 
-        logger.info({
-          component: 'BackupManager',
-          ...restoreInfo,
-          duration: `${duration}ms`
-        }, 'Restauração concluída com sucesso');
+        logger.info(
+          {
+            component: 'BackupManager',
+            ...restoreInfo,
+            duration: `${duration}ms`,
+          },
+          'Restauração concluída com sucesso'
+        );
 
         return restoreInfo;
-
       } catch (restoreErr) {
         // Limpar arquivo temporário em caso de erro
         try {
           await fs.unlink(tempRestorePath);
-        } catch (cleanupErr) {
+        } catch {
           // Ignorar erro de limpeza
         }
         throw restoreErr;
       }
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err,
-        backupFileName
-      }, 'Erro na restauração do backup');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+          backupFileName,
+        },
+        'Erro na restauração do backup'
+      );
       throw err;
     }
   }
@@ -379,11 +405,7 @@ class BackupManager {
    */
   async decompressBackup(compressedPath, outputPath) {
     const gunzip = createGunzip();
-    await pipeline(
-      createReadStream(compressedPath),
-      gunzip,
-      createWriteStream(outputPath)
-    );
+    await pipeline(createReadStream(compressedPath), gunzip, createWriteStream(outputPath));
   }
 
   /**
@@ -398,19 +420,18 @@ class BackupManager {
       if (stats.size === 0) {
         return {
           isValid: false,
-          error: 'Arquivo de backup está vazio'
+          error: 'Arquivo de backup está vazio',
         };
       }
 
       return {
         isValid: true,
-        size: stats.size
+        size: stats.size,
       };
-
     } catch (err) {
       return {
         isValid: false,
-        error: err.message
+        error: err.message,
       };
     }
   }
@@ -430,9 +451,9 @@ class BackupManager {
   async listBackups() {
     try {
       const files = await fs.readdir(this.backupDir);
-      const backupFiles = files.filter(file =>
-        file.startsWith('lascmmg_backup_') &&
-        (file.endsWith('.db') || file.endsWith('.db.gz'))
+      const backupFiles = files.filter(
+        (file) =>
+          file.startsWith('lascmmg_backup_') && (file.endsWith('.db') || file.endsWith('.db.gz'))
       );
 
       const backups = [];
@@ -448,14 +469,17 @@ class BackupManager {
             sizeFormatted: this.formatBytes(stats.size),
             created: stats.birthtime,
             modified: stats.mtime,
-            compressed: file.endsWith('.gz')
+            compressed: file.endsWith('.gz'),
           });
         } catch (err) {
-          logger.warn({
-            component: 'BackupManager',
-            file,
-            err
-          }, 'Erro ao obter informações do backup');
+          logger.warn(
+            {
+              component: 'BackupManager',
+              file,
+              err,
+            },
+            'Erro ao obter informações do backup'
+          );
         }
       }
 
@@ -463,12 +487,14 @@ class BackupManager {
       backups.sort((a, b) => new Date(b.created) - new Date(a.created));
 
       return backups;
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err
-      }, 'Erro ao listar backups');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+        },
+        'Erro ao listar backups'
+      );
       throw err;
     }
   }
@@ -488,27 +514,34 @@ class BackupManager {
             const backupPath = path.join(this.backupDir, backup.fileName);
             await fs.unlink(backupPath);
 
-            logger.info({
-              component: 'BackupManager',
-              fileName: backup.fileName,
-              age: Math.round((Date.now() - new Date(backup.created)) / (24 * 60 * 60 * 1000))
-            }, 'Backup antigo removido');
-
+            logger.info(
+              {
+                component: 'BackupManager',
+                fileName: backup.fileName,
+                age: Math.round((Date.now() - new Date(backup.created)) / (24 * 60 * 60 * 1000)),
+              },
+              'Backup antigo removido'
+            );
           } catch (err) {
-            logger.error({
-              component: 'BackupManager',
-              fileName: backup.fileName,
-              err
-            }, 'Erro ao remover backup antigo');
+            logger.error(
+              {
+                component: 'BackupManager',
+                fileName: backup.fileName,
+                err,
+              },
+              'Erro ao remover backup antigo'
+            );
           }
         }
       }
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err
-      }, 'Erro na limpeza de backups antigos');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+        },
+        'Erro na limpeza de backups antigos'
+      );
     }
   }
 
@@ -532,26 +565,34 @@ class BackupManager {
       setTimeout(async () => {
         try {
           await this.createBackup('daily');
-          logger.info({
-            component: 'BackupManager'
-          }, 'Backup automático diário executado');
+          logger.info(
+            {
+              component: 'BackupManager',
+            },
+            'Backup automático diário executado'
+          );
         } catch (err) {
-          logger.error({
-            component: 'BackupManager',
-            err
-          }, 'Erro no backup automático diário');
+          logger.error(
+            {
+              component: 'BackupManager',
+              err,
+            },
+            'Erro no backup automático diário'
+          );
         }
 
         // Reagendar para o próximo dia
         scheduleBackup();
-
       }, msUntilBackup);
 
-      logger.info({
-        component: 'BackupManager',
-        nextBackup: scheduledTime.toISOString(),
-        hoursUntil: Math.round(msUntilBackup / (60 * 60 * 1000))
-      }, 'Próximo backup automático agendado');
+      logger.info(
+        {
+          component: 'BackupManager',
+          nextBackup: scheduledTime.toISOString(),
+          hoursUntil: Math.round(msUntilBackup / (60 * 60 * 1000)),
+        },
+        'Próximo backup automático agendado'
+      );
     };
 
     scheduleBackup();
@@ -569,9 +610,12 @@ class BackupManager {
    */
   async testBackupRestore() {
     try {
-      logger.info({
-        component: 'BackupManager'
-      }, 'Iniciando teste de backup e restore');
+      logger.info(
+        {
+          component: 'BackupManager',
+        },
+        'Iniciando teste de backup e restore'
+      );
 
       // 1. Criar backup de teste
       const backup = await this.createBackup('test');
@@ -592,25 +636,30 @@ class BackupManager {
         backupSize: backup.sizeFormatted,
         integrityCheck: integrity.isValid,
         backupCount: backups.length,
-        testPassed: true
+        testPassed: true,
       };
 
-      logger.info({
-        component: 'BackupManager',
-        ...testResult
-      }, 'Teste de backup concluído com sucesso');
+      logger.info(
+        {
+          component: 'BackupManager',
+          ...testResult,
+        },
+        'Teste de backup concluído com sucesso'
+      );
 
       return testResult;
-
     } catch (err) {
-      logger.error({
-        component: 'BackupManager',
-        err
-      }, 'Teste de backup falhou');
+      logger.error(
+        {
+          component: 'BackupManager',
+          err,
+        },
+        'Teste de backup falhou'
+      );
 
       return {
         testPassed: false,
-        error: err.message
+        error: err.message,
       };
     }
   }
@@ -624,7 +673,7 @@ class BackupManager {
       backupDir: this.backupDir,
       maxBackups: this.maxBackups,
       compressionEnabled: this.compressionEnabled,
-      dbPath: this.dbPath
+      dbPath: this.dbPath,
     };
   }
 

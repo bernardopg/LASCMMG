@@ -14,17 +14,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/**',
-        'src/tests/**',
-        '**/*.config.js',
-        '**/dist/**'
-      ]
+      exclude: ['node_modules/**', 'src/tests/**', '**/*.config.js', '**/dist/**'],
     },
     env: {
       VITE_API_URL: 'http://localhost:3000',
-      NODE_ENV: 'test'
-    }
+      NODE_ENV: 'test',
+    },
   },
   define: {
     global: 'globalThis',

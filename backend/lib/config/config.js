@@ -16,7 +16,8 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 // Configurações de segurança
 const RATE_LIMIT = {
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || (NODE_ENV === 'development' ? 1000 : 100), // Increased for dev
+  max:
+    parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || (NODE_ENV === 'development' ? 1000 : 100), // Increased for dev
 };
 
 // Configurações do banco de dados

@@ -10,9 +10,12 @@ const AdminActivityLogPage = () => {
       </h1>
       <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-          Esta página exibirá um registro detalhado de todas as ações administrativas importantes realizadas no sistema.
+          Esta página exibirá um registro detalhado de todas as ações administrativas importantes
+          realizadas no sistema.
         </p>
-        <p className="font-semibold text-gray-600 dark:text-gray-400">Funcionalidades planejadas:</p>
+        <p className="font-semibold text-gray-600 dark:text-gray-400">
+          Funcionalidades planejadas:
+        </p>
         <ul className="list-disc list-inside pl-5 mt-2 text-gray-600 dark:text-gray-400 space-y-1">
           <li>Visualização de logs de auditoria do backend.</li>
           <li>Filtros por tipo de ação, administrador, data, etc.</li>
@@ -25,7 +28,8 @@ const AdminActivityLogPage = () => {
             Em Desenvolvimento
           </p>
           <p className="text-blue-600 dark:text-blue-400">
-            A visualização completa do log de atividades está sendo desenvolvida e estará disponível em breve.
+            A visualização completa do log de atividades está sendo desenvolvida e estará disponível
+            em breve.
           </p>
         </div>
       </div>

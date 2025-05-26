@@ -27,9 +27,7 @@ function calculateTopPlayersDb(players, scores) {
   scores.forEach((score) => {
     if (score.winner_id) {
       // Tenta encontrar o nome do vencedor usando winner_name do score ou buscando no array de players
-      const winnerName =
-        score.winner_name ||
-        players.find((p) => p.id === score.winner_id)?.name;
+      const winnerName = score.winner_name || players.find((p) => p.id === score.winner_id)?.name;
       if (winnerName) {
         playerWinsMap[winnerName] = (playerWinsMap[winnerName] || 0) + 1;
       }
@@ -65,10 +63,7 @@ function calculateCommonScoresDb(scores) {
   const scorePatterns = {};
 
   scores.forEach((score) => {
-    if (
-      score.player1_score !== undefined &&
-      score.player2_score !== undefined
-    ) {
+    if (score.player1_score !== undefined && score.player2_score !== undefined) {
       const pattern = `${score.player1_score}-${score.player2_score}`;
       scorePatterns[pattern] = (scorePatterns[pattern] || 0) + 1;
     }
@@ -82,8 +77,7 @@ function calculateCommonScoresDb(scores) {
 function calculatePlayerStatsDb(playerName, playerData, playerScores) {
   const gamesPlayed = playerData.games_played || 0;
   const wins = playerData.wins || 0;
-  const losses =
-    playerData.losses !== undefined ? playerData.losses : gamesPlayed - wins;
+  const losses = playerData.losses !== undefined ? playerData.losses : gamesPlayed - wins;
   const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
 
   let totalScoreDiff = 0;
@@ -101,9 +95,7 @@ function calculatePlayerStatsDb(playerName, playerData, playerScores) {
   const opponentStats = {};
   playerScores.forEach((score) => {
     const opponentName =
-      score.player1_name === playerName
-        ? score.player2_name
-        : score.player1_name;
+      score.player1_name === playerName ? score.player2_name : score.player1_name;
 
     if (!opponentName) return; // Ignora se o nome do oponente não for encontrado
 
@@ -132,24 +124,11 @@ function calculatePlayerStatsDb(playerName, playerData, playerScores) {
   const matchHistory = playerScores.map((score) => ({
     match_number: score.match_number,
     round: score.round,
-    opponent:
-      score.player1_name === playerName
-        ? score.player2_name
-        : score.player1_name,
-    player_score:
-      score.player1_name === playerName
-        ? score.player1_score
-        : score.player2_score,
-    opponent_score:
-      score.player1_name === playerName
-        ? score.player2_score
-        : score.player1_score,
+    opponent: score.player1_name === playerName ? score.player2_name : score.player1_name,
+    player_score: score.player1_name === playerName ? score.player1_score : score.player2_score,
+    opponent_score: score.player1_name === playerName ? score.player2_score : score.player1_score,
     result:
-      score.winner_name === playerName
-        ? 'Vitória'
-        : score.winner_name
-          ? 'Derrota'
-          : 'Pendente', // Considerar empates se aplicável
+      score.winner_name === playerName ? 'Vitória' : score.winner_name ? 'Derrota' : 'Pendente', // Considerar empates se aplicável
     completed_at: score.completed_at,
   }));
 

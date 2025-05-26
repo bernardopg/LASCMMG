@@ -1,13 +1,6 @@
 import React from 'react';
 
-const PlayerDisplay = ({
-  player,
-  score,
-  isWinner,
-  isChampion,
-  isBye,
-  seed,
-}) => {
+const PlayerDisplay = ({ player, score, isWinner, isChampion, isBye, seed }) => {
   const playerName = player?.name || (isBye ? 'BYE' : 'A definir');
   const playerScore = score ?? (isBye ? '' : '-'); // No score for BYE
 
@@ -44,12 +37,9 @@ const PlayerDisplay = ({
   return (
     <div className={playerContainerClasses}>
       {seed && !isBye && (
-        <span className="text-xs text-gray-500 font-bold mr-2 w-5 text-center">
-          ({seed})
-        </span>
+        <span className="text-xs text-gray-500 font-bold mr-2 w-5 text-center">({seed})</span>
       )}
-      {isBye && <span className="w-5 mr-2"></span>}{' '}
-      {/* Placeholder for seed alignment */}
+      {isBye && <span className="w-5 mr-2"></span>} {/* Placeholder for seed alignment */}
       <span className={playerNameClasses} title={playerName}>
         {playerName}
       </span>

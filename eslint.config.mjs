@@ -8,13 +8,15 @@
  */
 
 import eslint from '@eslint/js';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import eslintPluginCypress from 'eslint-plugin-cypress/flat';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import nPlugin from 'eslint-plugin-n';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import eslintPluginCypress from 'eslint-plugin-cypress/flat';
+import securityPlugin from 'eslint-plugin-security';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   // Global ignores - files and directories to exclude from linting
@@ -34,6 +36,10 @@ export default tseslint.config(
   // Backend Node.js files (CommonJS format)
   {
     files: ['backend/**/*.js', 'scripts/**/*.js', '*.config.js'],
+    plugins: {
+      security: securityPlugin,
+      n: nPlugin,
+    },
     languageOptions: {
       globals: { ...globals.node },
       sourceType: 'commonjs',
@@ -49,7 +55,7 @@ export default tseslint.config(
       'security/detect-non-literal-regexp': 'warn',
       'security/detect-unsafe-regex': 'warn',
       'security/detect-buffer-noassert': 'error',
-      'node/no-deprecated-api': 'warn',
+      'n/no-deprecated-api': 'warn',
     },
   },
 
@@ -105,10 +111,7 @@ export default tseslint.config(
 
   // Frontend styling configuration files (Tailwind, PostCSS)
   {
-    files: [
-      'frontend-react/tailwind.config.js',
-      'frontend-react/postcss.config.js',
-    ],
+    files: ['frontend-react/tailwind.config.js', 'frontend-react/postcss.config.js'],
     languageOptions: {
       globals: { ...globals.node, require: 'readonly', module: 'readonly' },
       sourceType: 'commonjs',
@@ -187,13 +190,16 @@ export default tseslint.config(
   // Global prettier configuration
   {
     rules: {
-      'prettier/prettier': ['error', {
-        endOfLine: 'auto',
-        singleQuote: true,
-        trailingComma: 'es5',
-        printWidth: 100,
-        tabWidth: 2
-      }],
+      'prettier/prettier': [
+        'error',
+        {
+          endOfLine: 'auto',
+          singleQuote: true,
+          trailingComma: 'es5',
+          printWidth: 100,
+          tabWidth: 2,
+        },
+      ],
     },
   }
 );

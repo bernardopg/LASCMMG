@@ -128,9 +128,7 @@ const MessageContainer = () => {
             role="alert"
           >
             <div className="flex">
-              <div className="flex-shrink-0">
-                {getMessageIcon(message.type)}
-              </div>
+              <div className="flex-shrink-0">{getMessageIcon(message.type)}</div>
               <div className="ml-3">
                 <p className="text-sm font-medium">{message.text}</p>
               </div>

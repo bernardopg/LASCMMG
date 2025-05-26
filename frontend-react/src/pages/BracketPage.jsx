@@ -63,8 +63,7 @@ const BracketPage = () => {
   return (
     <div className="p-4 md:p-6 text-gray-100">
       <h2 id="bracket-heading" className="text-2xl font-semibold mb-6">
-        Chaveamento do Torneio{' '}
-        {currentTournament ? `(${currentTournament.name})` : ''}
+        Chaveamento do Torneio {currentTournament ? `(${currentTournament.name})` : ''}
       </h2>
       <div
         id="bracket"
@@ -95,16 +94,15 @@ const BracketPage = () => {
                 onMatchClick={handleMatchClick}
               />
             )}
-            {bracketType === 'double-elimination' &&
-              matchesByBracket.LB.length > 0 && (
-                <BracketSection
-                  title="Chave Inferior (Losers)"
-                  matches={matchesByBracket.LB}
-                  roundPrefix="LB "
-                  selectedMatchId={selectedMatchId}
-                  onMatchClick={handleMatchClick}
-                />
-              )}
+            {bracketType === 'double-elimination' && matchesByBracket.LB.length > 0 && (
+              <BracketSection
+                title="Chave Inferior (Losers)"
+                matches={matchesByBracket.LB}
+                roundPrefix="LB "
+                selectedMatchId={selectedMatchId}
+                onMatchClick={handleMatchClick}
+              />
+            )}
             {matchesByBracket.GF.length > 0 && (
               <BracketSection
                 title="Grande Final"

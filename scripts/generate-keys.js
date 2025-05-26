@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 /**
  * Script para gerar chaves de segurança para o projeto LASCMMG
@@ -24,7 +25,7 @@ const colors = {
   blue: '\x1b[34m',
   red: '\x1b[31m',
   reset: '\x1b[0m',
-  bold: '\x1b[1m'
+  bold: '\x1b[1m',
 };
 
 function generateKey() {
@@ -44,7 +45,7 @@ function generateAllKeys() {
     backup: generateKey(),
     jwt: generateKey(),
     cookie: generateKey(),
-    csrf: generateKey()
+    csrf: generateKey(),
   };
 
   Object.entries(keys).forEach(([type, key]) => {
@@ -104,7 +105,9 @@ function main() {
       break;
   }
 
-  console.log(`${colors.yellow}💡 Dica: Use 'npm run generate-keys' para gerar novas chaves${colors.reset}`);
+  console.log(
+    `${colors.yellow}💡 Dica: Use 'npm run generate-keys' para gerar novas chaves${colors.reset}`
+  );
 }
 
 if (require.main === module) {

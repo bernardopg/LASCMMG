@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { useMessage } from './MessageContext';
@@ -100,7 +100,7 @@ export const NotificationProvider = ({ children }) => {
       score_added: 'Novo placar registrado',
       score_updated: 'Placar atualizado',
       score_deleted: 'Placar removido',
-      bracket_updated: 'Chaveamento atualizado'
+      bracket_updated: 'Chaveamento atualizado',
     };
 
     // Se tivermos uma mensagem para este tipo de notificação
@@ -108,7 +108,7 @@ export const NotificationProvider = ({ children }) => {
       showMessage({
         type: 'info',
         content: messages[notification.type],
-        duration: 5000
+        duration: 5000,
       });
     }
   };
@@ -149,13 +149,11 @@ export const NotificationProvider = ({ children }) => {
     subscribeTournament,
     unsubscribeTournament,
     markAllAsRead,
-    clearNotifications
+    clearNotifications,
   };
 
   return (
-    <NotificationContext.Provider value={contextValue}>
-      {children}
-    </NotificationContext.Provider>
+    <NotificationContext.Provider value={contextValue}>{children}</NotificationContext.Provider>
   );
 };
 

@@ -16,26 +16,32 @@ router.get('/report', authMiddleware, roleMiddleware(['admin']), async (req, res
   try {
     const report = await optimizedDb.generatePerformanceReport();
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username,
-      reportSize: JSON.stringify(report).length
-    }, 'Relatório de performance gerado');
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+        reportSize: JSON.stringify(report).length,
+      },
+      'Relatório de performance gerado'
+    );
 
     res.json({
       success: true,
-      data: report
+      data: report,
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao gerar relatório de performance');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao gerar relatório de performance'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor ao gerar relatório'
+      message: 'Erro interno do servidor ao gerar relatório',
     });
   }
 });
@@ -54,19 +60,22 @@ router.get('/slow-queries', authMiddleware, roleMiddleware(['admin']), async (re
       data: {
         queries: slowQueries,
         threshold: queryAnalyzer.slowQueryThreshold,
-        total: slowQueries.length
-      }
+        total: slowQueries.length,
+      },
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao buscar queries lentas');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao buscar queries lentas'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -84,19 +93,22 @@ router.get('/frequent-queries', authMiddleware, roleMiddleware(['admin']), async
       success: true,
       data: {
         queries: frequentQueries,
-        total: frequentQueries.length
-      }
+        total: frequentQueries.length,
+      },
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao buscar queries frequentes');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao buscar queries frequentes'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -112,18 +124,21 @@ router.get('/cache/stats', authMiddleware, roleMiddleware(['admin']), async (req
 
     res.json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao buscar estatísticas do cache');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao buscar estatísticas do cache'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -137,25 +152,31 @@ router.post('/cache/clear', authMiddleware, roleMiddleware(['admin']), async (re
   try {
     await queryCache.clear();
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username
-    }, 'Cache limpo manualmente');
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+      },
+      'Cache limpo manualmente'
+    );
 
     res.json({
       success: true,
-      message: 'Cache limpo com sucesso'
+      message: 'Cache limpo com sucesso',
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao limpar cache');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao limpar cache'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -169,27 +190,33 @@ router.post('/cache/warmup', authMiddleware, roleMiddleware(['admin']), async (r
   try {
     const warmedCount = await optimizedDb.warmupCache();
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username,
-      warmedCount
-    }, 'Cache aquecido manualmente');
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+        warmedCount,
+      },
+      'Cache aquecido manualmente'
+    );
 
     res.json({
       success: true,
       message: `Cache aquecido com ${warmedCount} queries`,
-      data: { warmedCount }
+      data: { warmedCount },
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao aquecer cache');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao aquecer cache'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -208,19 +235,22 @@ router.get('/index-suggestions', authMiddleware, roleMiddleware(['admin']), asyn
       data: {
         suggestions,
         total: suggestions.length,
-        highPriority: suggestions.filter(s => s.priority === 'HIGH').length
-      }
+        highPriority: suggestions.filter((s) => s.priority === 'HIGH').length,
+      },
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao gerar sugestões de índices');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao gerar sugestões de índices'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -235,12 +265,15 @@ router.post('/optimize-indexes', authMiddleware, roleMiddleware(['admin']), asyn
     const { dryRun = true } = req.body;
     const results = await optimizedDb.autoOptimizeIndexes(dryRun);
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username,
-      dryRun,
-      results: results.length
-    }, `Auto-otimização de índices ${dryRun ? 'simulada' : 'executada'}`);
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+        dryRun,
+        results: results.length,
+      },
+      `Auto-otimização de índices ${dryRun ? 'simulada' : 'executada'}`
+    );
 
     res.json({
       success: true,
@@ -248,20 +281,23 @@ router.post('/optimize-indexes', authMiddleware, roleMiddleware(['admin']), asyn
       data: {
         results,
         total: results.length,
-        created: results.filter(r => r.status === 'created').length,
-        errors: results.filter(r => r.status === 'error').length
-      }
+        created: results.filter((r) => r.status === 'created').length,
+        errors: results.filter((r) => r.status === 'error').length,
+      },
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro na otimização de índices');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro na otimização de índices'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -271,38 +307,46 @@ router.post('/optimize-indexes', authMiddleware, roleMiddleware(['admin']), asyn
  * @desc Analisa plano de execução de uma query específica
  * @access Admin only
  */
-router.get('/query-plan/:encodedQuery', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
-  try {
-    const { encodedQuery } = req.params;
-    const { params = '[]' } = req.query;
+router.get(
+  '/query-plan/:encodedQuery',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  async (req, res) => {
+    try {
+      const { encodedQuery } = req.params;
+      const { params = '[]' } = req.query;
 
-    // Decodificar query
-    const sql = Buffer.from(encodedQuery, 'base64').toString('utf-8');
-    const queryParams = JSON.parse(params);
+      // Decodificar query
+      const sql = Buffer.from(encodedQuery, 'base64').toString('utf-8');
+      const queryParams = JSON.parse(params);
 
-    const plan = await queryAnalyzer.analyzeQueryPlan(sql, queryParams);
+      const plan = await queryAnalyzer.analyzeQueryPlan(sql, queryParams);
 
-    res.json({
-      success: true,
-      data: {
-        sql,
-        params: queryParams,
-        plan
-      }
-    });
-  } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao analisar plano de execução');
+      res.json({
+        success: true,
+        data: {
+          sql,
+          params: queryParams,
+          plan,
+        },
+      });
+    } catch (err) {
+      logger.error(
+        {
+          component: 'PerformanceAPI',
+          err,
+          admin: req.user?.username,
+        },
+        'Erro ao analisar plano de execução'
+      );
 
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor',
+      });
+    }
   }
-});
+);
 
 /**
  * @route PUT /api/admin/performance/config
@@ -311,12 +355,7 @@ router.get('/query-plan/:encodedQuery', authMiddleware, roleMiddleware(['admin']
  */
 router.put('/config', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
   try {
-    const {
-      enableOptimizations,
-      enableProfiling,
-      slowQueryThreshold,
-      cacheEnabled
-    } = req.body;
+    const { enableOptimizations, enableProfiling, slowQueryThreshold, cacheEnabled } = req.body;
 
     const options = {};
 
@@ -327,27 +366,33 @@ router.put('/config', authMiddleware, roleMiddleware(['admin']), async (req, res
 
     optimizedDb.configure(options);
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username,
-      options
-    }, 'Configurações de performance atualizadas');
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+        options,
+      },
+      'Configurações de performance atualizadas'
+    );
 
     res.json({
       success: true,
       message: 'Configurações atualizadas com sucesso',
-      data: optimizedDb.getOptimizationStatus()
+      data: optimizedDb.getOptimizationStatus(),
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao atualizar configurações');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao atualizar configurações'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -363,18 +408,21 @@ router.get('/status', authMiddleware, roleMiddleware(['admin']), async (req, res
 
     res.json({
       success: true,
-      data: status
+      data: status,
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao buscar status das otimizações');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao buscar status das otimizações'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });
@@ -388,25 +436,31 @@ router.post('/analyze/reset', authMiddleware, roleMiddleware(['admin']), async (
   try {
     queryAnalyzer.reset();
 
-    logger.info({
-      component: 'PerformanceAPI',
-      admin: req.user?.username
-    }, 'Estatísticas do analisador resetadas');
+    logger.info(
+      {
+        component: 'PerformanceAPI',
+        admin: req.user?.username,
+      },
+      'Estatísticas do analisador resetadas'
+    );
 
     res.json({
       success: true,
-      message: 'Estatísticas resetadas com sucesso'
+      message: 'Estatísticas resetadas com sucesso',
     });
   } catch (err) {
-    logger.error({
-      component: 'PerformanceAPI',
-      err,
-      admin: req.user?.username
-    }, 'Erro ao resetar estatísticas');
+    logger.error(
+      {
+        component: 'PerformanceAPI',
+        err,
+        admin: req.user?.username,
+      },
+      'Erro ao resetar estatísticas'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
     });
   }
 });

@@ -1,12 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FaChartBar, FaSyncAlt, FaUsers } from 'react-icons/fa';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
-import {
-  getPlayerStats,
-  getPlayers,
-  getTournamentStats,
-} from '../services/api';
+import { getPlayerStats, getPlayers, getTournamentStats } from '../services/api';
 
 // Helper function to format bracket type (from old statsHandler)
 const formatBracketType = (type) => {
@@ -74,16 +70,10 @@ const StatsPage = () => {
     }
     setLoadingPlayerStats(true);
     try {
-      const stats = await getPlayerStats(
-        currentTournament.id,
-        selectedPlayerName
-      );
+      const stats = await getPlayerStats(currentTournament.id, selectedPlayerName);
       setPlayerStats(stats);
     } catch (error) {
-      console.error(
-        `Erro ao carregar estatísticas do jogador ${selectedPlayerName}:`,
-        error
-      );
+      console.error(`Erro ao carregar estatísticas do jogador ${selectedPlayerName}:`, error);
       showError(
         // Corrigido para showError
         `Erro ao carregar estatísticas do jogador: ${error.message}`
@@ -108,16 +98,10 @@ const StatsPage = () => {
 
   const renderTournamentInfoCard = () => {
     if (!tournamentStats?.tournamentInfo)
-      return (
-        <p className="text-gray-400 dark:text-gray-500">
-          Informações não disponíveis.
-        </p>
-      );
+      return <p className="text-gray-400 dark:text-gray-500">Informações não disponíveis.</p>;
     const info = tournamentStats.tournamentInfo;
     const completionPercentage =
-      info.totalMatches > 0
-        ? Math.round((info.completedMatches / info.totalMatches) * 100)
-        : 0;
+      info.totalMatches > 0 ? Math.round((info.completedMatches / info.totalMatches) * 100) : 0;
     return (
       <div className="card bg-white dark:bg-slate-800 shadow-lg rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
@@ -137,8 +121,8 @@ const StatsPage = () => {
             <strong>Partidas:</strong> {info.totalMatches || 0}
           </p>
           <p>
-            <strong>Concluídas:</strong> {info.completedMatches || 0} de{' '}
-            {info.totalMatches || 0} ({completionPercentage}%)
+            <strong>Concluídas:</strong> {info.completedMatches || 0} de {info.totalMatches || 0} (
+            {completionPercentage}%)
           </p>
         </div>
       </div>
@@ -147,11 +131,7 @@ const StatsPage = () => {
 
   const renderTopPlayersCard = () => {
     if (!tournamentStats?.topPlayers || tournamentStats.topPlayers.length === 0)
-      return (
-        <p className="text-gray-400 dark:text-gray-500">
-          Top jogadores não disponíveis.
-        </p>
-      );
+      return <p className="text-gray-400 dark:text-gray-500">Top jogadores não disponíveis.</p>;
     return (
       <div className="card bg-white dark:bg-slate-800 shadow-lg rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
@@ -177,15 +157,8 @@ const StatsPage = () => {
   };
 
   const renderCommonScoresCard = () => {
-    if (
-      !tournamentStats?.commonScores ||
-      tournamentStats.commonScores.length === 0
-    )
-      return (
-        <p className="text-gray-400 dark:text-gray-500">
-          Resultados comuns não disponíveis.
-        </p>
-      );
+    if (!tournamentStats?.commonScores || tournamentStats.commonScores.length === 0)
+      return <p className="text-gray-400 dark:text-gray-500">Resultados comuns não disponíveis.</p>;
     return (
       <div className="card bg-white dark:bg-slate-800 shadow-lg rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
@@ -193,10 +166,7 @@ const StatsPage = () => {
         </h3>
         <ul className="space-y-2 text-gray-600 dark:text-gray-300">
           {tournamentStats.commonScores.slice(0, 5).map((score, index) => (
-            <li
-              key={index}
-              className="flex justify-between p-2 dark:hover:bg-slate-700 rounded"
-            >
+            <li key={index} className="flex justify-between p-2 dark:hover:bg-slate-700 rounded">
               <span>{score.pattern}</span>
               <span className="font-medium text-gray-700 dark:text-gray-200">
                 {score.count} vezes
@@ -210,11 +180,7 @@ const StatsPage = () => {
 
   const renderMatchStatsCard = () => {
     if (!tournamentStats?.matchTimeStats)
-      return (
-        <p className="text-gray-400 dark:text-gray-500">
-          Dados de partidas não disponíveis.
-        </p>
-      );
+      return <p className="text-gray-400 dark:text-gray-500">Dados de partidas não disponíveis.</p>;
     const stats = tournamentStats.matchTimeStats;
     return (
       <div className="card bg-white dark:bg-slate-800 shadow-lg rounded-lg p-6">
@@ -223,12 +189,10 @@ const StatsPage = () => {
         </h3>
         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
           <p>
-            <strong>Tempo médio:</strong>{' '}
-            {stats.averageDurationMinutes ?? 'N/A'} min
+            <strong>Tempo médio:</strong> {stats.averageDurationMinutes ?? 'N/A'} min
           </p>
           <p>
-            <strong>Mais rápida:</strong> {stats.minDurationMinutes ?? 'N/A'}{' '}
-            min
+            <strong>Mais rápida:</strong> {stats.minDurationMinutes ?? 'N/A'} min
           </p>
           <p>
             <strong>Mais longa:</strong> {stats.maxDurationMinutes ?? 'N/A'} min
@@ -253,13 +217,7 @@ const StatsPage = () => {
         </p>
       );
 
-    const {
-      player,
-      matchHistory,
-      opponentStats,
-      winRate,
-      averageScoreDifference,
-    } = playerStats;
+    const { player, matchHistory, opponentStats, winRate, averageScoreDifference } = playerStats;
 
     return (
       <div className="mt-6 space-y-6">
@@ -281,8 +239,7 @@ const StatsPage = () => {
               <strong>Derrotas:</strong> {player.losses || 0}
             </p>
             <p>
-              <strong>Taxa de Vitória:</strong>{' '}
-              {winRate !== undefined ? `${winRate}%` : 'N/A'}
+              <strong>Taxa de Vitória:</strong> {winRate !== undefined ? `${winRate}%` : 'N/A'}
             </p>
             <p>
               <strong>Saldo Médio:</strong>{' '}
@@ -325,9 +282,7 @@ const StatsPage = () => {
                       >
                         <td className="p-2">
                           {match.completed_at // Use completed_at
-                            ? new Date(match.completed_at).toLocaleDateString(
-                              'pt-BR'
-                            )
+                            ? new Date(match.completed_at).toLocaleDateString('pt-BR')
                             : '-'}
                         </td>
                         <td className="p-2">{opponent || 'N/A'}</td>
@@ -366,10 +321,7 @@ const StatsPage = () => {
                   {Object.entries(opponentStats)
                     .sort(([, a], [, b]) => b.played - a.played)
                     .map(([name, stats]) => (
-                      <tr
-                        key={name}
-                        className="hover:bg-gray-50 dark:hover:bg-slate-700"
-                      >
+                      <tr key={name} className="hover:bg-gray-50 dark:hover:bg-slate-700">
                         <td className="p-2">{name}</td>
                         <td className="p-2 text-center">{stats.played}</td>
                         <td className="p-2 text-center text-green-600 dark:text-green-400">
@@ -379,10 +331,7 @@ const StatsPage = () => {
                           {stats.losses}
                         </td>
                         <td className="p-2 text-center">
-                          {stats.played > 0
-                            ? Math.round((stats.wins / stats.played) * 100)
-                            : 0}
-                          %
+                          {stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0}%
                         </td>
                       </tr>
                     ))}
@@ -400,16 +349,11 @@ const StatsPage = () => {
       {' '}
       {/* Adjusted base text color */}
       <div className="flex justify-between items-center mb-6">
-        <h2
-          id="stats-heading"
-          className="text-2xl font-semibold text-gray-800 dark:text-gray-100"
-        >
+        <h2 id="stats-heading" className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
           Estatísticas
         </h2>
         <button
-          onClick={
-            activeTab === 'tournament' ? fetchTournamentStats : fetchPlayerStats
-          }
+          onClick={activeTab === 'tournament' ? fetchTournamentStats : fetchPlayerStats}
           className="btn btn-outline border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 text-sm"
           disabled={loadingTournamentStats || loadingPlayerStats}
         >
@@ -424,9 +368,10 @@ const StatsPage = () => {
           <button
             onClick={() => setActiveTab('tournament')}
             className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-              ${activeTab === 'tournament'
-                ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
+              ${
+                activeTab === 'tournament'
+                  ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
           >
             <FaChartBar className="inline mr-2" /> Torneio
@@ -434,9 +379,10 @@ const StatsPage = () => {
           <button
             onClick={() => setActiveTab('players')}
             className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-              ${activeTab === 'players'
-                ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
+              ${
+                activeTab === 'players'
+                  ? 'border-primary-500 text-primary-600 dark:border-primary-400 dark:text-primary-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
           >
             <FaUsers className="inline mr-2" /> Jogadores
@@ -479,16 +425,12 @@ const StatsPage = () => {
                 value={selectedPlayerName}
                 onChange={(e) => setSelectedPlayerName(e.target.value)}
                 className="form-select w-full md:w-1/2 lg:w-1/3 mt-1 block py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 sm:text-sm text-gray-900 dark:text-gray-100"
-                disabled={
-                  allPlayersForSelect.length === 0 || loadingTournamentStats
-                }
+                disabled={allPlayersForSelect.length === 0 || loadingTournamentStats}
               >
                 <option value="">-- Todos os Jogadores --</option>
                 {allPlayersForSelect.map((player) => (
                   <option key={player.id || player.name} value={player.name}>
-                    {player.nickname
-                      ? `${player.name} (${player.nickname})`
-                      : player.name}
+                    {player.nickname ? `${player.name} (${player.nickname})` : player.name}
                   </option>
                 ))}
               </select>

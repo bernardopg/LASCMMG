@@ -3,21 +3,15 @@
 const { program } = require('commander');
 const {
   initializeDatabase, // Alterado para corresponder à exportação de database.js
-  checkDbConnection,    // Alterado para corresponder à exportação de database.js
+  checkDbConnection, // Alterado para corresponder à exportação de database.js
 } = require('./lib/db/database'); // Caminho corrigido e direto para database.js
 
 program
   .version('1.0.0')
-  .description(
-    'Utilitário para configuração e migração do banco de dados SQLite'
-  )
+  .description('Utilitário para configuração e migração do banco de dados SQLite')
   .option('-i, --init', 'Inicializar o banco de dados')
   .option('-t, --test', 'Testar a conexão com o banco de dados')
-  .option(
-    '-d, --data-dir <path>',
-    'Diretório para armazenar o banco de dados',
-    './data'
-  )
+  .option('-d, --data-dir <path>', 'Diretório para armazenar o banco de dados', './data')
   .parse(process.argv);
 
 const options = program.opts();

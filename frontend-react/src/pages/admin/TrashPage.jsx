@@ -1,9 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  getTrashItems,
-  restoreTrashItem,
-  permanentlyDeleteTrashItem,
-} from '../../services/api';
+import { getTrashItems, restoreTrashItem, permanentlyDeleteTrashItem } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUndo, FaTrashAlt } from 'react-icons/fa'; // Ícones para ações
 
@@ -50,7 +46,8 @@ const TrashPage = () => {
     fetchTrash(currentPage, filterType);
   }, [fetchTrash, currentPage, filterType]);
 
-  const handleRestore = async (itemId, itemApiType) => { // Use itemApiType from item.itemType
+  const handleRestore = async (itemId, itemApiType) => {
+    // Use itemApiType from item.itemType
     if (window.confirm('Deseja restaurar este item?')) {
       try {
         await restoreTrashItem(itemApiType, itemId); // Correct parameter order: itemType, itemId
@@ -64,11 +61,10 @@ const TrashPage = () => {
     }
   };
 
-  const handlePermanentDelete = async (itemId, itemApiType) => { // Use itemApiType from item.itemType
+  const handlePermanentDelete = async (itemId, itemApiType) => {
+    // Use itemApiType from item.itemType
     if (
-      window.confirm(
-        'Deseja excluir permanentemente este item? Esta ação não pode ser desfeita.'
-      )
+      window.confirm('Deseja excluir permanentemente este item? Esta ação não pode ser desfeita.')
     ) {
       try {
         await permanentlyDeleteTrashItem(itemApiType, itemId); // Correct parameter order: itemType, itemId
@@ -85,9 +81,7 @@ const TrashPage = () => {
   return (
     <div className="py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Lixeira (Admin)
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Lixeira (Admin)</h1>
         <select
           className="form-select mt-1 block w-auto py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
           value={filterType}
@@ -104,15 +98,11 @@ const TrashPage = () => {
         {loading ? (
           <div className="text-center py-10">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light mx-auto"></div>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">
-              Carregando itens da lixeira...
-            </p>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">Carregando itens da lixeira...</p>
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              Nenhum item na lixeira.
-            </p>
+            <p className="text-gray-500 dark:text-gray-400 text-lg">Nenhum item na lixeira.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -144,13 +134,13 @@ const TrashPage = () => {
                       {item.name || '-'} {/* Backend provides a 'name' field for display */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.deleted_at  // Use deleted_at from backend
+                      {item.deleted_at // Use deleted_at from backend
                         ? new Date(item.deleted_at).toLocaleDateString('pt-BR', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
                             hour: '2-digit', // Added time
-                            minute: '2-digit' // Added time
+                            minute: '2-digit', // Added time
                           })
                         : '-'}
                     </td>
@@ -163,9 +153,7 @@ const TrashPage = () => {
                         <FaUndo className="mr-1" /> Restaurar
                       </button>
                       <button
-                        onClick={() =>
-                          handlePermanentDelete(item.id, item.itemType)
-                        }
+                        onClick={() => handlePermanentDelete(item.id, item.itemType)}
                         className="text-red-500 hover:text-red-400 dark:text-red-400 dark:hover:text-red-300 flex items-center"
                         title="Excluir permanentemente"
                       >
@@ -183,21 +171,14 @@ const TrashPage = () => {
                 </span>
                 <div className="space-x-2">
                   <button
-                    onClick={() =>
-                      fetchTrash(Math.max(1, currentPage - 1), filterType)
-                    }
+                    onClick={() => fetchTrash(Math.max(1, currentPage - 1), filterType)}
                     disabled={currentPage === 1 || loading}
                     className="btn btn-outline btn-sm disabled:opacity-50" // btn e btn-outline devem ser responsivos ao tema
                   >
                     Anterior
                   </button>
                   <button
-                    onClick={() =>
-                      fetchTrash(
-                        Math.min(totalPages, currentPage + 1),
-                        filterType
-                      )
-                    }
+                    onClick={() => fetchTrash(Math.min(totalPages, currentPage + 1), filterType)}
                     disabled={currentPage === totalPages || loading}
                     className="btn btn-outline btn-sm disabled:opacity-50" // btn e btn-outline devem ser responsivos ao tema
                   >

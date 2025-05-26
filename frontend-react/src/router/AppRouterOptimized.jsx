@@ -52,14 +52,13 @@ const AdminPlaceholderPage = lazy(() => import('../pages/admin/AdminPlaceholderP
 const SecurityOverview = lazy(() => import('../pages/admin/security/SecurityOverview'));
 const SecurityBlockedIPs = lazy(() => import('../pages/admin/security/SecurityBlockedIPs'));
 const SecurityHoneypots = lazy(() => import('../pages/admin/security/SecurityHoneypots'));
-const SecurityThreatAnalytics = lazy(() => import('../pages/admin/security/SecurityThreatAnalytics'));
+const SecurityThreatAnalytics = lazy(
+  () => import('../pages/admin/security/SecurityThreatAnalytics')
+);
 
 // Componente de loading otimizado para páginas lazy
 const PageLoader = ({ minHeight = '200px' }) => (
-  <div
-    className="flex items-center justify-center w-full"
-    style={{ minHeight }}
-  >
+  <div className="flex items-center justify-center w-full" style={{ minHeight }}>
     <LoadingSpinner />
   </div>
 );
@@ -82,9 +81,7 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<PageLoader />}>
-        {children}
-      </Suspense>
+      <Suspense fallback={<PageLoader />}>{children}</Suspense>
     </ErrorBoundary>
   );
 };
@@ -100,19 +97,11 @@ const PublicRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return (
-    <ErrorBoundary>
-      {children}
-    </ErrorBoundary>
-  );
+  return <ErrorBoundary>{children}</ErrorBoundary>;
 };
 
 const AdminRoute = ({ children }) => {
-  return (
-    <ProtectedRoute requiredRole="admin">
-      {children}
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute requiredRole="admin">{children}</ProtectedRoute>;
 };
 
 // Main Layout Component com Error Boundary
@@ -131,7 +120,9 @@ const AppLayout = React.memo(({ children, layoutProps }) => {
           toggleMobileSidebar={layoutProps?.toggleMobileSidebar}
           isMobile={layoutProps?.isMobile}
         />
-        <div className="flex flex-1 pt-16"> {/* pt-16 for fixed header */}
+        <div className="flex flex-1 pt-16">
+          {' '}
+          {/* pt-16 for fixed header */}
           <Sidebar
             isCollapsed={layoutProps?.isSidebarCollapsed}
             isMobileOpen={layoutProps?.isMobileSidebarOpen}
@@ -169,26 +160,29 @@ const AppRouterOptimized = ({
   currentTheme,
   toggleSidebarCollapse,
   toggleMobileSidebar,
-  closeMobileSidebar
+  closeMobileSidebar,
 }) => {
   // Props do layout para passar para todos os componentes AppLayout
-  const layoutProps = React.useMemo(() => ({
-    isSidebarCollapsed,
-    isMobileSidebarOpen,
-    isMobile,
-    currentTheme,
-    toggleSidebarCollapse,
-    toggleMobileSidebar,
-    closeMobileSidebar
-  }), [
-    isSidebarCollapsed,
-    isMobileSidebarOpen,
-    isMobile,
-    currentTheme,
-    toggleSidebarCollapse,
-    toggleMobileSidebar,
-    closeMobileSidebar
-  ]);
+  const layoutProps = React.useMemo(
+    () => ({
+      isSidebarCollapsed,
+      isMobileSidebarOpen,
+      isMobile,
+      currentTheme,
+      toggleSidebarCollapse,
+      toggleMobileSidebar,
+      closeMobileSidebar,
+    }),
+    [
+      isSidebarCollapsed,
+      isMobileSidebarOpen,
+      isMobile,
+      currentTheme,
+      toggleSidebarCollapse,
+      toggleMobileSidebar,
+      closeMobileSidebar,
+    ]
+  );
 
   return (
     <BrowserRouter>
@@ -600,7 +594,9 @@ const AppRouterOptimized = ({
                 <ErrorBoundary>
                   <div className="text-center py-12">
                     <h1 className="text-2xl font-bold text-red-600">Acesso Negado</h1>
-                    <p className="mt-2 text-gray-600">Você não tem permissão para acessar esta página.</p>
+                    <p className="mt-2 text-gray-600">
+                      Você não tem permissão para acessar esta página.
+                    </p>
                   </div>
                 </ErrorBoundary>
               </AppLayout>

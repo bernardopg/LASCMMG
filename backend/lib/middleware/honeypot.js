@@ -4,18 +4,8 @@ const { readJsonFile, writeJsonFile } = require('../utils/fileUtils');
 const { logger } = require('../logger/logger');
 const { getClient } = require('../db/redisClient'); // Import Redis client
 
-const HONEYPOT_LOG_PATH = path.join(
-  __dirname,
-  '..',
-  'data',
-  'honeypot_activity.log'
-);
-const HONEYPOT_SETTINGS_PATH = path.join(
-  __dirname,
-  '..',
-  'data',
-  'honeypot_settings.json'
-);
+const HONEYPOT_LOG_PATH = path.join(__dirname, '..', 'data', 'honeypot_activity.log');
+const HONEYPOT_SETTINGS_PATH = path.join(__dirname, '..', 'data', 'honeypot_settings.json');
 const BLOCKED_IPS_PATH = path.join(__dirname, '..', 'data', 'blocked_ips.json');
 
 const HONEYPOT_DETECTION_CONFIG = {
@@ -38,10 +28,7 @@ let blockedIPs = {};
 async function getRedis() {
   const client = await getClient();
   if (!client) {
-    logger.error(
-      { component: 'Honeypot' },
-      'Cliente Redis não disponível para Honeypot.'
-    );
+    logger.error({ component: 'Honeypot' }, 'Cliente Redis não disponível para Honeypot.');
   }
   return client;
 }
@@ -124,26 +111,20 @@ function getSettings() {
 async function updateSettings(newSettings) {
   if (newSettings.detectionThreshold !== undefined) {
     currentSettings.detectionThreshold =
-      parseInt(newSettings.detectionThreshold, 10) ||
-      currentSettings.detectionThreshold;
+      parseInt(newSettings.detectionThreshold, 10) || currentSettings.detectionThreshold;
   }
   if (newSettings.blockDurationHours !== undefined) {
     currentSettings.blockDurationHours =
-      parseInt(newSettings.blockDurationHours, 10) ||
-      currentSettings.blockDurationHours;
+      parseInt(newSettings.blockDurationHours, 10) || currentSettings.blockDurationHours;
   }
-  if (
-    newSettings.ipWhitelist !== undefined &&
-    Array.isArray(newSettings.ipWhitelist)
-  ) {
+  if (newSettings.ipWhitelist !== undefined && Array.isArray(newSettings.ipWhitelist)) {
     currentSettings.ipWhitelist = newSettings.ipWhitelist
       .map((ip) => String(ip).trim())
       .filter((ip) => ip.length > 0);
   }
   if (newSettings.activityWindowMinutes !== undefined) {
     currentSettings.activityWindowMinutes =
-      parseInt(newSettings.activityWindowMinutes, 10) ||
-      currentSettings.activityWindowMinutes;
+      parseInt(newSettings.activityWindowMinutes, 10) || currentSettings.activityWindowMinutes;
   }
   try {
     await writeJsonFile(HONEYPOT_SETTINGS_PATH, currentSettings);
@@ -172,9 +153,7 @@ function getBlockedIPsList(options = {}) {
       activeBlocks.push({ ip, ...blockedIPs[ip] });
     }
   }
-  activeBlocks.sort(
-    (a, b) => new Date(b.blockedAt).getTime() - new Date(a.blockedAt).getTime()
-  );
+  activeBlocks.sort((a, b) => new Date(b.blockedAt).getTime() - new Date(a.blockedAt).getTime());
   const total = activeBlocks.length;
   const paginated = activeBlocks.slice((page - 1) * limit, page * limit);
   return {
@@ -194,8 +173,7 @@ async function manualBlockIP(ip, durationHours, reason = 'Bloqueio manual') {
     return false;
   }
   const now = Date.now();
-  const expiresAt =
-    durationHours > 0 ? now + durationHours * 60 * 60 * 1000 : null;
+  const expiresAt = durationHours > 0 ? now + durationHours * 60 * 60 * 1000 : null;
   blockedIPs[ip] = {
     expiresAt,
     reason,
@@ -238,18 +216,12 @@ function injectHoneypotFields(html) {
       <label for="${randomField}">Deixe este campo em branco</label>
       <input type="text" name="${randomField}" id="${randomField}" autocomplete="off">
     </div>`;
-  return html.replace(
-    formRegex,
-    (match) => `${match}${timeFieldHtml}${honeypotFieldHtml}`
-  );
+  return html.replace(formRegex, (match) => `${match}${timeFieldHtml}${honeypotFieldHtml}`);
 }
 
 async function logSuspiciousActivity(ip, type, details) {
   const logEntry = { timestamp: new Date().toISOString(), ip, type, details };
-  logger.warn(
-    { component: 'HoneypotMiddleware', logEntry },
-    'ATIVIDADE SUSPEITA DETECTADA'
-  );
+  logger.warn({ component: 'HoneypotMiddleware', logEntry }, 'ATIVIDADE SUSPEITA DETECTADA');
 
   // Log to file (existing logic)
   try {
@@ -273,8 +245,7 @@ async function logSuspiciousActivity(ip, type, details) {
   if (!redis) return; // Cannot proceed with auto-blocking if Redis is down
 
   const redisKey = `${HONEYPOT_DETECTION_CONFIG.redisSuspiciousActivityPrefix}${ip}`;
-  const activityWindowSeconds =
-    (currentSettings.activityWindowMinutes || 60) * 60;
+  const activityWindowSeconds = (currentSettings.activityWindowMinutes || 60) * 60;
 
   try {
     const currentAttempts = await redis.incr(redisKey);
@@ -343,9 +314,7 @@ function honeypotMiddleware(req, res, next) {
         path: req.path,
         userAgent: req.headers['user-agent'],
       });
-      return res
-        .status(200)
-        .json(formatErrorResponse('Requisição processada', 200));
+      return res.status(200).json(formatErrorResponse('Requisição processada', 200));
     }
   }
 
@@ -359,10 +328,7 @@ function honeypotMiddleware(req, res, next) {
         userAgent: req.headers['user-agent'],
       });
       setTimeout(
-        () =>
-          res
-            .status(200)
-            .json(formatErrorResponse('Requisição processada', 200)),
+        () => res.status(200).json(formatErrorResponse('Requisição processada', 200)),
         Math.random() * 1000 + 500
       );
       return;

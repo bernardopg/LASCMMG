@@ -29,7 +29,7 @@ const Sidebar = ({
   isCollapsed,
   isMobileOpen,
   isMobile,
-  onMobileClose
+  /* onMobileClose */
 }) => {
   // Manter compatibilidade com nome antigo
   const isSidebarCollapsed = isCollapsed;
@@ -45,7 +45,7 @@ const Sidebar = ({
   const toggleDropdown = (sectionKey) => {
     if (isSidebarCollapsed) return;
 
-    setOpenDropdowns(prev => {
+    setOpenDropdowns((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(sectionKey)) {
         newSet.delete(sectionKey);
@@ -85,7 +85,7 @@ const Sidebar = ({
           path: '/stats',
           icon: <FaChartBar className="w-4 h-4" />,
         },
-      ]
+      ],
     },
     players: {
       name: 'Jogadores',
@@ -109,7 +109,7 @@ const Sidebar = ({
           path: '/add-score',
           icon: <FaPlusCircle className="w-4 h-4" />,
         },
-      ]
+      ],
     },
     admin: {
       name: 'Administração',
@@ -128,8 +128,12 @@ const Sidebar = ({
           icon: <FaTrophy className="w-4 h-4" />,
           submenu: [
             { name: 'Listar', path: '/admin/tournaments', icon: <FaList className="w-3 h-3" /> },
-            { name: 'Criar', path: '/admin/tournaments/create', icon: <FaPlus className="w-3 h-3" /> },
-          ]
+            {
+              name: 'Criar',
+              path: '/admin/tournaments/create',
+              icon: <FaPlus className="w-3 h-3" />,
+            },
+          ],
         },
         {
           name: 'Ger. Jogadores',
@@ -137,8 +141,12 @@ const Sidebar = ({
           icon: <FaUsers className="w-4 h-4" />,
           submenu: [
             { name: 'Listar', path: '/admin/players', icon: <FaList className="w-3 h-3" /> },
-            { name: 'Criar', path: '/admin/players/create', icon: <FaUserPlus className="w-3 h-3" /> },
-          ]
+            {
+              name: 'Criar',
+              path: '/admin/players/create',
+              icon: <FaUserPlus className="w-3 h-3" />,
+            },
+          ],
         },
         {
           name: 'Agendamento',
@@ -146,8 +154,12 @@ const Sidebar = ({
           icon: <FaCalendarAlt className="w-4 h-4" />,
           submenu: [
             { name: 'Geral', path: '/admin/schedule', icon: <FaCalendarAlt className="w-3 h-3" /> },
-            { name: 'Partidas', path: '/admin/match-schedule', icon: <FaGamepad className="w-3 h-3" /> },
-          ]
+            {
+              name: 'Partidas',
+              path: '/admin/match-schedule',
+              icon: <FaGamepad className="w-3 h-3" />,
+            },
+          ],
         },
         {
           name: 'Relatórios',
@@ -174,7 +186,7 @@ const Sidebar = ({
           path: '/admin/trash',
           icon: <FaTrash className="w-4 h-4" />,
         },
-      ]
+      ],
     },
     settings: {
       name: 'Configurações',
@@ -186,11 +198,11 @@ const Sidebar = ({
 
   // Auto-open dropdown se a página atual está nessa seção
   useEffect(() => {
-    const path = location.pathname;
+    const _path = location.pathname;
     const newOpenDropdowns = new Set();
 
     Object.entries(menuSections).forEach(([sectionKey, section]) => {
-      if (section.items && section.items.some(item => isActive(item.path))) {
+      if (section.items && section.items.some((item) => isActive(item.path))) {
         newOpenDropdowns.add(sectionKey);
       }
     });
@@ -207,20 +219,25 @@ const Sidebar = ({
   // Renderiza botão dropdown toggle
   const renderDropdownToggle = (sectionKey, section) => {
     const isOpen = openDropdowns.has(sectionKey);
-    const hasActiveItem = section.items?.some(item => isActive(item.path));
+    const hasActiveItem = section.items?.some((item) => isActive(item.path));
 
     return (
       <button
         onClick={() => toggleDropdown(sectionKey)}
-        className={`w-full flex items-center p-3 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${hasActiveItem
-          ? 'bg-primary text-white shadow-md'
-          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
-          } ${isSidebarCollapsed ? 'justify-center px-3 py-3' : 'justify-start'}`}
+        className={`w-full flex items-center p-3 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+          hasActiveItem
+            ? 'bg-primary text-white shadow-md'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
+        } ${isSidebarCollapsed ? 'justify-center px-3 py-3' : 'justify-start'}`}
         aria-expanded={isOpen}
         title={isSidebarCollapsed ? section.name : ''}
       >
-        <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
-          <div className={`flex items-center justify-center ${isSidebarCollapsed ? '' : 'mr-3'} ${hasActiveItem ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}>
+        <div
+          className={`flex items-center ${isSidebarCollapsed ? 'justify-center w-full' : 'flex-1'}`}
+        >
+          <div
+            className={`flex items-center justify-center ${isSidebarCollapsed ? '' : 'mr-3'} ${hasActiveItem ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}
+          >
             {section.icon}
           </div>
           {!isSidebarCollapsed && (
@@ -243,10 +260,12 @@ const Sidebar = ({
     }
 
     const active = isActive(item.path);
-    const baseClasses = `flex items-center p-2 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${isSubmenuItem ? 'ml-6 text-xs py-1.5' : ''
-      }`;
+    const baseClasses = `flex items-center p-2 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+      isSubmenuItem ? 'ml-6 text-xs py-1.5' : ''
+    }`;
     const activeClasses = 'bg-primary text-white shadow-sm';
-    const inactiveClasses = 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white';
+    const inactiveClasses =
+      'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white';
 
     return (
       <Link
@@ -256,7 +275,9 @@ const Sidebar = ({
         title={isSidebarCollapsed ? item.name : ''}
         aria-current={active ? 'page' : undefined}
       >
-        <div className={`flex items-center justify-center ${isSidebarCollapsed && !isSubmenuItem ? '' : 'mr-3'} ${active ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}>
+        <div
+          className={`flex items-center justify-center ${isSidebarCollapsed && !isSubmenuItem ? '' : 'mr-3'} ${active ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}
+        >
           {item.icon}
         </div>
         {(!isSidebarCollapsed || isSubmenuItem) && (
@@ -310,18 +331,23 @@ const Sidebar = ({
         ) : (
           <Link
             to={section.path}
-            className={`flex items-center p-3 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${isActive(section.path)
-              ? 'bg-primary text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
-              } ${isSidebarCollapsed ? 'justify-center px-3 py-3' : 'justify-start'}`}
+            className={`flex items-center p-3 text-sm font-medium rounded-lg group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+              isActive(section.path)
+                ? 'bg-primary text-white shadow-md'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
+            } ${isSidebarCollapsed ? 'justify-center px-3 py-3' : 'justify-start'}`}
             title={isSidebarCollapsed ? section.name : ''}
             aria-current={isActive(section.path) ? 'page' : undefined}
           >
-            <div className={`flex items-center justify-center ${isSidebarCollapsed ? '' : 'mr-3'} ${isActive(section.path) ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}>
+            <div
+              className={`flex items-center justify-center ${isSidebarCollapsed ? '' : 'mr-3'} ${isActive(section.path) ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'} transition-colors duration-200`}
+            >
               {section.icon}
             </div>
             {!isSidebarCollapsed && (
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis">{section.name}</span>
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                {section.name}
+              </span>
             )}
           </Link>
         )}
@@ -332,16 +358,18 @@ const Sidebar = ({
   return (
     <div
       ref={sidebarRef}
-      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-sidebar ${isSidebarCollapsed ? 'w-20' : 'w-64'
-        } ${isMobile ? (isMobileOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}`}
+      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-sidebar ${
+        isSidebarCollapsed ? 'w-20' : 'w-64'
+      } ${isMobile ? (isMobileOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}`}
       aria-label="Barra lateral de navegação"
       role="navigation"
     >
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 h-full shadow-sidebar rounded-tr-lg transition-colors duration-300">
-
           {/* Cabeçalho da Sidebar */}
-          <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'px-4'} mb-6 h-12`}>
+          <div
+            className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'px-4'} mb-6 h-12`}
+          >
             {!isSidebarCollapsed ? (
               <Link to="/" className="flex items-center group" aria-label="Ir para página inicial">
                 <img
@@ -380,7 +408,9 @@ const Sidebar = ({
             </nav>
 
             {/* Rodapé da Sidebar */}
-            <div className={`flex-shrink-0 block w-full mt-auto ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}>
+            <div
+              className={`flex-shrink-0 block w-full mt-auto ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}
+            >
               {!isSidebarCollapsed && (
                 <div className="p-3 bg-gradient-to-r from-primary/10 to-primary-dark/10 dark:from-primary/20 dark:to-primary-dark/20 rounded-lg border border-primary/20 dark:border-primary/30">
                   <div className="text-center">

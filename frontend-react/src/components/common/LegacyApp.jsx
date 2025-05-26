@@ -1,20 +1,8 @@
-import React, { Suspense, useContext, useEffect, useState } from 'react';
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
-import MessageContainer from './MessageContainer';
-import AdminSecurityLayout from '../layout/AdminSecurityLayout';
-import Footer from '../layout/Footer'; // Import Footer
-import Header from '../layout/Header';
-import Sidebar from '../layout/Sidebar';
+import React, { Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
 import { NotificationProvider } from '../../context/NotificationContext';
-import ThemeContext from '../../context/ThemeContext';
 import { TournamentProvider } from '../../context/TournamentContext';
 import AddScoreLandingPage from '../../pages/AddScoreLandingPage'; // Import AddScoreLandingPage
 import AddScorePage from '../../pages/AddScorePage';
@@ -32,30 +20,31 @@ import AdminActivityLogPage from '../../pages/admin/AdminActivityLogPage';
 import AdminMatchSchedulePage from '../../pages/admin/AdminMatchSchedulePage';
 import AdminReportsPage from '../../pages/admin/AdminReportsPage';
 import AdminSecurityPage from '../../pages/admin/AdminSecurityPage';
+import AdminTournamentDetailPage from '../../pages/admin/AdminTournamentDetailPage';
 import CreatePlayerPage from '../../pages/admin/CreatePlayerPage';
 import EditPlayerPage from '../../pages/admin/EditPlayerPage'; // Import EditPlayerPage
 import EditTournamentPage from '../../pages/admin/EditTournamentPage';
 import ManageTournamentPage from '../../pages/admin/ManageTournamentPage';
 import PlayersPage from '../../pages/admin/PlayersPage'; // Already imported
 import SettingsPage from '../../pages/admin/SettingsPage';
-import AdminTournamentDetailPage from '../../pages/admin/AdminTournamentDetailPage';
 import SecurityBlockedIPs from '../../pages/admin/security/SecurityBlockedIPs';
 import SecurityHoneypots from '../../pages/admin/security/SecurityHoneypots';
 import SecurityOverview from '../../pages/admin/security/SecurityOverview';
 import SecurityThreatAnalytics from '../../pages/admin/security/SecurityThreatAnalytics';
+import AdminSecurityLayout from '../layout/AdminSecurityLayout';
+import Footer from '../layout/Footer'; // Import Footer
+import Header from '../layout/Header';
+import Sidebar from '../layout/Sidebar';
+import MessageContainer from './MessageContainer';
 
 // Lazy loaded pages
 const BracketPage = React.lazy(() => import('../../pages/BracketPage'));
 const AdminDashboardPage = React.lazy(() => import('../../pages/admin/Dashboard'));
-const CreateTournamentPage = React.lazy(
-  () => import('../../pages/admin/CreateTournamentPage')
-);
+const CreateTournamentPage = React.lazy(() => import('../../pages/admin/CreateTournamentPage'));
 const AdminTournamentListPage = React.lazy(
   () => import('../../pages/admin/AdminTournamentListPage')
 );
-const AdminSchedulePage = React.lazy(
-  () => import('../../pages/admin/AdminSchedulePage')
-);
+const AdminSchedulePage = React.lazy(() => import('../../pages/admin/AdminSchedulePage'));
 const AdminUserManagementPage = React.lazy(
   () => import('../../pages/admin/AdminUserManagementPage')
 );
@@ -133,7 +122,7 @@ const MainLayout = ({ children }) => {
 
   // Toggle mobile sidebar
   const toggleMobileSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
+    setIsSidebarOpen((prev) => !prev);
   };
 
   return (
@@ -154,20 +143,22 @@ const MainLayout = ({ children }) => {
       )}
 
       <div className="flex flex-col md:flex-row flex-1 min-h-[calc(100vh-4rem)] pt-16">
-        <div className={`
+        <div
+          className={`
           ${isMobile ? 'fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out' : 'relative flex-shrink-0'}
           ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
           ${isMobile ? 'mt-16' : ''}
-        `}>
+        `}
+        >
           <Sidebar isSidebarCollapsed={isMobile ? false : isSidebarCollapsed} />
         </div>
 
-          <main className="flex-1 w-full" id="main-content" tabIndex="-1">
-            {/* Adjusted padding to match the new fixed header */}
-            <div className="pt-4 pb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto transition-all duration-200">
-              <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
-            </div>
-          </main>
+        <main className="flex-1 w-full" id="main-content" tabIndex="-1">
+          {/* Adjusted padding to match the new fixed header */}
+          <div className="pt-4 pb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto transition-all duration-200">
+            <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+          </div>
+        </main>
       </div>
       <Footer />
     </div>
@@ -480,10 +471,7 @@ function App() {
                   <Route index element={<SecurityOverview />} />
                   <Route path="overview" element={<SecurityOverview />} />
                   <Route path="honeypots" element={<SecurityHoneypots />} />
-                  <Route
-                    path="threat-analytics"
-                    element={<SecurityThreatAnalytics />}
-                  />
+                  <Route path="threat-analytics" element={<SecurityThreatAnalytics />} />
                   <Route path="blocked-ips" element={<SecurityBlockedIPs />} />
                 </Route>
                 <Route

@@ -11,10 +11,7 @@ const validateRequest = (schema) => {
     };
 
     if (schema.body) {
-      const { error: bodyError, value: bodyValue } = schema.body.validate(
-        req.body,
-        options
-      );
+      const { error: bodyError, value: bodyValue } = schema.body.validate(req.body, options);
       if (bodyError) {
         return res.status(400).json({
           success: false,
@@ -52,10 +49,7 @@ const validateRequest = (schema) => {
     }
 
     if (schema.query) {
-      const { error: queryError, value: queryValue } = schema.query.validate(
-        req.query,
-        options
-      );
+      const { error: queryError, value: queryValue } = schema.query.validate(req.query, options);
       if (queryError) {
         return res.status(400).json({
           success: false,
@@ -126,7 +120,7 @@ const adminLoginSchema = {
       'any.required': `"username" é um campo obrigatório`,
     }),
     password: passwordSchema, // Use the new robust password schema
-    rememberMe: Joi.boolean().optional().default(false)
+    rememberMe: Joi.boolean().optional().default(false),
   }),
 };
 
@@ -161,7 +155,8 @@ const tournamentIdParamSchema = {
   }),
 };
 
-const playerIdParamSchema = { // Define the missing schema
+const playerIdParamSchema = {
+  // Define the missing schema
   params: Joi.object({
     playerId: Joi.number().integer().positive().required().messages({
       'number.base': `"playerId" deve ser um número.`,
@@ -197,14 +192,9 @@ const playerSchema = {
       'string.email': 'Email deve ser um endereço válido.',
       'string.max': 'Email deve ter no máximo 100 caracteres.',
     }),
-    gender: Joi.string()
-      .trim()
-      .valid('Masculino', 'Feminino', 'Outro')
-      .allow(null, '')
-      .messages({
-        'any.only':
-          'Gênero inválido. Valores permitidos: Masculino, Feminino, Outro.',
-      }),
+    gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, '').messages({
+      'any.only': 'Gênero inválido. Valores permitidos: Masculino, Feminino, Outro.',
+    }),
     skill_level: Joi.string() // Changed from level to skill_level
       .trim()
       .valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional')
@@ -254,20 +244,13 @@ const scoreUpdateSchema = {
 
 const trashItemSchema = {
   params: Joi.object({
-    itemId: Joi.alternatives()
-      .try(Joi.string(), Joi.number())
-      .required()
-      .messages({
-        'any.required': 'ID do item é obrigatório.',
-      }),
-    itemType: Joi.string()
-      .valid('player', 'score', 'tournament')
-      .required()
-      .messages({
-        'any.only':
-          'Tipo de item inválido. Permitidos: player, score, tournament.',
-        'any.required': 'Tipo de item é obrigatório.',
-      }),
+    itemId: Joi.alternatives().try(Joi.string(), Joi.number()).required().messages({
+      'any.required': 'ID do item é obrigatório.',
+    }),
+    itemType: Joi.string().valid('player', 'score', 'tournament').required().messages({
+      'any.only': 'Tipo de item inválido. Permitidos: player, score, tournament.',
+      'any.required': 'Tipo de item é obrigatório.',
+    }),
   }),
 };
 
@@ -287,12 +270,9 @@ const newScoreSchema = {
       'any.required': 'Placar do Jogador 2 é obrigatório.',
     }),
     winnerId: Joi.number().integer().positive().allow(null).optional(),
-    stateMatchKey: Joi.alternatives()
-      .try(Joi.string(), Joi.number())
-      .required()
-      .messages({
-        'any.required': 'Chave da partida (stateMatchKey) é obrigatória.',
-      }),
+    stateMatchKey: Joi.alternatives().try(Joi.string(), Joi.number()).required().messages({
+      'any.required': 'Chave da partida (stateMatchKey) é obrigatória.',
+    }),
   }),
 };
 
@@ -332,14 +312,9 @@ const createTournamentSchema = {
     description: Joi.string().trim().max(1000).allow(null, '').messages({
       'string.max': 'Descrição deve ter no máximo 1000 caracteres.',
     }),
-    numPlayersExpected: Joi.number()
-      .integer()
-      .min(2)
-      .optional()
-      .allow(null)
-      .messages({
-        'number.min': 'Número esperado de jogadores deve ser no mínimo 2.',
-      }),
+    numPlayersExpected: Joi.number().integer().min(2).optional().allow(null).messages({
+      'number.min': 'Número esperado de jogadores deve ser no mínimo 2.',
+    }),
     bracket_type: Joi.string()
       .valid('single-elimination', 'double-elimination', 'round-robin')
       .default('single-elimination'),
@@ -358,9 +333,7 @@ const updateTournamentSchema = {
     bracket_type: Joi.string()
       .valid('single-elimination', 'double-elimination', 'round-robin')
       .optional(),
-    status: Joi.string()
-      .valid('Pendente', 'Em Andamento', 'Concluído', 'Cancelado')
-      .optional(),
+    status: Joi.string().valid('Pendente', 'Em Andamento', 'Concluído', 'Cancelado').optional(),
     entry_fee: Joi.number().min(0).optional().allow(null),
     prize_pool: Joi.string().trim().max(255).allow(null, '').optional(),
     rules: Joi.string().trim().max(2000).allow(null, '').optional(),
@@ -391,10 +364,7 @@ const addPlayerToTournamentSchema = {
       'any.required': 'Nome do jogador é obrigatório.',
     }),
     Nickname: Joi.string().trim().max(50).allow(null, ''),
-    gender: Joi.string()
-      .trim()
-      .valid('Masculino', 'Feminino', 'Outro')
-      .allow(null, ''),
+    gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, ''),
     skill_level: Joi.string()
       .trim()
       .valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional')
@@ -409,10 +379,7 @@ const updatePlayersInTournamentSchema = {
         Joi.object({
           PlayerName: Joi.string().trim().min(2).max(100).required(),
           Nickname: Joi.string().trim().max(50).allow(null, ''),
-          gender: Joi.string()
-            .trim()
-            .valid('Masculino', 'Feminino', 'Outro')
-            .allow(null, ''),
+          gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, ''),
           skill_level: Joi.string()
             .trim()
             .valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional')
@@ -496,16 +463,11 @@ const ipAddressParamSchema = {
 
 const playerImportItemSchema = Joi.object({
   PlayerName: Joi.string().trim().min(2).max(100).required().messages({
-    'string.empty':
-      'Nome do jogador (PlayerName) é obrigatório para importação.',
-    'any.required':
-      'Nome do jogador (PlayerName) é obrigatório para importação.',
+    'string.empty': 'Nome do jogador (PlayerName) é obrigatório para importação.',
+    'any.required': 'Nome do jogador (PlayerName) é obrigatório para importação.',
   }),
   Nickname: Joi.string().trim().max(50).allow(null, ''),
-  gender: Joi.string()
-    .trim()
-    .valid('Masculino', 'Feminino', 'Outro')
-    .allow(null, ''),
+  gender: Joi.string().trim().valid('Masculino', 'Feminino', 'Outro').allow(null, ''),
   skill_level: Joi.string()
     .trim()
     .valid('Iniciante', 'Intermediário', 'Avançado', 'Profissional')
@@ -520,30 +482,19 @@ const adminGetPlayersQuerySchema = {
       'number.integer': 'Página deve ser um inteiro.',
       'number.min': 'Página deve ser no mínimo 1.',
     }),
-    limit: Joi.number()
-      .integer()
-      .min(1)
-      .max(100)
-      .optional()
-      .default(10)
-      .messages({
-        'number.base': 'Limite deve ser um número.',
-        'number.integer': 'Limite deve ser um inteiro.',
-        'number.min': 'Limite deve ser no mínimo 1.',
-        'number.max': 'Limite deve ser no máximo 100.',
-      }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
     sortBy: Joi.string().trim().optional().messages({
       'string.base': 'Campo de ordenação (sortBy) deve ser uma string.',
     }),
-    order: Joi.string()
-      .trim()
-      .valid('asc', 'desc')
-      .optional()
-      .default('asc')
-      .messages({
-        'string.base': 'Direção de ordenação (order) deve ser uma string.',
-        'any.only': 'Direção de ordenação (order) deve ser "asc" ou "desc".',
-      }),
+    order: Joi.string().trim().valid('asc', 'desc').optional().default('asc').messages({
+      'string.base': 'Direção de ordenação (order) deve ser uma string.',
+      'any.only': 'Direção de ordenação (order) deve ser "asc" ou "desc".',
+    }),
     filters: Joi.object().optional().default({}).unknown(true).messages({
       'object.base': 'Filtros (filters) devem ser um objeto.',
     }),
@@ -558,18 +509,12 @@ const paginationQuerySchema = {
       'number.integer': 'Página deve ser um inteiro.',
       'number.min': 'Página deve ser no mínimo 1.',
     }),
-    limit: Joi.number()
-      .integer()
-      .min(1)
-      .max(100)
-      .optional()
-      .default(10)
-      .messages({
-        'number.base': 'Limite deve ser um número.',
-        'number.integer': 'Limite deve ser um inteiro.',
-        'number.min': 'Limite deve ser no mínimo 1.',
-        'number.max': 'Limite deve ser no máximo 100.',
-      }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
   }).unknown(true),
 };
 
@@ -581,27 +526,16 @@ const adminGetTrashQuerySchema = {
       'number.integer': 'Página deve ser um inteiro.',
       'number.min': 'Página deve ser no mínimo 1.',
     }),
-    limit: Joi.number()
-      .integer()
-      .min(1)
-      .max(100)
-      .optional()
-      .default(10)
-      .messages({
-        'number.base': 'Limite deve ser um número.',
-        'number.integer': 'Limite deve ser um inteiro.',
-        'number.min': 'Limite deve ser no mínimo 1.',
-        'number.max': 'Limite deve ser no máximo 100.',
-      }),
-    itemType: Joi.string()
-      .trim()
-      .valid('player', 'score', 'tournament')
-      .optional()
-      .messages({
-        'string.base': 'Tipo de item (itemType) deve ser uma string.',
-        'any.only':
-          'Tipo de item (itemType) deve ser "player", "score", ou "tournament".',
-      }),
+    limit: Joi.number().integer().min(1).max(100).optional().default(10).messages({
+      'number.base': 'Limite deve ser um número.',
+      'number.integer': 'Limite deve ser um inteiro.',
+      'number.min': 'Limite deve ser no mínimo 1.',
+      'number.max': 'Limite deve ser no máximo 100.',
+    }),
+    itemType: Joi.string().trim().valid('player', 'score', 'tournament').optional().messages({
+      'string.base': 'Tipo de item (itemType) deve ser uma string.',
+      'any.only': 'Tipo de item (itemType) deve ser "player", "score", ou "tournament".',
+    }),
   }),
 };
 
@@ -630,8 +564,8 @@ const refreshTokenSchema = Joi.object({
   refreshToken: Joi.string().required().messages({
     'string.base': 'O refresh token deve ser uma string',
     'string.empty': 'O refresh token não pode estar vazio',
-    'any.required': 'O refresh token é obrigatório'
-  })
+    'any.required': 'O refresh token é obrigatório',
+  }),
 });
 
 // Schema for User Registration

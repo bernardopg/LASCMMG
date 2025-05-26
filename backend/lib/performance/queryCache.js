@@ -14,12 +14,12 @@ class QueryCache {
     // Configuração de TTL por tipo de query
     this.ttlConfig = {
       'SELECT * FROM tournaments': 300, // 5 min
-      'SELECT * FROM players': 180,     // 3 min
-      'SELECT * FROM scores': 120,      // 2 min
-      'SELECT COUNT(*)': 600,           // 10 min - contadores
-      'SELECT * FROM matches': 240,     // 4 min
-      'stats': 900,                     // 15 min - estatísticas
-      'aggregate': 600                  // 10 min - agregações
+      'SELECT * FROM players': 180, // 3 min
+      'SELECT * FROM scores': 120, // 2 min
+      'SELECT COUNT(*)': 600, // 10 min - contadores
+      'SELECT * FROM matches': 240, // 4 min
+      stats: 900, // 15 min - estatísticas
+      aggregate: 600, // 10 min - agregações
     };
   }
 
@@ -28,9 +28,7 @@ class QueryCache {
    */
   generateCacheKey(sql, params) {
     const normalizedSql = this.normalizeQuery(sql);
-    const paramString = Array.isArray(params)
-      ? params.join('|')
-      : JSON.stringify(params);
+    const paramString = Array.isArray(params) ? params.join('|') : JSON.stringify(params);
 
     return `query:${Buffer.from(normalizedSql + paramString).toString('base64')}`;
   }
@@ -39,10 +37,7 @@ class QueryCache {
    * Normaliza query para cache
    */
   normalizeQuery(sql) {
-    return sql
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
+    return sql.replace(/\s+/g, ' ').trim().toLowerCase();
   }
 
   /**
@@ -78,15 +73,16 @@ class QueryCache {
     const normalizedSql = this.normalizeQuery(sql);
 
     // Não cachear operações de escrita
-    if (normalizedSql.startsWith('insert') ||
-        normalizedSql.startsWith('update') ||
-        normalizedSql.startsWith('delete')) {
+    if (
+      normalizedSql.startsWith('insert') ||
+      normalizedSql.startsWith('update') ||
+      normalizedSql.startsWith('delete')
+    ) {
       return false;
     }
 
     // Não cachear queries com CURRENT_TIMESTAMP ou NOW()
-    if (normalizedSql.includes('current_timestamp') ||
-        normalizedSql.includes('now()')) {
+    if (normalizedSql.includes('current_timestamp') || normalizedSql.includes('now()')) {
       return false;
     }
 
@@ -108,11 +104,14 @@ class QueryCache {
         const cached = await redisClient.get(key);
         if (cached) {
           this.hitCount++;
-          logger.debug({
-            component: 'QueryCache',
-            key,
-            source: 'redis'
-          }, 'Cache hit no Redis');
+          logger.debug(
+            {
+              component: 'QueryCache',
+              key,
+              source: 'redis',
+            },
+            'Cache hit no Redis'
+          );
           return JSON.parse(cached);
         }
       }
@@ -122,11 +121,14 @@ class QueryCache {
         const entry = this.memoryCache.get(key);
         if (entry.expires > Date.now()) {
           this.hitCount++;
-          logger.debug({
-            component: 'QueryCache',
-            key,
-            source: 'memory'
-          }, 'Cache hit na memória');
+          logger.debug(
+            {
+              component: 'QueryCache',
+              key,
+              source: 'memory',
+            },
+            'Cache hit na memória'
+          );
           return entry.data;
         } else {
           this.memoryCache.delete(key);
@@ -136,11 +138,14 @@ class QueryCache {
       this.missCount++;
       return null;
     } catch (err) {
-      logger.error({
-        component: 'QueryCache',
-        err,
-        key
-      }, 'Erro ao buscar no cache');
+      logger.error(
+        {
+          component: 'QueryCache',
+          err,
+          key,
+        },
+        'Erro ao buscar no cache'
+      );
       this.missCount++;
       return null;
     }
@@ -159,33 +164,41 @@ class QueryCache {
       // Armazenar no Redis se disponível
       if (this.useRedis) {
         await redisClient.setEx(key, ttl, JSON.stringify(result));
-        logger.debug({
-          component: 'QueryCache',
-          key,
-          ttl,
-          resultSize: JSON.stringify(result).length
-        }, 'Cache armazenado no Redis');
+        logger.debug(
+          {
+            component: 'QueryCache',
+            key,
+            ttl,
+            resultSize: JSON.stringify(result).length,
+          },
+          'Cache armazenado no Redis'
+        );
       }
 
       // Armazenar também na memória como fallback
       this.manageMemoryCacheSize();
       this.memoryCache.set(key, {
         data: result,
-        expires: Date.now() + (ttl * 1000)
+        expires: Date.now() + ttl * 1000,
       });
 
-      logger.debug({
-        component: 'QueryCache',
-        key,
-        ttl
-      }, 'Cache armazenado na memória');
-
+      logger.debug(
+        {
+          component: 'QueryCache',
+          key,
+          ttl,
+        },
+        'Cache armazenado na memória'
+      );
     } catch (err) {
-      logger.error({
-        component: 'QueryCache',
-        err,
-        key
-      }, 'Erro ao armazenar no cache');
+      logger.error(
+        {
+          component: 'QueryCache',
+          err,
+          key,
+        },
+        'Erro ao armazenar no cache'
+      );
     }
   }
 
@@ -207,13 +220,16 @@ class QueryCache {
         if (count >= maxToRemove) break;
       }
 
-      keysToRemove.forEach(key => this.memoryCache.delete(key));
+      keysToRemove.forEach((key) => this.memoryCache.delete(key));
 
-      logger.debug({
-        component: 'QueryCache',
-        removed: keysToRemove.length,
-        remaining: this.memoryCache.size
-      }, 'Limpeza do cache de memória');
+      logger.debug(
+        {
+          component: 'QueryCache',
+          removed: keysToRemove.length,
+          remaining: this.memoryCache.size,
+        },
+        'Limpeza do cache de memória'
+      );
     }
   }
 
@@ -240,7 +256,7 @@ class QueryCache {
       }
 
       // Invalidar na memória
-      for (const [key, _] of this.memoryCache) {
+      for (const [key] of this.memoryCache) {
         for (const pattern of patterns) {
           if (key.includes(pattern)) {
             this.memoryCache.delete(key);
@@ -250,18 +266,23 @@ class QueryCache {
         }
       }
 
-      logger.info({
-        component: 'QueryCache',
-        patterns,
-        invalidatedCount
-      }, 'Cache invalidado');
-
+      logger.info(
+        {
+          component: 'QueryCache',
+          patterns,
+          invalidatedCount,
+        },
+        'Cache invalidado'
+      );
     } catch (err) {
-      logger.error({
-        component: 'QueryCache',
-        err,
-        patterns
-      }, 'Erro ao invalidar cache');
+      logger.error(
+        {
+          component: 'QueryCache',
+          err,
+          patterns,
+        },
+        'Erro ao invalidar cache'
+      );
     }
 
     return invalidatedCount;
@@ -275,7 +296,7 @@ class QueryCache {
       `from ${tableName}`,
       `join ${tableName}`,
       `update ${tableName}`,
-      `into ${tableName}`
+      `into ${tableName}`,
     ]);
   }
 
@@ -286,7 +307,7 @@ class QueryCache {
     return await this.invalidate([
       `tournament_id = ${tournamentId}`,
       `tournament_id=${tournamentId}`,
-      `"${tournamentId}"`
+      `"${tournamentId}"`,
     ]);
   }
 
@@ -306,15 +327,20 @@ class QueryCache {
       this.hitCount = 0;
       this.missCount = 0;
 
-      logger.info({
-        component: 'QueryCache'
-      }, 'Cache limpo completamente');
-
+      logger.info(
+        {
+          component: 'QueryCache',
+        },
+        'Cache limpo completamente'
+      );
     } catch (err) {
-      logger.error({
-        component: 'QueryCache',
-        err
-      }, 'Erro ao limpar cache');
+      logger.error(
+        {
+          component: 'QueryCache',
+          err,
+        },
+        'Erro ao limpar cache'
+      );
     }
   }
 
@@ -323,7 +349,7 @@ class QueryCache {
    */
   getStats() {
     const totalRequests = this.hitCount + this.missCount;
-    const hitRate = totalRequests > 0 ? (this.hitCount / totalRequests * 100).toFixed(2) : 0;
+    const hitRate = totalRequests > 0 ? ((this.hitCount / totalRequests) * 100).toFixed(2) : 0;
 
     return {
       hitCount: this.hitCount,
@@ -332,7 +358,7 @@ class QueryCache {
       memoryCacheSize: this.memoryCache.size,
       maxMemoryCacheSize: this.maxMemoryCacheSize,
       redisAvailable: this.useRedis,
-      enabled: this.enableCaching
+      enabled: this.enableCaching,
     };
   }
 
@@ -341,9 +367,18 @@ class QueryCache {
    */
   async warmup(queries = []) {
     const defaultQueries = [
-      { sql: 'SELECT COUNT(*) as total FROM tournaments WHERE (is_deleted = 0 OR is_deleted IS NULL)', params: [] },
-      { sql: 'SELECT COUNT(*) as total FROM players WHERE (is_deleted = 0 OR is_deleted IS NULL)', params: [] },
-      { sql: 'SELECT COUNT(*) as total FROM scores WHERE (is_deleted = 0 OR is_deleted IS NULL)', params: [] },
+      {
+        sql: 'SELECT COUNT(*) as total FROM tournaments WHERE (is_deleted = 0 OR is_deleted IS NULL)',
+        params: [],
+      },
+      {
+        sql: 'SELECT COUNT(*) as total FROM players WHERE (is_deleted = 0 OR is_deleted IS NULL)',
+        params: [],
+      },
+      {
+        sql: 'SELECT COUNT(*) as total FROM scores WHERE (is_deleted = 0 OR is_deleted IS NULL)',
+        params: [],
+      },
     ];
 
     const queriesToWarm = queries.length > 0 ? queries : defaultQueries;
@@ -351,7 +386,7 @@ class QueryCache {
 
     for (const { sql, params } of queriesToWarm) {
       try {
-        const key = this.generateCacheKey(sql, params);
+        this.generateCacheKey(sql, params);
         const cached = await this.get(sql, params);
 
         if (!cached) {
@@ -361,19 +396,25 @@ class QueryCache {
           warmedCount++;
         }
       } catch (err) {
-        logger.error({
-          component: 'QueryCache',
-          err,
-          sql
-        }, 'Erro ao aquecer cache');
+        logger.error(
+          {
+            component: 'QueryCache',
+            err,
+            sql,
+          },
+          'Erro ao aquecer cache'
+        );
       }
     }
 
-    logger.info({
-      component: 'QueryCache',
-      warmedCount,
-      totalQueries: queriesToWarm.length
-    }, 'Cache aquecido');
+    logger.info(
+      {
+        component: 'QueryCache',
+        warmedCount,
+        totalQueries: queriesToWarm.length,
+      },
+      'Cache aquecido'
+    );
 
     return warmedCount;
   }
@@ -383,11 +424,14 @@ class QueryCache {
    */
   setTtlConfig(pattern, ttl) {
     this.ttlConfig[pattern] = ttl;
-    logger.info({
-      component: 'QueryCache',
-      pattern,
-      ttl
-    }, 'Configuração TTL atualizada');
+    logger.info(
+      {
+        component: 'QueryCache',
+        pattern,
+        ttl,
+      },
+      'Configuração TTL atualizada'
+    );
   }
 
   /**
@@ -395,10 +439,13 @@ class QueryCache {
    */
   setEnabled(enabled) {
     this.enableCaching = enabled;
-    logger.info({
-      component: 'QueryCache',
-      enabled
-    }, 'Cache habilitado/desabilitado');
+    logger.info(
+      {
+        component: 'QueryCache',
+        enabled,
+      },
+      'Cache habilitado/desabilitado'
+    );
   }
 }
 

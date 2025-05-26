@@ -1,19 +1,9 @@
-const {
-  queryAsync,
-  runAsync,
-  getOneAsync,
-  transactionAsync,
-} = require('../db/database'); // Atualizado para database
+const { queryAsync, runAsync, getOneAsync, transactionAsync } = require('../db/database'); // Atualizado para database
 const { logger } = require('../logger/logger'); // Importar logger
 const notificationService = require('../services/notificationService'); // Importar serviço de notificações
 
 // Helper to add is_deleted filter for tournaments
-const addTournamentIsDeletedFilter = (
-  sql,
-  params,
-  includeDeleted = false,
-  alias = 't'
-) => {
+const addTournamentIsDeletedFilter = (sql, params, includeDeleted = false, alias = 't') => {
   if (!includeDeleted) {
     if (sql.toUpperCase().includes('WHERE')) {
       sql += ` AND (${alias}.is_deleted = 0 OR ${alias}.is_deleted IS NULL)`;
@@ -25,13 +15,7 @@ const addTournamentIsDeletedFilter = (
 };
 
 async function getAllTournaments(options = {}) {
-  let {
-    orderBy = 'date',
-    order = 'DESC',
-    limit,
-    offset,
-    includeDeleted = false,
-  } = options;
+  let { orderBy = 'date', order = 'DESC', limit, offset, includeDeleted = false } = options;
 
   const columnMap = {
     id: 'id',
@@ -55,11 +39,7 @@ async function getAllTournaments(options = {}) {
   let sql = filtered.sql;
   let params = filtered.params;
 
-  const filteredCount = addTournamentIsDeletedFilter(
-    countBaseSql,
-    [],
-    includeDeleted
-  );
+  const filteredCount = addTournamentIsDeletedFilter(countBaseSql, [], includeDeleted);
   let countSql = filteredCount.sql;
   let countParams = filteredCount.params;
 
@@ -79,10 +59,7 @@ async function getAllTournaments(options = {}) {
     const totalResult = await getOneAsync(countSql, countParams);
     return { tournaments, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    logger.error(
-      { component: 'TournamentModel', err },
-      'Erro ao buscar torneios.'
-    );
+    logger.error({ component: 'TournamentModel', err }, 'Erro ao buscar torneios.');
     throw err;
   }
 }
@@ -101,10 +78,7 @@ async function getTournamentById(id, includeDeleted = false) {
   try {
     return await getOneAsync(sql, params);
   } catch (err) {
-    logger.error(
-      { component: 'TournamentModel', err, id },
-      `Erro ao buscar torneio com ID ${id}.`
-    );
+    logger.error({ component: 'TournamentModel', err, id }, `Erro ao buscar torneio com ID ${id}.`);
     throw err;
   }
 }
@@ -168,7 +142,7 @@ async function createTournament(tournament) {
       tournamentId: id,
       name,
       date,
-      status
+      status,
     });
 
     return createdTournament;
@@ -244,7 +218,7 @@ async function updateTournament(id, data) {
       notificationService.sendTournamentNotification(id, 'tournament_updated', {
         tournamentId: id,
         updates: updatedFields,
-        tournament: updatedTournament
+        tournament: updatedTournament,
       });
 
       // Se o status foi alterado, enviar uma notificação específica sobre isso
@@ -252,7 +226,8 @@ async function updateTournament(id, data) {
         notificationService.sendTournamentNotification(id, 'status_changed', {
           tournamentId: id,
           newStatus: data.status,
-          previousStatus: updatedTournament.status !== data.status ? updatedTournament.status : null
+          previousStatus:
+            updatedTournament.status !== data.status ? updatedTournament.status : null,
         });
 
         // Se o torneio foi marcado como "Em Andamento", enviar notificação global
@@ -260,14 +235,14 @@ async function updateTournament(id, data) {
           notificationService.sendGlobalNotification('tournament_started', {
             tournamentId: id,
             name: updatedTournament.name,
-            date: updatedTournament.date
+            date: updatedTournament.date,
           });
         }
         // Se o torneio foi marcado como "Concluído", enviar notificação global
         else if (data.status === 'Concluído') {
           notificationService.sendGlobalNotification('tournament_completed', {
             tournamentId: id,
-            name: updatedTournament.name
+            name: updatedTournament.name,
           });
         }
       }
@@ -294,20 +269,14 @@ async function deleteTournament(id, permanent = false) {
       const tournamentInfo = await getTournamentById(id, true);
 
       await transactionAsync((transactionDb) => {
-        transactionDb
-          .prepare('DELETE FROM tournament_state WHERE tournament_id = ?')
-          .run(id);
-        transactionDb
-          .prepare('DELETE FROM players WHERE tournament_id = ?')
-          .run(id);
+        transactionDb.prepare('DELETE FROM tournament_state WHERE tournament_id = ?').run(id);
+        transactionDb.prepare('DELETE FROM players WHERE tournament_id = ?').run(id);
         transactionDb
           .prepare(
             'DELETE FROM scores WHERE match_id IN (SELECT id FROM matches WHERE tournament_id = ?)'
           )
           .run(id);
-        transactionDb
-          .prepare('DELETE FROM matches WHERE tournament_id = ?')
-          .run(id);
+        transactionDb.prepare('DELETE FROM matches WHERE tournament_id = ?').run(id);
         transactionDb.prepare('DELETE FROM tournaments WHERE id = ?').run(id);
       });
 
@@ -320,7 +289,7 @@ async function deleteTournament(id, permanent = false) {
       if (tournamentInfo) {
         notificationService.sendGlobalNotification('tournament_deleted', {
           tournamentId: id,
-          name: tournamentInfo.name
+          name: tournamentInfo.name,
         });
       }
 
@@ -353,22 +322,19 @@ async function deleteTournament(id, permanent = false) {
         if (tournamentInfo) {
           notificationService.sendTournamentNotification(id, 'tournament_cancelled', {
             tournamentId: id,
-            name: tournamentInfo.name
+            name: tournamentInfo.name,
           });
 
           notificationService.sendGlobalNotification('tournament_cancelled', {
             tournamentId: id,
-            name: tournamentInfo.name
+            name: tournamentInfo.name,
           });
         }
 
         return true;
       }
       const existing = await getTournamentById(id, true);
-      if (
-        existing &&
-        (existing.is_deleted || existing.status === 'Cancelado')
-      ) {
+      if (existing && (existing.is_deleted || existing.status === 'Cancelado')) {
         logger.info(
           { component: 'TournamentModel', id },
           `Torneio ${id} já estava na lixeira/cancelado. Nenhuma alteração.`
@@ -413,11 +379,7 @@ async function restoreTournament(id) {
       `Torneio ${id} não encontrado na lixeira/cancelado ou não precisou de restauração.`
     );
     const tournament = await getTournamentById(id);
-    return (
-      !!tournament &&
-      tournament.status !== 'Cancelado' &&
-      !tournament.is_deleted
-    );
+    return !!tournament && tournament.status !== 'Cancelado' && !tournament.is_deleted;
   } catch (err) {
     logger.error(
       { component: 'TournamentModel', err, id },
@@ -458,10 +420,7 @@ async function countTournaments(includeDeleted = false) {
     const result = await getOneAsync(sql, params);
     return result ? result.count : 0;
   } catch (err) {
-    logger.error(
-      { component: 'TournamentModel', err },
-      'Erro ao contar torneios.'
-    );
+    logger.error({ component: 'TournamentModel', err }, 'Erro ao contar torneios.');
     throw err;
   }
 }
@@ -533,10 +492,7 @@ async function importTournaments(tournaments) {
     });
     return imported;
   } catch (err) {
-    logger.error(
-      { component: 'TournamentModel', err },
-      'Erro ao importar torneios.'
-    );
+    logger.error({ component: 'TournamentModel', err }, 'Erro ao importar torneios.');
     throw err;
   }
 }
@@ -589,16 +545,11 @@ async function getTournamentStats() {
     const softDeletedCountResult = await getOneAsync(
       "SELECT COUNT(*) as count FROM tournaments WHERE is_deleted = 1 AND status != 'Cancelado'"
     );
-    stats.softDeleted = softDeletedCountResult
-      ? softDeletedCountResult.count
-      : 0;
+    stats.softDeleted = softDeletedCountResult ? softDeletedCountResult.count : 0;
 
     return stats;
   } catch (err) {
-    logger.error(
-      { component: 'TournamentModel', err },
-      'Erro ao obter estatísticas de torneios.'
-    );
+    logger.error({ component: 'TournamentModel', err }, 'Erro ao obter estatísticas de torneios.');
     throw err;
   }
 }
@@ -656,13 +607,7 @@ async function getTournamentsByStatus(statuses = [], options = {}) {
     return getAllTournaments(options);
   }
   const placeholders = statuses.map(() => '?').join(',');
-  let {
-    orderBy = 'date',
-    order = 'DESC',
-    limit,
-    offset,
-    includeDeleted = false,
-  } = options;
+  let { orderBy = 'date', order = 'DESC', limit, offset, includeDeleted = false } = options;
 
   const columnMap = {
     id: 'id',
@@ -684,19 +629,11 @@ async function getTournamentsByStatus(statuses = [], options = {}) {
 
   const baseParams = [...statuses];
 
-  const filtered = addTournamentIsDeletedFilter(
-    baseSql,
-    [...baseParams],
-    includeDeleted
-  );
+  const filtered = addTournamentIsDeletedFilter(baseSql, [...baseParams], includeDeleted);
   let sql = filtered.sql;
   let params = filtered.params;
 
-  const filteredCount = addTournamentIsDeletedFilter(
-    countBaseSql,
-    [...baseParams],
-    includeDeleted
-  );
+  const filteredCount = addTournamentIsDeletedFilter(countBaseSql, [...baseParams], includeDeleted);
   let countSql = filteredCount.sql;
   let countParams = filteredCount.params;
 

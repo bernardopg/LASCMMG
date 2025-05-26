@@ -42,7 +42,9 @@ const EditTournamentPage = () => {
         showSuccess('Torneio atualizado com sucesso!');
         navigate('/admin/tournaments'); // Redirect to tournament list
       } else {
-        const errorMessages = responseData.errors?.map(e => `${e.field}: ${e.message}`).join('; ') || 'Falha ao atualizar alguns campos.';
+        const errorMessages =
+          responseData.errors?.map((e) => `${e.field}: ${e.message}`).join('; ') ||
+          'Falha ao atualizar alguns campos.';
         showError(errorMessages);
       }
     } catch (err) {
@@ -61,7 +63,9 @@ const EditTournamentPage = () => {
 
   if (error || !tournament) {
     return (
-      <div className="px-4 py-8 text-center"> {/* Removed container mx-auto */}
+      <div className="px-4 py-8 text-center">
+        {' '}
+        {/* Removed container mx-auto */}
         <h2 className="text-2xl font-semibold text-red-600">Erro</h2>
         <p>{error || 'Não foi possível carregar o torneio para edição.'}</p>
         <button onClick={() => navigate('/admin/tournaments')} className="btn btn-primary mt-4">
@@ -86,7 +90,9 @@ const EditTournamentPage = () => {
   };
 
   return (
-    <div className="px-4 py-8"> {/* Removed container mx-auto */}
+    <div className="px-4 py-8">
+      {' '}
+      {/* Removed container mx-auto */}
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
         Editar Torneio: {tournament.name}
       </h1>

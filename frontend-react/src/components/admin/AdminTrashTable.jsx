@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  getTrashItems,
-  restoreTrashItem,
-  permanentlyDeleteTrashItem,
-} from '../../services/api';
+import { getTrashItems, restoreTrashItem, permanentlyDeleteTrashItem } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUndo, FaTrashAlt, FaFilter } from 'react-icons/fa';
 
@@ -46,20 +42,13 @@ const AdminTrashTable = () => {
   }, [fetchTrashItems, currentPage, itemTypeFilter]);
 
   const handleRestore = async (itemId, itemType) => {
-    if (
-      window.confirm(
-        `Tem certeza que deseja restaurar este item (${itemType})?`
-      )
-    ) {
+    if (window.confirm(`Tem certeza que deseja restaurar este item (${itemType})?`)) {
       try {
         await restoreTrashItem(itemType, itemId);
         showMessage('Item restaurado com sucesso!', 'success');
         fetchTrashItems(currentPage, itemTypeFilter); // Refresh list
       } catch (err) {
-        showMessage(
-          `Erro ao restaurar item: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+        showMessage(`Erro ao restaurar item: ${err.message || 'Erro desconhecido'}`, 'error');
       }
     }
   };
@@ -116,8 +105,7 @@ const AdminTrashTable = () => {
         <p className="mt-2 text-gray-300">Carregando lixeira...</p>
       </div>
     );
-  if (error)
-    return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
+  if (error) return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
 
   return (
     <div>
@@ -161,19 +149,13 @@ const AdminTrashTable = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {trashItems.length === 0 ? (
               <tr>
-                <td
-                  colSpan="4"
-                  className="px-6 py-4 text-center text-sm text-gray-400"
-                >
+                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-400">
                   Lixeira vazia.
                 </td>
               </tr>
             ) : (
               trashItems.map((item) => (
-                <tr
-                  key={`${item.type}-${item.id}`}
-                  className="hover:bg-gray-700"
-                >
+                <tr key={`${item.type}-${item.id}`} className="hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                     {getItemDescription(item)}
                   </td>
@@ -192,9 +174,7 @@ const AdminTrashTable = () => {
                       <FaUndo />
                     </button>
                     <button
-                      onClick={() =>
-                        handlePermanentDelete(item.id, item.type)
-                      }
+                      onClick={() => handlePermanentDelete(item.id, item.type)}
                       className="text-red-500 hover:text-red-400"
                       title="Excluir Permanentemente"
                     >

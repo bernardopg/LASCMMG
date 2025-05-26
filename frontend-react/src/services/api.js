@@ -72,9 +72,10 @@ const ensureCsrfTokenInternal = async () => {
   const source = axios.CancelToken.source();
   pendingRequests.set(requestId, source);
 
-  csrfTokenPromise = api.get('/api/csrf-token', {
-    cancelToken: source.token
-  })
+  csrfTokenPromise = api
+    .get('/api/csrf-token', {
+      cancelToken: source.token,
+    })
     .then((response) => {
       if (response.data && response.data.csrfToken) {
         currentCsrfToken = response.data.csrfToken;
@@ -129,7 +130,7 @@ export const cancelAllRequests = (reason = null) => {
  * @param {number} ms - Milliseconds to delay
  * @returns {Promise<void>}
  */
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Request Interceptor - Adds request ID, cancellation, and security headers
@@ -197,12 +198,15 @@ api.interceptors.response.use(
     }
 
     // CSRF error handling with auto retry
-    if (response?.status === 403 &&
-        response?.data?.message?.includes('CSRF') &&
-        csrfErrorRetryCount < CSRF_ERROR_RETRY_MAX) {
-
+    if (
+      response?.status === 403 &&
+      response?.data?.message?.includes('CSRF') &&
+      csrfErrorRetryCount < CSRF_ERROR_RETRY_MAX
+    ) {
       csrfErrorRetryCount++;
-      console.warn(`CSRF token rejected. Refreshing token and retrying (${csrfErrorRetryCount}/${CSRF_ERROR_RETRY_MAX})`);
+      console.warn(
+        `CSRF token rejected. Refreshing token and retrying (${csrfErrorRetryCount}/${CSRF_ERROR_RETRY_MAX})`
+      );
 
       // Force refresh the CSRF token
       currentCsrfToken = null;
@@ -217,11 +221,13 @@ api.interceptors.response.use(
     }
 
     // Network error handling with retries
-    if (!response && error.message &&
-        (error.message.includes('timeout') ||
-         error.message.includes('Network Error')) &&
-        config && config._retryCount < NETWORK_RETRY_MAX) {
-
+    if (
+      !response &&
+      error.message &&
+      (error.message.includes('timeout') || error.message.includes('Network Error')) &&
+      config &&
+      config._retryCount < NETWORK_RETRY_MAX
+    ) {
       const retryCount = config._retryCount || 0;
       config._retryCount = retryCount + 1;
 
@@ -254,7 +260,7 @@ api.interceptors.response.use(
       console.error('API error:', {
         status: response.status,
         url: request?.responseURL,
-        data: response.data
+        data: response.data,
       });
     }
     // Network errors
@@ -262,7 +268,7 @@ api.interceptors.response.use(
       console.error('Network error:', {
         url: request.responseURL || config?.url,
         method: config?.method,
-        message: error.message
+        message: error.message,
       });
     }
     // Request configuration errors
@@ -321,7 +327,8 @@ export const setAuthSuccessHandler = (handler) => {
 /**
  * Authentication API Methods
  */
-export const loginUser = async (credentials) => { // This is for Admin login
+export const loginUser = async (credentials) => {
+  // This is for Admin login
   const response = await api.post('/api/auth/login', credentials); // Assuming this is admin login
   const responseData = response.data;
 
@@ -355,9 +362,9 @@ export const loginRegularUser = async (credentials) => {
 
   if (responseData.success && responseData.token && responseData.user) {
     setAuthToken(responseData.token); // Stores in localStorage and sets axios header
-     // USER_STORAGE_KEY is also set by setAuthToken if needed, or handle here
+    // USER_STORAGE_KEY is also set by setAuthToken if needed, or handle here
     if (_handleLoginSuccess) {
-       _handleLoginSuccess(
+      _handleLoginSuccess(
         responseData.user,
         responseData.token,
         null, // Regular users might not have refresh tokens from this endpoint
@@ -380,7 +387,7 @@ export const changeRegularUserPassword = async (passwordData) => {
 export const logoutUser = async () => {
   try {
     await api.post('/api/logout');
-  } catch (error) {
+  } catch {
     // Continue with local logout even if server logout fails
     console.warn('Server logout failed, continuing with local logout');
   } finally {
@@ -450,7 +457,8 @@ export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
 
   for (const field in tournamentData) {
     if (Object.hasOwnProperty.call(tournamentData, field) && editableFields[field]) {
-      if (tournamentData[field] !== undefined) { // Ensure value is actually provided
+      if (tournamentData[field] !== undefined) {
+        // Ensure value is actually provided
         try {
           await api.patch(editableFields[field], { [field]: tournamentData[field] });
         } catch (error) {
@@ -459,8 +467,13 @@ export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
           errors.push({ field, message: error.response?.data?.message || error.message });
         }
       }
-    } else if (Object.hasOwnProperty.call(tournamentData, field) && tournamentData[field] !== undefined) {
-      console.warn(`Field ${field} is not directly updatable via a specific PATCH route in updateTournamentAdmin.`);
+    } else if (
+      Object.hasOwnProperty.call(tournamentData, field) &&
+      tournamentData[field] !== undefined
+    ) {
+      console.warn(
+        `Field ${field} is not directly updatable via a specific PATCH route in updateTournamentAdmin.`
+      );
       // Potentially add to a list of fields that couldn't be updated this way.
     }
   }
@@ -469,10 +482,21 @@ export const updateTournamentAdmin = async (tournamentId, tournamentData) => {
   try {
     const response = await api.get(`/api/tournaments/${tournamentId}`);
     // Include success status and any errors from individual PATCH calls
-    return { success: success && response.data.success, tournament: response.data.tournament, errors };
+    return {
+      success: success && response.data.success,
+      tournament: response.data.tournament,
+      errors,
+    };
   } catch (error) {
     console.error(`Error fetching tournament details after update for ${tournamentId}:`, error);
-    return { success: false, tournament: null, errors: [...errors, { field: 'general', message: 'Failed to fetch tournament after updates.' }] };
+    return {
+      success: false,
+      tournament: null,
+      errors: [
+        ...errors,
+        { field: 'general', message: 'Failed to fetch tournament after updates.' },
+      ],
+    };
   }
 };
 
@@ -481,10 +505,9 @@ export const deleteTournamentAdmin = async (tournamentId, permanent = true) => {
     const response = await api.delete(`/api/admin/trash/tournament/${tournamentId}`);
     return response.data;
   } else {
-    const response = await api.patch(
-      `/api/tournaments/${tournamentId}/status`,
-      { status: 'Cancelado' }
-    );
+    const response = await api.patch(`/api/tournaments/${tournamentId}/status`, {
+      status: 'Cancelado',
+    });
     return response.data;
   }
 };
@@ -506,9 +529,7 @@ export const updateMatchScoreAdmin = async (tournamentId, matchId, scoreData) =>
  * Player API Methods
  */
 export const getPlayers = async (tournamentId, params = {}) => {
-  const url = tournamentId
-    ? `/api/tournaments/${tournamentId}/players`
-    : '/api/players';
+  const url = tournamentId ? `/api/tournaments/${tournamentId}/players` : '/api/players';
 
   // Set default parameters for global players endpoint
   const defaultParams = {
@@ -516,7 +537,7 @@ export const getPlayers = async (tournamentId, params = {}) => {
     limit: 50,
     sortBy: 'name',
     order: 'asc',
-    filters: {}
+    filters: {},
   };
 
   // Merge default params with provided params
@@ -563,10 +584,7 @@ export const deletePlayerAdmin = async (playerId, permanent = false) => {
 };
 
 export const assignPlayerToTournamentAPI = async (tournamentId, playerId) => {
-  const response = await api.post(
-    `/api/tournaments/${tournamentId}/assign_player`,
-    { playerId }
-  );
+  const response = await api.post(`/api/tournaments/${tournamentId}/assign_player`, { playerId });
   return response.data;
 };
 
@@ -637,11 +655,7 @@ export const getAdminStats = async () => {
 /**
  * Admin - Trash Management
  */
-export const getTrashItems = async ({
-  page = 1,
-  limit = 10,
-  itemType = null,
-} = {}) => {
+export const getTrashItems = async ({ page = 1, limit = 10, itemType = null } = {}) => {
   const response = await api.get('/api/admin/trash', {
     params: { page, limit, itemType },
   });
@@ -702,10 +716,7 @@ export const getHoneypotConfig = async () => {
 };
 
 export const updateHoneypotConfig = async (configData) => {
-  const response = await api.post(
-    '/api/system/security/honeypot-config',
-    configData
-  );
+  const response = await api.post('/api/system/security/honeypot-config', configData);
   return response.data;
 };
 
@@ -749,12 +760,12 @@ export const checkApiStatus = async () => {
     const response = await api.get('/ping', { timeout: 5000 });
     return {
       status: 'online',
-      details: response.data
+      details: response.data,
     };
   } catch (error) {
     return {
       status: 'offline',
-      error: error.message
+      error: error.message,
     };
   }
 };

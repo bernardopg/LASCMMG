@@ -1,40 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getSecurityOverviewStats } from '../../../services/api'; // Adjusted path
-import { useMessage } from '../../../context/MessageContext'; // Adjusted path
-import { FaSyncAlt } from 'react-icons/fa';
-import { Bar } from 'react-chartjs-2';
 import {
+  BarElement,
+  CategoryScale,
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
   Legend,
-} from 'chart.js';
-
-ChartJS.register(
-  CategoryScale,
   LinearScale,
-  BarElement,
   Title,
   Tooltip,
-  Legend
-);
+} from 'chart.js';
+import { useCallback, useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { FaSyncAlt } from 'react-icons/fa';
+import { useMessage } from '../../../context/MessageContext'; // Adjusted path
+import { getSecurityOverviewStats } from '../../../services/api'; // Adjusted path
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Sub-components (could be moved to their own files if they grow larger)
 const OverviewStatCard = ({
   title,
   value,
   subtitle,
-  icon, // Adicionado para consistência, embora não usado no design original do card
+  icon: _icon, // Adicionado para consistência, embora não usado no design original do card
   // bgColorClass e textColorClass para controle mais fino e adaptação ao tema
   bgColorClass = 'bg-blue-500 dark:bg-blue-700',
   textColorClass = 'text-white',
 }) => (
-  <div
-    className={`stats-card ${bgColorClass} ${textColorClass} p-4 rounded-lg shadow`}
-  >
+  <div className={`stats-card ${bgColorClass} ${textColorClass} p-4 rounded-lg shadow`}>
     <div className="stats-card-title text-sm opacity-80">{title}</div>
     <div className="stats-card-value text-3xl font-bold">{value}</div>
     <div className="stats-card-subtitle text-xs opacity-70">{subtitle}</div>
@@ -45,20 +36,14 @@ const ThreatsTable = ({ threats }) => {
   if (!threats || threats.length === 0) {
     return (
       <tr>
-        <td
-          colSpan="5"
-          className="text-center py-4 text-gray-500 dark:text-gray-400"
-        >
+        <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">
           Nenhuma atividade suspeita recente.
         </td>
       </tr>
     );
   }
   return threats.map((threat, index) => (
-    <tr
-      key={threat.ip || index}
-      className="hover:bg-gray-100 dark:hover:bg-slate-700"
-    >
+    <tr key={threat.ip || index} className="hover:bg-gray-100 dark:hover:bg-slate-700">
       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
         {index + 1}
       </td>
@@ -69,15 +54,11 @@ const ThreatsTable = ({ threats }) => {
         {threat.count}
       </td>
       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-        {threat.lastSeen
-          ? new Date(threat.lastSeen).toLocaleString('pt-BR')
-          : '-'}
+        {threat.lastSeen ? new Date(threat.lastSeen).toLocaleString('pt-BR') : '-'}
       </td>
       <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
         {threat.topPatterns && threat.topPatterns.length > 0
-          ? threat.topPatterns
-              .map((p) => `${p.pattern} (${p.count}x)`)
-              .join(', ')
+          ? threat.topPatterns.map((p) => `${p.pattern} (${p.count}x)`).join(', ')
           : 'N/A'}
       </td>
     </tr>
@@ -86,19 +67,13 @@ const ThreatsTable = ({ threats }) => {
 
 const ActiveHoneypotsList = ({ honeypots }) => {
   if (!honeypots || honeypots.length === 0) {
-    return (
-      <p className="text-center text-gray-500 dark:text-gray-400">
-        Nenhum honeypot ativo.
-      </p>
-    );
+    return <p className="text-center text-gray-500 dark:text-gray-400">Nenhum honeypot ativo.</p>;
   }
   return (
     <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300">
       {honeypots.map((hp, index) => (
         <li key={index}>
-          <code className="bg-gray-100 dark:bg-slate-700 p-1 rounded text-sm">
-            {hp}
-          </code>
+          <code className="bg-gray-100 dark:bg-slate-700 p-1 rounded text-sm">{hp}</code>
         </li>
       ))}
     </ul>
@@ -123,19 +98,15 @@ const AttackPatternsChartComponent = ({ patterns }) => {
         label: 'Frequência de Padrões',
         data: patterns.map((p) => p.count),
         backgroundColor: patterns.map((p) => {
-          if (p.pattern.includes('SQL_INJECTION'))
-            return 'rgba(239, 68, 68, 0.7)'; // Corrigido para Tailwind red-500
+          if (p.pattern.includes('SQL_INJECTION')) return 'rgba(239, 68, 68, 0.7)'; // Corrigido para Tailwind red-500
           if (p.pattern.includes('XSS')) return 'rgba(245, 158, 11, 0.7)'; // Corrigido para Tailwind amber-500
-          if (p.pattern.includes('PATH_TRAVERSAL'))
-            return 'rgba(234, 179, 8, 0.7)'; // Corrigido para Tailwind yellow-500
+          if (p.pattern.includes('PATH_TRAVERSAL')) return 'rgba(234, 179, 8, 0.7)'; // Corrigido para Tailwind yellow-500
           return 'rgba(59, 130, 246, 0.7)'; // Corrigido para Tailwind blue-500
         }),
         borderColor: patterns.map((p) => {
-          if (p.pattern.includes('SQL_INJECTION'))
-            return 'rgba(239, 68, 68, 1)';
+          if (p.pattern.includes('SQL_INJECTION')) return 'rgba(239, 68, 68, 1)';
           if (p.pattern.includes('XSS')) return 'rgba(245, 158, 11, 1)';
-          if (p.pattern.includes('PATH_TRAVERSAL'))
-            return 'rgba(234, 179, 8, 1)';
+          if (p.pattern.includes('PATH_TRAVERSAL')) return 'rgba(234, 179, 8, 1)';
           return 'rgba(59, 130, 246, 1)';
         }),
         borderWidth: 1,
@@ -150,9 +121,7 @@ const AttackPatternsChartComponent = ({ patterns }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          color: document.documentElement.classList.contains('dark')
-            ? '#cbd5e1'
-            : '#4b5563',
+          color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563',
         }, // Adaptado
         grid: {
           color: document.documentElement.classList.contains('dark')
@@ -162,9 +131,7 @@ const AttackPatternsChartComponent = ({ patterns }) => {
       },
       x: {
         ticks: {
-          color: document.documentElement.classList.contains('dark')
-            ? '#cbd5e1'
-            : '#4b5563',
+          color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563',
         }, // Adaptado
         grid: {
           color: document.documentElement.classList.contains('dark')
@@ -176,12 +143,8 @@ const AttackPatternsChartComponent = ({ patterns }) => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        titleColor: document.documentElement.classList.contains('dark')
-          ? '#fff'
-          : '#000', // Adaptado
-        bodyColor: document.documentElement.classList.contains('dark')
-          ? '#fff'
-          : '#000', // Adaptado
+        titleColor: document.documentElement.classList.contains('dark') ? '#fff' : '#000', // Adaptado
+        bodyColor: document.documentElement.classList.contains('dark') ? '#fff' : '#000', // Adaptado
         backgroundColor: document.documentElement.classList.contains('dark')
           ? 'rgba(0,0,0,0.8)'
           : 'rgba(255,255,255,0.9)', // Adaptado
@@ -265,9 +228,7 @@ const SecurityOverview = () => {
           className="btn btn-outline btn-sm text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
           disabled={loading}
         >
-          <FaSyncAlt
-            className={`inline mr-1.5 ${loading ? 'animate-spin' : ''}`}
-          />
+          <FaSyncAlt className={`inline mr-1.5 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
         </button>
       </div>
@@ -297,8 +258,7 @@ const SecurityOverview = () => {
       </div>
 
       <div className="text-xs text-gray-500 dark:text-gray-400 text-right mb-6">
-        Última atualização:{' '}
-        {lastUpdated ? new Date(lastUpdated).toLocaleString('pt-BR') : 'Nunca'}
+        Última atualização: {lastUpdated ? new Date(lastUpdated).toLocaleString('pt-BR') : 'Nunca'}
       </div>
 
       <div className="card bg-white dark:bg-slate-800 p-0 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm">

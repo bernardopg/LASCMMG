@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
 
@@ -121,7 +121,7 @@ export const ThemeProvider = ({ children }) => {
     } else {
       // Remover variáveis CSS personalizadas
       const colorVars = ['primary', 'secondary', 'background', 'surface', 'text', 'border'];
-      colorVars.forEach(key => {
+      colorVars.forEach((key) => {
         root.style.removeProperty(`--color-${key}`);
       });
     }
@@ -134,12 +134,9 @@ export const ThemeProvider = ({ children }) => {
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        actualTheme === THEMES.dark
-          ? customColors.dark.background
-          : customColors.light.background
+        actualTheme === THEMES.dark ? customColors.dark.background : customColors.light.background
       );
     }
-
   }, [themePreference, customColors]);
 
   // Função para alternar entre os temas light e dark
@@ -158,7 +155,9 @@ export const ThemeProvider = ({ children }) => {
     if (Object.values(THEMES).includes(theme)) {
       setThemePreference(theme);
     } else {
-      console.warn(`Tema inválido: ${theme}. Use um dos seguintes: ${Object.values(THEMES).join(', ')}`);
+      console.warn(
+        `Tema inválido: ${theme}. Use um dos seguintes: ${Object.values(THEMES).join(', ')}`
+      );
     }
   }, []);
 
@@ -169,10 +168,10 @@ export const ThemeProvider = ({ children }) => {
 
   // Função para atualizar cores personalizadas
   const updateCustomColors = useCallback((newColors) => {
-    setCustomColors(prev => {
+    setCustomColors((prev) => {
       const updated = {
         ...prev,
-        ...newColors
+        ...newColors,
       };
 
       localStorage.setItem('customThemeColors', JSON.stringify(updated));
@@ -181,12 +180,15 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   // Função para aplicar tema personalizado
-  const applyCustomTheme = useCallback((colors) => {
-    if (colors) {
-      updateCustomColors(colors);
-    }
-    setThemePreference(THEMES.custom);
-  }, [updateCustomColors]);
+  const applyCustomTheme = useCallback(
+    (colors) => {
+      if (colors) {
+        updateCustomColors(colors);
+      }
+      setThemePreference(THEMES.custom);
+    },
+    [updateCustomColors]
+  );
 
   // Função para resetar para as cores padrão
   const resetToDefaultColors = useCallback(() => {
@@ -208,14 +210,10 @@ export const ThemeProvider = ({ children }) => {
     updateCustomColors,
     applyCustomTheme,
     resetToDefaultColors,
-    THEMES,  // Exporta constantes de tema para uso em componentes
+    THEMES, // Exporta constantes de tema para uso em componentes
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export default ThemeContext;

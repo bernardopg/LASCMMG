@@ -65,7 +65,7 @@ function sendTournamentNotification(tournamentId, eventType, data) {
   const notification = {
     type: eventType,
     data,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   io.to(room).emit('tournament_notification', notification);
@@ -86,7 +86,7 @@ function sendGlobalNotification(eventType, data) {
   const notification = {
     type: eventType,
     data,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   io.emit('global_notification', notification);
@@ -96,5 +96,5 @@ function sendGlobalNotification(eventType, data) {
 module.exports = {
   init,
   sendTournamentNotification,
-  sendGlobalNotification
+  sendGlobalNotification,
 };

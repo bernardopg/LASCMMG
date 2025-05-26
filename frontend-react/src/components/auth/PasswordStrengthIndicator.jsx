@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Indicador de força da senha com feedback visual
  */
@@ -16,16 +14,20 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
       { test: /[a-z]/.test(password), message: 'Letra minúscula', points: 1 },
       { test: /[A-Z]/.test(password), message: 'Letra maiúscula', points: 1 },
       { test: /[0-9]/.test(password), message: 'Número', points: 1 },
-      { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), message: 'Caractere especial', points: 1 },
+      {
+        test: /[!@#$%^&*()_+-=[\]{};':"\\|,.<>/?]/.test(password),
+        message: 'Caractere especial',
+        points: 1,
+      },
     ];
 
-    criteria.forEach(criterion => {
+    criteria.forEach((criterion) => {
       if (criterion.test) {
         score += criterion.points;
       }
       feedback.push({
         ...criterion,
-        passed: criterion.test
+        passed: criterion.test,
       });
     });
 
@@ -38,13 +40,13 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
       { min: 5, max: 5, level: 'Muito forte', color: 'green' },
     ];
 
-    const currentLevel = levels.find(l => score >= l.min && score <= l.max);
+    const currentLevel = levels.find((l) => score >= l.min && score <= l.max);
 
     return {
       score,
       feedback,
       level: currentLevel?.level || 'Muito fraca',
-      color: currentLevel?.color || 'red'
+      color: currentLevel?.color || 'red',
     };
   };
 
@@ -52,23 +54,23 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
 
   if (!password) return null;
 
-  const getColorClasses = (color, intensity = 'normal') => {
+  const getColorClasses = (color, _intensity = 'normal') => {
     const colors = {
       red: {
         bg: 'bg-red-500',
         text: 'text-red-600 dark:text-red-400',
-        bgLight: 'bg-red-100 dark:bg-red-900/20'
+        bgLight: 'bg-red-100 dark:bg-red-900/20',
       },
       yellow: {
         bg: 'bg-yellow-500',
         text: 'text-yellow-600 dark:text-yellow-400',
-        bgLight: 'bg-yellow-100 dark:bg-yellow-900/20'
+        bgLight: 'bg-yellow-100 dark:bg-yellow-900/20',
       },
       green: {
         bg: 'bg-green-500',
         text: 'text-green-600 dark:text-green-400',
-        bgLight: 'bg-green-100 dark:bg-green-900/20'
-      }
+        bgLight: 'bg-green-100 dark:bg-green-900/20',
+      },
     };
     return colors[color] || colors.red;
   };
@@ -86,9 +88,7 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
             style={{ width: `${widthPercentage}%` }}
           />
         </div>
-        <span className={`text-xs font-medium ${colorClasses.text}`}>
-          {strength.level}
-        </span>
+        <span className={`text-xs font-medium ${colorClasses.text}`}>{strength.level}</span>
       </div>
 
       {/* Detalhes dos critérios */}
@@ -102,14 +102,24 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
               <div key={index} className="flex items-center space-x-2">
                 {criterion.passed ? (
                   <svg className="h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ) : (
                   <svg className="h-3 w-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
-                <span className={`text-xs ${criterion.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                <span
+                  className={`text-xs ${criterion.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
+                >
                   {criterion.message}
                 </span>
               </div>

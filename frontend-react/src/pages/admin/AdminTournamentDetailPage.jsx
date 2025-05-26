@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { FaArrowLeft, FaSpinner, FaTrophy } from 'react-icons/fa';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { getTournamentDetails } from '../../services/api';
-import { FaTrophy, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 
 const AdminTournamentDetailPage = () => {
   const params = useParams();
@@ -17,7 +17,6 @@ const AdminTournamentDetailPage = () => {
     console.log('  - typeof tournamentId:', typeof tournamentId);
     console.log('  - params object:', params);
     console.log('  - location.pathname:', location.pathname);
-    console.log('  - useParams() call result:', useParams());
     console.log('  - window.location.pathname:', window.location.pathname);
     console.log('  - window.location.href:', window.location.href);
 
@@ -32,7 +31,12 @@ const AdminTournamentDetailPage = () => {
     console.log('  - finalTournamentId (usado na requisição):', finalTournamentId);
 
     // Verificar se o ID é válido
-    if (!finalTournamentId || finalTournamentId === 'undefined' || finalTournamentId === 'null' || finalTournamentId.trim() === '') {
+    if (
+      !finalTournamentId ||
+      finalTournamentId === 'undefined' ||
+      finalTournamentId === 'null' ||
+      finalTournamentId.trim() === ''
+    ) {
       setError(`ID do torneio inválido: "${finalTournamentId}". Verifique a URL.`);
       setLoading(false);
       return;
@@ -55,7 +59,9 @@ const AdminTournamentDetailPage = () => {
         }
       } catch (err) {
         console.error('Erro ao carregar dados do torneio:', err);
-        setError(`Erro ao carregar dados do torneio: ${err.response?.data?.message || err.message}`);
+        setError(
+          `Erro ao carregar dados do torneio: ${err.response?.data?.message || err.message}`
+        );
       } finally {
         setLoading(false);
       }
@@ -78,7 +84,9 @@ const AdminTournamentDetailPage = () => {
     return (
       <div className="px-4 py-8 text-center">
         <h1 className="text-2xl font-semibold text-red-600 mb-2">Erro ao Carregar Torneio</h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-2">{error || 'Torneio não encontrado.'}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-2">
+          {error || 'Torneio não encontrado.'}
+        </p>
         <p className="text-sm text-gray-500 mb-4">ID do torneio: "{tournamentId}"</p>
         <Link to="/admin/tournaments" className="btn btn-primary mt-6">
           <FaArrowLeft className="mr-2" /> Voltar para Lista de Torneios
@@ -92,9 +100,7 @@ const AdminTournamentDetailPage = () => {
       <div className="card bg-white dark:bg-slate-800 shadow-xl rounded-lg p-6 md:p-8">
         <div className="flex items-center mb-6">
           <FaTrophy className="text-3xl text-primary dark:text-primary-light mr-4" />
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-            {tournament.name}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{tournament.name}</h1>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-4">
           {tournament.description || 'Sem descrição detalhada.'}
@@ -103,9 +109,7 @@ const AdminTournamentDetailPage = () => {
           <div>
             <h3 className="font-semibold text-gray-700 dark:text-gray-200">Data</h3>
             <p className="text-gray-500 dark:text-gray-400">
-              {tournament.date
-                ? new Date(tournament.date).toLocaleDateString('pt-BR')
-                : 'N/A'}
+              {tournament.date ? new Date(tournament.date).toLocaleDateString('pt-BR') : 'N/A'}
             </p>
           </div>
           <div>
@@ -114,7 +118,9 @@ const AdminTournamentDetailPage = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-700 dark:text-gray-200">Jogadores Esperados</h3>
-            <p className="text-gray-500 dark:text-gray-400">{tournament.num_players_expected || 'N/A'}</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              {tournament.num_players_expected || 'N/A'}
+            </p>
           </div>
           <div>
             <h3 className="font-semibold text-gray-700 dark:text-gray-200">Tipo de Chave</h3>

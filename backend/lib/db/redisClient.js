@@ -63,19 +63,15 @@ const connectToRedis = async () => {
     redisClient = client;
     return redisClient;
   } catch (err) {
-    logger.error(
-      'RedisClient',
-      `Не удалось подключиться к Redis при запуске: ${err.message}`,
-      { stack: err.stack }
-    );
+    logger.error('RedisClient', `Не удалось подключиться к Redis при запуске: ${err.message}`, {
+      stack: err.stack,
+    });
     if (попыткиПодключения < МАКС_ПОПЫТКИ) {
       logger.info(
         'RedisClient',
         `Повторная попытка подключения через ${ЗАДЕРЖКА_ПЕРЕПОДКЛЮЧЕНИЯ / 1000} секунд.`
       );
-      await new Promise((resolve) =>
-        setTimeout(resolve, ЗАДЕРЖКА_ПЕРЕПОДКЛЮЧЕНИЯ)
-      );
+      await new Promise((resolve) => setTimeout(resolve, ЗАДЕРЖКА_ПЕРЕПОДКЛЮЧЕНИЯ));
       return connectToRedis(); // Рекурсивный вызов для повторной попытки
     } else {
       logger.error(

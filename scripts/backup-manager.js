@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 /**
  * Script CLI para Gerenciamento de Backup
@@ -26,7 +27,7 @@ class BackupCLI {
       test: this.testBackup.bind(this),
       status: this.getStatus.bind(this),
       cleanup: this.cleanupBackups.bind(this),
-      help: this.showHelp.bind(this)
+      help: this.showHelp.bind(this),
     };
   }
 
@@ -46,7 +47,6 @@ class BackupCLI {
 
       // Executar comando
       await this.commands[command](args.slice(1));
-
     } catch (err) {
       console.error('❌ Erro:', err.message);
       logger.error({ err }, 'Erro no script de backup');
@@ -72,7 +72,7 @@ class BackupCLI {
     console.log(`📍 Localização: ${backup.path}`);
   }
 
-  async listBackups(args) {
+  async listBackups() {
     console.log('📋 Listando backups disponíveis...\n');
 
     const backups = await backupManager.listBackups();
@@ -86,7 +86,7 @@ class BackupCLI {
     console.log('│ Nome do Arquivo                         │ Tamanho  │ Data de Criação     │');
     console.log('├─────────────────────────────────────────┼──────────┼─────────────────────┤');
 
-    backups.forEach(backup => {
+    backups.forEach((backup) => {
       const name = backup.fileName.padEnd(39);
       const size = backup.sizeFormatted.padEnd(8);
       const date = new Date(backup.created).toLocaleString('pt-BR').padEnd(19);
@@ -125,7 +125,7 @@ class BackupCLI {
 
     const restoreInfo = await backupManager.restoreFromBackup(backupFileName, {
       force: true,
-      verify: true
+      verify: true,
     });
 
     const duration = Date.now() - startTime;
@@ -137,7 +137,7 @@ class BackupCLI {
     console.log(`✅ Verificação: ${restoreInfo.verified ? 'Aprovada' : 'Ignorada'}`);
   }
 
-  async testBackup(args) {
+  async testBackup() {
     console.log('🧪 Iniciando teste do sistema de backup...\n');
 
     const testResult = await backupManager.testBackupRestore();
@@ -155,7 +155,7 @@ class BackupCLI {
     }
   }
 
-  async getStatus(args) {
+  async getStatus() {
     console.log('📊 Status do Sistema de Backup\n');
 
     const status = backupManager.getStatus();
@@ -165,7 +165,9 @@ class BackupCLI {
     console.log(`📂 Diretório: ${status.backupDir}`);
     console.log(`🗄️  Banco de dados: ${status.dbPath}`);
     console.log(`📈 Máximo de backups: ${status.maxBackups}`);
-    console.log(`🗜️  Compressão: ${status.compressionEnabled ? '✅ Habilitada' : '❌ Desabilitada'}`);
+    console.log(
+      `🗜️  Compressão: ${status.compressionEnabled ? '✅ Habilitada' : '❌ Desabilitada'}`
+    );
     console.log(`📋 Backups existentes: ${backups.length}`);
 
     if (backups.length > 0) {
@@ -176,7 +178,7 @@ class BackupCLI {
     }
   }
 
-  async cleanupBackups(args) {
+  async cleanupBackups() {
     console.log('🧹 Limpando backups antigos...');
 
     const backupsBefore = await backupManager.listBackups();
@@ -238,7 +240,7 @@ class BackupCLI {
 // Executar CLI se chamado diretamente
 if (require.main === module) {
   const cli = new BackupCLI();
-  cli.run().catch(err => {
+  cli.run().catch((err) => {
     console.error('❌ Erro fatal:', err.message);
     process.exit(1);
   });

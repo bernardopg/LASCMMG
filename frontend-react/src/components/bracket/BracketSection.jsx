@@ -1,13 +1,7 @@
 import React from 'react'; // Removed unused useMemo
 import RoundColumn from './RoundColumn';
 
-const BracketSection = ({
-  title,
-  matches,
-  roundPrefix,
-  selectedMatchId,
-  onMatchClick,
-}) => {
+const BracketSection = ({ title, matches, roundPrefix, selectedMatchId, onMatchClick }) => {
   if (!matches || matches.length === 0) {
     return <p className="text-gray-500 my-4">Nenhuma partida nesta seção.</p>;
   }

@@ -36,15 +36,12 @@ const AdminSecuritySidebar = () => {
   const location = useLocation();
   const isActive = (path) =>
     location.pathname === path ||
-    (path === '/admin/security' &&
-      location.pathname.startsWith('/admin/security/'));
+    (path === '/admin/security' && location.pathname.startsWith('/admin/security/'));
 
   return (
     <aside className="w-64 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 min-h-screen p-4 space-y-2 flex flex-col border-r border-gray-200 dark:border-slate-700">
       <div className="sidebar-header mb-6">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
-          Segurança
-        </h1>
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Segurança</h1>
       </div>
       <nav className="flex-grow">
         {securityMenuItems.map((item) => (

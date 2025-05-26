@@ -7,7 +7,7 @@ module.exports = defineConfig({
     supportFile: false, // Or 'cypress/support/e2e.js' if you add custom commands
     video: false, // Disable video recording for now
     screenshotOnRunFailure: true,
-    setupNodeEvents(on, config) {
+    setupNodeEvents(/* on, config */) {
       // implement node event listeners here
     },
   },

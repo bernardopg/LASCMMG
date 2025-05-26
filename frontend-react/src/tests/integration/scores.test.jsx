@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import AdminScoresTable from '../../components/admin/AdminScoresTable';
 import { AuthProvider } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
 import { NotificationProvider } from '../../context/NotificationContext';
 import { TournamentProvider } from '../../context/TournamentContext';
-import AdminScoresTable from '../../components/admin/AdminScoresTable';
 import AddScorePage from '../../pages/AddScorePage';
 import ScoresPage from '../../pages/ScoresPage';
 
@@ -26,9 +26,7 @@ const TestWrapper = ({ children }) => {
       <MessageProvider>
         <AuthProvider>
           <NotificationProvider>
-            <TournamentProvider>
-              {children}
-            </TournamentProvider>
+            <TournamentProvider>{children}</TournamentProvider>
           </NotificationProvider>
         </AuthProvider>
       </MessageProvider>
@@ -639,7 +637,10 @@ describe('Scores Management Integration Tests', () => {
 
       server.use(
         http.post('http://localhost:3000/api/admin/scores', () => {
-          return HttpResponse.json({ message: 'Placar já existe para estes jogadores' }, { status: 409 });
+          return HttpResponse.json(
+            { message: 'Placar já existe para estes jogadores' },
+            { status: 409 }
+          );
         })
       );
 

@@ -6,7 +6,6 @@ const {
   querySync,
   runSync,
   getOneSync,
-  transactionSync
 } = require('../db/database');
 const queryAnalyzer = require('./queryAnalyzer');
 const queryCache = require('./queryCache');
@@ -55,13 +54,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de query otimizada');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de query otimizada'
+      );
 
       throw err;
     }
@@ -91,13 +93,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de operação otimizada');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de operação otimizada'
+      );
 
       throw err;
     }
@@ -140,13 +145,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de getOne otimizado');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de getOne otimizado'
+      );
 
       throw err;
     }
@@ -164,11 +172,14 @@ class OptimizedDatabase {
 
       // Log da transação
       if (this.enableProfiling) {
-        logger.info({
-          component: 'OptimizedDatabase',
-          executionTime,
-          type: 'transaction'
-        }, `Transação executada em ${executionTime}ms`);
+        logger.info(
+          {
+            component: 'OptimizedDatabase',
+            executionTime,
+            type: 'transaction',
+          },
+          `Transação executada em ${executionTime}ms`
+        );
       }
 
       // Invalidar cache após transação (conservativo)
@@ -180,11 +191,14 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        executionTime,
-        err
-      }, 'Erro na execução de transação otimizada');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          executionTime,
+          err,
+        },
+        'Erro na execução de transação otimizada'
+      );
 
       throw err;
     }
@@ -218,11 +232,14 @@ class OptimizedDatabase {
         await this.handleSpecificTableInvalidation(affectedTable, params);
       }
     } catch (err) {
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        err
-      }, 'Erro ao invalidar cache');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          err,
+        },
+        'Erro ao invalidar cache'
+      );
     }
   }
 
@@ -272,13 +289,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de query síncrona otimizada');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de query síncrona otimizada'
+      );
 
       throw err;
     }
@@ -299,13 +319,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de run síncrono otimizado');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de run síncrono otimizado'
+      );
 
       throw err;
     }
@@ -326,13 +349,16 @@ class OptimizedDatabase {
     } catch (err) {
       const executionTime = Date.now() - startTime;
 
-      logger.error({
-        component: 'OptimizedDatabase',
-        sql,
-        params,
-        executionTime,
-        err
-      }, 'Erro na execução de getOne síncrono otimizado');
+      logger.error(
+        {
+          component: 'OptimizedDatabase',
+          sql,
+          params,
+          executionTime,
+          err,
+        },
+        'Erro na execução de getOne síncrono otimizado'
+      );
 
       throw err;
     }
@@ -344,16 +370,34 @@ class OptimizedDatabase {
   async warmupCache() {
     const commonQueries = [
       // Contadores gerais
-      { sql: 'SELECT COUNT(*) as total FROM tournaments WHERE (is_deleted = 0 OR is_deleted IS NULL)', params: [] },
-      { sql: 'SELECT COUNT(*) as total FROM players WHERE (is_deleted = 0 OR is_deleted IS NULL)', params: [] },
-      { sql: 'SELECT COUNT(*) as total FROM scores WHERE (s.is_deleted = 0 OR s.is_deleted IS NULL)', params: [] },
+      {
+        sql: 'SELECT COUNT(*) as total FROM tournaments WHERE (is_deleted = 0 OR is_deleted IS NULL)',
+        params: [],
+      },
+      {
+        sql: 'SELECT COUNT(*) as total FROM players WHERE (is_deleted = 0 OR is_deleted IS NULL)',
+        params: [],
+      },
+      {
+        sql: 'SELECT COUNT(*) as total FROM scores WHERE (s.is_deleted = 0 OR s.is_deleted IS NULL)',
+        params: [],
+      },
 
       // Torneios ativos
-      { sql: 'SELECT * FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY date DESC LIMIT 10', params: ['Ativo'] },
+      {
+        sql: 'SELECT * FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY date DESC LIMIT 10',
+        params: ['Ativo'],
+      },
 
       // Estatísticas básicas
-      { sql: 'SELECT COUNT(*) as active_tournaments FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL)', params: ['Ativo'] },
-      { sql: 'SELECT COUNT(*) as pending_tournaments FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL)', params: ['Pendente'] }
+      {
+        sql: 'SELECT COUNT(*) as active_tournaments FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL)',
+        params: ['Ativo'],
+      },
+      {
+        sql: 'SELECT COUNT(*) as pending_tournaments FROM tournaments WHERE status = ? AND (is_deleted = 0 OR is_deleted IS NULL)',
+        params: ['Pendente'],
+      },
     ];
 
     return await queryCache.warmup(commonQueries);
@@ -369,7 +413,7 @@ class OptimizedDatabase {
     return {
       ...analyzerReport,
       cache: cacheStats,
-      recommendations: this.generateOptimizationRecommendations(analyzerReport, cacheStats)
+      recommendations: this.generateOptimizationRecommendations(analyzerReport, cacheStats),
     };
   }
 
@@ -389,8 +433,8 @@ class OptimizedDatabase {
         actions: [
           'Analisar planos de execução das queries lentas',
           'Adicionar índices apropriados',
-          'Revisar lógica de queries complexas'
-        ]
+          'Revisar lógica de queries complexas',
+        ],
       });
     }
 
@@ -405,8 +449,8 @@ class OptimizedDatabase {
         actions: [
           'Revisar configurações de TTL',
           'Identificar queries que se beneficiariam de cache',
-          'Considerar pre-warming do cache'
-        ]
+          'Considerar pre-warming do cache',
+        ],
       });
     }
 
@@ -417,9 +461,11 @@ class OptimizedDatabase {
         priority: 'HIGH',
         title: 'Índices Recomendados',
         description: `${analyzerReport.indexSuggestions.length} índices foram sugeridos para melhorar performance.`,
-        actions: analyzerReport.indexSuggestions.map(idx =>
-          `CREATE INDEX idx_${idx.table}_${idx.column} ON ${idx.table}(${idx.column})`
-        ).slice(0, 5) // Mostrar apenas os 5 primeiros
+        actions: analyzerReport.indexSuggestions
+          .map(
+            (idx) => `CREATE INDEX idx_${idx.table}_${idx.column} ON ${idx.table}(${idx.column})`
+          )
+          .slice(0, 5), // Mostrar apenas os 5 primeiros
       });
     }
 
@@ -433,7 +479,8 @@ class OptimizedDatabase {
     const indexSuggestions = queryAnalyzer.suggestIndexes();
     const results = [];
 
-    for (const suggestion of indexSuggestions.slice(0, 10)) { // Limitar a 10 sugestões
+    for (const suggestion of indexSuggestions.slice(0, 10)) {
+      // Limitar a 10 sugestões
       if (suggestion.priority === 'HIGH') {
         const indexName = `idx_${suggestion.table}_${suggestion.column.replace('.', '_')}`;
         const createIndexSql = `CREATE INDEX IF NOT EXISTS ${indexName} ON ${suggestion.table}(${suggestion.column})`;
@@ -449,7 +496,7 @@ class OptimizedDatabase {
             indexName,
             sql: createIndexSql,
             status: dryRun ? 'planned' : 'created',
-            reason: suggestion.reason
+            reason: suggestion.reason,
           });
         } catch (err) {
           results.push({
@@ -457,17 +504,20 @@ class OptimizedDatabase {
             column: suggestion.column,
             indexName,
             status: 'error',
-            error: err.message
+            error: err.message,
           });
         }
       }
     }
 
-    logger.info({
-      component: 'OptimizedDatabase',
-      dryRun,
-      results: results.length
-    }, `Auto-otimização de índices ${dryRun ? 'simulada' : 'executada'}: ${results.length} índices processados`);
+    logger.info(
+      {
+        component: 'OptimizedDatabase',
+        dryRun,
+        results: results.length,
+      },
+      `Auto-otimização de índices ${dryRun ? 'simulada' : 'executada'}: ${results.length} índices processados`
+    );
 
     return results;
   }
@@ -492,10 +542,13 @@ class OptimizedDatabase {
       queryCache.setEnabled(options.cacheEnabled);
     }
 
-    logger.info({
-      component: 'OptimizedDatabase',
-      options
-    }, 'Configurações de otimização atualizadas');
+    logger.info(
+      {
+        component: 'OptimizedDatabase',
+        options,
+      },
+      'Configurações de otimização atualizadas'
+    );
   }
 
   /**
@@ -508,8 +561,8 @@ class OptimizedDatabase {
       cache: queryCache.getStats(),
       analyzer: {
         totalQueries: queryAnalyzer.queryStats.size,
-        slowQueryThreshold: queryAnalyzer.slowQueryThreshold
-      }
+        slowQueryThreshold: queryAnalyzer.slowQueryThreshold,
+      },
     };
   }
 }

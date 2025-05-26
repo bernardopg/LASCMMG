@@ -5,11 +5,7 @@ import { useTournament } from '../context/TournamentContext';
 import api from '../services/api';
 
 const Home = () => {
-  const {
-    tournaments,
-    currentTournament,
-    loading: tournamentsLoading,
-  } = useTournament();
+  const { tournaments, currentTournament, loading: tournamentsLoading } = useTournament();
   const [generalStats, setGeneralStats] = useState({
     players: 0,
     matches: 0,
@@ -60,13 +56,11 @@ const Home = () => {
       <section className="bg-primary-banner-light dark:bg-primary-banner-dark rounded-lg p-4 md:p-8 relative overflow-hidden">
         <div className="relative z-10">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 dark:text-white">
-            Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica
-            de Sinuca da CMMG
+            Bem-vindo ao Sistema de gerenciamento de torneios da Liga Acadêmica de Sinuca da CMMG
           </h1>
           <p className="text-gray-700 dark:text-gray-300 mb-4 md:mb-6 max-w-xl">
-            Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG.
-            Acompanhe resultados, estatísticas e chaveamentos dos torneios em
-            andamento.
+            Bem-vindo ao sistema de gerenciamento de torneios da LASCMMG. Acompanhe resultados,
+            estatísticas e chaveamentos dos torneios em andamento.
           </p>
           <div className="flex flex-wrap gap-3 md:gap-4">
             <Link to="/brackets" className="btn btn-primary">
@@ -131,9 +125,7 @@ const Home = () => {
                 {generalStats.tournaments}
               </p>
             )}
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Registrados na plataforma
-            </p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Registrados na plataforma</p>
           </div>
         </div>
       </section>
@@ -150,27 +142,25 @@ const Home = () => {
                     {currentTournament.name}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    {currentTournament.description?.substring(0, 100) ||
-                      'Sem descrição detalhada.'}
+                    {currentTournament.description?.substring(0, 100) || 'Sem descrição detalhada.'}
                   </p>
                 </div>
                 <div className="flex flex-row sm:flex-col sm:items-end justify-between sm:justify-start">
                   <span
-                    className={`badge ${currentTournament.status === 'Em Andamento'
+                    className={`badge ${
+                      currentTournament.status === 'Em Andamento'
                         ? 'badge-success'
                         : currentTournament.status === 'Pendente'
                           ? 'badge-info'
                           : 'badge-warning'
-                      }`}
+                    }`}
                   >
                     {currentTournament.status || 'N/A'}
                   </span>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-0 sm:mt-2">
                     Data:{' '}
                     {currentTournament.date
-                      ? new Date(currentTournament.date).toLocaleDateString(
-                        'pt-BR'
-                      )
+                      ? new Date(currentTournament.date).toLocaleDateString('pt-BR')
                       : 'N/A'}
                   </p>
                 </div>
@@ -187,28 +177,22 @@ const Home = () => {
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.num_players_expected || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Jogadores Esperados
-                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Jogadores Esperados</p>
                 </div>
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.bracket_type?.replace('-', ' ') || 'N/A'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Tipo de Chave
-                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tipo de Chave</p>
                 </div>
                 <div className="text-center">
                   <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                     {currentTournament.entry_fee !== null &&
-                      currentTournament.entry_fee !== undefined
+                    currentTournament.entry_fee !== undefined
                       ? `R$ ${currentTournament.entry_fee.toFixed(2)}`
                       : 'Grátis'}
                   </span>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Taxa de Inscrição
-                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Taxa de Inscrição</p>
                 </div>
               </div>
               <div className="mt-4 md:mt-6 flex justify-end space-x-3">
@@ -248,22 +232,15 @@ const Home = () => {
         ) : (
           <div className="space-y-4">
             {tournaments.map((tournament) => (
-              <div
-                key={tournament.id}
-                className="card p-6 hover:shadow-md transition-shadow"
-              >
+              <div key={tournament.id} className="card p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium mb-1">
                       {tournament.name || 'Torneio Sem Nome'}
                     </h3>
                     <p className="text-gray-600 text-sm truncate max-w-xs">
-                      {tournament.description?.substring(0, 70) ||
-                        'Sem descrição.'}
-                      {tournament.description &&
-                        tournament.description.length > 70
-                        ? '...'
-                        : ''}
+                      {tournament.description?.substring(0, 70) || 'Sem descrição.'}
+                      {tournament.description && tournament.description.length > 70 ? '...' : ''}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
                       Data:{' '}
@@ -274,12 +251,13 @@ const Home = () => {
                   </div>
                   <div className="flex items-center">
                     <span
-                      className={`badge mr-3 ${tournament.status === 'Em Andamento'
+                      className={`badge mr-3 ${
+                        tournament.status === 'Em Andamento'
                           ? 'badge-success'
                           : tournament.status === 'Pendente'
                             ? 'badge-info'
                             : 'badge-warning'
-                        }`}
+                      }`}
                     >
                       {tournament.status || 'N/A'}
                     </span>

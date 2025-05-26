@@ -21,7 +21,9 @@
 .route-transition-enter-active {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
 }
 
 .route-transition-exit {
@@ -32,7 +34,9 @@
 .route-transition-exit-active {
   opacity: 0;
   transform: translateY(-20px);
-  transition: opacity 200ms ease-in, transform 200ms ease-in;
+  transition:
+    opacity 200ms ease-in,
+    transform 200ms ease-in;
 }
 
 /* Estados de carregamento da aplicação */

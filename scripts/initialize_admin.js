@@ -1,4 +1,5 @@
 // scripts/initialize_admin.js
+/* eslint-disable no-console */
 /**
  * Script consolidado para gerenciamento de usuários administradores
  * Substitui os scripts anteriores:
@@ -13,11 +14,7 @@
  */
 
 const adminModel = require('../backend/lib/models/adminModel');
-const {
-  db,
-  runAsync,
-  closeSyncConnection,
-} = require('../backend/lib/db/database');
+const { db, runAsync, closeSyncConnection } = require('../backend/lib/db/database');
 const bcrypt = require('bcrypt');
 
 // Configurações padrão
@@ -25,14 +22,14 @@ const DEFAULT_ADMIN = {
   username: 'admin@example.com',
   password: 'Admin123!',
   role: 'super_admin',
-  permissions: ['all']
+  permissions: ['all'],
 };
 
 const TEST_ADMIN = {
   username: 'testadmin@example.com',
   password: 'TestAdmin123!',
   role: 'admin',
-  permissions: ['all']
+  permissions: ['all'],
 };
 
 // Function to parse command line arguments
@@ -84,15 +81,13 @@ async function initializeAdmin() {
       username: args.username,
       password: args.password,
       role: args.role || 'super_admin',
-      permissions: ['all']
+      permissions: ['all'],
     };
   }
 
   // Ensure DB is initialized before trying to use it.
   if (!db || !db.open) {
-    console.error(
-      'Conexão com o banco de dados não está aberta. Verificando inicialização.'
-    );
+    console.error('Conexão com o banco de dados não está aberta. Verificando inicialização.');
   }
 
   try {
@@ -107,24 +102,20 @@ async function initializeAdmin() {
       const hashedPassword = await bcrypt.hash(adminConfig.password, saltRounds);
       const sql = 'UPDATE users SET hashedPassword = ? WHERE id = ?';
       await runAsync(sql, [hashedPassword, existingAdmin.id]);
-      console.log(
-        `Senha para usuário administrador "${adminConfig.username}" foi atualizada.`
-      );
+      console.log(`Senha para usuário administrador "${adminConfig.username}" foi atualizada.`);
     } else {
       const createdAdmin = await adminModel.createAdmin({
         username: adminConfig.username,
         password: adminConfig.password,
         role: adminConfig.role,
-        permissions: adminConfig.permissions
+        permissions: adminConfig.permissions,
       });
 
       console.log('Usuário administrador criado com sucesso:');
       console.log(`  ID: ${createdAdmin.id}`);
       console.log(`  Username: ${createdAdmin.username}`);
       console.log(`  Role: ${createdAdmin.role}`);
-      console.log(
-        `\nSenha definida como: ${adminConfig.password} (será criptografada)`
-      );
+      console.log(`\nSenha definida como: ${adminConfig.password} (será criptografada)`);
       console.log(
         'Por favor, certifique-se de que esta senha seja segura e gerenciada adequadamente.'
       );

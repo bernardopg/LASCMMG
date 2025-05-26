@@ -17,25 +17,25 @@ const Footer = () => {
       name: 'Facebook',
       url: 'https://facebook.com', // Atualizar com link real
       icon: <FaFacebook className="w-5 h-5" />,
-      label: 'Visite nossa página no Facebook'
+      label: 'Visite nossa página no Facebook',
     },
     {
       name: 'Instagram',
       url: 'https://instagram.com', // Atualizar com link real
       icon: <FaInstagram className="w-5 h-5" />,
-      label: 'Siga-nos no Instagram'
+      label: 'Siga-nos no Instagram',
     },
     {
       name: 'Twitter',
       url: 'https://twitter.com', // Atualizar com link real
       icon: <FaTwitter className="w-5 h-5" />,
-      label: 'Siga-nos no Twitter'
+      label: 'Siga-nos no Twitter',
     },
     {
       name: 'GitHub',
       url: 'https://github.com', // Atualizar com link real
       icon: <FaGithub className="w-5 h-5" />,
-      label: 'Acesse nosso repositório no GitHub'
+      label: 'Acesse nosso repositório no GitHub',
     },
   ];
 
@@ -55,7 +55,7 @@ const Footer = () => {
 
       const focusableElements = Array.from(
         footerRef.current?.querySelectorAll('a[href], button') || []
-      ).filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+      ).filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
 
       if (!focusableElements.length) return;
 
@@ -63,17 +63,19 @@ const Footer = () => {
 
       switch (e.key) {
         case 'ArrowRight':
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
           const nextIndex = currentIndex < focusableElements.length - 1 ? currentIndex + 1 : 0;
           focusableElements[nextIndex]?.focus();
           break;
+        }
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'ArrowUp': {
           e.preventDefault();
           const prevIndex = currentIndex > 0 ? currentIndex - 1 : focusableElements.length - 1;
           focusableElements[prevIndex]?.focus();
           break;
+        }
         case 'Home':
           e.preventDefault();
           focusableElements[0]?.focus();
@@ -112,7 +114,7 @@ const Footer = () => {
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
 
     // Após scroll, foca no primeiro elemento focalizável do documento
@@ -196,10 +198,11 @@ const Footer = () => {
   // Renderiza seção de copyright
   const renderCopyrightSection = () => (
     <p className="copyright text-center text-gray-500 dark:text-gray-400 text-xs md:text-sm">
-      &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de
-      Minas Gerais. Todos os direitos reservados.
+      &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais. Todos os
+      direitos reservados.
       <span className="inline-flex items-center ml-1">
-        Feito com <FaHeart className="mx-1 text-red-500 animate-pulse h-3 w-3" aria-hidden="true" /> no Brasil
+        Feito com <FaHeart className="mx-1 text-red-500 animate-pulse h-3 w-3" aria-hidden="true" />{' '}
+        no Brasil
       </span>
     </p>
   );

@@ -1,18 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  FaFilter,
-  FaPlusCircle,
-  FaSearch,
-  FaSyncAlt,
-  FaTrophy,
-} from 'react-icons/fa';
+import { FaFilter, FaPlusCircle, FaSearch, FaSyncAlt, FaTrophy } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { LoadingSkeleton, TournamentList } from '../components/common/MemoizedComponents';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
-import { getTournaments } from '../services/api';
-import { TournamentList, LoadingSkeleton } from '../components/common/MemoizedComponents';
 import { useDebounce } from '../hooks/useDebounce';
 import { useErrorHandler } from '../hooks/useErrorHandler';
+import { getTournaments } from '../services/api';
 
 const TournamentsPage = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -23,7 +17,7 @@ const TournamentsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState('');
-  const { showError } = useMessage();
+  const { showError: _showError } = useMessage();
   const { isAuthenticated, hasPermission } = useAuth();
   const { withErrorHandling, showSuccess } = useErrorHandler();
 
@@ -42,7 +36,7 @@ const TournamentsPage = () => {
             page,
             limit: pageSize,
             search: debouncedSearch,
-            status: debouncedStatusFilter
+            status: debouncedStatusFilter,
           });
           return data;
         },
@@ -84,21 +78,27 @@ const TournamentsPage = () => {
     window.location.href = `/tournaments/${tournament.id}`;
   }, []);
 
-  const handleTournamentEdit = useCallback((tournament) => {
-    if (isAuthenticated && hasPermission && hasPermission('admin')) {
-      window.location.href = `/admin/tournaments/${tournament.id}/edit`;
-    }
-  }, [isAuthenticated, hasPermission]);
-
-  const handleTournamentDelete = useCallback(async (tournament) => {
-    if (isAuthenticated && hasPermission && hasPermission('admin')) {
-      if (confirm(`Tem certeza que deseja excluir o torneio "${tournament.name}"?`)) {
-        // Implementar delete aqui quando a API estiver disponível
-        showSuccess(`Torneio "${tournament.name}" excluído com sucesso!`);
-        fetchTournaments(currentPage);
+  const handleTournamentEdit = useCallback(
+    (tournament) => {
+      if (isAuthenticated && hasPermission && hasPermission('admin')) {
+        window.location.href = `/admin/tournaments/${tournament.id}/edit`;
       }
-    }
-  }, [isAuthenticated, hasPermission, showSuccess, fetchTournaments, currentPage]);
+    },
+    [isAuthenticated, hasPermission]
+  );
+
+  const handleTournamentDelete = useCallback(
+    async (tournament) => {
+      if (isAuthenticated && hasPermission && hasPermission('admin')) {
+        if (confirm(`Tem certeza que deseja excluir o torneio "${tournament.name}"?`)) {
+          // Implementar delete aqui quando a API estiver disponível
+          showSuccess(`Torneio "${tournament.name}" excluído com sucesso!`);
+          fetchTournaments(currentPage);
+        }
+      }
+    },
+    [isAuthenticated, hasPermission, showSuccess, fetchTournaments, currentPage]
+  );
 
   return (
     <div className="px-4 py-8">
@@ -182,9 +182,7 @@ const TournamentsPage = () => {
                   Anterior
                 </button>
                 <button
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className="btn btn-outline btn-sm"
                 >

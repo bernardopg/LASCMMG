@@ -1,46 +1,44 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  FaCompress,
+  FaDownload,
   FaEdit,
+  FaExpand,
+  FaFileCsv,
+  FaFileExcel,
+  FaFileUpload,
+  FaInfoCircle,
   FaPlus,
-  FaTrash,
+  FaRegStar,
   FaSearch,
   FaSort,
-  FaSortUp,
   FaSortDown,
-  FaFilter,
-  FaSync,
+  FaSortUp,
+  FaSpinner,
   FaStar,
-  FaRegStar,
-  FaUserPlus,
-  FaTrashAlt,
-  FaDownload,
-  FaUpload,
-  FaInfoCircle,
-  FaUndo,
-  FaUsers,
+  FaSync,
   FaTable,
   FaThList,
-  FaCompress,
-  FaExpand,
-  FaSpinner,
-  FaFileUpload,
-  FaFileCsv,
-  FaFileExcel
+  FaTrash,
+  FaTrashAlt,
+  FaUndo,
+  FaUpload,
+  FaUserPlus,
+  FaUsers,
 } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
+import { useDebounce } from '../../hooks/useDebounce';
 import {
+  createPlayerAdmin,
   deletePlayerAdmin,
   getAdminPlayers,
-  createPlayerAdmin,
+  importPlayersAdmin,
   updatePlayerAdmin,
-  importPlayersAdmin
 } from '../../services/api';
-import { useDebounce } from '../../hooks/useDebounce';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 
 // Tooltip component
 const Tooltip = ({ children, content }) => {
@@ -67,7 +65,10 @@ const Tooltip = ({ children, content }) => {
           style={{ bottom: '100%', left: '50%', transform: 'translateX(-50%)' }}
         >
           {content}
-          <div className="absolute w-2 h-2 bg-gray-700 transform rotate-45" style={{ bottom: '-4px', left: '50%', marginLeft: '-4px' }}></div>
+          <div
+            className="absolute w-2 h-2 bg-gray-700 transform rotate-45"
+            style={{ bottom: '-4px', left: '50%', marginLeft: '-4px' }}
+          ></div>
         </div>
       )}
     </div>
@@ -77,10 +78,10 @@ const Tooltip = ({ children, content }) => {
 // Skill level indicator component
 const SkillLevelIndicator = ({ level }) => {
   const levels = {
-    'Iniciante': 1,
-    'Intermediário': 2,
-    'Avançado': 3,
-    'Profissional': 4,
+    Iniciante: 1,
+    Intermediário: 2,
+    Avançado: 3,
+    Profissional: 4,
   };
   const maxStars = 4;
 
@@ -88,22 +89,29 @@ const SkillLevelIndicator = ({ level }) => {
   const label = Object.keys(levels).includes(level) ? level : 'Desconhecido';
 
   return (
-    <div
-      className="flex items-center"
-      aria-label={`Nível: ${label} (${stars} de ${maxStars})`}
-    >
-      {[...Array(maxStars)].map((_, i) => (
-        i < stars
-          ? <FaStar key={i} className="text-yellow-400 mr-0.5" aria-hidden="true" />
-          : <FaRegStar key={i} className="text-gray-400 mr-0.5" aria-hidden="true" />
-      ))}
+    <div className="flex items-center" aria-label={`Nível: ${label} (${stars} de ${maxStars})`}>
+      {[...Array(maxStars)].map((_, i) =>
+        i < stars ? (
+          <FaStar key={i} className="text-yellow-400 mr-0.5" aria-hidden="true" />
+        ) : (
+          <FaRegStar key={i} className="text-gray-400 mr-0.5" aria-hidden="true" />
+        )
+      )}
       <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">({label})</span>
     </div>
   );
 };
 
 // Player card component for mobile/alternative view
-const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoading, deletingPlayerId }) => {
+const PlayerCard = ({
+  player,
+  isSelected,
+  onSelect,
+  onEdit,
+  onDelete,
+  deleteLoading,
+  deletingPlayerId,
+}) => {
   return (
     <motion.div
       className={`bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 border-l-4 ${isSelected ? 'border-blue-500' : 'border-transparent'
@@ -125,12 +133,10 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
           <div>
             <h3 className="font-medium text-gray-900 dark:text-white">{player.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              {player.nickname ? player.nickname : "Sem apelido"}
+              {player.nickname ? player.nickname : 'Sem apelido'}
             </p>
             {player.email && (
-              <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
-                {player.email}
-              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{player.email}</p>
             )}
           </div>
         </div>
@@ -149,10 +155,11 @@ const PlayerCard = ({ player, isSelected, onSelect, onEdit, onDelete, deleteLoad
               }`}
             aria-label={`Excluir jogador ${player.name}`}
           >
-            {deleteLoading && deletingPlayerId === player.id ?
-              <FaSpinner className="animate-spin" /> :
+            {deleteLoading && deletingPlayerId === player.id ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
               <FaTrash />
-            }
+            )}
           </button>
         </div>
       </div>
@@ -238,7 +245,10 @@ const TableSkeleton = () => (
 const CardSkeleton = () => (
   <>
     {[...Array(3)].map((_, index) => (
-      <div key={index} className="bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 animate-pulse">
+      <div
+        key={index}
+        className="bg-white dark:bg-slate-700 p-4 rounded-lg shadow-sm mb-3 animate-pulse"
+      >
         <div className="flex justify-between items-start">
           <div className="flex items-center">
             <div className="h-5 w-5 bg-gray-300 dark:bg-gray-600 rounded mr-3"></div>
@@ -262,7 +272,15 @@ const CardSkeleton = () => (
 );
 
 // Modal component for confirming bulk actions
-const ConfirmationModal = ({ isOpen, onClose, title, message, onConfirm, confirmText, confirmType = "primary" }) => {
+const ConfirmationModal = ({
+  isOpen,
+  onClose,
+  title,
+  message,
+  onConfirm,
+  confirmText,
+  confirmType = 'primary',
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -290,12 +308,12 @@ const ConfirmationModal = ({ isOpen, onClose, title, message, onConfirm, confirm
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${confirmType === "danger"
-                ? "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
-                : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white"
+            className={`px-4 py-2 rounded focus:outline-none focus:ring-2 ${confirmType === 'danger'
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white'
               }`}
           >
-            {confirmText || "Confirmar"}
+            {confirmText || 'Confirmar'}
           </button>
         </div>
       </motion.div>
@@ -346,7 +364,7 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
       await onImport(selectedFile);
       setSelectedFile(null);
       onClose();
-    } catch (error) {
+    } catch {
       // Error handling is done in the parent component
     } finally {
       setImporting(false);
@@ -393,7 +411,10 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
         aria-modal="true"
       >
         <div className="p-6">
-          <h2 id="import-modal-title" className="text-xl font-semibold mb-4 border-b pb-2 dark:border-gray-700 text-gray-900 dark:text-white">
+          <h2
+            id="import-modal-title"
+            className="text-xl font-semibold mb-4 border-b pb-2 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
             Importar Jogadores
           </h2>
 
@@ -401,9 +422,18 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
             <div className="text-sm text-gray-600 dark:text-gray-300">
               <p className="mb-2">Formatos suportados:</p>
               <ul className="list-disc list-inside space-y-1">
-                <li><strong>JSON:</strong> Array de objetos com campos name, nickname, email, gender, skill_level</li>
-                <li><strong>CSV:</strong> Arquivo com cabeçalhos (name,nickname,email,gender,skill_level)</li>
-                <li><strong>Excel:</strong> Planilha com colunas Name, Nickname, Email, Gender, Skill Level</li>
+                <li>
+                  <strong>JSON:</strong> Array de objetos com campos name, nickname, email, gender,
+                  skill_level
+                </li>
+                <li>
+                  <strong>CSV:</strong> Arquivo com cabeçalhos
+                  (name,nickname,email,gender,skill_level)
+                </li>
+                <li>
+                  <strong>Excel:</strong> Planilha com colunas Name, Nickname, Email, Gender, Skill
+                  Level
+                </li>
               </ul>
             </div>
 
@@ -436,9 +466,7 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
               ) : (
                 <div className="space-y-2">
                   <FaUpload className="mx-auto text-4xl text-gray-400" />
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Arraste um arquivo aqui ou
-                  </p>
+                  <p className="text-gray-600 dark:text-gray-300">Arraste um arquivo aqui ou</p>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="btn btn-outline btn-sm"
@@ -530,11 +558,12 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
       .max(100, 'Nome muito longo'),
     nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
     email: Yup.string().email('Email inválido').nullable(),
-    gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').required('Gênero é obrigatório'),
-    skill_level: Yup.string().oneOf(
-      ['Iniciante', 'Intermediário', 'Avançado', 'Profissional'],
-      'Nível inválido'
-    ).required('Nível é obrigatório'),
+    gender: Yup.string()
+      .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
+      .required('Gênero é obrigatório'),
+    skill_level: Yup.string()
+      .oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido')
+      .required('Nível é obrigatório'),
   });
 
   return (
@@ -554,7 +583,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
         aria-modal="true"
       >
         <div className="p-6">
-          <h2 id="player-form-title" className="text-xl font-semibold mb-4 border-b pb-2 dark:border-gray-700 text-gray-900 dark:text-white">
+          <h2
+            id="player-form-title"
+            className="text-xl font-semibold mb-4 border-b pb-2 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
             {player ? 'Editar Jogador' : 'Adicionar Novo Jogador'}
           </h2>
 
@@ -569,7 +601,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
             {({ isSubmitting, dirty, isValid, values }) => (
               <Form className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     Nome Completo <span className="text-red-500">*</span>
                   </label>
                   <Field
@@ -580,16 +615,15 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                     placeholder="Nome do jogador"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
-                  <ErrorMessage
-                    name="name"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
+                  <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
 
                 <div>
                   <div className="flex items-center">
-                    <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 mr-2">
+                    <label
+                      htmlFor="nickname"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 mr-2"
+                    >
                       Apelido
                     </label>
                     <Tooltip content="O apelido será exibido nos torneios e tabelas de pontuação">
@@ -611,7 +645,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     Email
                   </label>
                   <Field
@@ -630,7 +667,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label
+                      htmlFor="gender"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
                       Gênero
                     </label>
                     <Field
@@ -650,7 +690,10 @@ const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label
+                      htmlFor="skill_level"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
                       Nível de Habilidade
                     </label>
                     <Field
@@ -758,10 +801,12 @@ const PlayersPage = () => {
 
   // Filter players based on search and filters
   const filteredPlayers = useMemo(() => {
-    let filtered = players.filter(player => {
-      const matchesSearch = !debouncedSearchTerm ||
+    let filtered = players.filter((player) => {
+      const matchesSearch =
+        !debouncedSearchTerm ||
         player.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (player.nickname && player.nickname.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+        (player.nickname &&
+          player.nickname.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
         (player.email && player.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
 
       const matchesGender = !filterGender || player.gender === filterGender;
@@ -795,7 +840,7 @@ const PlayersPage = () => {
         gender: filterGender,
         skill_level: filterSkill,
         sort_by: sortField,
-        sort_direction: sortDirection
+        sort_direction: sortDirection,
       });
 
       if (response.success) {
@@ -810,7 +855,15 @@ const PlayersPage = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [debouncedSearchTerm, filterGender, filterSkill, sortField, sortDirection, refreshing, showMessage]);
+  }, [
+    debouncedSearchTerm,
+    filterGender,
+    filterSkill,
+    sortField,
+    sortDirection,
+    refreshing,
+    showMessage,
+  ]);
 
   // Refresh players
   const refreshPlayers = useCallback(() => {
@@ -819,14 +872,17 @@ const PlayersPage = () => {
   }, [loadPlayers]);
 
   // Handle sort
-  const handleSort = useCallback((field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  }, [sortField, sortDirection]);
+  const handleSort = useCallback(
+    (field) => {
+      if (sortField === field) {
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortField(field);
+        setSortDirection('asc');
+      }
+    },
+    [sortField, sortDirection]
+  );
 
   // Clear filters
   const clearFilters = useCallback(() => {
@@ -840,19 +896,22 @@ const PlayersPage = () => {
   // Player selection handlers
   const handleSelectPlayer = useCallback((playerId, checked) => {
     if (checked) {
-      setSelectedPlayers(prev => [...prev, playerId]);
+      setSelectedPlayers((prev) => [...prev, playerId]);
     } else {
-      setSelectedPlayers(prev => prev.filter(id => id !== playerId));
+      setSelectedPlayers((prev) => prev.filter((id) => id !== playerId));
     }
   }, []);
 
-  const handleSelectAll = useCallback((checked) => {
-    if (checked) {
-      setSelectedPlayers(filteredPlayers.map(player => player.id));
-    } else {
-      setSelectedPlayers([]);
-    }
-  }, [filteredPlayers]);
+  const handleSelectAll = useCallback(
+    (checked) => {
+      if (checked) {
+        setSelectedPlayers(filteredPlayers.map((player) => player.id));
+      } else {
+        setSelectedPlayers([]);
+      }
+    },
+    [filteredPlayers]
+  );
 
   // CRUD operations
   const handleAddPlayer = useCallback(() => {
@@ -865,30 +924,33 @@ const PlayersPage = () => {
     setShowPlayerModal(true);
   }, []);
 
-  const handleSavePlayer = useCallback(async (playerData, playerId) => {
-    try {
-      let response;
+  const handleSavePlayer = useCallback(
+    async (playerData, playerId) => {
+      try {
+        let response;
 
-      if (playerId) {
-        response = await updatePlayerAdmin(playerId, playerData);
-        showMessage('Jogador atualizado com sucesso!', 'success');
-      } else {
-        response = await createPlayerAdmin(playerData);
-        showMessage('Jogador criado com sucesso!', 'success');
-      }
+        if (playerId) {
+          response = await updatePlayerAdmin(playerId, playerData);
+          showMessage('Jogador atualizado com sucesso!', 'success');
+        } else {
+          response = await createPlayerAdmin(playerData);
+          showMessage('Jogador criado com sucesso!', 'success');
+        }
 
-      if (response.success) {
-        setShowPlayerModal(false);
-        setEditingPlayer(null);
-        loadPlayers();
-      } else {
-        showMessage(response.message || 'Erro ao salvar jogador', 'error');
+        if (response.success) {
+          setShowPlayerModal(false);
+          setEditingPlayer(null);
+          loadPlayers();
+        } else {
+          showMessage(response.message || 'Erro ao salvar jogador', 'error');
+        }
+      } catch (error) {
+        console.error('Erro ao salvar jogador:', error);
+        showMessage('Erro ao salvar jogador', 'error');
       }
-    } catch (error) {
-      console.error('Erro ao salvar jogador:', error);
-      showMessage('Erro ao salvar jogador', 'error');
-    }
-  }, [loadPlayers, showMessage]);
+    },
+    [loadPlayers, showMessage]
+  );
 
   const handleDeletePlayer = useCallback((playerId, playerName) => {
     setPlayerToDelete({ id: playerId, name: playerName });
@@ -906,7 +968,7 @@ const PlayersPage = () => {
 
       if (response.success) {
         showMessage('Jogador excluído com sucesso!', 'success');
-        setSelectedPlayers(prev => prev.filter(id => id !== playerToDelete.id));
+        setSelectedPlayers((prev) => prev.filter((id) => id !== playerToDelete.id));
         loadPlayers();
       } else {
         showMessage(response.message || 'Erro ao excluir jogador', 'error');
@@ -931,9 +993,7 @@ const PlayersPage = () => {
     try {
       setDeleteLoading(true);
 
-      const deletePromises = selectedPlayers.map(playerId =>
-        deletePlayerAdmin(playerId)
-      );
+      const deletePromises = selectedPlayers.map((playerId) => deletePlayerAdmin(playerId));
 
       await Promise.all(deletePromises);
 
@@ -950,37 +1010,37 @@ const PlayersPage = () => {
   }, [selectedPlayers, loadPlayers, showMessage]);
 
   // Import players
-  const handleImportPlayers = useCallback(async (file) => {
-    try {
-      const response = await importPlayersAdmin(file);
+  const handleImportPlayers = useCallback(
+    async (file) => {
+      try {
+        const response = await importPlayersAdmin(file);
 
-      if (response.success) {
-        showMessage(
-          `${response.imported || 0} jogador(es) importado(s) com sucesso!`,
-          'success'
-        );
-        loadPlayers();
-      } else {
-        showMessage(response.message || 'Erro ao importar jogadores', 'error');
+        if (response.success) {
+          showMessage(`${response.imported || 0} jogador(es) importado(s) com sucesso!`, 'success');
+          loadPlayers();
+        } else {
+          showMessage(response.message || 'Erro ao importar jogadores', 'error');
+        }
+      } catch (error) {
+        console.error('Erro ao importar jogadores:', error);
+        showMessage('Erro ao importar jogadores', 'error');
       }
-    } catch (error) {
-      console.error('Erro ao importar jogadores:', error);
-      showMessage('Erro ao importar jogadores', 'error');
-    }
-  }, [loadPlayers, showMessage]);
+    },
+    [loadPlayers, showMessage]
+  );
 
   // Export players
   const handleExportPlayers = useCallback(() => {
-    const dataToExport = filteredPlayers.map(player => ({
+    const dataToExport = filteredPlayers.map((player) => ({
       name: player.name,
       nickname: player.nickname || '',
       email: player.email || '',
       gender: player.gender,
-      skill_level: player.skill_level
+      skill_level: player.skill_level,
     }));
 
     const dataStr = JSON.stringify(dataToExport, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
     const exportFileDefaultName = `jogadores_${new Date().toISOString().split('T')[0]}.json`;
 
@@ -993,14 +1053,19 @@ const PlayersPage = () => {
   }, [filteredPlayers, showMessage]);
 
   // Render sort icon
-  const renderSortIcon = useCallback((field) => {
-    if (sortField !== field) {
-      return <FaSort className="ml-1 text-gray-400" />;
-    }
-    return sortDirection === 'asc'
-      ? <FaSortUp className="ml-1 text-blue-500" />
-      : <FaSortDown className="ml-1 text-blue-500" />;
-  }, [sortField, sortDirection]);
+  const renderSortIcon = useCallback(
+    (field) => {
+      if (sortField !== field) {
+        return <FaSort className="ml-1 text-gray-400" />;
+      }
+      return sortDirection === 'asc' ? (
+        <FaSortUp className="ml-1 text-blue-500" />
+      ) : (
+        <FaSortDown className="ml-1 text-blue-500" />
+      );
+    },
+    [sortField, sortDirection]
+  );
 
   return (
     <div className="px-4 py-6 max-w-7xl mx-auto">
@@ -1024,9 +1089,9 @@ const PlayersPage = () => {
               <button
                 onClick={() => setViewMode('table')}
                 className={`p-2 rounded ${viewMode === 'table'
-                  ? 'bg-white dark:bg-gray-600 shadow-sm'
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                    ? 'bg-white dark:bg-gray-600 shadow-sm'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 title="Visualização em tabela"
               >
                 <FaTable className="text-sm" />
@@ -1034,9 +1099,9 @@ const PlayersPage = () => {
               <button
                 onClick={() => setViewMode('cards')}
                 className={`p-2 rounded ${viewMode === 'cards'
-                  ? 'bg-white dark:bg-gray-600 shadow-sm'
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                    ? 'bg-white dark:bg-gray-600 shadow-sm'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 title="Visualização em cards"
               >
                 <FaThList className="text-sm" />
@@ -1047,7 +1112,7 @@ const PlayersPage = () => {
             <button
               onClick={() => setIsCompactView(!isCompactView)}
               className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
-              title={isCompactView ? "Expandir visualização" : "Compactar visualização"}
+              title={isCompactView ? 'Expandir visualização' : 'Compactar visualização'}
             >
               {isCompactView ? <FaExpand /> : <FaCompress />}
             </button>
@@ -1066,10 +1131,7 @@ const PlayersPage = () => {
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3">
-          <button
-            onClick={handleAddPlayer}
-            className="btn btn-primary flex items-center"
-          >
+          <button onClick={handleAddPlayer} className="btn btn-primary flex items-center">
             <FaPlus className="mr-2" />
             Adicionar Jogador
           </button>
@@ -1158,9 +1220,7 @@ const PlayersPage = () => {
       {/* Content */}
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm">
         {loading ? (
-          <div className="p-6">
-            {viewMode === 'table' ? <TableSkeleton /> : <CardSkeleton />}
-          </div>
+          <div className="p-6">{viewMode === 'table' ? <TableSkeleton /> : <CardSkeleton />}</div>
         ) : filteredPlayers.length === 0 ? (
           <div className="text-center py-12">
             <FaUsers className="mx-auto text-4xl text-gray-400 mb-4" />
@@ -1170,8 +1230,7 @@ const PlayersPage = () => {
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               {players.length === 0
                 ? 'Adicione o primeiro jogador para começar'
-                : 'Tente ajustar os filtros de busca'
-              }
+                : 'Tente ajustar os filtros de busca'}
             </p>
             {players.length === 0 && (
               <button
@@ -1192,7 +1251,10 @@ const PlayersPage = () => {
                   <th className="px-3 md:px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={selectedPlayers.length === filteredPlayers.length && filteredPlayers.length > 0}
+                      checked={
+                        selectedPlayers.length === filteredPlayers.length &&
+                        filteredPlayers.length > 0
+                      }
                       onChange={(e) => handleSelectAll(e.target.checked)}
                       className="h-5 w-5"
                       aria-label="Selecionar todos os jogadores"
@@ -1246,9 +1308,7 @@ const PlayersPage = () => {
                     </button>
                   </th>
                   <th className="px-3 md:px-6 py-3 text-right">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Ações
-                    </span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Ações</span>
                   </th>
                 </tr>
               </thead>
@@ -1257,9 +1317,8 @@ const PlayersPage = () => {
                   {filteredPlayers.map((player) => (
                     <motion.tr
                       key={player.id}
-                      className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${
-                        selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                      }`}
+                      className={`hover:bg-gray-50 dark:hover:bg-slate-700 ${selectedPlayers.includes(player.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                        }`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
@@ -1311,9 +1370,10 @@ const PlayersPage = () => {
                           <button
                             onClick={() => handleDeletePlayer(player.id, player.name)}
                             disabled={deleteLoading && deletingPlayerId === player.id}
-                            className={`p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${
-                              deleteLoading && deletingPlayerId === player.id ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={`p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ${deleteLoading && deletingPlayerId === player.id
+                                ? 'opacity-50 cursor-not-allowed'
+                                : ''
+                              }`}
                             aria-label={`Excluir jogador ${player.name}`}
                           >
                             {deleteLoading && deletingPlayerId === player.id ? (

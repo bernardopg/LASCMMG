@@ -8,7 +8,7 @@ class ErrorBoundary extends React.Component {
       hasError: false,
       error: null,
       errorInfo: null,
-      retryCount: 0
+      retryCount: 0,
     };
   }
 
@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
 
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Log para serviço de monitoramento (Sentry, LogRocket, etc.)
@@ -29,7 +29,7 @@ class ErrorBoundary extends React.Component {
       window.analytics.track('Error Boundary Triggered', {
         error: error.message,
         stack: error.stack,
-        componentStack: errorInfo.componentStack
+        componentStack: errorInfo.componentStack,
       });
     }
   }
@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component {
         hasError: false,
         error: null,
         errorInfo: null,
-        retryCount: retryCount + 1
+        retryCount: retryCount + 1,
       });
     } else {
       // Redirecionar para home após 3 tentativas

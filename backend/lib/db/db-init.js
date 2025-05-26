@@ -21,35 +21,20 @@ async function applyDatabaseMigrations() {
     );
 
     // 1. Garantir que as tabelas básicas existam (CREATE TABLE IF NOT EXISTS)
-    logger.info(
-      { component: 'DBInit' },
-      'Verificando/Criando tabelas do banco de dados...'
-    );
+    logger.info({ component: 'DBInit' }, 'Verificando/Criando tabelas do banco de dados...');
     initializeDatabase(); // Esta função é síncrona e usa db.exec
-    logger.info(
-      { component: 'DBInit' },
-      'Criação/Verificação de tabelas concluída.'
-    );
+    logger.info({ component: 'DBInit' }, 'Criação/Verificação de tabelas concluída.');
 
     // 2. Aplicar migrações aditivas (ALTER TABLE ADD COLUMN)
-    logger.info(
-      { component: 'DBInit' },
-      'Aplicando migrações de esquema (ALTERs)...'
-    );
+    logger.info({ component: 'DBInit' }, 'Aplicando migrações de esquema (ALTERs)...');
     // runMigrations é síncrona, mas a função applyDatabaseMigrations é async, então await não é necessário aqui
     // se runMigrations não retornar uma Promise. Se runMigrations pudesse ser async no futuro, await seria bom.
     // Por ora, assumindo que runMigrations é síncrona como initializeDatabase.
     runMigrations();
-    logger.info(
-      { component: 'DBInit' },
-      'Migrações de esquema (ALTERs) concluídas.'
-    );
+    logger.info({ component: 'DBInit' }, 'Migrações de esquema (ALTERs) concluídas.');
 
     // 3. Após as migrações de esquema, tentar migrar/criar o admin a partir do JSON
-    logger.info(
-      { component: 'DBInit' },
-      'Verificando/migrando credenciais do administrador...'
-    );
+    logger.info({ component: 'DBInit' }, 'Verificando/migrando credenciais do administrador...');
     const adminMigrationResult = await adminModel.migrateAdminCredentials();
     if (adminMigrationResult.success) {
       logger.info(
@@ -66,17 +51,11 @@ async function applyDatabaseMigrations() {
     }
 
     // 4. Initialize Audit Logger
-    logger.info(
-      { component: 'DBInit' },
-      'Inicializando sistema de auditoria...'
-    );
+    logger.info({ component: 'DBInit' }, 'Inicializando sistema de auditoria...');
     await auditLogger.initialize(); // Initialize audit logger
     logger.info({ component: 'DBInit' }, 'Sistema de auditoria inicializado.');
 
-    logger.info(
-      { component: 'DBInit' },
-      'Inicialização do banco de dados concluída com sucesso!'
-    );
+    logger.info({ component: 'DBInit' }, 'Inicialização do banco de dados concluída com sucesso!');
   } catch (err) {
     logger.error(
       { component: 'DBInit', err },
@@ -88,25 +67,16 @@ async function applyDatabaseMigrations() {
 
 async function testDatabaseConnection() {
   try {
-    logger.info(
-      { component: 'DBInit' },
-      'Testando conexão com o banco de dados...'
-    );
+    logger.info({ component: 'DBInit' }, 'Testando conexão com o banco de dados...');
     const tournamentsCount = await tournamentModel.countTournaments();
     logger.info(
       { component: 'DBInit', tournamentsCount },
       `Total de torneios no banco: ${tournamentsCount}`
     );
-    logger.info(
-      { component: 'DBInit' },
-      'Conexão com o banco de dados testada com sucesso!'
-    );
+    logger.info({ component: 'DBInit' }, 'Conexão com o banco de dados testada com sucesso!');
     return true;
   } catch (err) {
-    logger.error(
-      { component: 'DBInit', err },
-      'Erro ao testar conexão com o banco de dados.'
-    );
+    logger.error({ component: 'DBInit', err }, 'Erro ao testar conexão com o banco de dados.');
     return false;
   }
 }

@@ -24,37 +24,42 @@ router.get('/status', async (req, res) => {
     const backupStatus = {
       ...status,
       backupCount: backups.length,
-      lastBackup: backups.length > 0 ? {
-        fileName: backups[0].fileName,
-        size: backups[0].sizeFormatted,
-        created: backups[0].created,
-        age: Math.round((Date.now() - new Date(backups[0].created)) / (60 * 60 * 1000))
-      } : null
+      lastBackup:
+        backups.length > 0
+          ? {
+            fileName: backups[0].fileName,
+            size: backups[0].sizeFormatted,
+            created: backups[0].created,
+            age: Math.round((Date.now() - new Date(backups[0].created)) / (60 * 60 * 1000)),
+          }
+          : null,
     };
 
     auditLogger.log('backup_status_checked', {
       userId: req.user.id,
       username: req.user.username,
       backupCount: backups.length,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.json({
       success: true,
-      status: backupStatus
+      status: backupStatus,
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupStatusRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro ao obter status do sistema de backup');
+    logger.error(
+      {
+        component: 'BackupStatusRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro ao obter status do sistema de backup'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao obter status do sistema de backup'
+      message: 'Erro ao obter status do sistema de backup',
     });
   }
 });
@@ -71,26 +76,28 @@ router.get('/list', async (req, res) => {
       userId: req.user.id,
       username: req.user.username,
       backupCount: backups.length,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.json({
       success: true,
       backups,
-      total: backups.length
+      total: backups.length,
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupListRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro ao listar backups');
+    logger.error(
+      {
+        component: 'BackupListRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro ao listar backups'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao listar backups'
+      message: 'Erro ao listar backups',
     });
   }
 });
@@ -103,13 +110,16 @@ router.post('/create', async (req, res) => {
   try {
     const { type = 'manual' } = req.body;
 
-    logger.info({
-      component: 'BackupCreateRoute',
-      userId: req.user.id,
-      username: req.user.username,
-      type,
-      requestId: req.id
-    }, 'Iniciando criação de backup manual');
+    logger.info(
+      {
+        component: 'BackupCreateRoute',
+        userId: req.user.id,
+        username: req.user.username,
+        type,
+        requestId: req.id,
+      },
+      'Iniciando criação de backup manual'
+    );
 
     const backup = await backupManager.createBackup(type);
 
@@ -119,7 +129,7 @@ router.post('/create', async (req, res) => {
       backupFile: backup.fileName,
       backupSize: backup.sizeFormatted,
       type,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.status(201).json({
@@ -130,29 +140,31 @@ router.post('/create', async (req, res) => {
         created: backup.created,
         type: backup.type,
         compressed: backup.compressed,
-        duration: backup.duration
+        duration: backup.duration,
       },
-      message: 'Backup criado com sucesso'
+      message: 'Backup criado com sucesso',
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupCreateRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro ao criar backup');
+    logger.error(
+      {
+        component: 'BackupCreateRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro ao criar backup'
+    );
 
     auditLogger.log('backup_creation_failed', {
       userId: req.user.id,
       username: req.user.username,
       error: error.message,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao criar backup: ' + error.message
+      message: 'Erro ao criar backup: ' + error.message,
     });
   }
 });
@@ -168,7 +180,7 @@ router.post('/restore', async (req, res) => {
     if (!backupFileName) {
       return res.status(400).json({
         success: false,
-        message: 'Nome do arquivo de backup é obrigatório'
+        message: 'Nome do arquivo de backup é obrigatório',
       });
     }
 
@@ -177,23 +189,26 @@ router.post('/restore', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Restauração em produção requer confirmação explícita (force: true)',
-        requiresConfirmation: true
+        requiresConfirmation: true,
       });
     }
 
-    logger.warn({
-      component: 'BackupRestoreRoute',
-      userId: req.user.id,
-      username: req.user.username,
-      backupFileName,
-      force,
-      verify,
-      requestId: req.id
-    }, 'INICIANDO RESTAURAÇÃO DE BACKUP - OPERAÇÃO CRÍTICA');
+    logger.warn(
+      {
+        component: 'BackupRestoreRoute',
+        userId: req.user.id,
+        username: req.user.username,
+        backupFileName,
+        force,
+        verify,
+        requestId: req.id,
+      },
+      'INICIANDO RESTAURAÇÃO DE BACKUP - OPERAÇÃO CRÍTICA'
+    );
 
     const restoreInfo = await backupManager.restoreFromBackup(backupFileName, {
       force: true,
-      verify
+      verify,
     });
 
     auditLogger.log('backup_restored', {
@@ -203,7 +218,7 @@ router.post('/restore', async (req, res) => {
       preRestoreBackup: restoreInfo.preRestoreBackup,
       verified: restoreInfo.verified,
       duration: restoreInfo.duration,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.json({
@@ -212,33 +227,35 @@ router.post('/restore', async (req, res) => {
         backupFileName: restoreInfo.backupFileName,
         preRestoreBackup: restoreInfo.preRestoreBackup,
         verified: restoreInfo.verified,
-        duration: restoreInfo.duration
+        duration: restoreInfo.duration,
       },
       message: 'Restauração concluída com sucesso',
-      warning: 'Banco de dados foi restaurado. Reinicie a aplicação se necessário.'
+      warning: 'Banco de dados foi restaurado. Reinicie a aplicação se necessário.',
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupRestoreRoute',
-      err: error,
-      userId: req.user.id,
-      backupFileName: req.body.backupFileName,
-      requestId: req.id
-    }, 'ERRO CRÍTICO na restauração de backup');
+    logger.error(
+      {
+        component: 'BackupRestoreRoute',
+        err: error,
+        userId: req.user.id,
+        backupFileName: req.body.backupFileName,
+        requestId: req.id,
+      },
+      'ERRO CRÍTICO na restauração de backup'
+    );
 
     auditLogger.log('backup_restore_failed', {
       userId: req.user.id,
       username: req.user.username,
       backupFileName: req.body.backupFileName,
       error: error.message,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.status(500).json({
       success: false,
       message: 'Erro na restauração: ' + error.message,
-      critical: true
+      critical: true,
     });
   }
 });
@@ -249,12 +266,15 @@ router.post('/restore', async (req, res) => {
  */
 router.post('/test', async (req, res) => {
   try {
-    logger.info({
-      component: 'BackupTestRoute',
-      userId: req.user.id,
-      username: req.user.username,
-      requestId: req.id
-    }, 'Iniciando teste do sistema de backup');
+    logger.info(
+      {
+        component: 'BackupTestRoute',
+        userId: req.user.id,
+        username: req.user.username,
+        requestId: req.id,
+      },
+      'Iniciando teste do sistema de backup'
+    );
 
     const testResult = await backupManager.testBackupRestore();
 
@@ -263,41 +283,43 @@ router.post('/test', async (req, res) => {
       username: req.user.username,
       testPassed: testResult.testPassed,
       backupFile: testResult.backupFile,
-      requestId: req.id
+      requestId: req.id,
     });
 
     if (testResult.testPassed) {
       res.json({
         success: true,
         test: testResult,
-        message: 'Teste do sistema de backup passou com sucesso'
+        message: 'Teste do sistema de backup passou com sucesso',
       });
     } else {
       res.status(500).json({
         success: false,
         test: testResult,
-        message: 'Teste do sistema de backup falhou'
+        message: 'Teste do sistema de backup falhou',
       });
     }
-
   } catch (error) {
-    logger.error({
-      component: 'BackupTestRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro no teste do sistema de backup');
+    logger.error(
+      {
+        component: 'BackupTestRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro no teste do sistema de backup'
+    );
 
     auditLogger.log('backup_test_failed', {
       userId: req.user.id,
       username: req.user.username,
       error: error.message,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.status(500).json({
       success: false,
-      message: 'Erro no teste do sistema de backup: ' + error.message
+      message: 'Erro no teste do sistema de backup: ' + error.message,
     });
   }
 });
@@ -319,7 +341,7 @@ router.delete('/cleanup', async (req, res) => {
       username: req.user.username,
       backupsRemoved: removed,
       backupsRemaining: backupsAfter.length,
-      requestId: req.id
+      requestId: req.id,
     });
 
     res.json({
@@ -327,24 +349,27 @@ router.delete('/cleanup', async (req, res) => {
       cleanup: {
         removed,
         remaining: backupsAfter.length,
-        before: backupsBefore.length
+        before: backupsBefore.length,
       },
-      message: removed > 0
-        ? `${removed} backup(s) antigo(s) removido(s)`
-        : 'Nenhum backup antigo para remover'
+      message:
+        removed > 0
+          ? `${removed} backup(s) antigo(s) removido(s)`
+          : 'Nenhum backup antigo para remover',
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupCleanupRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro na limpeza de backups antigos');
+    logger.error(
+      {
+        component: 'BackupCleanupRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro na limpeza de backups antigos'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro na limpeza de backups: ' + error.message
+      message: 'Erro na limpeza de backups: ' + error.message,
     });
   }
 });
@@ -360,7 +385,7 @@ router.delete('/:fileName', async (req, res) => {
     if (!fileName || !fileName.startsWith('lascmmg_backup_')) {
       return res.status(400).json({
         success: false,
-        message: 'Nome de arquivo de backup inválido'
+        message: 'Nome de arquivo de backup inválido',
       });
     }
 
@@ -373,10 +398,10 @@ router.delete('/:fileName', async (req, res) => {
     // Verificar se backup existe
     try {
       await fs.access(backupPath);
-    } catch (err) {
+    } catch {
       return res.status(404).json({
         success: false,
-        message: 'Backup não encontrado'
+        message: 'Backup não encontrado',
       });
     }
 
@@ -387,34 +412,39 @@ router.delete('/:fileName', async (req, res) => {
       userId: req.user.id,
       username: req.user.username,
       backupFileName: fileName,
-      requestId: req.id
+      requestId: req.id,
     });
 
-    logger.info({
-      component: 'BackupDeleteRoute',
-      userId: req.user.id,
-      username: req.user.username,
-      fileName,
-      requestId: req.id
-    }, 'Backup deletado manualmente');
+    logger.info(
+      {
+        component: 'BackupDeleteRoute',
+        userId: req.user.id,
+        username: req.user.username,
+        fileName,
+        requestId: req.id,
+      },
+      'Backup deletado manualmente'
+    );
 
     res.json({
       success: true,
-      message: 'Backup deletado com sucesso'
+      message: 'Backup deletado com sucesso',
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupDeleteRoute',
-      err: error,
-      userId: req.user.id,
-      fileName: req.params.fileName,
-      requestId: req.id
-    }, 'Erro ao deletar backup');
+    logger.error(
+      {
+        component: 'BackupDeleteRoute',
+        err: error,
+        userId: req.user.id,
+        fileName: req.params.fileName,
+        requestId: req.id,
+      },
+      'Erro ao deletar backup'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao deletar backup: ' + error.message
+      message: 'Erro ao deletar backup: ' + error.message,
     });
   }
 });
@@ -447,21 +477,23 @@ router.get('/schedule', async (req, res) => {
         nextBackup: nextBackup.toISOString(),
         hoursUntilNext,
         maxBackups: status.maxBackups,
-        compressionEnabled: status.compressionEnabled
-      }
+        compressionEnabled: status.compressionEnabled,
+      },
     });
-
   } catch (error) {
-    logger.error({
-      component: 'BackupScheduleRoute',
-      err: error,
-      userId: req.user.id,
-      requestId: req.id
-    }, 'Erro ao obter informações de agendamento');
+    logger.error(
+      {
+        component: 'BackupScheduleRoute',
+        err: error,
+        userId: req.user.id,
+        requestId: req.id,
+      },
+      'Erro ao obter informações de agendamento'
+    );
 
     res.status(500).json({
       success: false,
-      message: 'Erro ao obter informações de agendamento'
+      message: 'Erro ao obter informações de agendamento',
     });
   }
 });

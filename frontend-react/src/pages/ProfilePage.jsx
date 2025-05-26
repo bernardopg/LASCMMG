@@ -40,7 +40,8 @@ const ProfilePage = () => {
       let responseData;
       if (currentUser.role === 'admin') {
         // Admin password change
-        responseData = await changeAdminPassword({ // changePassword from api.js maps to /api/change-password (admin)
+        responseData = await changeAdminPassword({
+          // changePassword from api.js maps to /api/change-password (admin)
           username: currentUser.username, // Admin route expects username
           currentPassword: values.currentPassword,
           newPassword: values.newPassword,
@@ -69,11 +70,10 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="px-4 py-8"> {/* Removed container mx-auto */}
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">
-        Meu Perfil
-      </h1>
-
+    <div className="px-4 py-8">
+      {' '}
+      {/* Removed container mx-auto */}
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Meu Perfil</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* User Information Section */}
         <div className="md:col-span-1">
@@ -86,7 +86,9 @@ const ProfilePage = () => {
               Role: {currentUser.role}
             </p>
             <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              <p><strong>Username:</strong> {currentUser.username}</p>
+              <p>
+                <strong>Username:</strong> {currentUser.username}
+              </p>
               {/* Add more user details here if available and desired */}
             </div>
           </div>
@@ -111,10 +113,7 @@ const ProfilePage = () => {
               {({ errors, touched, isValid, dirty }) => (
                 <Form className="space-y-4">
                   <div>
-                    <label
-                      htmlFor="currentPassword"
-                      className="label"
-                    >
+                    <label htmlFor="currentPassword" className="label">
                       Senha Atual
                     </label>
                     <Field
@@ -130,10 +129,7 @@ const ProfilePage = () => {
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="newPassword"
-                      className="label"
-                    >
+                    <label htmlFor="newPassword" className="label">
                       Nova Senha
                     </label>
                     <Field
@@ -142,17 +138,10 @@ const ProfilePage = () => {
                       id="newPassword"
                       className={`input ${errors.newPassword && touched.newPassword ? 'border-danger' : ''}`}
                     />
-                    <ErrorMessage
-                      name="newPassword"
-                      component="div"
-                      className="error-message"
-                    />
+                    <ErrorMessage name="newPassword" component="div" className="error-message" />
                   </div>
                   <div>
-                    <label
-                      htmlFor="confirmNewPassword"
-                      className="label"
-                    >
+                    <label htmlFor="confirmNewPassword" className="label">
                       Confirmar Nova Senha
                     </label>
                     <Field

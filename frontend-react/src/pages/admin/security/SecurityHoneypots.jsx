@@ -123,25 +123,19 @@ const SecurityHoneypots = () => {
           <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
             {activeHoneypots.map((hp, index) => (
               <li key={index}>
-                <code className="bg-gray-200 dark:bg-slate-600 p-1 rounded text-sm">
-                  {hp}
-                </code>
+                <code className="bg-gray-200 dark:bg-slate-600 p-1 rounded text-sm">{hp}</code>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400">
-            Nenhum honeypot ativo no momento.
-          </p>
+          <p className="text-gray-500 dark:text-gray-400">Nenhum honeypot ativo no momento.</p>
         )}
         <button
           onClick={fetchActiveHoneypots}
           className="btn btn-outline btn-sm text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white mt-3"
           disabled={loadingActive}
         >
-          <FaSyncAlt
-            className={`inline mr-1.5 ${loadingActive ? 'animate-spin' : ''}`}
-          />
+          <FaSyncAlt className={`inline mr-1.5 ${loadingActive ? 'animate-spin' : ''}`} />
           Atualizar Lista
         </button>
       </div>
@@ -155,9 +149,7 @@ const SecurityHoneypots = () => {
             initialValues={{
               threshold: config.threshold || 5,
               block_duration_hours: config.block_duration_hours || 24, // Padronizado
-              whitelist: (config.whitelist_ips || ['127.0.0.1', '::1']).join(
-                '\n'
-              ),
+              whitelist: (config.whitelist_ips || ['127.0.0.1', '::1']).join('\n'),
             }}
             validationSchema={validationSchema}
             onSubmit={handleSaveConfig}
@@ -184,9 +176,8 @@ const SecurityHoneypots = () => {
                     className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Número de acessos a honeypots (em{' '}
-                    {config.activityWindowMinutes || 60} min) antes de bloquear
-                    um IP. (1-100)
+                    Número de acessos a honeypots (em {config.activityWindowMinutes || 60} min)
+                    antes de bloquear um IP. (1-100)
                   </p>
                 </div>
                 <div>

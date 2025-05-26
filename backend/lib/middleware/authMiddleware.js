@@ -53,16 +53,11 @@ async function isUserLockedOut(username) {
   const key = `${AUTH_CONFIG.redisFailedAttemptsPrefix}${username.toLowerCase()}`;
   try {
     const attempts = await redis.get(key);
-    return (
-      attempts &&
-      parseInt(attempts, 10) >= AUTH_CONFIG.failedLoginAttemptsLockout
-    );
+    return attempts && parseInt(attempts, 10) >= AUTH_CONFIG.failedLoginAttemptsLockout;
   } catch (error) {
-    logger.error(
-      'AuthMiddleware',
-      `Erro ao verificar bloqueio de usuário ${username} no Redis:`,
-      { error: error.message }
-    );
+    logger.error('AuthMiddleware', `Erro ao verificar bloqueio de usuário ${username} no Redis:`, {
+      error: error.message,
+    });
     return false; // Fail safe: assume not locked out
   }
 }
@@ -103,11 +98,9 @@ async function blacklistToken(token, decodedToken) {
     await redis.set(key, 'blacklisted', { EX: expiresInSeconds });
     return true;
   } catch (error) {
-    logger.error(
-      'AuthMiddleware',
-      'Erro ao adicionar token à blacklist no Redis:',
-      { error: error.message }
-    );
+    logger.error('AuthMiddleware', 'Erro ao adicionar token à blacklist no Redis:', {
+      error: error.message,
+    });
     return false;
   }
 }
@@ -122,11 +115,9 @@ async function isTokenBlacklisted(token) {
     const result = await redis.get(key);
     return result === 'blacklisted';
   } catch (error) {
-    logger.error(
-      'AuthMiddleware',
-      'Erro ao verificar token na blacklist do Redis:',
-      { error: error.message }
-    );
+    logger.error('AuthMiddleware', 'Erro ao verificar token na blacklist do Redis:', {
+      error: error.message,
+    });
     return false; // Fail safe
   }
 }
@@ -141,11 +132,9 @@ async function updateUserActivity(userId) {
     // Define o timestamp atual e define o TTL para corresponder ao timeout de inatividade
     await redis.set(key, Date.now().toString(), { EX: SESSION_INACTIVITY_TIMEOUT });
   } catch (error) {
-    logger.error(
-      'AuthMiddleware',
-      `Erro ao atualizar a atividade do usuário ${userId} no Redis:`,
-      { error: error.message }
-    );
+    logger.error('AuthMiddleware', `Erro ao atualizar a atividade do usuário ${userId} no Redis:`, {
+      error: error.message,
+    });
   }
 }
 
@@ -175,10 +164,7 @@ async function isSessionInactive(userId) {
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  const token =
-    authHeader && authHeader.startsWith('Bearer ')
-      ? authHeader.split(' ')[1]
-      : null;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
   if (!token) {
     return res.status(401).json({
@@ -232,7 +218,9 @@ const authMiddleware = async (req, res, next) => {
         try {
           await redis.del(`${AUTH_CONFIG.redisActiveSessionPrefix}${req.user.id}`);
         } catch (delError) {
-          logger.error('AuthMiddleware', 'Erro ao limpar chave de sessão ativa no logout', { error: delError.message });
+          logger.error('AuthMiddleware', 'Erro ao limpar chave de sessão ativa no logout', {
+            error: delError.message,
+          });
         }
       }
       return blacklisted;
@@ -246,13 +234,9 @@ const authMiddleware = async (req, res, next) => {
       ip: req.ip,
     });
     if (error.name === 'TokenExpiredError') {
-      return res
-        .status(401)
-        .json({ success: false, message: 'Token expirado.' });
+      return res.status(401).json({ success: false, message: 'Token expirado.' });
     }
-    return res
-      .status(401)
-      .json({ success: false, message: 'Token inválido ou malformado.' });
+    return res.status(401).json({ success: false, message: 'Token inválido ou malformado.' });
   }
 };
 

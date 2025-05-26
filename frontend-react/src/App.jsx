@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { MessageProvider } from './context/MessageContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { useTheme } from './context/ThemeContext';
 import { TournamentProvider } from './context/TournamentContext';
 import AppRouter from './router/AppRouterOptimized';
-import { useTheme } from './context/ThemeContext';
 
 function App() {
   // Contextos principais
@@ -44,11 +44,11 @@ function App() {
 
   // Handlers para controle do sidebar
   const toggleSidebarCollapse = () => {
-    setIsSidebarCollapsed(prev => !prev);
+    setIsSidebarCollapsed((prev) => !prev);
   };
 
   const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen(prev => !prev);
+    setIsMobileSidebarOpen((prev) => !prev);
   };
 
   const closeMobileSidebar = () => {

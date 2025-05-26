@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { BsBell, BsBellFill } from 'react-icons/bs';
 import { useNotification } from '../../context/NotificationContext';
 
-const NotificationItem = ({ notification, onClose }) => {
+const NotificationItem = ({ notification /* onClose */ }) => {
   // Formatar a data relativa
   const timeAgo = notification.timestamp
     ? formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true, locale: ptBR })
@@ -26,7 +26,7 @@ const NotificationItem = ({ notification, onClose }) => {
       score_added: 'Novo placar registrado',
       score_updated: 'Placar atualizado',
       score_deleted: 'Placar removido',
-      bracket_updated: 'Chaveamento atualizado'
+      bracket_updated: 'Chaveamento atualizado',
     };
     return titles[type] || 'Notificação';
   };
@@ -85,7 +85,9 @@ const NotificationItem = ({ notification, onClose }) => {
 
   return (
     <div className="border-b border-gray-200 last:border-b-0 p-3 hover:bg-gray-50">
-      <div className="font-semibold text-sm text-indigo-700">{getTitleForType(notification.type)}</div>
+      <div className="font-semibold text-sm text-indigo-700">
+        {getTitleForType(notification.type)}
+      </div>
       <div className="text-sm mt-1">{getContentForNotification(notification)}</div>
       <div className="text-xs text-gray-500 mt-1">{timeAgo}</div>
     </div>

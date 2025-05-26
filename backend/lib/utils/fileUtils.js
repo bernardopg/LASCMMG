@@ -36,9 +36,7 @@ async function readJsonFile(filePath, defaultValueIfNotFound = []) {
         { component: 'FileUtils', path: filePath, err },
         `Erro ao analisar JSON do arquivo ${filePath}.`
       );
-      throw new Error(
-        `Formato JSON inválido no arquivo ${path.basename(filePath)}`
-      );
+      throw new Error(`Formato JSON inválido no arquivo ${path.basename(filePath)}`);
     }
     logger.error(
       { component: 'FileUtils', path: filePath, err },
@@ -67,11 +65,7 @@ async function writeJsonFile(filePath, data) {
     });
 
     // Escrever o arquivo agora que temos o bloqueio
-    await fs.promises.writeFile(
-      filePath,
-      JSON.stringify(data, null, 2),
-      'utf8'
-    );
+    await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
     logger.error(
       { component: 'FileUtils', path: filePath, err },

@@ -58,89 +58,79 @@ const registrationLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post(
-  '/auth/login',
-  loginLimiter,
-  validateRequest(adminLoginSchema),
-  async (req, res) => {
-    const { username, password, rememberMe } = req.body; // username is validated as email by adminLoginSchema
+router.post('/auth/login', loginLimiter, validateRequest(adminLoginSchema), async (req, res) => {
+  const { username, password, rememberMe } = req.body; // username is validated as email by adminLoginSchema
 
-    try {
-      if (await isUserLockedOut(username)) {
-        logger.warn(
-          { component: 'AuthRoute', username, ip: req.ip, requestId: req.id },
-          `Tentativa de login para admin ${username} bloqueado (lockout).`
-        );
-        return res.status(429).json({
-          success: false,
-          message: `Conta temporariamente bloqueada devido a múltiplas tentativas de login incorretas. Tente novamente em ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
-          errorCode: 'ACCOUNT_LOCKED',
-          retryAfter: AUTH_CONFIG.lockoutDurationMinutes * 60, // em segundos
-        });
-      }
-
-      const authResult = await adminModel.authenticateAdmin(
-        username,
-        password,
-        req.ip,
-        rememberMe
+  try {
+    if (await isUserLockedOut(username)) {
+      logger.warn(
+        { component: 'AuthRoute', username, ip: req.ip, requestId: req.id },
+        `Tentativa de login para admin ${username} bloqueado (lockout).`
       );
-
-      if (authResult.success) {
-        if (authResult.admin && authResult.admin.id) {
-          await clearFailedAttempts(username);
-          await updateUserActivity(authResult.admin.id); // Register initial activity
-          logger.info(
-            { username, userId: authResult.admin.id, success: true, requestId: req.id, ip: req.ip },
-            'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
-          );
-        } else {
-          // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
-          logger.warn(
-            { username, success: true, requestId: req.id, ip: req.ip },
-            'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
-          );
-        }
-        res.json({
-          success: true,
-          message: 'Login realizado com sucesso.',
-          token: authResult.token,
-          refreshToken: authResult.refreshToken,
-          admin: authResult.admin,
-          expiresIn: authResult.expiresIn,
-        });
-      } else {
-        await trackFailedAttempt(username);
-        logger.warn(
-          {
-            username,
-            success: false,
-            message: authResult.message,
-            requestId: req.id,
-            ip: req.ip,
-          },
-          'Falha na autenticação do admin.'
-        );
-        res.status(401).json({
-          success: false,
-          message: 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.',
-          errorCode: 'INVALID_CREDENTIALS',
-        });
-      }
-    } catch (error) {
-      // Log internal server errors, but avoid tracking them as failed login attempts for specific user
-      logger.error(
-        { err: error, username, requestId: req.id, ip: req.ip },
-        'Erro interno durante autenticação.'
-      );
-      res.status(500).json({
+      return res.status(429).json({
         success: false,
-        message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
-        errorCode: 'INTERNAL_ERROR',
+        message: `Conta temporariamente bloqueada devido a múltiplas tentativas de login incorretas. Tente novamente em ${AUTH_CONFIG.lockoutDurationMinutes} minutos.`,
+        errorCode: 'ACCOUNT_LOCKED',
+        retryAfter: AUTH_CONFIG.lockoutDurationMinutes * 60, // em segundos
       });
     }
+
+    const authResult = await adminModel.authenticateAdmin(username, password, req.ip, rememberMe);
+
+    if (authResult.success) {
+      if (authResult.admin && authResult.admin.id) {
+        await clearFailedAttempts(username);
+        await updateUserActivity(authResult.admin.id); // Register initial activity
+        logger.info(
+          { username, userId: authResult.admin.id, success: true, requestId: req.id, ip: req.ip },
+          'Admin login bem-sucedido, tentativas falhas limpas e atividade registrada.'
+        );
+      } else {
+        // Should not happen if authResult.success is true and adminModel.authenticateAdmin is consistent
+        logger.warn(
+          { username, success: true, requestId: req.id, ip: req.ip },
+          'Admin login bem-sucedido, mas ID do usuário não encontrado no resultado para registrar atividade ou limpar tentativas.'
+        );
+      }
+      res.json({
+        success: true,
+        message: 'Login realizado com sucesso.',
+        token: authResult.token,
+        refreshToken: authResult.refreshToken,
+        admin: authResult.admin,
+        expiresIn: authResult.expiresIn,
+      });
+    } else {
+      await trackFailedAttempt(username);
+      logger.warn(
+        {
+          username,
+          success: false,
+          message: authResult.message,
+          requestId: req.id,
+          ip: req.ip,
+        },
+        'Falha na autenticação do admin.'
+      );
+      res.status(401).json({
+        success: false,
+        message: 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.',
+        errorCode: 'INVALID_CREDENTIALS',
+      });
+    }
+  } catch (error) {
+    // Log internal server errors, but avoid tracking them as failed login attempts for specific user
+    logger.error(
+      { err: error, username, requestId: req.id, ip: req.ip },
+      'Erro interno durante autenticação.'
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
+      errorCode: 'INTERNAL_ERROR',
+    });
   }
-);
+});
 
 router.post(
   '/change-password',
@@ -264,10 +254,7 @@ router.post('/auth/reset-password', async (req, res) => {
 
   try {
     // TODO: Implementar validação do token e redefinição da senha
-    logger.info(
-      { ip: req.ip, requestId: req.id },
-      'Tentativa de redefinição de senha com token.'
-    );
+    logger.info({ ip: req.ip, requestId: req.id }, 'Tentativa de redefinição de senha com token.');
 
     res.json({
       success: false,
@@ -275,10 +262,7 @@ router.post('/auth/reset-password', async (req, res) => {
       errorCode: 'NOT_IMPLEMENTED',
     });
   } catch (error) {
-    logger.error(
-      { err: error, requestId: req.id, ip: req.ip },
-      'Erro interno ao redefinir senha.'
-    );
+    logger.error({ err: error, requestId: req.id, ip: req.ip }, 'Erro interno ao redefinir senha.');
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor. Tente novamente em alguns minutos.',
@@ -304,7 +288,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     );
     res.json({
       success: true,
-      user: { id, username, name, role }
+      user: { id, username, name, role },
     });
   } else {
     // Isso não deveria acontecer se authMiddleware estiver funcionando corretamente
@@ -344,7 +328,7 @@ router.post('/auth/logout', authMiddleware, async (req, res) => {
     );
     return res.json({
       success: true,
-      message: 'Logout realizado com sucesso.'
+      message: 'Logout realizado com sucesso.',
     });
   } catch (error) {
     const username = req.user ? req.user.username : 'unknown_user_on_error';
@@ -402,7 +386,13 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
       await updateUserActivity(isValid.userId);
 
       logger.info(
-        { username: isValid.username, userId: isValid.userId, success: true, requestId: req.id, ip: req.ip },
+        {
+          username: isValid.username,
+          userId: isValid.userId,
+          success: true,
+          requestId: req.id,
+          ip: req.ip,
+        },
         'Token atualizado com sucesso via refresh token e atividade do usuário registrada.'
       );
 
@@ -411,9 +401,8 @@ router.post('/auth/refresh-token', validateRequest(refreshTokenSchema), async (r
         token: newToken,
         refreshToken: newRefreshToken,
         expiresIn: parseInt(JWT_EXPIRATION) || 86400, // Converte para segundos
-        message: 'Token atualizado com sucesso.'
+        message: 'Token atualizado com sucesso.',
       });
-
     } catch (tokenError) {
       logger.error(
         { err: tokenError, requestId: req.id, ip: req.ip },

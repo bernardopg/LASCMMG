@@ -2,12 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { FaCog, FaEdit, FaList, FaPlus, FaSitemap, FaSync, FaTrash } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useMessage } from '../../context/MessageContext';
-import { deleteTournamentAdmin, generateTournamentBracket, getTournaments } from '../../services/api';
+import {
+  deleteTournamentAdmin,
+  generateTournamentBracket,
+  getTournaments,
+} from '../../services/api';
 
 const AdminTournamentListPage = () => {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { showError, showSuccess, showInfo } = useMessage();
+  const { showError, showSuccess, showInfo: _showInfo } = useMessage();
 
   const [actionLoading, setActionLoading] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,9 +26,7 @@ const AdminTournamentListPage = () => {
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
       } catch (error) {
-        showError(
-          `Erro ao carregar torneios: ${error.message || 'Erro desconhecido'}`
-        );
+        showError(`Erro ao carregar torneios: ${error.message || 'Erro desconhecido'}`);
         setTournaments([]);
       } finally {
         setLoading(false);
@@ -71,10 +73,15 @@ const AdminTournamentListPage = () => {
     setActionLoading(tournamentId);
     try {
       const result = await generateTournamentBracket(tournamentId);
-      showSuccess(result.message || 'Chaveamento gerado com sucesso! Status do torneio atualizado para "Em Andamento".');
+      showSuccess(
+        result.message ||
+          'Chaveamento gerado com sucesso! Status do torneio atualizado para "Em Andamento".'
+      );
       fetchTournaments(currentPage);
     } catch (error) {
-      showError(`Erro ao gerar chaveamento: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
+      showError(
+        `Erro ao gerar chaveamento: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`
+      );
     } finally {
       setActionLoading(null);
     }
@@ -83,9 +90,7 @@ const AdminTournamentListPage = () => {
   return (
     <div className="px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-          Gerenciar Torneios
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gerenciar Torneios</h1>
         <Link to="/admin/tournaments/create" className="btn btn-primary">
           <FaPlus className="mr-2" /> Criar Novo Torneio
         </Link>
@@ -94,21 +99,14 @@ const AdminTournamentListPage = () => {
       {loading && (
         <div className="text-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light mx-auto"></div>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Carregando torneios...
-          </p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">Carregando torneios...</p>
         </div>
       )}
 
       {!loading && tournaments.length === 0 && (
         <div className="text-center py-10 card bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-          <FaList
-            size={48}
-            className="mx-auto text-gray-400 dark:text-gray-500 mb-4"
-          />
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
-            Nenhum torneio encontrado.
-          </p>
+          <FaList size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 text-lg">Nenhum torneio encontrado.</p>
           <p className="text-gray-600 dark:text-gray-500 mt-2">
             Crie um novo torneio para começar.
           </p>
@@ -139,10 +137,7 @@ const AdminTournamentListPage = () => {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {tournaments.map((tournament) => (
-                <tr
-                  key={tournament.id}
-                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50"
-                >
+                <tr key={tournament.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                     {tournament.name}
                   </td>
@@ -151,14 +146,15 @@ const AdminTournamentListPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span
-                      className={`badge ${tournament.status === 'Em Andamento'
+                      className={`badge ${
+                        tournament.status === 'Em Andamento'
                           ? 'badge-success'
                           : tournament.status === 'Pendente'
                             ? 'badge-info'
                             : tournament.status === 'Concluído'
                               ? 'badge-primary'
                               : 'badge-warning'
-                        }`}
+                      }`}
                     >
                       {tournament.status}
                     </span>
@@ -185,9 +181,7 @@ const AdminTournamentListPage = () => {
                         <FaCog className="mr-1" /> Gerenciar
                       </Link>
                       <button
-                        onClick={() =>
-                          handleDeleteTournament(tournament.id, tournament.name)
-                        }
+                        onClick={() => handleDeleteTournament(tournament.id, tournament.name)}
                         className="btn btn-xs btn-outline btn-error flex items-center"
                         title="Excluir"
                         aria-label="Excluir torneio"
@@ -236,9 +230,7 @@ const AdminTournamentListPage = () => {
                   Anterior
                 </button>
                 <button
-                  onClick={() =>
-                    fetchTournaments(Math.min(totalPages, currentPage + 1))
-                  }
+                  onClick={() => fetchTournaments(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages || loading}
                   className="btn btn-outline btn-sm disabled:opacity-50"
                 >

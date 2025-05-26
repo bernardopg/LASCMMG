@@ -9,7 +9,7 @@ import {
   FaSignOutAlt,
   FaSun,
   FaTimes,
-  FaUser
+  FaUser,
 } from 'react-icons/fa';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -17,15 +17,10 @@ import { useTheme } from '../../context/ThemeContext';
 import NotificationBell from '../common/NotificationBell';
 import TournamentSelector from '../common/TournamentSelector';
 
-const Header = ({
-  isSidebarCollapsed,
-  toggleSidebarCollapse,
-  toggleMobileSidebar,
-  isMobile,
-}) => {
+const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar, isMobile }) => {
   // Contextos e hooks
   const { currentUser, logout } = useAuth();
-  const { theme, toggleTheme, isDarkTheme } = useTheme();
+  const { theme: _theme, toggleTheme, isDarkTheme } = useTheme();
   const location = useLocation();
 
   // Referencias para navegação por teclado
@@ -65,19 +60,23 @@ const Header = ({
       const menuOpen = document.querySelector('[role="menu"]');
       if (!menuOpen) return;
 
-      const currentIndex = userMenuItems.current.findIndex(item => item === document.activeElement);
+      const currentIndex = userMenuItems.current.findIndex(
+        (item) => item === document.activeElement
+      );
 
       switch (e.key) {
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
           const nextIndex = currentIndex < userMenuItems.current.length - 1 ? currentIndex + 1 : 0;
           userMenuItems.current[nextIndex]?.focus();
           break;
-        case 'ArrowUp':
+        }
+        case 'ArrowUp': {
           e.preventDefault();
           const prevIndex = currentIndex > 0 ? currentIndex - 1 : userMenuItems.current.length - 1;
           userMenuItems.current[prevIndex]?.focus();
           break;
+        }
         case 'Escape':
           e.preventDefault();
           menuButtonRef.current?.focus();
@@ -143,11 +142,7 @@ const Header = ({
       <button
         onClick={toggleSidebarCollapse}
         className="p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-200"
-        aria-label={
-          isSidebarCollapsed
-            ? 'Expandir menu lateral'
-            : 'Recolher menu lateral'
-        }
+        aria-label={isSidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
         aria-expanded={!isSidebarCollapsed}
       >
         {isSidebarCollapsed ? (
@@ -210,11 +205,7 @@ const Header = ({
     <button
       onClick={handleThemeToggle}
       className={`p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-300 ${additionalClasses}`}
-      aria-label={
-        isDarkTheme
-          ? 'Ativar modo claro'
-          : 'Ativar modo escuro'
-      }
+      aria-label={isDarkTheme ? 'Ativar modo claro' : 'Ativar modo escuro'}
       title={isDarkTheme ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
     >
       <div className="relative w-5 h-5">
@@ -267,11 +258,8 @@ const Header = ({
               <Link
                 ref={registerUserMenuItem}
                 to="/profile"
-                className={`${
-                  active
-                    ? 'bg-primary-dark text-white'
-                    : 'text-gray-700 dark:text-gray-200'
-                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                  } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaUser className="mr-2 h-4 w-4" aria-hidden="true" />
                 Meu Perfil
@@ -283,11 +271,8 @@ const Header = ({
               <Link
                 ref={registerUserMenuItem}
                 to="/settings"
-                className={`${
-                  active
-                    ? 'bg-primary-dark text-white'
-                    : 'text-gray-700 dark:text-gray-200'
-                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                  } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaCog className="mr-2 h-4 w-4" aria-hidden="true" />
                 Configurações
@@ -299,11 +284,8 @@ const Header = ({
               <button
                 ref={registerUserMenuItem}
                 onClick={handleLogout}
-                className={`${
-                  active
-                    ? 'bg-primary-dark text-white'
-                    : 'text-gray-700 dark:text-gray-200'
-                } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
+                className={`${active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
+                  } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
               >
                 <FaSignOutAlt className="mr-2 h-4 w-4" aria-hidden="true" />
                 Sair

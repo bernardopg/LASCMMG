@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  getAdminScores,
-  deleteScoreAdmin,
-  updateScoreAdmin,
-} from '../../services/api';
+import { getAdminScores, deleteScoreAdmin, updateScoreAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -93,17 +89,8 @@ const ScoreEditModal = ({ isOpen, onClose, score, onSave }) => {
                 <label htmlFor="round_edit" className="label">
                   Rodada
                 </label>
-                <Field
-                  type="text"
-                  name="round"
-                  id="round_edit"
-                  className="input"
-                />
-                <ErrorMessage
-                  name="round"
-                  component="div"
-                  className="error-message"
-                />
+                <Field type="text" name="round" id="round_edit" className="input" />
+                <ErrorMessage name="round" component="div" className="error-message" />
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
@@ -159,10 +146,7 @@ const AdminScoresTable = () => {
         setCurrentPage(data.currentPage || 1);
       } catch (err) {
         setError(err.message || 'Erro ao buscar placares.');
-        showMessage(
-          `Erro ao buscar placares: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+        showMessage(`Erro ao buscar placares: ${err.message || 'Erro desconhecido'}`, 'error');
         setScores([]);
       } finally {
         setLoading(false);
@@ -181,11 +165,7 @@ const AdminScoresTable = () => {
   };
 
   const handleDelete = async (scoreId) => {
-    if (
-      window.confirm(
-        'Tem certeza que deseja enviar este placar para a lixeira?'
-      )
-    ) {
+    if (window.confirm('Tem certeza que deseja enviar este placar para a lixeira?')) {
       try {
         await deleteScoreAdmin(scoreId); // Soft delete
         showMessage('Placar enviado para a lixeira.', 'success');
@@ -207,10 +187,7 @@ const AdminScoresTable = () => {
       setIsModalOpen(false);
       setEditingScore(null);
     } catch (err) {
-      showMessage(
-        `Erro ao atualizar placar: ${err.message || 'Erro desconhecido'}`,
-        'error'
-      );
+      showMessage(`Erro ao atualizar placar: ${err.message || 'Erro desconhecido'}`, 'error');
     }
   };
 
@@ -221,8 +198,7 @@ const AdminScoresTable = () => {
         <p className="mt-2 text-gray-300">Carregando placares...</p>
       </div>
     );
-  if (error)
-    return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
+  if (error) return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
 
   return (
     <div>
@@ -256,10 +232,7 @@ const AdminScoresTable = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {scores.length === 0 ? (
               <tr>
-                <td
-                  colSpan="7"
-                  className="px-6 py-4 text-center text-sm text-gray-400"
-                >
+                <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-400">
                   Nenhum placar encontrado.
                 </td>
               </tr>
@@ -267,7 +240,11 @@ const AdminScoresTable = () => {
               scores.map((score) => (
                 <tr key={score.id} className="hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {score.completed_at ? new Date(score.completed_at).toLocaleString('pt-BR') : score.timestamp ? new Date(score.timestamp).toLocaleString('pt-BR') : '-'}
+                    {score.completed_at
+                      ? new Date(score.completed_at).toLocaleString('pt-BR')
+                      : score.timestamp
+                        ? new Date(score.timestamp).toLocaleString('pt-BR')
+                        : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
                     {score.player1_name || '-'}
@@ -280,7 +257,8 @@ const AdminScoresTable = () => {
                     {score.winner_name || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {score.round || score.match_round || '-'} {/* Fallback to match_round if score.round is not set */}
+                    {score.round || score.match_round || '-'}{' '}
+                    {/* Fallback to match_round if score.round is not set */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button

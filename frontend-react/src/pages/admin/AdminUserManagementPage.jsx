@@ -96,19 +96,35 @@ const AdminUserManagementPage = () => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                   <thead className="bg-gray-50 dark:bg-slate-700">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Username</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Role</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Último Login</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Criado Em</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                        Username
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                        Role
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                        Último Login
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                        Criado Em
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                    {adminUsers.map(admin => (
+                    {adminUsers.map((admin) => (
                       <tr key={admin.id}>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{admin.username}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{admin.role}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatDate(admin.last_login)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">{formatDate(admin.created_at)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                          {admin.username}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                          {admin.role}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                          {formatDate(admin.last_login)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                          {formatDate(admin.created_at)}
+                        </td>
                         {/* Add actions like edit/delete if needed */}
                       </tr>
                     ))}
@@ -126,26 +142,56 @@ const AdminUserManagementPage = () => {
               Criar Novo Administrador
             </h2>
             <Formik
-              initialValues={{ username: '', password: '', confirmPassword: '' /* role: 'admin' */ }}
+              initialValues={{
+                username: '',
+                password: '',
+                confirmPassword: '' /* role: 'admin' */,
+              }}
               validationSchema={NewAdminSchema}
               onSubmit={handleCreateAdmin}
             >
               {({ errors, touched, isValid, dirty }) => (
                 <Form className="space-y-4">
                   <div>
-                    <label htmlFor="username" className="label">Email (para Username)</label>
-                    <Field type="email" name="username" id="username" placeholder="exemplo@admin.com" className={`input mt-1 ${errors.username && touched.username ? 'border-danger' : ''}`} />
+                    <label htmlFor="username" className="label">
+                      Email (para Username)
+                    </label>
+                    <Field
+                      type="email"
+                      name="username"
+                      id="username"
+                      placeholder="exemplo@admin.com"
+                      className={`input mt-1 ${errors.username && touched.username ? 'border-danger' : ''}`}
+                    />
                     <ErrorMessage name="username" component="div" className="error-message" />
                   </div>
                   <div>
-                    <label htmlFor="password" className="label">Senha</label>
-                    <Field type="password" name="password" id="password" className={`input mt-1 ${errors.password && touched.password ? 'border-danger' : ''}`} />
+                    <label htmlFor="password" className="label">
+                      Senha
+                    </label>
+                    <Field
+                      type="password"
+                      name="password"
+                      id="password"
+                      className={`input mt-1 ${errors.password && touched.password ? 'border-danger' : ''}`}
+                    />
                     <ErrorMessage name="password" component="div" className="error-message" />
                   </div>
                   <div>
-                    <label htmlFor="confirmPassword" className="label">Confirmar Senha</label>
-                    <Field type="password" name="confirmPassword" id="confirmPassword" className={`input mt-1 ${errors.confirmPassword && touched.confirmPassword ? 'border-danger' : ''}`} />
-                    <ErrorMessage name="confirmPassword" component="div" className="error-message" />
+                    <label htmlFor="confirmPassword" className="label">
+                      Confirmar Senha
+                    </label>
+                    <Field
+                      type="password"
+                      name="confirmPassword"
+                      id="confirmPassword"
+                      className={`input mt-1 ${errors.confirmPassword && touched.confirmPassword ? 'border-danger' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="confirmPassword"
+                      component="div"
+                      className="error-message"
+                    />
                   </div>
                   {/* Add role selection if backend supports it and it's desired
                   <div>
@@ -158,7 +204,11 @@ const AdminUserManagementPage = () => {
                   </div>
                   */}
                   <div className="pt-2">
-                    <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting || !isValid || !dirty}>
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-full"
+                      disabled={isSubmitting || !isValid || !dirty}
+                    >
                       {isSubmitting ? 'Criando...' : 'Criar Administrador'}
                     </button>
                   </div>

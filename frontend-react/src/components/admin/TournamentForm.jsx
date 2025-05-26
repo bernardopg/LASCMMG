@@ -29,20 +29,13 @@ const TournamentSchema = Yup.object().shape({
     .nullable(),
   status: Yup.string()
     .required('Status é obrigatório')
-    .oneOf(
-      ['Pendente', 'Em Andamento', 'Concluído', 'Cancelado'],
-      'Status inválido'
-    ),
+    .oneOf(['Pendente', 'Em Andamento', 'Concluído', 'Cancelado'], 'Status inválido'),
   entry_fee: Yup.number()
     .min(0, 'Taxa de inscrição não pode ser negativa')
     .typeError('Taxa de inscrição deve ser um número válido')
     .nullable(),
-  prize_pool: Yup.string()
-    .max(255, 'Premiação muito longa! Máximo de 255 caracteres.')
-    .nullable(),
-  rules: Yup.string()
-    .max(2000, 'Regras muito longas! Máximo de 2000 caracteres.')
-    .nullable(),
+  prize_pool: Yup.string().max(255, 'Premiação muito longa! Máximo de 255 caracteres.').nullable(),
+  rules: Yup.string().max(2000, 'Regras muito longas! Máximo de 2000 caracteres.').nullable(),
 });
 
 const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
@@ -61,15 +54,13 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
   // Formata a data para YYYY-MM-DD se estiver presente no initialValues (para edição)
   const processedInitialValues = initialValues
     ? {
-      ...defaultInitialValues,
-      ...initialValues,
-      date: initialValues.date
-        ? new Date(initialValues.date).toISOString().split('T')[0]
-        : '',
-      // Garante que números sejam strings vazias se forem null/undefined para placeholders
-      numPlayersExpected: initialValues.numPlayersExpected?.toString() || '',
-      entry_fee: initialValues.entry_fee?.toString() || '',
-    }
+        ...defaultInitialValues,
+        ...initialValues,
+        date: initialValues.date ? new Date(initialValues.date).toISOString().split('T')[0] : '',
+        // Garante que números sejam strings vazias se forem null/undefined para placeholders
+        numPlayersExpected: initialValues.numPlayersExpected?.toString() || '',
+        entry_fee: initialValues.entry_fee?.toString() || '',
+      }
     : defaultInitialValues;
 
   return (
@@ -80,14 +71,15 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
         // Converte campos numéricos de volta para números antes de submeter
         const submissionValues = {
           ...values,
-          numPlayersExpected: values.numPlayersExpected !== '' ? Number(values.numPlayersExpected) : null,
+          numPlayersExpected:
+            values.numPlayersExpected !== '' ? Number(values.numPlayersExpected) : null,
           entry_fee: values.entry_fee !== '' ? Number(values.entry_fee) : null,
         };
         onSubmit(submissionValues, actions);
       }}
       enableReinitialize
     >
-      {({ isSubmitting, dirty, isValid, errors, touched, values }) => (
+      {({ isSubmitting, dirty, isValid, errors, touched /* values */ }) => (
         <Form className="space-y-6">
           {/* Nome do Torneio */}
           <div>
@@ -101,11 +93,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               placeholder="Ex: Campeonato dos Calouros 2025"
               className={`input input-bordered w-full mt-1 ${errors.name && touched.name ? 'input-error' : ''}`}
             />
-            <ErrorMessage
-              name="name"
-              component="div"
-              className="error-message"
-            />
+            <ErrorMessage name="name" component="div" className="error-message" />
           </div>
 
           {/* Data do Torneio */}
@@ -119,11 +107,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               id="date"
               className={`input input-bordered w-full mt-1 ${errors.date && touched.date ? 'input-error' : ''}`}
             />
-            <ErrorMessage
-              name="date"
-              component="div"
-              className="error-message"
-            />
+            <ErrorMessage name="date" component="div" className="error-message" />
           </div>
 
           {/* Descrição */}
@@ -139,11 +123,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               placeholder="Detalhes sobre o torneio, localização, etc."
               className={`input input-bordered w-full mt-1 ${errors.description && touched.description ? 'input-error' : ''}`}
             />
-            <ErrorMessage
-              name="description"
-              component="div"
-              className="error-message"
-            />
+            <ErrorMessage name="description" component="div" className="error-message" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -160,15 +140,9 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               >
                 <option value="single-elimination">Eliminatória Simples</option>
                 <option value="double-elimination">Dupla Eliminação</option>
-                <option value="round-robin">
-                  Todos contra Todos (Round Robin)
-                </option>
+                <option value="round-robin">Todos contra Todos (Round Robin)</option>
               </Field>
-              <ErrorMessage
-                name="bracket_type"
-                component="div"
-                className="error-message"
-              />
+              <ErrorMessage name="bracket_type" component="div" className="error-message" />
             </div>
 
             {/* Nº Esperado de Jogadores */}
@@ -183,11 +157,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
                 placeholder="Ex: 32"
                 className={`input input-bordered w-full mt-1 ${errors.numPlayersExpected && touched.numPlayersExpected ? 'input-error' : ''}`}
               />
-              <ErrorMessage
-                name="numPlayersExpected"
-                component="div"
-                className="error-message"
-              />
+              <ErrorMessage name="numPlayersExpected" component="div" className="error-message" />
             </div>
 
             {/* Status do Torneio */}
@@ -207,11 +177,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
                 <option value="Concluído">Concluído</option>
                 <option value="Cancelado">Cancelado</option>
               </Field>
-              <ErrorMessage
-                name="status"
-                component="div"
-                className="error-message"
-              />
+              <ErrorMessage name="status" component="div" className="error-message" />
             </div>
 
             {/* Taxa de Inscrição */}
@@ -227,11 +193,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
                 placeholder="Ex: 10.00"
                 className={`input input-bordered w-full mt-1 ${errors.entry_fee && touched.entry_fee ? 'input-error' : ''}`}
               />
-              <ErrorMessage
-                name="entry_fee"
-                component="div"
-                className="error-message"
-              />
+              <ErrorMessage name="entry_fee" component="div" className="error-message" />
             </div>
           </div>
 
@@ -247,11 +209,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               placeholder="Ex: Medalhas para os 3 primeiros + R$100 para o campeão"
               className={`input input-bordered w-full mt-1 ${errors.prize_pool && touched.prize_pool ? 'input-error' : ''}`}
             />
-            <ErrorMessage
-              name="prize_pool"
-              component="div"
-              className="error-message"
-            />
+            <ErrorMessage name="prize_pool" component="div" className="error-message" />
           </div>
 
           {/* Regras */}
@@ -267,11 +225,7 @@ const TournamentForm = ({ initialValues, onSubmit, isEditing = false }) => {
               placeholder="Descreva as regras específicas do torneio"
               className={`input input-bordered w-full mt-1 ${errors.rules && touched.rules ? 'input-error' : ''}`}
             />
-            <ErrorMessage
-              name="rules"
-              component="div"
-              className="error-message"
-            />
+            <ErrorMessage name="rules" component="div" className="error-message" />
           </div>
 
           <div className="flex justify-end space-x-4 pt-4">

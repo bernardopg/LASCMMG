@@ -40,8 +40,15 @@ const detectSuspiciousIds = (req, res, next) => {
   if (tournamentId) {
     // Detectar IDs problemáticos
     const suspiciousPatterns = [
-      'undefined', 'null', 'NaN', '', 'false', 'true',
-      '[object Object]', 'Promise', 'function'
+      'undefined',
+      'null',
+      'NaN',
+      '',
+      'false',
+      'true',
+      '[object Object]',
+      'Promise',
+      'function',
     ];
 
     if (suspiciousPatterns.includes(tournamentId)) {
@@ -53,28 +60,24 @@ const detectSuspiciousIds = (req, res, next) => {
           method: req.method,
           ip: req.ip,
           userAgent: req.get('User-Agent'),
-          requestId: req.id
+          requestId: req.id,
         }
       );
 
       return res.status(400).json({
         success: false,
         message: 'ID de torneio inválido.',
-        error: 'INVALID_TOURNAMENT_ID'
+        error: 'INVALID_TOURNAMENT_ID',
       });
     }
 
     // Verificar se o ID tem formato suspeito (muito curto, só números, etc.)
     if (tournamentId.length < 3 || /^\d+$/.test(tournamentId)) {
-      logger.info(
-        'TournamentsRoute',
-        `Requisição com ID de formato suspeito: "${tournamentId}"`,
-        {
-          url: req.originalUrl,
-          method: req.method,
-          requestId: req.id
-        }
-      );
+      logger.info('TournamentsRoute', `Requisição com ID de formato suspeito: "${tournamentId}"`, {
+        url: req.originalUrl,
+        method: req.method,
+        requestId: req.id,
+      });
     }
   }
 
@@ -92,18 +95,10 @@ const upload = multer({
     fileSize: MAX_FILE_SIZE_BYTES, // 5 MB limit
   },
   fileFilter: (req, file, cb) => {
-    if (
-      file.mimetype === 'application/json' ||
-      file.originalname.endsWith('.json')
-    ) {
+    if (file.mimetype === 'application/json' || file.originalname.endsWith('.json')) {
       cb(null, true);
     } else {
-      cb(
-        new Error(
-          'Formato de arquivo inválido. Apenas arquivos .json são permitidos.'
-        ),
-        false
-      );
+      cb(new Error('Formato de arquivo inválido. Apenas arquivos .json são permitidos.'), false);
     }
   },
 });
@@ -151,18 +146,14 @@ router.get('/', validateRequest(paginationQuerySchema), async (req, res) => {
       { component: 'TournamentsRoute', err: error, requestId: req.id },
       'Erro ao carregar lista de torneios.'
     );
-    res
-      .status(500)
-      .json({ success: false, message: 'Erro ao carregar lista de torneios.' });
+    res.status(500).json({ success: false, message: 'Erro ao carregar lista de torneios.' });
   }
 });
 
 // GET /api/tournaments/trash - List soft-deleted/cancelled tournaments (admin only)
 router.get('/trash', authMiddleware, async (req, res) => {
   try {
-    const trashedTournamentsData = await tournamentModel.getTournamentsByStatus(
-      ['Cancelado']
-    );
+    const trashedTournamentsData = await tournamentModel.getTournamentsByStatus(['Cancelado']);
     res.json(trashedTournamentsData.tournaments);
   } catch (error) {
     logger.error(
@@ -202,8 +193,7 @@ router.post(
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')}`;
 
-    const finalNumPlayersExpected =
-      numPlayersExpected !== undefined ? numPlayersExpected : 32; // Default if undefined
+    const finalNumPlayersExpected = numPlayersExpected !== undefined ? numPlayersExpected : 32; // Default if undefined
     const finalEntryFee = entry_fee !== undefined ? entry_fee : null; // Default to null if undefined
 
     try {
@@ -228,8 +218,7 @@ router.post(
         prize_pool: prize_pool || '',
         rules: rules || '',
       };
-      const createdTournament =
-        await tournamentModel.createTournament(newTournamentData);
+      const createdTournament = await tournamentModel.createTournament(newTournamentData);
       logger.info(
         {
           component: 'TournamentsRoute',
@@ -250,9 +239,7 @@ router.post(
         { err: error, requestId: req.id, body: req.body },
         'TournamentsRoute: Erro ao criar torneio'
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro interno ao criar torneio.' });
+      res.status(500).json({ success: false, message: 'Erro interno ao criar torneio.' });
     }
   }
 );
@@ -274,11 +261,10 @@ router.get(
 
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       }
-      const { state_json: _state_json, ...tournamentDetails } = tournament; // Prefix to indicate it's intentionally not used in this specific response.
+      // eslint-disable-next-line no-unused-vars
+      const { state_json: _state_json, ...tournamentDetails } = tournament; // Extract state_json but don't use it in response
       // The primary goal here is to exclude it from tournamentDetails.
 
       // await redisClient.set(`tournament:${tournamentId}:details`, JSON.stringify(tournamentDetails), 'EX', 3600); // Cache por 1 hora
@@ -315,13 +301,9 @@ router.get(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       }
-      const state = tournament.state_json
-        ? JSON.parse(tournament.state_json)
-        : {};
+      const state = tournament.state_json ? JSON.parse(tournament.state_json) : {};
       res.json(state);
     } catch (error) {
       logger.error(
@@ -380,9 +362,7 @@ router.post(
         },
         `Erro ao salvar estado do torneio ${tournamentId}.`
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao salvar estado do torneio.' });
+      res.status(500).json({ success: false, message: 'Erro ao salvar estado do torneio.' });
     }
   }
 );
@@ -397,11 +377,13 @@ router.get(
     const { page, limit } = req.query; // Validated by paginationQuerySchema
     try {
       const offset = (page - 1) * limit;
-      const { players: playersFromDB, total } =
-        await playerModel.getPlayersByTournamentId(tournamentId, {
+      const { players: playersFromDB, total } = await playerModel.getPlayersByTournamentId(
+        tournamentId,
+        {
           limit,
           offset,
-        });
+        }
+      );
       const players = playersFromDB.map((p) => ({
         PlayerName: p.name,
         Nickname: p.nickname,
@@ -429,9 +411,7 @@ router.get(
         },
         `Erro ao carregar jogadores do torneio ${tournamentId}.`
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao carregar jogadores.' });
+      res.status(500).json({ success: false, message: 'Erro ao carregar jogadores.' });
     }
   }
 );
@@ -520,7 +500,10 @@ router.post(
 
       if (!assignedPlayer) {
         // This case should ideally be caught by errors within assignPlayerToTournament
-        return res.status(404).json({ success: false, message: 'Jogador ou torneio não encontrado, ou jogador não pôde ser atribuído.' });
+        return res.status(404).json({
+          success: false,
+          message: 'Jogador ou torneio não encontrado, ou jogador não pôde ser atribuído.',
+        });
       }
 
       logger.info(
@@ -543,10 +526,7 @@ router.post(
       ) {
         return res.status(409).json({ success: false, message: error.message });
       }
-      if (
-        error.message.includes('não encontrado') ||
-        error.message.includes('not found')
-      ) {
+      if (error.message.includes('não encontrado') || error.message.includes('not found')) {
         return res.status(404).json({ success: false, message: error.message });
       }
       if (
@@ -555,7 +535,10 @@ router.post(
       ) {
         return res.status(400).json({ success: false, message: error.message });
       }
-      res.status(500).json({ success: false, message: error.message || 'Erro interno ao atribuir jogador ao torneio.' });
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Erro interno ao atribuir jogador ao torneio.',
+      });
     }
   }
 );
@@ -572,9 +555,7 @@ router.post(
     const { tournamentId } = req.params;
     if (!req.file) {
       // Should be caught by Multer if no file, but good to double check
-      return res
-        .status(400)
-        .json({ success: false, message: 'Nenhum arquivo JSON fornecido.' });
+      return res.status(400).json({ success: false, message: 'Nenhum arquivo JSON fornecido.' });
     }
     try {
       const playersToImport = JSON.parse(req.file.buffer.toString('utf8'));
@@ -589,12 +570,14 @@ router.post(
       const validationErrors = [];
       for (let i = 0; i < playersToImport.length; i++) {
         const playerObject = playersToImport[i];
-        const { error: playerError, value: validatedPlayer } =
-          playerImportItemSchema.validate(playerObject, {
+        const { error: playerError, value: validatedPlayer } = playerImportItemSchema.validate(
+          playerObject,
+          {
             abortEarly: false,
             allowUnknown: true,
             stripUnknown: true,
-          });
+          }
+        );
         if (playerError) {
           validationErrors.push({
             playerIndex: i,
@@ -621,17 +604,13 @@ router.post(
       if (validPlayers.length === 0 && playersToImport.length > 0) {
         return res.status(400).json({
           success: false,
-          message:
-            'Nenhum jogador válido encontrado no arquivo JSON para importação.',
+          message: 'Nenhum jogador válido encontrado no arquivo JSON para importação.',
           details: validationErrors,
         });
       }
 
       // Proceed with only valid players
-      const importResult = await playerModel.importPlayers(
-        tournamentId,
-        validPlayers
-      );
+      const importResult = await playerModel.importPlayers(tournamentId, validPlayers);
 
       let responseMessage = `${importResult.count} jogadores importados com sucesso.`;
       if (importResult.errors.length > 0) {
@@ -641,16 +620,12 @@ router.post(
         responseMessage += ` ${validationErrors.length} jogadores no arquivo JSON continham dados inválidos e foram ignorados.`;
       }
 
-      logger.info(
-        'TournamentsRoute',
-        `Importação de jogadores para ${tournamentId} concluída.`,
-        {
-          importedCount: importResult.count,
-          dbErrors: importResult.errors.length,
-          validationErrors: validationErrors.length,
-          requestId: req.id,
-        }
-      );
+      logger.info('TournamentsRoute', `Importação de jogadores para ${tournamentId} concluída.`, {
+        importedCount: importResult.count,
+        dbErrors: importResult.errors.length,
+        validationErrors: validationErrors.length,
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: responseMessage,
@@ -659,15 +634,13 @@ router.post(
         validationErrors: validationErrors,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao importar jogadores para ${tournamentId}:`,
-        { error: error.message, stack: error.stack, requestId: req.id }
-      );
+      logger.error('TournamentsRoute', `Erro ao importar jogadores para ${tournamentId}:`, {
+        error: error.message,
+        stack: error.stack,
+        requestId: req.id,
+      });
       if (error instanceof SyntaxError) {
-        return res
-          .status(400)
-          .json({ success: false, message: 'Arquivo JSON inválido.' });
+        return res.status(400).json({ success: false, message: 'Arquivo JSON inválido.' });
       }
       res.status(500).json({
         success: false,
@@ -690,15 +663,11 @@ router.post(
     const { tournamentId } = req.params;
     const { players: playersData } = req.body; // playersData is an array of player objects
     try {
-      const result = await playerModel.replacePlayerListForTournament(
-        tournamentId,
-        playersData
-      );
-      logger.info(
-        'TournamentsRoute',
-        `Lista de jogadores para ${tournamentId} atualizada.`,
-        { result, requestId: req.id }
-      );
+      const result = await playerModel.replacePlayerListForTournament(tournamentId, playersData);
+      logger.info('TournamentsRoute', `Lista de jogadores para ${tournamentId} atualizada.`, {
+        result,
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: `${result.count} jogadores processados. Erros: ${result.errors.length}`,
@@ -728,10 +697,10 @@ router.get(
     const { page, limit } = req.query; // Validated
     try {
       const offset = (page - 1) * limit;
-      const { scores, total } = await scoreModel.getScoresByTournamentId(
-        tournamentId,
-        { limit, offset }
-      );
+      const { scores, total } = await scoreModel.getScoresByTournamentId(tournamentId, {
+        limit,
+        offset,
+      });
       res.json({
         success: true,
         scores,
@@ -740,14 +709,11 @@ router.get(
         totalScores: total,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao carregar placares do torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao carregar placares.' });
+      logger.error('TournamentsRoute', `Erro ao carregar placares do torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao carregar placares.' });
     }
   }
 );
@@ -782,14 +748,12 @@ router.post(
         message: `Placares atualizados! ${addedScoresCount} processados.`,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar placares para ${tournamentId}:`,
-        { error, requestId: req.id, body: req.body }
-      ); // Log the body for debugging
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar placares.' });
+      logger.error('TournamentsRoute', `Erro ao atualizar placares para ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+        body: req.body,
+      }); // Log the body for debugging
+      res.status(500).json({ success: false, message: 'Erro ao atualizar placares.' });
     }
   }
 );
@@ -805,9 +769,7 @@ router.post(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       }
 
       if (tournament.status !== 'Pendente') {
@@ -822,10 +784,7 @@ router.post(
         });
       }
 
-      const { players } = await playerModel.getPlayersByTournamentId(
-        tournamentId,
-        { limit: -1 }
-      ); // Get all players
+      const { players } = await playerModel.getPlayersByTournamentId(tournamentId, { limit: -1 }); // Get all players
       if (!players || players.length < 2) {
         logger.warn(
           'TournamentsRoute',
@@ -834,8 +793,7 @@ router.post(
         );
         return res.status(400).json({
           success: false,
-          message:
-            'São necessários pelo menos 2 jogadores para gerar um chaveamento.',
+          message: 'São necessários pelo menos 2 jogadores para gerar um chaveamento.',
         });
       }
 
@@ -851,15 +809,9 @@ router.post(
       };
 
       if (tournament.bracket_type === 'single-elimination') {
-        newBracketState = bracketUtils.generateSingleEliminationBracket(
-          players,
-          baseState
-        );
+        newBracketState = bracketUtils.generateSingleEliminationBracket(players, baseState);
       } else if (tournament.bracket_type === 'double-elimination') {
-        newBracketState = bracketUtils.generateDoubleEliminationBracket(
-          players,
-          baseState
-        );
+        newBracketState = bracketUtils.generateDoubleEliminationBracket(players, baseState);
       } else {
         logger.error(
           'TournamentsRoute',
@@ -872,14 +824,8 @@ router.post(
         });
       }
 
-      await tournamentModel.updateTournamentState(
-        tournamentId,
-        JSON.stringify(newBracketState)
-      );
-      await tournamentModel.updateTournamentStatus(
-        tournamentId,
-        'Em Andamento'
-      ); // Update status
+      await tournamentModel.updateTournamentState(tournamentId, JSON.stringify(newBracketState));
+      await tournamentModel.updateTournamentStatus(tournamentId, 'Em Andamento'); // Update status
 
       logger.info(
         'TournamentsRoute',
@@ -888,16 +834,15 @@ router.post(
       );
       res.json({
         success: true,
-        message:
-          'Chaveamento gerado e salvo com sucesso! O torneio está agora "Em Andamento".',
+        message: 'Chaveamento gerado e salvo com sucesso! O torneio está agora "Em Andamento".',
         bracket: newBracketState,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao gerar chaveamento para ${tournamentId}:`,
-        { error: error.message, stack: error.stack, requestId: req.id }
-      );
+      logger.error('TournamentsRoute', `Erro ao gerar chaveamento para ${tournamentId}:`, {
+        error: error.message,
+        stack: error.stack,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro interno ao gerar chaveamento.',
@@ -917,9 +862,7 @@ router.post(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       }
       const initialTournamentState = {
         tournamentName: tournament.name,
@@ -943,14 +886,11 @@ router.post(
         newState: initialTournamentState,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao resetar torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao resetar torneio.' });
+      logger.error('TournamentsRoute', `Erro ao resetar torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao resetar torneio.' });
     }
   }
 );
@@ -969,27 +909,18 @@ router.patch(
     const { tournamentId } = req.params;
     const { name } = req.body;
     try {
-      let updatedTournament = await tournamentModel.updateTournament(
-        tournamentId,
-        { name }
-      );
+      let updatedTournament = await tournamentModel.updateTournament(tournamentId, { name });
       // ... (rest of the logic including state_json update)
       if (!updatedTournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       if (updatedTournament.state_json) {
         try {
           const state = JSON.parse(updatedTournament.state_json);
           if (state && typeof state === 'object') {
             // Ensure state is an object
             state.tournamentName = name;
-            await tournamentModel.updateTournamentState(
-              tournamentId,
-              JSON.stringify(state)
-            );
-            const reloaded =
-              await tournamentModel.getTournamentById(tournamentId);
+            await tournamentModel.updateTournamentState(tournamentId, JSON.stringify(state));
+            const reloaded = await tournamentModel.getTournamentById(tournamentId);
             if (reloaded) updatedTournament.state_json = reloaded.state_json;
           } else {
             logger.warn(
@@ -1015,11 +946,10 @@ router.patch(
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar nome do torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
+      logger.error('TournamentsRoute', `Erro ao atualizar nome do torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro ao atualizar nome do torneio.',
@@ -1040,26 +970,17 @@ router.patch(
     const { tournamentId } = req.params;
     const { description } = req.body;
     try {
-      let updatedTournament = await tournamentModel.updateTournament(
-        tournamentId,
-        { description }
-      );
+      let updatedTournament = await tournamentModel.updateTournament(tournamentId, { description });
       if (!updatedTournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
       if (updatedTournament.state_json) {
         try {
           const state = JSON.parse(updatedTournament.state_json);
           if (state && typeof state === 'object') {
             // Ensure state is an object
             state.description = description;
-            await tournamentModel.updateTournamentState(
-              tournamentId,
-              JSON.stringify(state)
-            );
-            const reloaded =
-              await tournamentModel.getTournamentById(tournamentId);
+            await tournamentModel.updateTournamentState(tournamentId, JSON.stringify(state));
+            const reloaded = await tournamentModel.getTournamentById(tournamentId);
             if (reloaded) updatedTournament.state_json = reloaded.state_json;
           } else {
             logger.warn(
@@ -1074,25 +995,20 @@ router.patch(
           );
         }
       }
-      logger.info(
-        'TournamentsRoute',
-        `Descrição do torneio ${tournamentId} atualizada.`,
-        { requestId: req.id }
-      );
+      logger.info('TournamentsRoute', `Descrição do torneio ${tournamentId} atualizada.`, {
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: 'Descrição do torneio atualizada!',
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar descrição do torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar descrição.' });
+      logger.error('TournamentsRoute', `Erro ao atualizar descrição do torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao atualizar descrição.' });
     }
   }
 );
@@ -1109,30 +1025,22 @@ router.patch(
     const { tournamentId } = req.params;
     const { entry_fee } = req.body;
     try {
-      const updatedTournament = await tournamentModel.updateTournament(
-        tournamentId,
-        { entry_fee }
-      );
+      const updatedTournament = await tournamentModel.updateTournament(tournamentId, { entry_fee });
       if (!updatedTournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      logger.info(
-        'TournamentsRoute',
-        `Taxa de entrada do torneio ${tournamentId} atualizada.`,
-        { requestId: req.id }
-      );
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      logger.info('TournamentsRoute', `Taxa de entrada do torneio ${tournamentId} atualizada.`, {
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: 'Taxa de entrada atualizada!',
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar taxa de entrada ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
+      logger.error('TournamentsRoute', `Erro ao atualizar taxa de entrada ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro ao atualizar taxa de entrada.',
@@ -1153,33 +1061,25 @@ router.patch(
     const { tournamentId } = req.params;
     const { prize_pool } = req.body;
     try {
-      const updatedTournament = await tournamentModel.updateTournament(
-        tournamentId,
-        { prize_pool }
-      );
+      const updatedTournament = await tournamentModel.updateTournament(tournamentId, {
+        prize_pool,
+      });
       if (!updatedTournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      logger.info(
-        'TournamentsRoute',
-        `Premiação do torneio ${tournamentId} atualizada.`,
-        { requestId: req.id }
-      );
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      logger.info('TournamentsRoute', `Premiação do torneio ${tournamentId} atualizada.`, {
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: 'Premiação atualizada!',
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar premiação ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar premiação.' });
+      logger.error('TournamentsRoute', `Erro ao atualizar premiação ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao atualizar premiação.' });
     }
   }
 );
@@ -1196,33 +1096,23 @@ router.patch(
     const { tournamentId } = req.params;
     const { rules } = req.body;
     try {
-      const updatedTournament = await tournamentModel.updateTournament(
-        tournamentId,
-        { rules }
-      );
+      const updatedTournament = await tournamentModel.updateTournament(tournamentId, { rules });
       if (!updatedTournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      logger.info(
-        'TournamentsRoute',
-        `Regras do torneio ${tournamentId} atualizadas.`,
-        { requestId: req.id }
-      );
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      logger.info('TournamentsRoute', `Regras do torneio ${tournamentId} atualizadas.`, {
+        requestId: req.id,
+      });
       res.json({
         success: true,
         message: 'Regras atualizadas!',
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar regras ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar regras.' });
+      logger.error('TournamentsRoute', `Erro ao atualizar regras ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao atualizar regras.' });
     }
   }
 );
@@ -1239,10 +1129,7 @@ router.patch(
     const { tournamentId } = req.params;
     const { status } = req.body;
     try {
-      const updatedTournament = await tournamentModel.updateTournamentStatus(
-        tournamentId,
-        status
-      );
+      const updatedTournament = await tournamentModel.updateTournamentStatus(tournamentId, status);
       if (!updatedTournament)
         return res.status(404).json({
           success: false,
@@ -1259,14 +1146,11 @@ router.patch(
         tournament: updatedTournament,
       });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao atualizar status do torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar status.' });
+      logger.error('TournamentsRoute', `Erro ao atualizar status do torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
+      res.status(500).json({ success: false, message: 'Erro ao atualizar status.' });
     }
   }
 );
@@ -1283,18 +1167,11 @@ router.patch(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      let state = tournament.state_json
-        ? JSON.parse(tournament.state_json)
-        : { matches: {} };
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      let state = tournament.state_json ? JSON.parse(tournament.state_json) : { matches: {} };
       if (state.matches && state.matches[routeMatchId]) {
         state.matches[routeMatchId].schedule = schedule;
-        await tournamentModel.updateTournamentState(
-          tournamentId,
-          JSON.stringify(state)
-        );
+        await tournamentModel.updateTournamentState(tournamentId, JSON.stringify(state));
         logger.info(
           'TournamentsRoute',
           `Agendamento da partida ${routeMatchId} do torneio ${tournamentId} atualizado.`,
@@ -1317,9 +1194,7 @@ router.patch(
         `Erro ao atualizar agendamento da partida ${routeMatchId} do torneio ${tournamentId}:`,
         { error, requestId: req.id }
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao atualizar agendamento.' });
+      res.status(500).json({ success: false, message: 'Erro ao atualizar agendamento.' });
     }
   }
 );
@@ -1336,35 +1211,20 @@ router.patch(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      let state = tournament.state_json
-        ? JSON.parse(tournament.state_json)
-        : { matches: {} };
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      let state = tournament.state_json ? JSON.parse(tournament.state_json) : { matches: {} };
       if (state.matches && state.matches[routeMatchId]) {
         state.matches[routeMatchId].score = [player1Score, player2Score];
         let winnerPlayerIndex = null;
         if (winnerId !== null && winnerId !== undefined) {
           const matchPlayers = state.matches[routeMatchId].players;
-          if (
-            matchPlayers &&
-            matchPlayers[0] &&
-            matchPlayers[0].db_id === winnerId
-          )
+          if (matchPlayers && matchPlayers[0] && matchPlayers[0].db_id === winnerId)
             winnerPlayerIndex = 0;
-          else if (
-            matchPlayers &&
-            matchPlayers[1] &&
-            matchPlayers[1].db_id === winnerId
-          )
+          else if (matchPlayers && matchPlayers[1] && matchPlayers[1].db_id === winnerId)
             winnerPlayerIndex = 1;
         }
         state.matches[routeMatchId].winner = winnerPlayerIndex;
-        await tournamentModel.updateTournamentState(
-          tournamentId,
-          JSON.stringify(state)
-        );
+        await tournamentModel.updateTournamentState(tournamentId, JSON.stringify(state));
         logger.info(
           'TournamentsRoute',
           `Vencedor/placar da partida ${routeMatchId} do torneio ${tournamentId} atualizado.`,
@@ -1406,21 +1266,10 @@ router.get(
     try {
       const tournament = await tournamentModel.getTournamentById(tournamentId);
       if (!tournament)
-        return res
-          .status(404)
-          .json({ success: false, message: 'Torneio não encontrado.' });
-      const playersResult = await playerModel.getPlayersByTournamentId(
-        tournamentId,
-        { limit: -1 }
-      );
-      const scoresResult = await scoreModel.getScoresByTournamentId(
-        tournamentId,
-        { limit: -1 }
-      );
-      const matchesResult = await matchModel.getMatchesByTournamentId(
-        tournamentId,
-        { limit: -1 }
-      );
+        return res.status(404).json({ success: false, message: 'Torneio não encontrado.' });
+      const playersResult = await playerModel.getPlayersByTournamentId(tournamentId, { limit: -1 });
+      const scoresResult = await scoreModel.getScoresByTournamentId(tournamentId, { limit: -1 });
+      const matchesResult = await matchModel.getMatchesByTournamentId(tournamentId, { limit: -1 });
       const stats = {
         tournamentInfo: {
           name: tournament.name,
@@ -1431,28 +1280,19 @@ router.get(
           status: tournament.status,
           date: tournament.date,
         },
-        topPlayers: calculateTopPlayersDb(
-          playersResult.players,
-          scoresResult.scores
-        ),
+        topPlayers: calculateTopPlayersDb(playersResult.players, scoresResult.scores),
         commonScores: calculateCommonScoresDb(scoresResult.scores),
-        playerPerformance: calculatePlayerPerformanceDb(
-          playersResult.players,
-          scoresResult.scores
-        ),
+        playerPerformance: calculatePlayerPerformanceDb(playersResult.players, scoresResult.scores),
       };
-      logger.info(
-        'TournamentsRoute',
-        `Estatísticas do torneio ${tournamentId} recuperadas.`,
-        { requestId: req.id }
-      );
+      logger.info('TournamentsRoute', `Estatísticas do torneio ${tournamentId} recuperadas.`, {
+        requestId: req.id,
+      });
       res.json({ success: true, stats });
     } catch (error) {
-      logger.error(
-        'TournamentsRoute',
-        `Erro ao buscar estatísticas do torneio ${tournamentId}:`,
-        { error, requestId: req.id }
-      );
+      logger.error('TournamentsRoute', `Erro ao buscar estatísticas do torneio ${tournamentId}:`, {
+        error,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro ao calcular estatísticas do torneio.',
@@ -1478,28 +1318,20 @@ router.get(
     const { tournamentId, playerName: routePlayerName } = req.params;
     const playerName = decodeURIComponent(routePlayerName); // Already validated as string
     try {
-      const player = await playerModel.getPlayerByNameInTournament(
-        tournamentId,
-        playerName
-      );
+      const player = await playerModel.getPlayerByNameInTournament(tournamentId, playerName);
       if (!player)
         return res.status(404).json({
           success: false,
           message: 'Jogador não encontrado neste torneio.',
         });
-      const scoresResult = await scoreModel.getScoresByTournamentId(
-        tournamentId,
-        { limit: -1, includeDeleted: false }
-      );
+      const scoresResult = await scoreModel.getScoresByTournamentId(tournamentId, {
+        limit: -1,
+        includeDeleted: false,
+      });
       const playerScores = scoresResult.scores.filter(
-        (score) =>
-          score.player1_id === player.id || score.player2_id === player.id
+        (score) => score.player1_id === player.id || score.player2_id === player.id
       );
-      const playerStats = calculatePlayerStatsDb(
-        playerName,
-        player,
-        playerScores
-      );
+      const playerStats = calculatePlayerStatsDb(playerName, player, playerScores);
       logger.info(
         'TournamentsRoute',
         `Estatísticas do jogador ${playerName} no torneio ${tournamentId} recuperadas.`,

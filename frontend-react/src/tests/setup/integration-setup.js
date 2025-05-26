@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { beforeAll, afterEach, afterAll, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from '../mocks/server';
 
 // Estabelece mocks da API antes de todos os testes
@@ -39,6 +39,7 @@ Object.defineProperty(window, 'sessionStorage', {
   writable: true,
 });
 
+/* eslint-env node */
 // Mock de window.alert e window.confirm
 global.alert = vi.fn();
 global.confirm = vi.fn();

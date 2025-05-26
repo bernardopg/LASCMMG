@@ -1,17 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  getBlockedIps,
-  blockIpManually,
-  unblockIp,
-} from '../../../services/api';
-import { useMessage } from '../../../context/MessageContext';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useCallback, useEffect, useState } from 'react';
+import { FaLockOpen, FaPlusCircle, FaSyncAlt } from 'react-icons/fa'; // Added FaLockOpen
 import * as Yup from 'yup';
-import { FaPlusCircle, FaTrashAlt, FaSyncAlt, FaLockOpen } from 'react-icons/fa'; // Added FaLockOpen
+import { useMessage } from '../../../context/MessageContext';
+import { blockIpManually, getBlockedIps, unblockIp } from '../../../services/api';
 
 const SecurityBlockedIPs = () => {
   const [blockedIps, setBlockedIps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { showError, showSuccess } = useMessage(); // Corrigido
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,9 +42,7 @@ const SecurityBlockedIPs = () => {
   }, [fetchBlockedIps, currentPage]);
 
   const handleUnblock = async (ipAddress) => {
-    if (
-      window.confirm(`Tem certeza que deseja desbloquear o IP ${ipAddress}?`)
-    ) {
+    if (window.confirm(`Tem certeza que deseja desbloquear o IP ${ipAddress}?`)) {
       try {
         await unblockIp(ipAddress);
         showSuccess(`IP ${ipAddress} desbloqueado com sucesso.`); // Corrigido
@@ -65,10 +60,7 @@ const SecurityBlockedIPs = () => {
   const manualBlockValidationSchema = Yup.object().shape({
     ip_address: Yup.string()
       .required('Endereço IP é obrigatório')
-      .matches(
-        /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/,
-        'Formato de IP inválido (IPv4)'
-      ),
+      .matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, 'Formato de IP inválido (IPv4)'),
     duration_hours: Yup.number()
       .required('Duração é obrigatória')
       .min(1, 'Mínimo 1 hora')
@@ -181,8 +173,7 @@ const SecurityBlockedIPs = () => {
                   className="btn btn-danger" // btn e btn-danger devem ser responsivos ao tema
                   disabled={isSubmitting || !dirty || !isValid}
                 >
-                  <FaPlusCircle className="inline mr-2" />{' '}
-                  {/* Considerar FaBan para bloquear */}
+                  <FaPlusCircle className="inline mr-2" /> {/* Considerar FaBan para bloquear */}
                   {isSubmitting ? 'Bloqueando...' : 'Bloquear IP'}
                 </button>
               </div>
@@ -201,9 +192,7 @@ const SecurityBlockedIPs = () => {
             className="btn btn-outline btn-sm text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
             disabled={loading}
           >
-            <FaSyncAlt
-              className={`inline mr-1.5 ${loading ? 'animate-spin' : ''}`}
-            />
+            <FaSyncAlt className={`inline mr-1.5 ${loading ? 'animate-spin' : ''}`} />
             Atualizar Lista
           </button>
         </div>
@@ -212,11 +201,7 @@ const SecurityBlockedIPs = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary dark:border-primary-light mx-auto"></div>
           </div>
         )}
-        {error && (
-          <div className="text-red-500 dark:text-red-400 text-sm mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-red-500 dark:text-red-400 text-sm mb-4">{error}</div>}
         {!loading && (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
@@ -293,9 +278,7 @@ const SecurityBlockedIPs = () => {
                 Anterior
               </button>
               <button
-                onClick={() =>
-                  fetchBlockedIps(Math.min(totalPages, currentPage + 1))
-                }
+                onClick={() => fetchBlockedIps(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages || loading}
                 className="btn btn-outline btn-sm disabled:opacity-50" // btn e btn-outline devem ser responsivos ao tema
               >

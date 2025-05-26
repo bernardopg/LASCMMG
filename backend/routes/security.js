@@ -22,81 +22,67 @@ const { roleMiddleware } = require('../lib/middleware/roleMiddleware'); // Impor
 const { readJsonFile } = require('../lib/utils/fileUtils');
 const honeypot = require('../lib/middleware/honeypot'); // Import the honeypot module
 
-const HONEYPOT_LOG_PATH = path.join(
-  __dirname,
-  '..',
-  'data',
-  'honeypot_activity.log'
-);
+const HONEYPOT_LOG_PATH = path.join(__dirname, '..', 'data', 'honeypot_activity.log');
 
-router.get(
-  '/stats',
-  authMiddleware,
-  roleMiddleware('admin'),
-  async (req, res) => {
-    try {
-      const tournamentCount = await tournamentModel.countTournaments();
-      const playerCount = await playerModel.countPlayers();
-      const matchCount = await matchModel.countMatches();
-      const scoreCount = await scoreModel.countScores();
+router.get('/stats', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  try {
+    const tournamentCount = await tournamentModel.countTournaments();
+    const playerCount = await playerModel.countPlayers();
+    const matchCount = await matchModel.countMatches();
+    const scoreCount = await scoreModel.countScores();
 
-      const tournamentsStats = await tournamentModel.getTournamentStats();
+    const tournamentsStats = await tournamentModel.getTournamentStats();
 
-      const dbFilePath = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
-      const dbSize = fs.existsSync(dbFilePath)
-        ? Math.round((fs.statSync(dbFilePath).size / (1024 * 1024)) * 100) / 100
-        : 0;
+    const dbFilePath = path.join(DB_CONFIG.dataDir, DB_CONFIG.dbFile);
+    const dbSize = fs.existsSync(dbFilePath)
+      ? Math.round((fs.statSync(dbFilePath).size / (1024 * 1024)) * 100) / 100
+      : 0;
 
-      const systemInfo = {
-        uptime: Math.floor(process.uptime()),
-        nodeVersion: process.version,
-        platform: process.platform,
-        memory: {
-          free: Math.round(os.freemem() / (1024 * 1024)),
-          total: Math.round(os.totalmem() / (1024 * 1024)),
+    const systemInfo = {
+      uptime: Math.floor(process.uptime()),
+      nodeVersion: process.version,
+      platform: process.platform,
+      memory: {
+        free: Math.round(os.freemem() / (1024 * 1024)),
+        total: Math.round(os.totalmem() / (1024 * 1024)),
+      },
+      cpu: os.cpus().length,
+      hostname: os.hostname(),
+    };
+
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      stats: {
+        tournaments: {
+          total: tournamentCount,
+          active: tournamentsStats.active,
+          completed: tournamentsStats.completed,
+          scheduled: tournamentsStats.scheduled,
         },
-        cpu: os.cpus().length,
-        hostname: os.hostname(),
-      };
-
-      res.json({
-        success: true,
-        timestamp: new Date().toISOString(),
-        stats: {
-          tournaments: {
-            total: tournamentCount,
-            active: tournamentsStats.active,
-            completed: tournamentsStats.completed,
-            scheduled: tournamentsStats.scheduled,
-          },
-          entities: {
-            players: playerCount,
-            matches: matchCount,
-            scores: scoreCount,
-          },
-          system: systemInfo,
-          storage: {
-            databaseSize: `${dbSize} MB`,
-          },
+        entities: {
+          players: playerCount,
+          matches: matchCount,
+          scores: scoreCount,
         },
-      });
-    } catch (error) {
-      logger.error(
-        'SystemStatsRoute',
-        'Erro ao obter estatísticas do sistema:',
-        {
-          error: error,
-          requestId: req.id,
-        }
-      );
-      res.status(500).json({
-        success: false,
-        message: 'Erro ao obter estatísticas do sistema',
-        error: error.message,
-      });
-    }
+        system: systemInfo,
+        storage: {
+          databaseSize: `${dbSize} MB`,
+        },
+      },
+    });
+  } catch (error) {
+    logger.error('SystemStatsRoute', 'Erro ao obter estatísticas do sistema:', {
+      error: error,
+      requestId: req.id,
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao obter estatísticas do sistema',
+      error: error.message,
+    });
   }
-);
+});
 
 router.get('/health', async (req, res) => {
   try {
@@ -112,10 +98,7 @@ router.get('/health', async (req, res) => {
       heapUsed: Math.round(memoryUsage.heapUsed / (1024 * 1024)) + ' MB',
     };
 
-    const status =
-      dbStatus.status === 'ok' && diskStatus.ok && memoryStatus.ok
-        ? 'ok'
-        : 'degraded';
+    const status = dbStatus.status === 'ok' && diskStatus.ok && memoryStatus.ok ? 'ok' : 'degraded';
 
     res.status(status === 'ok' ? 200 : 503).json({
       status,
@@ -195,9 +178,7 @@ router.get(
         honeypotEventTypes: {},
         honeypotTopIps: {},
         honeypotLastEventTimestamp:
-          honeypotLogs.length > 0
-            ? honeypotLogs[honeypotLogs.length - 1].timestamp
-            : null,
+          honeypotLogs.length > 0 ? honeypotLogs[honeypotLogs.length - 1].timestamp : null,
         // Potentially add other security overview data here, e.g., from a firewall log or other security modules
       };
 
@@ -215,10 +196,7 @@ router.get(
         overviewStats.honeypotTopIps[log.ip].count++;
         overviewStats.honeypotTopIps[log.ip].types[log.type] =
           (overviewStats.honeypotTopIps[log.ip].types[log.type] || 0) + 1;
-        if (
-          new Date(log.timestamp) >
-          new Date(overviewStats.honeypotTopIps[log.ip].lastSeen)
-        ) {
+        if (new Date(log.timestamp) > new Date(overviewStats.honeypotTopIps[log.ip].lastSeen)) {
           overviewStats.honeypotTopIps[log.ip].lastSeen = log.timestamp;
         }
       }
@@ -238,11 +216,10 @@ router.get(
         data: overviewStats,
       });
     } catch (error) {
-      logger.error(
-        'SystemStatsRoute',
-        'Erro ao obter estatísticas de visão geral de segurança:',
-        { error: error, requestId: req.id }
-      );
+      logger.error('SystemStatsRoute', 'Erro ao obter estatísticas de visão geral de segurança:', {
+        error: error,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro ao obter estatísticas de visão geral de segurança',
@@ -262,11 +239,10 @@ router.get(
       const config = honeypot.getSettings(); // Use the new function
       res.json({ success: true, config });
     } catch (error) {
-      logger.error(
-        'SystemStatsRoute',
-        'Erro ao obter configuração do honeypot:',
-        { error, requestId: req.id }
-      );
+      logger.error('SystemStatsRoute', 'Erro ao obter configuração do honeypot:', {
+        error,
+        requestId: req.id,
+      });
       res.status(500).json({
         success: false,
         message: 'Erro ao obter configuração do honeypot.',
@@ -356,9 +332,7 @@ router.get(
         { component: 'SecurityRoute', err: error, requestId: req.id },
         'Erro ao obter IPs bloqueados.'
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao obter IPs bloqueados.' });
+      res.status(500).json({ success: false, message: 'Erro ao obter IPs bloqueados.' });
     }
   }
 );
@@ -373,11 +347,7 @@ router.post(
     const { ipAddress, durationHours, reason } = req.body;
     // if (!ipAddress) { ... } // This check is handled by Joi
     try {
-      const success = await honeypot.manualBlockIP(
-        ipAddress,
-        durationHours,
-        reason
-      );
+      const success = await honeypot.manualBlockIP(ipAddress, durationHours, reason);
       if (success) {
         logger.info(
           {
@@ -456,9 +426,7 @@ router.delete(
         },
         `Erro ao desbloquear IP ${ipAddress}.`
       );
-      res
-        .status(500)
-        .json({ success: false, message: 'Erro ao desbloquear IP.' });
+      res.status(500).json({ success: false, message: 'Erro ao desbloquear IP.' });
     }
   }
 );

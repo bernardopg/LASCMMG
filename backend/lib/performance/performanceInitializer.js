@@ -36,9 +36,17 @@ class PerformanceInitializer {
 
       // Índices compostos para queries comuns
       { table: 'tournaments', columns: ['status', 'date'], name: 'idx_tournaments_status_date' },
-      { table: 'scores', columns: ['tournament_id', 'player_id'], name: 'idx_scores_tournament_player' },
+      {
+        table: 'scores',
+        columns: ['tournament_id', 'player_id'],
+        name: 'idx_scores_tournament_player',
+      },
       { table: 'scores', columns: ['tournament_id', 'score'], name: 'idx_scores_tournament_score' },
-      { table: 'matches', columns: ['tournament_id', 'round'], name: 'idx_matches_tournament_round' }
+      {
+        table: 'matches',
+        columns: ['tournament_id', 'round'],
+        name: 'idx_matches_tournament_round',
+      },
     ];
   }
 
@@ -68,12 +76,14 @@ class PerformanceInitializer {
 
       this.initialized = true;
       logger.info('Sistema de performance inicializado com sucesso');
-
     } catch (err) {
-      logger.error({
-        component: 'PerformanceInitializer',
-        err
-      }, 'Erro ao inicializar sistema de performance');
+      logger.error(
+        {
+          component: 'PerformanceInitializer',
+          err,
+        },
+        'Erro ao inicializar sistema de performance'
+      );
       throw err;
     }
   }
@@ -105,30 +115,38 @@ class PerformanceInitializer {
         await runAsync(sql);
         created++;
 
-        logger.debug({
-          component: 'PerformanceInitializer',
-          table: index.table,
-          columns,
-          indexName: index.name
-        }, 'Índice criado');
-
+        logger.debug(
+          {
+            component: 'PerformanceInitializer',
+            table: index.table,
+            columns,
+            indexName: index.name,
+          },
+          'Índice criado'
+        );
       } catch (err) {
         errors++;
-        logger.error({
-          component: 'PerformanceInitializer',
-          err,
-          index
-        }, 'Erro ao criar índice');
+        logger.error(
+          {
+            component: 'PerformanceInitializer',
+            err,
+            index,
+          },
+          'Erro ao criar índice'
+        );
       }
     }
 
-    logger.info({
-      component: 'PerformanceInitializer',
-      created,
-      skipped,
-      errors,
-      total: this.recommendedIndexes.length
-    }, 'Aplicação de índices concluída');
+    logger.info(
+      {
+        component: 'PerformanceInitializer',
+        created,
+        skipped,
+        errors,
+        total: this.recommendedIndexes.length,
+      },
+      'Aplicação de índices concluída'
+    );
   }
 
   /**
@@ -144,11 +162,14 @@ class PerformanceInitializer {
       const result = await queryAsync(sql, [indexName]);
       return result.length > 0;
     } catch (err) {
-      logger.error({
-        component: 'PerformanceInitializer',
-        err,
-        indexName
-      }, 'Erro ao verificar existência do índice');
+      logger.error(
+        {
+          component: 'PerformanceInitializer',
+          err,
+          indexName,
+        },
+        'Erro ao verificar existência do índice'
+      );
       return false;
     }
   }
@@ -166,7 +187,7 @@ class PerformanceInitializer {
       enableOptimizations: true,
       enableProfiling: !isProduction, // Profiling apenas em desenvolvimento
       slowQueryThreshold: isProduction ? 500 : 200, // Mais rigoroso em dev
-      cacheEnabled: true
+      cacheEnabled: true,
     });
 
     // Configurar TTLs personalizados
@@ -187,16 +208,21 @@ class PerformanceInitializer {
     try {
       const warmedCount = await optimizedDb.warmupCache();
 
-      logger.info({
-        component: 'PerformanceInitializer',
-        warmedCount
-      }, 'Cache aquecido');
-
+      logger.info(
+        {
+          component: 'PerformanceInitializer',
+          warmedCount,
+        },
+        'Cache aquecido'
+      );
     } catch (err) {
-      logger.error({
-        component: 'PerformanceInitializer',
-        err
-      }, 'Erro ao aquecer cache');
+      logger.error(
+        {
+          component: 'PerformanceInitializer',
+          err,
+        },
+        'Erro ao aquecer cache'
+      );
     }
   }
 
@@ -232,10 +258,13 @@ class PerformanceInitializer {
         const queryStatsSize = queryAnalyzer.queryStats.size;
         if (queryStatsSize > 1000) {
           queryAnalyzer.reset();
-          logger.info({
-            component: 'PerformanceInitializer',
-            clearedStats: queryStatsSize
-          }, 'Estatísticas do analisador limpas');
+          logger.info(
+            {
+              component: 'PerformanceInitializer',
+              clearedStats: queryStatsSize,
+            },
+            'Estatísticas do analisador limpas'
+          );
         }
 
         // Reduzir cache se muito grande
@@ -243,24 +272,32 @@ class PerformanceInitializer {
         if (cacheStats.memoryCacheSize > 400) {
           await queryCache.clear();
           await optimizedDb.warmupCache();
-          logger.info({
-            component: 'PerformanceInitializer',
-            previousCacheSize: cacheStats.memoryCacheSize
-          }, 'Cache limpo e reaquecido');
+          logger.info(
+            {
+              component: 'PerformanceInitializer',
+              previousCacheSize: cacheStats.memoryCacheSize,
+            },
+            'Cache limpo e reaquecido'
+          );
         }
-
       } catch (err) {
-        logger.error({
-          component: 'PerformanceInitializer',
-          err
-        }, 'Erro na limpeza automática');
+        logger.error(
+          {
+            component: 'PerformanceInitializer',
+            err,
+          },
+          'Erro na limpeza automática'
+        );
       }
     }, cleanupInterval);
 
-    logger.info({
-      component: 'PerformanceInitializer',
-      intervalHours: 6
-    }, 'Limpeza automática configurada');
+    logger.info(
+      {
+        component: 'PerformanceInitializer',
+        intervalHours: 6,
+      },
+      'Limpeza automática configurada'
+    );
   }
 
   /**
@@ -275,15 +312,18 @@ class PerformanceInitializer {
         initialized: this.initialized,
         recommendedIndexesCount: this.recommendedIndexes.length,
         appliedIndexes: await this.getAppliedIndexesCount(),
-        lastInitialization: new Date().toISOString()
+        lastInitialization: new Date().toISOString(),
       };
 
       return report;
     } catch (err) {
-      logger.error({
-        component: 'PerformanceInitializer',
-        err
-      }, 'Erro ao gerar relatório de saúde');
+      logger.error(
+        {
+          component: 'PerformanceInitializer',
+          err,
+        },
+        'Erro ao gerar relatório de saúde'
+      );
       throw err;
     }
   }
@@ -311,7 +351,7 @@ class PerformanceInitializer {
 
       // 1. Aplicar índices sugeridos pelo analisador
       const suggestions = queryAnalyzer.suggestIndexes();
-      const highPrioritySuggestions = suggestions.filter(s => s.priority === 'HIGH').slice(0, 5);
+      const highPrioritySuggestions = suggestions.filter((s) => s.priority === 'HIGH').slice(0, 5);
 
       for (const suggestion of highPrioritySuggestions) {
         try {
@@ -322,19 +362,25 @@ class PerformanceInitializer {
             const sql = `CREATE INDEX IF NOT EXISTS ${indexName} ON ${suggestion.table}(${suggestion.column})`;
             await runAsync(sql);
 
-            logger.info({
-              component: 'PerformanceInitializer',
-              table: suggestion.table,
-              column: suggestion.column,
-              reason: suggestion.reason
-            }, 'Índice automático criado');
+            logger.info(
+              {
+                component: 'PerformanceInitializer',
+                table: suggestion.table,
+                column: suggestion.column,
+                reason: suggestion.reason,
+              },
+              'Índice automático criado'
+            );
           }
         } catch (err) {
-          logger.error({
-            component: 'PerformanceInitializer',
-            err,
-            suggestion
-          }, 'Erro ao criar índice automático');
+          logger.error(
+            {
+              component: 'PerformanceInitializer',
+              err,
+              suggestion,
+            },
+            'Erro ao criar índice automático'
+          );
         }
       }
 
@@ -353,12 +399,14 @@ class PerformanceInitializer {
       }
 
       logger.info('Otimização automática concluída');
-
     } catch (err) {
-      logger.error({
-        component: 'PerformanceInitializer',
-        err
-      }, 'Erro na otimização automática');
+      logger.error(
+        {
+          component: 'PerformanceInitializer',
+          err,
+        },
+        'Erro na otimização automática'
+      );
     }
   }
 
@@ -370,7 +418,7 @@ class PerformanceInitializer {
       initialized: this.initialized,
       recommendedIndexes: this.recommendedIndexes.length,
       optimizations: optimizedDb.getOptimizationStatus(),
-      cache: queryCache.getStats()
+      cache: queryCache.getStats(),
     };
   }
 }

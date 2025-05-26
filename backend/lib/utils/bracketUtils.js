@@ -11,9 +11,7 @@ function shuffleArray(array) {
 function getRoundNames(state) {
   if (!state || !state.matches) return [];
   const roundNameSet = new Set();
-  const matchOrder = Object.keys(state.matches).sort(
-    (a, b) => parseInt(a) - parseInt(b)
-  );
+  const matchOrder = Object.keys(state.matches).sort((a, b) => parseInt(a) - parseInt(b));
   matchOrder.forEach((matchId) => {
     if (state.matches[matchId] && state.matches[matchId].roundName) {
       roundNameSet.add(state.matches[matchId].roundName);
@@ -92,11 +90,7 @@ function generateSingleEliminationBracket(players, baseState) {
     };
   }
   wbMatchIdsByRound.push(currentRoundWbIds);
-  for (
-    let roundIdx = 1;
-    roundIdx < matchesPerRoundDefinition.length;
-    roundIdx++
-  ) {
+  for (let roundIdx = 1; roundIdx < matchesPerRoundDefinition.length; roundIdx++) {
     const numMatchesInThisRound = matchesPerRoundDefinition[roundIdx];
     currentRoundWbIds = [];
     for (let i = 0; i < numMatchesInThisRound; i++) {
@@ -285,9 +279,7 @@ function generateDoubleEliminationBracket(players, baseState) {
     for (let i = 0; i < currentRoundIds.length; i++) {
       const matchId = currentRoundIds[i];
       const matchData = newState.matches[matchId];
-      matchData.nextMatch = nextRoundIds
-        ? nextRoundIds[Math.floor(i / 2)]
-        : null;
+      matchData.nextMatch = nextRoundIds ? nextRoundIds[Math.floor(i / 2)] : null;
       matchData.nextLoserMatch = targetLbRoundIds ? targetLbRoundIds[i] : null;
       // Lógica de avanço de jogadores para BYEs na primeira rodada
       if (matchData.winner === 0 && matchData.nextMatch) {
@@ -322,9 +314,7 @@ function generateDoubleEliminationBracket(players, baseState) {
       const matchId = currentRoundIds[i];
       const matchData = newState.matches[matchId];
       const targetMatchIndex = roundIdx % 2 === 0 ? i : Math.floor(i / 2);
-      matchData.nextMatch = nextRoundIds
-        ? nextRoundIds[targetMatchIndex]
-        : null;
+      matchData.nextMatch = nextRoundIds ? nextRoundIds[targetMatchIndex] : null;
     }
   }
   newState.matches[lbFinalMatchId].nextMatch = null;
@@ -346,11 +336,7 @@ function generateDoubleEliminationBracket(players, baseState) {
   return newState;
 }
 
-function advancePlayersInBracket(
-  state,
-  completedMatchId,
-  winnerIndexOverride = null
-) {
+function advancePlayersInBracket(state, completedMatchId, winnerIndexOverride = null) {
   if (!state || !state.matches || !state.matches[completedMatchId]) {
     logger.warn(
       {
@@ -366,20 +352,12 @@ function advancePlayersInBracket(
   }
   const currentMatch = state.matches[completedMatchId];
   let winnerIdx;
-  if (
-    winnerIndexOverride !== null &&
-    (winnerIndexOverride === 0 || winnerIndexOverride === 1)
-  ) {
+  if (winnerIndexOverride !== null && (winnerIndexOverride === 0 || winnerIndexOverride === 1)) {
     currentMatch.winner = winnerIndexOverride;
     winnerIdx = winnerIndexOverride;
-  } else if (
-    currentMatch.players[0].score !== null &&
-    currentMatch.players[1].score !== null
-  ) {
-    if (currentMatch.players[0].score > currentMatch.players[1].score)
-      winnerIdx = 0;
-    else if (currentMatch.players[1].score > currentMatch.players[0].score)
-      winnerIdx = 1;
+  } else if (currentMatch.players[0].score !== null && currentMatch.players[1].score !== null) {
+    if (currentMatch.players[0].score > currentMatch.players[1].score) winnerIdx = 0;
+    else if (currentMatch.players[1].score > currentMatch.players[0].score) winnerIdx = 1;
     else {
       logger.warn(
         {
@@ -476,9 +454,7 @@ function advancePlayersInBracket(
     if (nextLoserMatchId && state.matches[nextLoserMatchId]) {
       const nextLoserMatch = state.matches[nextLoserMatchId];
       if (loserPlayerObject.name !== 'BYE') {
-        const loserPos = nextLoserMatch.players.findIndex(
-          (p) => p.name === 'A definir'
-        );
+        const loserPos = nextLoserMatch.players.findIndex((p) => p.name === 'A definir');
         if (loserPos !== -1) {
           nextLoserMatch.players[loserPos] = loserPlayerObject;
         } else {

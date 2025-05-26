@@ -13,7 +13,7 @@ const formatMatchDateTime = (dateTimeString) => {
       hour: '2-digit',
       minute: '2-digit',
     });
-  } catch (e) {
+  } catch {
     return 'Data inválida';
   }
 };
@@ -66,15 +66,12 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
   }
 
   const matchStatus =
-    match.status ||
-    (winnerName ? 'Concluída' : match.dateTime ? 'Agendada' : 'Pendente');
+    match.status || (winnerName ? 'Concluída' : match.dateTime ? 'Agendada' : 'Pendente');
   let statusBadgeClasses = 'text-xs font-medium px-2 py-0.5 rounded-full';
-  if (matchStatus === 'Concluída')
-    statusBadgeClasses += ' bg-green-700 text-green-100';
+  if (matchStatus === 'Concluída') statusBadgeClasses += ' bg-green-700 text-green-100';
   else if (matchStatus === 'Em Andamento')
     statusBadgeClasses += ' bg-yellow-600 text-yellow-100 animate-pulse';
-  else if (matchStatus === 'Agendada')
-    statusBadgeClasses += ' bg-blue-700 text-blue-100';
+  else if (matchStatus === 'Agendada') statusBadgeClasses += ' bg-blue-700 text-blue-100';
   else statusBadgeClasses += ' bg-gray-600 text-gray-300';
 
   return (
@@ -85,15 +82,9 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
       tabIndex={0}
       role="button"
       aria-label={`Partida ${match.id}: ${p1Name} vs ${p2Name}. Status: ${matchStatus}`}
-      onClick={() =>
-        !(p1IsBye || p2IsBye) && onMatchClick && onMatchClick(match.id)
-      } // Disable click for BYE matches
+      onClick={() => !(p1IsBye || p2IsBye) && onMatchClick && onMatchClick(match.id)} // Disable click for BYE matches
       onKeyDown={(e) => {
-        if (
-          (e.key === 'Enter' || e.key === ' ') &&
-          !(p1IsBye || p2IsBye) &&
-          onMatchClick
-        ) {
+        if ((e.key === 'Enter' || e.key === ' ') && !(p1IsBye || p2IsBye) && onMatchClick) {
           e.preventDefault();
           onMatchClick(match.id);
         }
@@ -133,11 +124,7 @@ const MatchCard = ({ match, isSelected, onMatchClick }) => {
       {/* .bracket-match-footer */}
       {(match.dateTime || winnerName) && !p1IsBye && !p2IsBye && (
         <div className="px-2 md:px-3 py-1 bg-gray-800 border-t border-gray-600 text-xs text-gray-400 text-center">
-          {match.dateTime ? (
-            formatMatchDateTime(match.dateTime)
-          ) : (
-            <span>&nbsp;</span>
-          )}
+          {match.dateTime ? formatMatchDateTime(match.dateTime) : <span>&nbsp;</span>}
           {/* Winner display is handled by PlayerDisplay's styling */}
         </div>
       )}

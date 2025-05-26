@@ -53,11 +53,9 @@ async function initializeAudit() {
       try {
         hashChain = JSON.parse(fs.readFileSync(AUDIT_HASH_CHAIN, 'utf8'));
       } catch (error) {
-        logger.error(
-          'AuditLogger',
-          'Erro ao carregar hash chain de auditoria',
-          { error: error.message }
-        );
+        logger.error('AuditLogger', 'Erro ao carregar hash chain de auditoria', {
+          error: error.message,
+        });
         // Iniciar com hash chain novo se houver erro ao carregar
         hashChain = { lastHash: '', entries: [] };
       }
@@ -67,10 +65,7 @@ async function initializeAudit() {
     if (NODE_ENV === 'production' && hashChain.entries.length > 0) {
       const isIntegrityValid = await verifyAuditIntegrity();
       if (!isIntegrityValid) {
-        logger.error(
-          'AuditLogger',
-          'Violação de integridade detectada no log de auditoria!'
-        );
+        logger.error('AuditLogger', 'Violação de integridade detectada no log de auditoria!');
         // Em produção, pode-se querer notificar administradores ou tomar outras ações
       }
     }
@@ -114,11 +109,11 @@ function logAction(userId, action, entity, entityId, details = {}) {
     // esta ação específica pode não ser logada.
     // Para garantir o log, a inicialização deve ser aguardada no bootstrap.
     if (!auditStream) {
-      logger.warn(
-        'AuditLogger',
-        'Audit stream não disponível, ação não registrada.',
-        { action, entity, entityId }
-      );
+      logger.warn('AuditLogger', 'Audit stream não disponível, ação não registrada.', {
+        action,
+        entity,
+        entityId,
+      });
       return null;
     }
   }
@@ -248,11 +243,10 @@ async function verifyAuditIntegrity() {
     const lines = fileContent.trim().split('\n');
 
     if (lines.length !== hashChain.entries.length) {
-      logger.warn(
-        'AuditLogger',
-        'Número de entradas no log não corresponde à hash chain',
-        { logEntries: lines.length, hashChainEntries: hashChain.entries.length }
-      );
+      logger.warn('AuditLogger', 'Número de entradas no log não corresponde à hash chain', {
+        logEntries: lines.length,
+        hashChainEntries: hashChain.entries.length,
+      });
       return false;
     }
 
@@ -278,11 +272,9 @@ async function verifyAuditIntegrity() {
 
     return true;
   } catch (error) {
-    logger.error(
-      'AuditLogger',
-      'Erro ao verificar integridade do log de auditoria',
-      { error: error.message }
-    );
+    logger.error('AuditLogger', 'Erro ao verificar integridade do log de auditoria', {
+      error: error.message,
+    });
     return false;
   }
 }
@@ -293,10 +285,7 @@ async function verifyAuditIntegrity() {
  * @param {object} pagination - Opções de paginação (page, pageSize)
  * @returns {object} Registros correspondentes aos filtros com informações de paginação
  */
-async function queryAuditLog(
-  filters = {},
-  pagination = { page: 1, pageSize: 20 }
-) {
+async function queryAuditLog(filters = {}, pagination = { page: 1, pageSize: 20 }) {
   try {
     const { userId, action, entity, entityId, startDate, endDate } = filters;
     const { page, pageSize } = pagination;
@@ -312,11 +301,7 @@ async function queryAuditLog(
     } else if (action && auditIndex.actions[action]) {
       candidates = auditIndex.actions[action];
       usedIndex = true;
-    } else if (
-      entity &&
-      entityId &&
-      auditIndex.entities[`${entity}:${entityId}`]
-    ) {
+    } else if (entity && entityId && auditIndex.entities[`${entity}:${entityId}`]) {
       candidates = auditIndex.entities[`${entity}:${entityId}`];
       usedIndex = true;
     }
@@ -355,16 +340,11 @@ async function queryAuditLog(
     });
 
     // Ordenar por timestamp (mais recente primeiro)
-    filteredResults.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
+    filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     // Aplicar paginação
     const startIndex = (page - 1) * pageSize;
-    const paginatedResults = filteredResults.slice(
-      startIndex,
-      startIndex + pageSize
-    );
+    const paginatedResults = filteredResults.slice(startIndex, startIndex + pageSize);
 
     return {
       data: paginatedResults,
@@ -410,8 +390,7 @@ function auditMiddleware(action, entityResolver) {
           status: res.statusCode,
           ipAddress: req.ip || req.connection.remoteAddress,
           userAgent: req.get('User-Agent'),
-          body:
-            req.method !== 'GET' ? sanitizeRequestBody(req.body) : undefined,
+          body: req.method !== 'GET' ? sanitizeRequestBody(req.body) : undefined,
         };
 
         // Registrar a ação no log de auditoria
@@ -437,14 +416,7 @@ function sanitizeRequestBody(body) {
   const sanitized = JSON.parse(JSON.stringify(body || {}));
 
   // Lista de campos sensíveis para remover
-  const sensitiveFields = [
-    'password',
-    'senha',
-    'token',
-    'secret',
-    'credit_card',
-    'creditCard',
-  ];
+  const sensitiveFields = ['password', 'senha', 'token', 'secret', 'credit_card', 'creditCard'];
 
   // Função recursiva para sanitizar objetos aninhados
   function sanitizeObject(obj) {

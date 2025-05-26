@@ -5,12 +5,24 @@ const API_BASE_URL = 'http://localhost:3000/api';
 // Mock data
 const mockUsers = [
   { id: 1, username: 'admin@lascmmg.com', role: 'admin', created_at: '2025-01-01T00:00:00Z' },
-  { id: 2, username: 'user@test.com', role: 'user', created_at: '2025-01-01T00:00:00Z' }
+  { id: 2, username: 'user@test.com', role: 'user', created_at: '2025-01-01T00:00:00Z' },
 ];
 
 const mockPlayers = [
-  { id: 1, name: 'João Silva', nickname: 'JoãoGamer', email: 'joao@test.com', created_at: '2025-01-01T00:00:00Z' },
-  { id: 2, name: 'Maria Santos', nickname: 'MariaPro', email: 'maria@test.com', created_at: '2025-01-01T00:00:00Z' }
+  {
+    id: 1,
+    name: 'João Silva',
+    nickname: 'JoãoGamer',
+    email: 'joao@test.com',
+    created_at: '2025-01-01T00:00:00Z',
+  },
+  {
+    id: 2,
+    name: 'Maria Santos',
+    nickname: 'MariaPro',
+    email: 'maria@test.com',
+    created_at: '2025-01-01T00:00:00Z',
+  },
 ];
 
 const mockTournaments = [
@@ -19,10 +31,10 @@ const mockTournaments = [
     name: 'Torneio Teste',
     description: 'Torneio para testes',
     status: 'Ativo',
-    entry_fee: 50.00,
-    prize_pool: 500.00,
-    created_at: '2025-01-01T00:00:00Z'
-  }
+    entry_fee: 50.0,
+    prize_pool: 500.0,
+    created_at: '2025-01-01T00:00:00Z',
+  },
 ];
 
 const mockScores = [
@@ -34,8 +46,8 @@ const mockScores = [
     player2_score: 1,
     winner_name: 'João Silva',
     round: 'Quartas de Final',
-    completed_at: '2025-01-01T12:00:00Z'
-  }
+    completed_at: '2025-01-01T12:00:00Z',
+  },
 ];
 
 const mockTrashItems = [
@@ -43,8 +55,8 @@ const mockTrashItems = [
     id: 1,
     type: 'player',
     name: 'Jogador Deletado',
-    deleted_at: '2025-01-01T10:00:00Z'
-  }
+    deleted_at: '2025-01-01T10:00:00Z',
+  },
 ];
 
 let csrfToken = 'mock-csrf-token';
@@ -63,7 +75,7 @@ export const handlers = [
         success: true,
         token: 'mock-jwt-token',
         admin: mockUsers[0],
-        expiresIn: 3600
+        expiresIn: 3600,
       });
     }
     return HttpResponse.json({ success: false, message: 'Credenciais inválidas' }, { status: 401 });
@@ -76,7 +88,7 @@ export const handlers = [
         success: true,
         token: 'mock-user-jwt-token',
         user: mockUsers[1],
-        expiresIn: 3600
+        expiresIn: 3600,
       });
     }
     return HttpResponse.json({ success: false, message: 'Credenciais inválidas' }, { status: 401 });
@@ -95,9 +107,10 @@ export const handlers = [
 
     let filteredPlayers = mockPlayers;
     if (search) {
-      filteredPlayers = mockPlayers.filter(player =>
-        player.name.toLowerCase().includes(search.toLowerCase()) ||
-        player.nickname.toLowerCase().includes(search.toLowerCase())
+      filteredPlayers = mockPlayers.filter(
+        (player) =>
+          player.name.toLowerCase().includes(search.toLowerCase()) ||
+          player.nickname.toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -106,7 +119,7 @@ export const handlers = [
       players: filteredPlayers,
       currentPage: page,
       totalPages: Math.ceil(filteredPlayers.length / limit),
-      total: filteredPlayers.length
+      total: filteredPlayers.length,
     });
   }),
 
@@ -115,7 +128,7 @@ export const handlers = [
     const newPlayer = {
       id: mockPlayers.length + 1,
       ...body,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
     mockPlayers.push(newPlayer);
     return HttpResponse.json({ success: true, player: newPlayer });
@@ -124,10 +137,13 @@ export const handlers = [
   http.put(`${API_BASE_URL}/admin/players/:id`, async ({ params, request }) => {
     const body = await request.json();
     const playerId = parseInt(params.id);
-    const playerIndex = mockPlayers.findIndex(p => p.id === playerId);
+    const playerIndex = mockPlayers.findIndex((p) => p.id === playerId);
 
     if (playerIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Jogador não encontrado' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Jogador não encontrado' },
+        { status: 404 }
+      );
     }
 
     mockPlayers[playerIndex] = { ...mockPlayers[playerIndex], ...body };
@@ -136,17 +152,20 @@ export const handlers = [
 
   http.delete(`${API_BASE_URL}/admin/players/:id`, ({ params }) => {
     const playerId = parseInt(params.id);
-    const playerIndex = mockPlayers.findIndex(p => p.id === playerId);
+    const playerIndex = mockPlayers.findIndex((p) => p.id === playerId);
 
     if (playerIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Jogador não encontrado' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Jogador não encontrado' },
+        { status: 404 }
+      );
     }
 
     const deletedPlayer = mockPlayers.splice(playerIndex, 1)[0];
     mockTrashItems.push({
       ...deletedPlayer,
       type: 'player',
-      deleted_at: new Date().toISOString()
+      deleted_at: new Date().toISOString(),
     });
 
     return HttpResponse.json({ success: true, message: 'Jogador movido para lixeira' });
@@ -163,7 +182,7 @@ export const handlers = [
       scores: mockScores,
       currentPage: page,
       totalPages: Math.ceil(mockScores.length / limit),
-      total: mockScores.length
+      total: mockScores.length,
     });
   }),
 
@@ -172,7 +191,7 @@ export const handlers = [
     const newScore = {
       id: mockScores.length + 1,
       ...body,
-      completed_at: new Date().toISOString()
+      completed_at: new Date().toISOString(),
     };
     mockScores.push(newScore);
     return HttpResponse.json({ success: true, score: newScore });
@@ -181,10 +200,13 @@ export const handlers = [
   http.put(`${API_BASE_URL}/admin/scores/:id`, async ({ params, request }) => {
     const body = await request.json();
     const scoreId = parseInt(params.id);
-    const scoreIndex = mockScores.findIndex(s => s.id === scoreId);
+    const scoreIndex = mockScores.findIndex((s) => s.id === scoreId);
 
     if (scoreIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Placar não encontrado' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Placar não encontrado' },
+        { status: 404 }
+      );
     }
 
     mockScores[scoreIndex] = { ...mockScores[scoreIndex], ...body };
@@ -193,17 +215,20 @@ export const handlers = [
 
   http.delete(`${API_BASE_URL}/admin/scores/:id`, ({ params }) => {
     const scoreId = parseInt(params.id);
-    const scoreIndex = mockScores.findIndex(s => s.id === scoreId);
+    const scoreIndex = mockScores.findIndex((s) => s.id === scoreId);
 
     if (scoreIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Placar não encontrado' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Placar não encontrado' },
+        { status: 404 }
+      );
     }
 
     const deletedScore = mockScores.splice(scoreIndex, 1)[0];
     mockTrashItems.push({
       ...deletedScore,
       type: 'score',
-      deleted_at: new Date().toISOString()
+      deleted_at: new Date().toISOString(),
     });
 
     return HttpResponse.json({ success: true, message: 'Placar movido para lixeira' });
@@ -213,16 +238,19 @@ export const handlers = [
   http.get(`${API_BASE_URL}/tournaments`, () => {
     return HttpResponse.json({
       success: true,
-      tournaments: mockTournaments
+      tournaments: mockTournaments,
     });
   }),
 
   http.get(`${API_BASE_URL}/tournaments/:id`, ({ params }) => {
     const tournamentId = parseInt(params.id);
-    const tournament = mockTournaments.find(t => t.id === tournamentId);
+    const tournament = mockTournaments.find((t) => t.id === tournamentId);
 
     if (!tournament) {
-      return HttpResponse.json({ success: false, message: 'Torneio não encontrado' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Torneio não encontrado' },
+        { status: 404 }
+      );
     }
 
     return HttpResponse.json({ success: true, tournament });
@@ -233,7 +261,7 @@ export const handlers = [
     const newTournament = {
       id: mockTournaments.length + 1,
       ...body,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
     mockTournaments.push(newTournament);
     return HttpResponse.json({ success: true, tournament: newTournament });
@@ -248,7 +276,7 @@ export const handlers = [
 
     let filteredItems = mockTrashItems;
     if (itemType) {
-      filteredItems = mockTrashItems.filter(item => item.type === itemType);
+      filteredItems = mockTrashItems.filter((item) => item.type === itemType);
     }
 
     return HttpResponse.json({
@@ -256,17 +284,20 @@ export const handlers = [
       trashItems: filteredItems,
       currentPage: page,
       totalPages: Math.ceil(filteredItems.length / limit),
-      total: filteredItems.length
+      total: filteredItems.length,
     });
   }),
 
   http.post(`${API_BASE_URL}/admin/trash/:type/:id/restore`, ({ params }) => {
     const { type, id } = params;
     const itemId = parseInt(id);
-    const itemIndex = mockTrashItems.findIndex(item => item.id === itemId && item.type === type);
+    const itemIndex = mockTrashItems.findIndex((item) => item.id === itemId && item.type === type);
 
     if (itemIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Item não encontrado na lixeira' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Item não encontrado na lixeira' },
+        { status: 404 }
+      );
     }
 
     const restoredItem = mockTrashItems.splice(itemIndex, 1)[0];
@@ -290,10 +321,13 @@ export const handlers = [
   http.delete(`${API_BASE_URL}/admin/trash/:type/:id`, ({ params }) => {
     const { type, id } = params;
     const itemId = parseInt(id);
-    const itemIndex = mockTrashItems.findIndex(item => item.id === itemId && item.type === type);
+    const itemIndex = mockTrashItems.findIndex((item) => item.id === itemId && item.type === type);
 
     if (itemIndex === -1) {
-      return HttpResponse.json({ success: false, message: 'Item não encontrado na lixeira' }, { status: 404 });
+      return HttpResponse.json(
+        { success: false, message: 'Item não encontrado na lixeira' },
+        { status: 404 }
+      );
     }
 
     mockTrashItems.splice(itemIndex, 1);
@@ -308,8 +342,8 @@ export const handlers = [
         totalPlayers: mockPlayers.length,
         totalTournaments: mockTournaments.length,
         totalScores: mockScores.length,
-        trashItems: mockTrashItems.length
-      }
+        trashItems: mockTrashItems.length,
+      },
     });
   }),
 

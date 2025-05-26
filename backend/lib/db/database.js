@@ -13,10 +13,7 @@ try {
   const dataDir = DB_CONFIG.dataDir;
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
-    logger.info(
-      { component: 'Database' },
-      `Diretório de dados criado em: ${dataDir}`
-    );
+    logger.info({ component: 'Database' }, `Diretório de dados criado em: ${dataDir}`);
   }
 
   // Configurar verbose logging apenas em desenvolvimento se logQueries for true
@@ -227,10 +224,7 @@ function initializeDatabase() {
  */
 function getSyncConnection() {
   if (!db || !db.open) {
-    logger.error(
-      { component: 'Database' },
-      'Instância DB não está disponível ou aberta!'
-    );
+    logger.error({ component: 'Database' }, 'Instância DB não está disponível ou aberta!');
     throw new Error('Conexão com banco de dados não estabelecida.');
   }
   return db;
@@ -247,10 +241,7 @@ function closeSyncConnection() {
         logger.info({ component: 'Database' }, 'Conexão SQLite fechada.');
       }
     } catch (err) {
-      logger.error(
-        { component: 'Database', err },
-        'Erro ao fechar conexão SQLite.'
-      );
+      logger.error({ component: 'Database', err }, 'Erro ao fechar conexão SQLite.');
     }
   }
 }
@@ -323,10 +314,7 @@ function transactionAsync(actions) {
       const result = transaction();
       resolve(result);
     } catch (err) {
-      logger.error(
-        { component: 'Database', err },
-        'Erro na transação assíncrona (wrapper).'
-      );
+      logger.error({ component: 'Database', err }, 'Erro na transação assíncrona (wrapper).');
       reject(err);
     }
   });
@@ -342,15 +330,10 @@ function querySync(sql, params = []) {
   const db = getSyncConnection();
   try {
     const stmt = db.prepare(sql);
-    const result = Array.isArray(params)
-      ? stmt.all(...params)
-      : stmt.all(params);
+    const result = Array.isArray(params) ? stmt.all(...params) : stmt.all(params);
     return result;
   } catch (err) {
-    logger.error(
-      { component: 'Database', sql, params, err },
-      'Erro ao executar query síncrona.'
-    );
+    logger.error({ component: 'Database', sql, params, err }, 'Erro ao executar query síncrona.');
     throw err;
   }
 }
@@ -365,15 +348,10 @@ function getOneSync(sql, params = []) {
   const db = getSyncConnection();
   try {
     const stmt = db.prepare(sql);
-    const result = Array.isArray(params)
-      ? stmt.get(...params)
-      : stmt.get(params);
+    const result = Array.isArray(params) ? stmt.get(...params) : stmt.get(params);
     return result || null;
   } catch (err) {
-    logger.error(
-      { component: 'Database', sql, params, err },
-      'Erro ao executar getOne síncrono.'
-    );
+    logger.error({ component: 'Database', sql, params, err }, 'Erro ao executar getOne síncrono.');
     throw err;
   }
 }
@@ -394,10 +372,7 @@ function runSync(sql, params = []) {
       changes: info.changes,
     };
   } catch (err) {
-    logger.error(
-      { component: 'Database', sql, params, err },
-      'Erro ao executar run síncrono.'
-    );
+    logger.error({ component: 'Database', sql, params, err }, 'Erro ao executar run síncrono.');
     throw err;
   }
 }

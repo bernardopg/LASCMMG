@@ -44,10 +44,7 @@ function globalErrorHandler(err, req, res, _next) {
   if (err.name === 'ValidationError') {
     status = 400;
     message = 'Erro de validação: ' + (err.message || 'Dados inválidos');
-  } else if (
-    err.name === 'UnauthorizedError' ||
-    err.name === 'JsonWebTokenError'
-  ) {
+  } else if (err.name === 'UnauthorizedError' || err.name === 'JsonWebTokenError') {
     status = 401;
     message = 'Erro de autenticação: ' + (err.message || 'Token inválido');
   } else if (err.name === 'TokenExpiredError') {
@@ -58,9 +55,7 @@ function globalErrorHandler(err, req, res, _next) {
     message = 'Acesso negado: ' + (err.message || 'Permissão insuficiente');
   } else if (err.name === 'NotFoundError') {
     status = 404;
-    message =
-      'Recurso não encontrado: ' +
-      (err.message || 'O recurso solicitado não existe');
+    message = 'Recurso não encontrado: ' + (err.message || 'O recurso solicitado não existe');
   }
 
   res.status(status).json(formatErrorResponse(message, status, err));

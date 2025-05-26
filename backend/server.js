@@ -44,10 +44,16 @@ const io = new Server(httpServer, {
   cors: {
     origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID', 'X-Requested-With'],
+    allowHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-CSRF-Token',
+      'X-Request-ID',
+      'X-Requested-With',
+    ],
     exposedHeaders: ['Content-Disposition', 'X-Request-ID'],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 // Inicializa o serviço de notificações com o Socket.IO
@@ -86,8 +92,8 @@ app.use(
         ? {
           directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", (req, res) => `'nonce-${req.id}'`],
-            styleSrc: ["'self'", (req, res) => `'nonce-${req.id}'`],
+            scriptSrc: ["'self'", (req) => `'nonce-${req.id}'`],
+            styleSrc: ["'self'", (req) => `'nonce-${req.id}'`],
             imgSrc: ["'self'", 'data:'],
             connectSrc: ["'self'"],
             fontSrc: ["'self'"],
@@ -110,7 +116,13 @@ app.use(
   cors({
     origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-CSRF-Token',
+      'X-Request-ID',
+      'X-Requested-With',
+    ],
     exposedHeaders: ['Content-Disposition', 'X-Request-ID'],
     credentials: true,
     maxAge: 86400,
@@ -144,15 +156,12 @@ const loginLimiter = rateLimit({
   max: 10,
   message: {
     success: false,
-    message:
-      'Muitas tentativas de login deste IP. Tente novamente após 15 minutos.',
+    message: 'Muitas tentativas de login deste IP. Tente novamente após 15 minutos.',
   },
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    return req.body && req.body.username
-      ? `${req.ip}-${req.body.username}`.toLowerCase()
-      : req.ip;
+    return req.body && req.body.username ? `${req.ip}-${req.body.username}`.toLowerCase() : req.ip;
   },
   skip: (req) => req.method === 'OPTIONS',
 });
@@ -260,14 +269,11 @@ app.use(
 
 app.use(
   '/favicon.ico',
-  express.static(
-    path.join(__dirname, '../frontend-react/public/assets/favicon.ico'),
-    {
-      // Changed path to public/assets
-      maxAge: oneDay * 7,
-      setHeaders: setContentTypeHeaders,
-    }
-  )
+  express.static(path.join(__dirname, '../frontend-react/public/assets/favicon.ico'), {
+    // Changed path to public/assets
+    maxAge: oneDay * 7,
+    setHeaders: setContentTypeHeaders,
+  })
 );
 
 app.use(
@@ -338,17 +344,12 @@ app.get('/ping', (req, res) => {
 app.use(globalErrorHandler);
 
 app.use('/api/*', (req, res) => {
-  res
-    .status(404)
-    .json({ success: false, message: 'Endpoint API não encontrado.' });
+  res.status(404).json({ success: false, message: 'Endpoint API não encontrado.' });
 });
 
 app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
   try {
-    const filePath = path.join(
-      __dirname,
-      '../frontend-react/public/admin.html'
-    ); // Changed path, assuming it's in public
+    const filePath = path.join(__dirname, '../frontend-react/public/admin.html'); // Changed path, assuming it's in public
     const htmlContent = await fs.readFile(filePath, 'utf-8');
     const injectedHtml = honeypot.injectFields(htmlContent);
     res.send(injectedHtml);
@@ -358,45 +359,32 @@ app.get('/admin.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
   }
 });
 
-app.get(
-  '/admin-security.html',
-  csrfMiddleware.csrfProvider,
-  async (req, res, next) => {
-    try {
-      const filePath = path.join(
-        __dirname,
-        '../frontend-react/public/admin-security.html'
-      ); // Changed path, assuming it's in public
-      const htmlContent = await fs.readFile(filePath, 'utf-8');
-      const injectedHtml = honeypot.injectFields(htmlContent);
-      res.send(injectedHtml);
-    } catch (error) {
-      logger.error('Erro ao servir admin-security.html com honeypot:', error);
-      next(error);
-    }
+app.get('/admin-security.html', csrfMiddleware.csrfProvider, async (req, res, next) => {
+  try {
+    const filePath = path.join(__dirname, '../frontend-react/public/admin-security.html'); // Changed path, assuming it's in public
+    const htmlContent = await fs.readFile(filePath, 'utf-8');
+    const injectedHtml = honeypot.injectFields(htmlContent);
+    res.send(injectedHtml);
+  } catch (error) {
+    logger.error('Erro ao servir admin-security.html com honeypot:', error);
+    next(error);
   }
-);
-app.get(
-  ['/', '/index.html'],
-  csrfMiddleware.csrfProvider,
-  async (req, res, next) => {
-    try {
-      const filePath = path.join(__dirname, '../frontend-react/index.html'); // Changed path (Vite's index.html is usually at root of its project)
-      const htmlContent = await fs.readFile(filePath, 'utf-8');
-      const injectedHtml = honeypot.injectFields(htmlContent);
-      res.send(injectedHtml);
-    } catch (error) {
-      logger.error('Erro ao servir index.html com honeypot:', error);
-      next(error);
-    }
+});
+app.get(['/', '/index.html'], csrfMiddleware.csrfProvider, async (req, res, next) => {
+  try {
+    const filePath = path.join(__dirname, '../frontend-react/index.html'); // Changed path (Vite's index.html is usually at root of its project)
+    const htmlContent = await fs.readFile(filePath, 'utf-8');
+    const injectedHtml = honeypot.injectFields(htmlContent);
+    res.send(injectedHtml);
+  } catch (error) {
+    logger.error('Erro ao servir index.html com honeypot:', error);
+    next(error);
   }
-);
+});
 
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    return res
-      .status(404)
-      .json({ success: false, message: 'API endpoint não encontrado' });
+    return res.status(404).json({ success: false, message: 'API endpoint não encontrado' });
   }
 
   if (path.extname(req.path).length > 0 && !req.path.endsWith('.html')) {
@@ -420,7 +408,10 @@ async function startServer() {
       await performanceInitializer.initialize();
       logger.info('Sistema de performance inicializado com sucesso');
     } catch (err) {
-      logger.warn({ err }, 'Falha ao inicializar sistema de performance, continuando sem otimizações');
+      logger.warn(
+        { err },
+        'Falha ao inicializar sistema de performance, continuando sem otimizações'
+      );
     }
 
     // Initialize backup system
@@ -429,7 +420,10 @@ async function startServer() {
       await backupManager.initialize();
       logger.info('Sistema de backup inicializado com sucesso');
     } catch (err) {
-      logger.warn({ err }, 'Falha ao inicializar sistema de backup, continuando sem backups automáticos');
+      logger.warn(
+        { err },
+        'Falha ao inicializar sistema de backup, continuando sem backups automáticos'
+      );
     }
 
     const server = httpServer.listen(port, () => {

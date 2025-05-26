@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -14,15 +13,15 @@ const AuthLayout = ({
   alternativeLink,
   alternativeLinkText,
   showLogo = true,
-  maxWidth = "md"
+  maxWidth = 'md',
 }) => {
-  const { theme } = useTheme();
+  const { theme: _theme } = useTheme();
 
   const maxWidthClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl"
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
   };
 
   return (
@@ -73,9 +72,7 @@ const AuthLayout = ({
             </div>
 
             {/* Content */}
-            <div className="px-6 py-8 sm:px-8">
-              {children}
-            </div>
+            <div className="px-6 py-8 sm:px-8">{children}</div>
           </div>
 
           {/* Alternative Action */}

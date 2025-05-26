@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
-  FaSearch,
-  FaUserPlus,
-  FaEye,
+  FaChartBar,
   FaEdit,
+  FaEye,
+  FaFilter,
+  FaGamepad,
+  FaSearch,
+  FaSort,
   FaTrash,
   FaTrophy,
-  FaGamepad,
-  FaChartBar,
-  FaFilter,
-  FaSort
+  FaUserPlus,
 } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { getPlayers, deletePlayerAdmin } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { deletePlayerAdmin, getPlayers } from '../services/api';
 
 const PlayersPage = () => {
   const [players, setPlayers] = useState([]);
@@ -26,7 +26,7 @@ const PlayersPage = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterBy, setFilterBy] = useState('all');
 
-  const { hasPermission, currentUser } = useAuth();
+  const { hasPermission, currentUser: _currentUser } = useAuth();
 
   // Função helper para validar se um ID é válido
   const isValidId = (id) => {
@@ -45,12 +45,13 @@ const PlayersPage = () => {
         if (response.success && response.players) {
           // Transformar os dados do backend para o formato esperado pelo frontend
           // Filtrar players com IDs inválidos primeiro - validação rigorosa
-          const validPlayers = response.players.filter(player =>
-            player &&
-            isValidId(player.id) &&
-            player.name &&
-            typeof player.name === 'string' &&
-            player.name.trim() !== ''
+          const validPlayers = response.players.filter(
+            (player) =>
+              player &&
+              isValidId(player.id) &&
+              player.name &&
+              typeof player.name === 'string' &&
+              player.name.trim() !== ''
           );
 
           const transformedPlayers = validPlayers.map((player, index) => ({
@@ -63,10 +64,11 @@ const PlayersPage = () => {
             totalMatches: player.games_played || 0,
             wins: player.wins || 0,
             losses: player.losses || 0,
-            winRate: player.games_played > 0 ? Math.round((player.wins / player.games_played) * 100) : 0,
+            winRate:
+              player.games_played > 0 ? Math.round((player.wins / player.games_played) * 100) : 0,
             ranking: index + 1, // Simples ranking baseado na ordem
             status: player.is_deleted ? 'inactive' : 'active',
-            createdAt: player.created_at
+            createdAt: player.created_at,
           }));
 
           setPlayers(transformedPlayers);
@@ -91,16 +93,17 @@ const PlayersPage = () => {
 
     // Aplicar filtro de busca
     if (searchTerm) {
-      filtered = filtered.filter(player =>
-        player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (player.email && player.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (player.nickname && player.nickname.toLowerCase().includes(searchTerm.toLowerCase()))
+      filtered = filtered.filter(
+        (player) =>
+          player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (player.email && player.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (player.nickname && player.nickname.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     // Aplicar filtro de status
     if (filterBy !== 'all') {
-      filtered = filtered.filter(player => player.status === filterBy);
+      filtered = filtered.filter((player) => player.status === filterBy);
     }
 
     // Aplicar ordenação
@@ -136,9 +139,7 @@ const PlayersPage = () => {
 
         if (response.success) {
           // Remover o jogador da lista local ou marcar como inativo
-          setPlayers(players.map(p =>
-            p.id === playerId ? { ...p, status: 'inactive' } : p
-          ));
+          setPlayers(players.map((p) => (p.id === playerId ? { ...p, status: 'inactive' } : p)));
         } else {
           setError(response.message || 'Erro ao excluir jogador.');
         }
@@ -152,7 +153,7 @@ const PlayersPage = () => {
   };
 
   const getStatusBadge = (status) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+    const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
     switch (status) {
       case 'active':
         return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200`;
@@ -185,9 +186,7 @@ const PlayersPage = () => {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Jogadores
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Jogadores</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
                 Gerencie todos os jogadores cadastrados na plataforma
               </p>
@@ -221,7 +220,9 @@ const PlayersPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Jogadores Ativos</p>
-                <p className="text-2xl font-bold text-green-600">{players.filter(p => p.status === 'active').length}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {players.filter((p) => p.status === 'active').length}
+                </p>
               </div>
               <FaGamepad className="w-8 h-8 text-green-500" />
             </div>
@@ -231,7 +232,9 @@ const PlayersPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total de Partidas</p>
-                <p className="text-2xl font-bold text-blue-600">{players.reduce((acc, p) => acc + p.totalMatches, 0)}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {players.reduce((acc, p) => acc + p.totalMatches, 0)}
+                </p>
               </div>
               <FaTrophy className="w-8 h-8 text-blue-500" />
             </div>
@@ -242,7 +245,8 @@ const PlayersPage = () => {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Taxa Média de Vitória</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {Math.round(players.reduce((acc, p) => acc + p.winRate, 0) / players.length || 0)}%
+                  {Math.round(players.reduce((acc, p) => acc + p.winRate, 0) / players.length || 0)}
+                  %
                 </p>
               </div>
               <FaChartBar className="w-8 h-8 text-purple-500" />
@@ -340,7 +344,10 @@ const PlayersPage = () => {
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {filteredPlayers.map((player) => (
-                  <tr key={player.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors duration-200">
+                  <tr
+                    key={player.id}
+                    className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors duration-200"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <span className={`text-2xl font-bold ${getRankingColor(player.ranking)}`}>
@@ -377,10 +384,16 @@ const PlayersPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
-                        <div>Partidas: <span className="font-medium">{player.totalMatches}</span></div>
-                        <div>V: <span className="text-green-600 font-medium">{player.wins}</span> |
-                             D: <span className="text-red-600 font-medium">{player.losses}</span></div>
-                        <div>Taxa: <span className="font-medium">{player.winRate}%</span></div>
+                        <div>
+                          Partidas: <span className="font-medium">{player.totalMatches}</span>
+                        </div>
+                        <div>
+                          V: <span className="text-green-600 font-medium">{player.wins}</span> | D:{' '}
+                          <span className="text-red-600 font-medium">{player.losses}</span>
+                        </div>
+                        <div>
+                          Taxa: <span className="font-medium">{player.winRate}%</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -438,9 +451,13 @@ const PlayersPage = () => {
         {filteredPlayers.length === 0 && !loading && (
           <div className="text-center py-12">
             <FaUserPlus className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Nenhum jogador encontrado</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+              Nenhum jogador encontrado
+            </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchTerm ? 'Tente ajustar os filtros de busca.' : 'Comece criando um novo jogador.'}
+              {searchTerm
+                ? 'Tente ajustar os filtros de busca.'
+                : 'Comece criando um novo jogador.'}
             </p>
             {hasPermission('admin') && !searchTerm && (
               <div className="mt-6">

@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import AdminTrashTable from '../../components/admin/AdminTrashTable';
 import { AuthProvider } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
 import { TournamentProvider } from '../../context/TournamentContext';
-import AdminTrashTable from '../../components/admin/AdminTrashTable';
 import TrashPage from '../../pages/admin/TrashPage';
 
 const mockNavigate = vi.fn();
@@ -23,9 +23,7 @@ const TestWrapper = ({ children }) => {
     <BrowserRouter>
       <MessageProvider>
         <AuthProvider>
-          <TournamentProvider>
-            {children}
-          </TournamentProvider>
+          <TournamentProvider>{children}</TournamentProvider>
         </AuthProvider>
       </MessageProvider>
     </BrowserRouter>
@@ -123,20 +121,20 @@ describe('Trash Management Integration Tests', () => {
           id: 1,
           type: 'player',
           name: 'Jogador Deletado',
-          deleted_at: '2025-01-01T10:00:00Z'
+          deleted_at: '2025-01-01T10:00:00Z',
         },
         {
           id: 2,
           type: 'score',
           name: 'Placar Deletado',
-          deleted_at: '2025-01-01T11:00:00Z'
+          deleted_at: '2025-01-01T11:00:00Z',
         },
         {
           id: 3,
           type: 'tournament',
           name: 'Torneio Deletado',
-          deleted_at: '2025-01-01T12:00:00Z'
-        }
+          deleted_at: '2025-01-01T12:00:00Z',
+        },
       ];
 
       server.use(
@@ -146,7 +144,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: mixedTrashItems,
             currentPage: 1,
             totalPages: 1,
-            total: mixedTrashItems.length
+            total: mixedTrashItems.length,
           });
         })
       );
@@ -247,7 +245,7 @@ describe('Trash Management Integration Tests', () => {
 
       const mixedItems = [
         { id: 1, type: 'player', name: 'Player Test', deleted_at: '2025-01-01T10:00:00Z' },
-        { id: 2, type: 'score', name: 'Score Test', deleted_at: '2025-01-01T11:00:00Z' }
+        { id: 2, type: 'score', name: 'Score Test', deleted_at: '2025-01-01T11:00:00Z' },
       ];
 
       server.use(
@@ -257,7 +255,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: mixedItems,
             currentPage: 1,
             totalPages: 1,
-            total: mixedItems.length
+            total: mixedItems.length,
           });
         })
       );
@@ -394,7 +392,7 @@ describe('Trash Management Integration Tests', () => {
       const multipleItems = [
         { id: 1, type: 'player', name: 'Player 1', deleted_at: '2025-01-01T10:00:00Z' },
         { id: 2, type: 'player', name: 'Player 2', deleted_at: '2025-01-01T11:00:00Z' },
-        { id: 3, type: 'score', name: 'Score 1', deleted_at: '2025-01-01T12:00:00Z' }
+        { id: 3, type: 'score', name: 'Score 1', deleted_at: '2025-01-01T12:00:00Z' },
       ];
 
       server.use(
@@ -404,7 +402,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: multipleItems,
             currentPage: 1,
             totalPages: 1,
-            total: multipleItems.length
+            total: multipleItems.length,
           });
         })
       );
@@ -444,7 +442,7 @@ describe('Trash Management Integration Tests', () => {
 
       const multipleItems = [
         { id: 1, type: 'player', name: 'Player 1', deleted_at: '2025-01-01T10:00:00Z' },
-        { id: 2, type: 'player', name: 'Player 2', deleted_at: '2025-01-01T11:00:00Z' }
+        { id: 2, type: 'player', name: 'Player 2', deleted_at: '2025-01-01T11:00:00Z' },
       ];
 
       server.use(
@@ -454,7 +452,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: multipleItems,
             currentPage: 1,
             totalPages: 1,
-            total: multipleItems.length
+            total: multipleItems.length,
           });
         }),
         http.post('http://localhost:3000/api/admin/trash/bulk/restore', () => {
@@ -497,7 +495,7 @@ describe('Trash Management Integration Tests', () => {
 
       const multipleItems = [
         { id: 1, type: 'player', name: 'Player 1', deleted_at: '2025-01-01T10:00:00Z' },
-        { id: 2, type: 'score', name: 'Score 1', deleted_at: '2025-01-01T11:00:00Z' }
+        { id: 2, type: 'score', name: 'Score 1', deleted_at: '2025-01-01T11:00:00Z' },
       ];
 
       server.use(
@@ -507,7 +505,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: multipleItems,
             currentPage: 1,
             totalPages: 1,
-            total: multipleItems.length
+            total: multipleItems.length,
           });
         }),
         http.delete('http://localhost:3000/api/admin/trash/bulk/delete', () => {
@@ -559,7 +557,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: [],
             currentPage: 1,
             totalPages: 0,
-            total: 0
+            total: 0,
           });
         })
       );
@@ -618,11 +616,11 @@ describe('Trash Management Integration Tests', () => {
               byType: {
                 player: 2,
                 score: 2,
-                tournament: 1
+                tournament: 1,
               },
               oldestItem: '2025-01-01T10:00:00Z',
-              newestItem: '2025-01-01T15:00:00Z'
-            }
+              newestItem: '2025-01-01T15:00:00Z',
+            },
           });
         })
       );
@@ -656,8 +654,8 @@ describe('Trash Management Integration Tests', () => {
           id: 1,
           type: 'player',
           name: 'Item Antigo',
-          deleted_at: oldDate.toISOString()
-        }
+          deleted_at: oldDate.toISOString(),
+        },
       ];
 
       server.use(
@@ -667,7 +665,7 @@ describe('Trash Management Integration Tests', () => {
             trashItems: oldItems,
             currentPage: 1,
             totalPages: 1,
-            total: oldItems.length
+            total: oldItems.length,
           });
         })
       );

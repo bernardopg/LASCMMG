@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
@@ -32,9 +32,7 @@ export default defineConfig({
                 {
                   handlerDidError: async () => {
                     // Fallback to offline.html if network fails or times out
-                    return (
-                      (await caches.match('/offline.html')) || Response.error()
-                    );
+                    return (await caches.match('/offline.html')) || Response.error();
                   },
                 },
               ],
@@ -82,13 +80,13 @@ export default defineConfig({
             src: '/assets/logo-192x192.png', // Corrected path to assets folder
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any maskable',
           },
           {
             src: '/assets/logo-512x512.png', // Corrected path to assets folder
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any maskable',
           },
           // Optional: include favicon.ico if desired in manifest icons as well
           // {
@@ -109,12 +107,12 @@ export default defineConfig({
         target: 'http://localhost:3000', // Your backend server address
         changeOrigin: true, // Recommended for virtual hosted sites
         secure: false, // For self-signed certs
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
             // Add current origin to help backend know where the request is coming from
             proxyReq.setHeader('X-Forwarded-Host', req.headers.host);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             // Override CORS headers in the response
             proxyRes.headers['Access-Control-Allow-Origin'] = req.headers.origin || '*';
             proxyRes.headers['Access-Control-Allow-Credentials'] = true;

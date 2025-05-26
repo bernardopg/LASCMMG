@@ -30,7 +30,11 @@
 
   /* Gradientes */
   --gradient-hero: linear-gradient(135deg, #2e9d3a 0%, #54c160 50%, #d4b455 100%);
-  --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  --gradient-card: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   --gradient-sidebar: linear-gradient(180deg, #223322 0%, #1a2a1a 100%);
 }
 
@@ -65,11 +69,18 @@
     @apply dark:bg-slate-900 dark:text-gray-100;
     margin: 0;
     overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 
   /* Tipografia Responsiva Melhorada */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold dark:text-gray-100 text-balance;
     letter-spacing: -0.025em;
   }
@@ -139,12 +150,15 @@
   }
 
   /* Elementos de Formulário */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     @apply transition-colors duration-200;
   }
 
   /* Elementos de Lista */
-  ul, ol {
+  ul,
+  ol {
     @apply space-y-1;
   }
 
@@ -181,7 +195,6 @@
    COMPONENTES REUTILIZÁVEIS
    ================================ */
 @layer components {
-
   /* ============ BOTÕES ============ */
   .btn {
     @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg font-medium;
@@ -227,11 +240,21 @@
   }
 
   /* Tamanhos de Botão */
-  .btn-xs { @apply px-2 py-1 text-xs; }
-  .btn-sm { @apply px-3 py-1.5 text-sm; }
-  .btn-md { @apply px-4 py-2 text-base; }
-  .btn-lg { @apply px-6 py-3 text-lg; }
-  .btn-xl { @apply px-8 py-4 text-xl; }
+  .btn-xs {
+    @apply px-2 py-1 text-xs;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+  .btn-md {
+    @apply px-4 py-2 text-base;
+  }
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+  .btn-xl {
+    @apply px-8 py-4 text-xl;
+  }
 
   /* ============ FORMULÁRIOS ============ */
   .input {
@@ -463,23 +486,47 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes slideInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 

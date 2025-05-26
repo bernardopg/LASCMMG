@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import api from '../services/api';
 import { useNotification } from './NotificationContext';
 
@@ -7,9 +15,7 @@ const TournamentContext = createContext();
 export const useTournament = () => {
   const context = useContext(TournamentContext);
   if (!context) {
-    throw new Error(
-      'useTournament deve ser usado dentro de um TournamentProvider'
-    );
+    throw new Error('useTournament deve ser usado dentro de um TournamentProvider');
   }
   return context;
 };
@@ -66,52 +72,47 @@ export const TournamentProvider = ({ children }) => {
     return request;
   }, []);
 
-  const loadTournaments = useCallback(async (forceRefresh = false) => {
-    return controlRequest('loadTournaments', async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const loadTournaments = useCallback(
+    async (forceRefresh = false) => {
+      return controlRequest('loadTournaments', async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        const response = await api.get('/api/tournaments');
-        const fetchedTournaments = response.data.tournaments || [];
-        setTournaments(fetchedTournaments);
+          const response = await api.get('/api/tournaments');
+          const fetchedTournaments = response.data.tournaments || [];
+          setTournaments(fetchedTournaments);
 
-        // Aplica filtros aos torneios carregados
-        applyFilters(fetchedTournaments, filterCriteria);
+          // Aplica filtros aos torneios carregados
+          applyFilters(fetchedTournaments, filterCriteria);
 
-        const savedTournamentId = localStorage.getItem('currentTournamentId');
-        if (savedTournamentId) {
-          const saved = fetchedTournaments.find(
-            (t) => t.id.toString() === savedTournamentId
-          );
-          if (saved) {
-            setCurrentTournament(saved);
+          const savedTournamentId = localStorage.getItem('currentTournamentId');
+          if (savedTournamentId) {
+            const saved = fetchedTournaments.find((t) => t.id.toString() === savedTournamentId);
+            if (saved) {
+              setCurrentTournament(saved);
+            } else if (fetchedTournaments.length > 0) {
+              setCurrentTournament(fetchedTournaments[0]);
+              localStorage.setItem('currentTournamentId', fetchedTournaments[0].id.toString());
+            }
           } else if (fetchedTournaments.length > 0) {
             setCurrentTournament(fetchedTournaments[0]);
-            localStorage.setItem(
-              'currentTournamentId',
-              fetchedTournaments[0].id.toString()
-            );
+            localStorage.setItem('currentTournamentId', fetchedTournaments[0].id.toString());
           }
-        } else if (fetchedTournaments.length > 0) {
-          setCurrentTournament(fetchedTournaments[0]);
-          localStorage.setItem(
-            'currentTournamentId',
-            fetchedTournaments[0].id.toString()
-          );
-        }
 
-        return fetchedTournaments;
-      } catch (err) {
-        console.error('Erro ao carregar torneios:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao carregar torneios';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest, filterCriteria]);
+          return fetchedTournaments;
+        } catch (err) {
+          console.error('Erro ao carregar torneios:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao carregar torneios';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest, filterCriteria]
+  );
 
   // Observar mudanças no torneio atual para se inscrever nas notificações
   useEffect(() => {
@@ -134,15 +135,16 @@ export const TournamentProvider = ({ children }) => {
 
     // Filtrar por status
     if (criteria.status) {
-      filtered = filtered.filter(t => t.status === criteria.status);
+      filtered = filtered.filter((t) => t.status === criteria.status);
     }
 
     // Filtrar por texto de pesquisa
     if (criteria.search) {
       const searchLower = criteria.search.toLowerCase();
-      filtered = filtered.filter(t =>
-        t.name.toLowerCase().includes(searchLower) ||
-        (t.description && t.description.toLowerCase().includes(searchLower))
+      filtered = filtered.filter(
+        (t) =>
+          t.name.toLowerCase().includes(searchLower) ||
+          (t.description && t.description.toLowerCase().includes(searchLower))
       );
     }
 
@@ -156,9 +158,9 @@ export const TournamentProvider = ({ children }) => {
 
   // Define filtros para os torneios
   const setFilters = useCallback((newCriteria) => {
-    setFilterCriteria(prev => ({
+    setFilterCriteria((prev) => ({
       ...prev,
-      ...newCriteria
+      ...newCriteria,
     }));
   }, []);
 
@@ -167,238 +169,238 @@ export const TournamentProvider = ({ children }) => {
     setFilterCriteria({ status: null, search: '' });
   }, []);
 
-  const selectTournament = useCallback((tournamentId) => {
-    const tournament = tournaments.find(
-      (t) => t.id.toString() === tournamentId.toString()
-    );
+  const selectTournament = useCallback(
+    (tournamentId) => {
+      const tournament = tournaments.find((t) => t.id.toString() === tournamentId.toString());
 
-    if (tournament) {
-      setCurrentTournament(tournament);
-      localStorage.setItem('currentTournamentId', tournament.id.toString());
+      if (tournament) {
+        setCurrentTournament(tournament);
+        localStorage.setItem('currentTournamentId', tournament.id.toString());
 
-      // Inscrever-se nas notificações deste torneio
-      subscribeTournament(tournament.id.toString());
+        // Inscrever-se nas notificações deste torneio
+        subscribeTournament(tournament.id.toString());
 
-      return tournament;
-    }
-
-    return null;
-  }, [tournaments, subscribeTournament]);
-
-  const createTournament = useCallback(async (tournamentData) => {
-    return controlRequest('createTournament', async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await api.post(
-          '/api/tournaments/create',
-          tournamentData
-        );
-
-        // Limpar caches ao criar novo torneio
-        playersCache.current.clear();
-        bracketsCache.current.clear();
-
-        const newTournament = response.data.tournament;
-        setTournaments((prev) => [...prev, newTournament]);
-        setCurrentTournament(newTournament);
-        localStorage.setItem(
-          'currentTournamentId',
-          newTournament.id.toString()
-        );
-
-        return newTournament;
-      } catch (err) {
-        console.error('Erro ao criar torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao criar torneio';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
+        return tournament;
       }
-    });
-  }, [controlRequest]);
 
-  const updateTournament = useCallback(async (tournamentId, tournamentData) => {
-    return controlRequest(`updateTournament-${tournamentId}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      return null;
+    },
+    [tournaments, subscribeTournament]
+  );
 
-        // Use the refactored api.updateTournamentAdmin which handles multiple PATCH calls
-        const response = await api.updateTournamentAdmin(tournamentId, tournamentData);
-        // updateTournamentAdmin in api.js now returns { success, tournament, errors }
+  const createTournament = useCallback(
+    async (tournamentData) => {
+      return controlRequest('createTournament', async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        if (!response.success) {
-          // Handle case where one or more PATCH calls failed within updateTournamentAdmin
-          const errorMessages = response.errors.map(e => `${e.field}: ${e.message}`).join('; ');
-          throw new Error(errorMessages || 'Falha parcial ou total ao atualizar torneio.');
+          const response = await api.post('/api/tournaments/create', tournamentData);
+
+          // Limpar caches ao criar novo torneio
+          playersCache.current.clear();
+          bracketsCache.current.clear();
+
+          const newTournament = response.data.tournament;
+          setTournaments((prev) => [...prev, newTournament]);
+          setCurrentTournament(newTournament);
+          localStorage.setItem('currentTournamentId', newTournament.id.toString());
+
+          return newTournament;
+        } catch (err) {
+          console.error('Erro ao criar torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao criar torneio';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
         }
+      });
+    },
+    [controlRequest]
+  );
 
-        const updatedTournamentData = response.tournament;
+  const updateTournament = useCallback(
+    async (tournamentId, tournamentData) => {
+      return controlRequest(`updateTournament-${tournamentId}`, async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        if (updatedTournamentData) {
-          // Atualiza torneio na lista
-          setTournaments((prev) =>
-            prev.map((t) =>
-              t.id.toString() === tournamentId.toString()
-                ? updatedTournamentData
-                : t
-            )
-          );
+          // Use the refactored api.updateTournamentAdmin which handles multiple PATCH calls
+          const response = await api.updateTournamentAdmin(tournamentId, tournamentData);
+          // updateTournamentAdmin in api.js now returns { success, tournament, errors }
+
+          if (!response.success) {
+            // Handle case where one or more PATCH calls failed within updateTournamentAdmin
+            const errorMessages = response.errors.map((e) => `${e.field}: ${e.message}`).join('; ');
+            throw new Error(errorMessages || 'Falha parcial ou total ao atualizar torneio.');
+          }
+
+          const updatedTournamentData = response.tournament;
+
+          if (updatedTournamentData) {
+            // Atualiza torneio na lista
+            setTournaments((prev) =>
+              prev.map((t) =>
+                t.id.toString() === tournamentId.toString() ? updatedTournamentData : t
+              )
+            );
+
+            // Limpar caches relacionados a este torneio
+            playersCache.current.delete(tournamentId.toString());
+            bracketsCache.current.delete(tournamentId.toString());
+
+            // Atualiza o torneio atual se for o mesmo
+            if (currentTournament && currentTournament.id.toString() === tournamentId.toString()) {
+              setCurrentTournament(updatedTournamentData);
+            }
+            return updatedTournamentData;
+          } else {
+            throw new Error('Resposta da API de atualização de torneio inesperada.');
+          }
+        } catch (err) {
+          console.error('Erro ao atualizar torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao atualizar torneio';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest, currentTournament]
+  );
+
+  const deleteTournament = useCallback(
+    async (tournamentId) => {
+      return controlRequest(`deleteTournament-${tournamentId}`, async () => {
+        try {
+          setLoading(true);
+          setError(null);
+
+          await api.patch(`/api/tournaments/${tournamentId}/status`, {
+            status: TOURNAMENT_STATUS.CANCELED,
+          });
 
           // Limpar caches relacionados a este torneio
           playersCache.current.delete(tournamentId.toString());
           bracketsCache.current.delete(tournamentId.toString());
 
-          // Atualiza o torneio atual se for o mesmo
-          if (
-            currentTournament &&
-            currentTournament.id.toString() === tournamentId.toString()
-          ) {
-            setCurrentTournament(updatedTournamentData);
+          const updatedTournamentsAfterDelete = tournaments
+            .map((t) =>
+              t.id.toString() === tournamentId.toString()
+                ? { ...t, status: TOURNAMENT_STATUS.CANCELED }
+                : t
+            )
+            .filter((t) => t.status !== TOURNAMENT_STATUS.CANCELED);
+
+          setTournaments(updatedTournamentsAfterDelete);
+
+          if (currentTournament && currentTournament.id.toString() === tournamentId.toString()) {
+            if (updatedTournamentsAfterDelete.length > 0) {
+              setCurrentTournament(updatedTournamentsAfterDelete[0]);
+              localStorage.setItem(
+                'currentTournamentId',
+                updatedTournamentsAfterDelete[0].id.toString()
+              );
+            } else {
+              setCurrentTournament(null);
+              localStorage.removeItem('currentTournamentId');
+            }
           }
-          return updatedTournamentData;
-        } else {
-          throw new Error(
-            'Resposta da API de atualização de torneio inesperada.'
-          );
+
+          return true;
+        } catch (err) {
+          console.error('Erro ao excluir torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao excluir torneio';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error('Erro ao atualizar torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao atualizar torneio';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
+      });
+    },
+    [controlRequest, currentTournament, tournaments]
+  );
+
+  const getTournamentPlayers = useCallback(
+    async (tournamentId, forceRefresh = false) => {
+      // Verificação mais rigorosa para evitar requisições com ID undefined
+      if (!tournamentId || tournamentId === 'undefined') {
+        console.warn('getTournamentPlayers: tournamentId inválido:', tournamentId);
+        return { players: [] };
       }
-    });
-  }, [controlRequest, currentTournament]);
 
-  const deleteTournament = useCallback(async (tournamentId) => {
-    return controlRequest(`deleteTournament-${tournamentId}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      return controlRequest(`getTournamentPlayers-${tournamentId}`, async () => {
+        const cacheKey = tournamentId.toString();
 
-        await api.patch(`/api/tournaments/${tournamentId}/status`, {
-          status: TOURNAMENT_STATUS.CANCELED,
-        });
-
-        // Limpar caches relacionados a este torneio
-        playersCache.current.delete(tournamentId.toString());
-        bracketsCache.current.delete(tournamentId.toString());
-
-        const updatedTournamentsAfterDelete = tournaments
-          .map((t) =>
-            t.id.toString() === tournamentId.toString()
-              ? { ...t, status: TOURNAMENT_STATUS.CANCELED }
-              : t
-          )
-          .filter((t) => t.status !== TOURNAMENT_STATUS.CANCELED);
-
-        setTournaments(updatedTournamentsAfterDelete);
-
-        if (
-          currentTournament &&
-          currentTournament.id.toString() === tournamentId.toString()
-        ) {
-          if (updatedTournamentsAfterDelete.length > 0) {
-            setCurrentTournament(updatedTournamentsAfterDelete[0]);
-            localStorage.setItem(
-              'currentTournamentId',
-              updatedTournamentsAfterDelete[0].id.toString()
-            );
-          } else {
-            setCurrentTournament(null);
-            localStorage.removeItem('currentTournamentId');
-          }
+        // Verificar se os dados estão em cache e não forçar atualização
+        if (!forceRefresh && playersCache.current.has(cacheKey)) {
+          return playersCache.current.get(cacheKey);
         }
 
-        return true;
-      } catch (err) {
-        console.error('Erro ao excluir torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao excluir torneio';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest, currentTournament, tournaments]);
+        try {
+          setLoading(true);
+          setError(null);
 
-  const getTournamentPlayers = useCallback(async (tournamentId, forceRefresh = false) => {
-    // Verificação mais rigorosa para evitar requisições com ID undefined
-    if (!tournamentId || tournamentId === 'undefined') {
-      console.warn('getTournamentPlayers: tournamentId inválido:', tournamentId);
-      return { players: [] };
-    }
+          const response = await api.get(`/api/tournaments/${tournamentId}/players`);
 
-    return controlRequest(`getTournamentPlayers-${tournamentId}`, async () => {
-      const cacheKey = tournamentId.toString();
+          // Armazenar no cache
+          playersCache.current.set(cacheKey, response.data);
 
-      // Verificar se os dados estão em cache e não forçar atualização
-      if (!forceRefresh && playersCache.current.has(cacheKey)) {
-        return playersCache.current.get(cacheKey);
-      }
+          return response.data;
+        } catch (err) {
+          console.error('Erro ao carregar jogadores:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao carregar jogadores';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest]
+  );
 
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await api.get(`/api/tournaments/${tournamentId}/players`);
-
-        // Armazenar no cache
-        playersCache.current.set(cacheKey, response.data);
-
-        return response.data;
-      } catch (err) {
-        console.error('Erro ao carregar jogadores:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao carregar jogadores';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest]);
-
-  const getTournamentBrackets = useCallback(async (tournamentId, forceRefresh = false) => {
-    // Verificação mais rigorosa para evitar requisições com ID undefined
-    if (!tournamentId || tournamentId === 'undefined') {
-      console.warn('getTournamentBrackets: tournamentId inválido:', tournamentId);
-      return { matches: {}, rounds: [] };
-    }
-
-    return controlRequest(`getTournamentBrackets-${tournamentId}`, async () => {
-      const cacheKey = tournamentId.toString();
-
-      // Verificar se os dados estão em cache e não forçar atualização
-      if (!forceRefresh && bracketsCache.current.has(cacheKey)) {
-        return bracketsCache.current.get(cacheKey);
+  const getTournamentBrackets = useCallback(
+    async (tournamentId, forceRefresh = false) => {
+      // Verificação mais rigorosa para evitar requisições com ID undefined
+      if (!tournamentId || tournamentId === 'undefined') {
+        console.warn('getTournamentBrackets: tournamentId inválido:', tournamentId);
+        return { matches: {}, rounds: [] };
       }
 
-      try {
-        setLoading(true);
-        setError(null);
+      return controlRequest(`getTournamentBrackets-${tournamentId}`, async () => {
+        const cacheKey = tournamentId.toString();
 
-        const response = await api.get(`/api/tournaments/${tournamentId}/state`);
+        // Verificar se os dados estão em cache e não forçar atualização
+        if (!forceRefresh && bracketsCache.current.has(cacheKey)) {
+          return bracketsCache.current.get(cacheKey);
+        }
 
-        // Armazenar no cache
-        bracketsCache.current.set(cacheKey, response.data);
+        try {
+          setLoading(true);
+          setError(null);
 
-        return response.data;
-      } catch (err) {
-        console.error('Erro ao carregar brackets:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao carregar brackets';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest]);
+          const response = await api.get(`/api/tournaments/${tournamentId}/state`);
+
+          // Armazenar no cache
+          bracketsCache.current.set(cacheKey, response.data);
+
+          return response.data;
+        } catch (err) {
+          console.error('Erro ao carregar brackets:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao carregar brackets';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest]
+  );
 
   // Carrega torneios ao montar o componente (apenas uma vez)
   useEffect(() => {
@@ -424,9 +426,7 @@ export const TournamentProvider = ({ children }) => {
 
           setCurrentTournament(refreshedTournament);
           setTournaments((prev) =>
-            prev.map((t) =>
-              t.id === currentTournament.id ? refreshedTournament : t
-            )
+            prev.map((t) => (t.id === currentTournament.id ? refreshedTournament : t))
           );
 
           // Limpar caches relacionados a este torneio
@@ -437,13 +437,13 @@ export const TournamentProvider = ({ children }) => {
           return refreshedTournament;
         } else {
           throw new Error(
-            response.data.message ||
-            'Falha ao buscar detalhes do torneio para atualização.'
+            response.data.message || 'Falha ao buscar detalhes do torneio para atualização.'
           );
         }
       } catch (err) {
         console.error('Erro ao recarregar detalhes do torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao recarregar detalhes do torneio';
+        const errorMessage =
+          err.response?.data?.message || 'Falha ao recarregar detalhes do torneio';
         setError(errorMessage);
         throw new Error(errorMessage);
       } finally {
@@ -453,103 +453,109 @@ export const TournamentProvider = ({ children }) => {
   }, [controlRequest, currentTournament]);
 
   // Função para adicionar um jogador a um torneio
-  const addPlayerToTournament = useCallback(async (tournamentId, playerData) => {
-    return controlRequest(`addPlayerToTournament-${tournamentId}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const addPlayerToTournament = useCallback(
+    async (tournamentId, playerData) => {
+      return controlRequest(`addPlayerToTournament-${tournamentId}`, async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        const response = await api.post(
-          `/api/tournaments/${tournamentId}/players`,
-          playerData
-        );
+          const response = await api.post(`/api/tournaments/${tournamentId}/players`, playerData);
 
-        // Limpar cache de jogadores para este torneio
-        playersCache.current.delete(tournamentId.toString());
+          // Limpar cache de jogadores para este torneio
+          playersCache.current.delete(tournamentId.toString());
 
-        return response.data;
-      } catch (err) {
-        console.error('Erro ao adicionar jogador ao torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao adicionar jogador';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest]);
+          return response.data;
+        } catch (err) {
+          console.error('Erro ao adicionar jogador ao torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao adicionar jogador';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest]
+  );
 
   // Função para remover um jogador de um torneio
-  const removePlayerFromTournament = useCallback(async (tournamentId, playerId) => {
-    // Assuming this is a soft delete. The API for this is via admin player deletion.
-    // Requires importing deletePlayerAdmin from api.js
-    // import { deletePlayerAdmin } from '../services/api'; // Would need this import
-    return controlRequest(`removePlayerFromTournament-${tournamentId}-${playerId}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const removePlayerFromTournament = useCallback(
+    async (tournamentId, playerId) => {
+      // Assuming this is a soft delete. The API for this is via admin player deletion.
+      // Requires importing deletePlayerAdmin from api.js
+      // import { deletePlayerAdmin } from '../services/api'; // Would need this import
+      return controlRequest(`removePlayerFromTournament-${tournamentId}-${playerId}`, async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        // This should call the admin endpoint for deleting a player,
-        // which handles soft/permanent deletion. Assuming soft delete here.
-        // The backend route is DELETE /api/admin/players/:playerId
-        // The api.js function is deletePlayerAdmin(playerId, permanent)
-        const response = await api.deletePlayerAdmin(playerId, false); // Assuming api.js is updated or deletePlayerAdmin is imported
+          // This should call the admin endpoint for deleting a player,
+          // which handles soft/permanent deletion. Assuming soft delete here.
+          // The backend route is DELETE /api/admin/players/:playerId
+          // The api.js function is deletePlayerAdmin(playerId, permanent)
+          const response = await api.deletePlayerAdmin(playerId, false); // Assuming api.js is updated or deletePlayerAdmin is imported
 
-        // Limpar cache de jogadores para este torneio
-        playersCache.current.delete(tournamentId.toString());
+          // Limpar cache de jogadores para este torneio
+          playersCache.current.delete(tournamentId.toString());
 
-        return response.data;
-      } catch (err) {
-        console.error('Erro ao remover jogador do torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao remover jogador';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest]);
+          return response.data;
+        } catch (err) {
+          console.error('Erro ao remover jogador do torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao remover jogador';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest]
+  );
 
   // Função para iniciar um torneio
-  const startTournament = useCallback(async (tournamentId) => {
-    // This should call the endpoint for generating bracket, which also starts the tournament.
-    // Backend route: POST /api/tournaments/:tournamentId/generate-bracket
-    // api.js function: generateTournamentBracket(tournamentId)
-    return controlRequest(`startTournament-${tournamentId}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const startTournament = useCallback(
+    async (tournamentId) => {
+      // This should call the endpoint for generating bracket, which also starts the tournament.
+      // Backend route: POST /api/tournaments/:tournamentId/generate-bracket
+      // api.js function: generateTournamentBracket(tournamentId)
+      return controlRequest(`startTournament-${tournamentId}`, async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-        const response = await api.generateTournamentBracket(tournamentId); // Assuming api.js has this function
+          const response = await api.generateTournamentBracket(tournamentId); // Assuming api.js has this function
 
-        // Limpar caches para este torneio
-        playersCache.current.delete(tournamentId.toString());
-        bracketsCache.current.delete(tournamentId.toString());
+          // Limpar caches para este torneio
+          playersCache.current.delete(tournamentId.toString());
+          bracketsCache.current.delete(tournamentId.toString());
 
-        // Atualizar status do torneio na lista
-        const updatedTournament = response.data.tournament;
+          // Atualizar status do torneio na lista
+          const updatedTournament = response.data.tournament;
 
-        if (updatedTournament) {
-          setTournaments(prev =>
-            prev.map(t => t.id.toString() === tournamentId.toString() ? updatedTournament : t)
-          );
+          if (updatedTournament) {
+            setTournaments((prev) =>
+              prev.map((t) => (t.id.toString() === tournamentId.toString() ? updatedTournament : t))
+            );
 
-          if (currentTournament && currentTournament.id.toString() === tournamentId.toString()) {
-            setCurrentTournament(updatedTournament);
+            if (currentTournament && currentTournament.id.toString() === tournamentId.toString()) {
+              setCurrentTournament(updatedTournament);
+            }
           }
-        }
 
-        return response.data;
-      } catch (err) {
-        console.error('Erro ao iniciar torneio:', err);
-        const errorMessage = err.response?.data?.message || 'Falha ao iniciar torneio';
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    });
-  }, [controlRequest, currentTournament]);
+          return response.data;
+        } catch (err) {
+          console.error('Erro ao iniciar torneio:', err);
+          const errorMessage = err.response?.data?.message || 'Falha ao iniciar torneio';
+          setError(errorMessage);
+          throw new Error(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      });
+    },
+    [controlRequest, currentTournament]
+  );
 
   // Memoize os torneios filtrados disponíveis
   const availableTournaments = useMemo(() => {
@@ -579,11 +585,7 @@ export const TournamentProvider = ({ children }) => {
     TOURNAMENT_STATUS, // Exporta constantes de status para uso em componentes
   };
 
-  return (
-    <TournamentContext.Provider value={value}>
-      {children}
-    </TournamentContext.Provider>
-  );
+  return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>;
 };
 
 export default TournamentContext;

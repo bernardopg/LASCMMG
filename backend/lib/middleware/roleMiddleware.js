@@ -15,15 +15,11 @@ const roleMiddleware = (requiredRoles) => {
         'User or user role not found in request. Ensure authMiddleware runs first.',
         { requestId: req.id, ip: req.ip }
       );
-      return res
-        .status(401)
-        .json({ success: false, message: 'Authentication required.' });
+      return res.status(401).json({ success: false, message: 'Authentication required.' });
     }
 
     const userRole = req.user.role;
-    const rolesToCheck = Array.isArray(requiredRoles)
-      ? requiredRoles
-      : [requiredRoles];
+    const rolesToCheck = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
 
     if (rolesToCheck.includes(userRole)) {
       next(); // User has one of the required roles
@@ -35,8 +31,7 @@ const roleMiddleware = (requiredRoles) => {
       );
       return res.status(403).json({
         success: false,
-        message:
-          'Forbidden: You do not have the necessary permissions to access this resource.',
+        message: 'Forbidden: You do not have the necessary permissions to access this resource.',
       });
     }
   };

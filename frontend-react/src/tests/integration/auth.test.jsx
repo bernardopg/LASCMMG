@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../../context/AuthContext';
 import { MessageProvider } from '../../context/MessageContext';
-import Login from '../../pages/Login';
 import AdminDashboardPage from '../../pages/AdminDashboardPage';
+import Login from '../../pages/Login';
 
 // Mock do react-router-dom navigate
 const mockNavigate = vi.fn();
@@ -21,9 +21,7 @@ const TestWrapper = ({ children }) => {
   return (
     <BrowserRouter>
       <MessageProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </MessageProvider>
     </BrowserRouter>
   );

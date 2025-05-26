@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { FaCalendarAlt, FaSearch, FaSpinner, FaSave } from 'react-icons/fa';
-import api, { getTournamentState } from '../../services/api';
+import { useCallback, useEffect, useState } from 'react';
+import { FaCalendarAlt, FaSave, FaSearch, FaSpinner } from 'react-icons/fa';
 import { useMessage } from '../../context/MessageContext';
+import api, { getTournamentState } from '../../services/api';
 
 /**
  * Página de Gerenciamento de Agendamento de Partidas (Admin)
@@ -46,9 +46,7 @@ const AdminMatchSchedulePage = () => {
   // Handler para atualizar agendamento de uma partida
   const handleScheduleChange = (matchId, newSchedule) => {
     setMatches((prev) =>
-      prev.map((m) =>
-        m.matchId === matchId ? { ...m, schedule: newSchedule } : m
-      )
+      prev.map((m) => (m.matchId === matchId ? { ...m, schedule: newSchedule } : m))
     );
   };
 
@@ -61,10 +59,7 @@ const AdminMatchSchedulePage = () => {
 
     setSaving(true);
     try {
-      await api.patch(
-        `/api/tournaments/${tournamentId}/matches/${matchId}/schedule`,
-        { schedule }
-      );
+      await api.patch(`/api/tournaments/${tournamentId}/matches/${matchId}/schedule`, { schedule });
       showSuccess('Agendamento salvo com sucesso!');
     } catch (err) {
       showError(`Erro ao salvar agendamento: ${err.response?.data?.message || err.message}`);
@@ -164,9 +159,7 @@ const AdminMatchSchedulePage = () => {
                       {match.matchId}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                      {(match.players || [])
-                        .map((p) => p?.name || 'A definir')
-                        .join(' vs ')}
+                      {(match.players || []).map((p) => p?.name || 'A definir').join(' vs ')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {match.roundName || match.round || 'N/A'}
@@ -176,18 +169,14 @@ const AdminMatchSchedulePage = () => {
                         type="datetime-local"
                         className="input w-full max-w-xs"
                         value={match.schedule || ''}
-                        onChange={(e) =>
-                          handleScheduleChange(match.matchId, e.target.value)
-                        }
+                        onChange={(e) => handleScheduleChange(match.matchId, e.target.value)}
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         className="btn btn-success btn-sm flex items-center"
                         disabled={saving || !match.schedule}
-                        onClick={() =>
-                          saveSchedule(match.matchId, match.schedule)
-                        }
+                        onClick={() => saveSchedule(match.matchId, match.schedule)}
                       >
                         {saving ? (
                           <>
@@ -213,7 +202,7 @@ const AdminMatchSchedulePage = () => {
       {!loading && matches.length === 0 && tournamentId.trim() && (
         <div className="card bg-white dark:bg-slate-800 p-8 text-center">
           <p className="text-gray-500 dark:text-gray-400 text-lg">
-            Nenhuma partida encontrada para o torneio "{tournamentId}".
+            Nenhuma partida encontrada para o torneio &ldquo;{tournamentId}&rdquo;.
           </p>
           <p className="text-gray-600 dark:text-gray-500 mt-2">
             Verifique se o ID do torneio está correto e se as partidas foram geradas.

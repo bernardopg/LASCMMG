@@ -85,11 +85,7 @@ const PublicRoute = ({ children }) => {
 };
 
 const AdminRoute = ({ children }) => {
-  return (
-    <ProtectedRoute requiredRole="admin">
-      {children}
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute requiredRole="admin">{children}</ProtectedRoute>;
 };
 
 // Main Layout Component
@@ -107,7 +103,9 @@ const AppLayout = ({ children, layoutProps }) => {
         toggleMobileSidebar={layoutProps?.toggleMobileSidebar}
         isMobile={layoutProps?.isMobile}
       />
-      <div className="flex flex-1 pt-16"> {/* pt-16 for fixed header */}
+      <div className="flex flex-1 pt-16">
+        {' '}
+        {/* pt-16 for fixed header */}
         <Sidebar
           isCollapsed={layoutProps?.isSidebarCollapsed}
           isMobileOpen={layoutProps?.isMobileSidebarOpen}
@@ -142,7 +140,7 @@ const AppRouter = ({
   currentTheme,
   toggleSidebarCollapse,
   toggleMobileSidebar,
-  closeMobileSidebar
+  closeMobileSidebar,
 }) => {
   // Props do layout para passar para todos os componentes AppLayout
   const layoutProps = {
@@ -152,7 +150,7 @@ const AppRouter = ({
     currentTheme,
     toggleSidebarCollapse,
     toggleMobileSidebar,
-    closeMobileSidebar
+    closeMobileSidebar,
   };
 
   return (
@@ -541,7 +539,9 @@ const AppRouter = ({
             <AppLayout layoutProps={layoutProps}>
               <div className="text-center py-12">
                 <h1 className="text-2xl font-bold text-red-600">Acesso Negado</h1>
-                <p className="mt-2 text-gray-600">Você não tem permissão para acessar esta página.</p>
+                <p className="mt-2 text-gray-600">
+                  Você não tem permissão para acessar esta página.
+                </p>
               </div>
             </AppLayout>
           }

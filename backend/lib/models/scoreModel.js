@@ -1,19 +1,9 @@
-const {
-  queryAsync,
-  runAsync,
-  getOneAsync,
-  transactionAsync,
-} = require('../db/database');
+const { queryAsync, runAsync, getOneAsync, transactionAsync } = require('../db/database');
 const { logger } = require('../logger/logger');
 const notificationService = require('../services/notificationService'); // Importar serviço de notificações
 
 // Helper to add is_deleted filter for scores
-const addScoreIsDeletedFilter = (
-  sql,
-  params,
-  includeDeleted = false,
-  alias = 's'
-) => {
+const addScoreIsDeletedFilter = (sql, params, includeDeleted = false, alias = 's') => {
   if (!includeDeleted) {
     if (sql.toUpperCase().includes('WHERE')) {
       sql += ` AND (${alias}.is_deleted = 0 OR ${alias}.is_deleted IS NULL)`;
@@ -67,14 +57,8 @@ async function getScoresByMatchId(matchId, includeDeleted = false) {
 
 async function addScore(scoreData) {
   const { match_id, player1_score, player2_score, winner_id, tournament_id } = scoreData;
-  if (
-    match_id === undefined ||
-    player1_score === undefined ||
-    player2_score === undefined
-  ) {
-    throw new Error(
-      'match_id, player1_score e player2_score são obrigatórios.'
-    );
+  if (match_id === undefined || player1_score === undefined || player2_score === undefined) {
+    throw new Error('match_id, player1_score e player2_score são obrigatórios.');
   }
 
   const sql = `
@@ -82,12 +66,7 @@ async function addScore(scoreData) {
     VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, 0, NULL)
   `;
   try {
-    const result = await runAsync(sql, [
-      match_id,
-      player1_score,
-      player2_score,
-      winner_id || null,
-    ]);
+    const result = await runAsync(sql, [match_id, player1_score, player2_score, winner_id || null]);
 
     const addedScore = await getScoreById(result.lastInsertRowid);
 
@@ -99,16 +78,13 @@ async function addScore(scoreData) {
         scoreId: addedScore.id,
         player1Score: player1_score,
         player2Score: player2_score,
-        winnerId: winner_id
+        winnerId: winner_id,
       });
     }
 
     return addedScore;
   } catch (err) {
-    logger.error(
-      { component: 'ScoreModel', err, scoreData },
-      'Erro ao adicionar score.'
-    );
+    logger.error({ component: 'ScoreModel', err, scoreData }, 'Erro ao adicionar score.');
     throw err;
   }
 }
@@ -180,7 +156,7 @@ async function updateScore(scoreId, scoreData) {
             tournamentId: matchInfo.tournament_id,
             matchId: updatedScore.match_id,
             scoreId: scoreId,
-            updates: scoreData
+            updates: scoreData,
           });
         }
       } catch (queryErr) {
@@ -229,11 +205,15 @@ async function deleteScore(scoreId, permanent = false) {
           const matchInfo = await getOneAsync(matchQuery, [score.match_id]);
 
           if (matchInfo && matchInfo.tournament_id) {
-            notificationService.sendTournamentNotification(matchInfo.tournament_id, 'score_deleted', {
-              tournamentId: matchInfo.tournament_id,
-              matchId: score.match_id,
-              scoreId: scoreId
-            });
+            notificationService.sendTournamentNotification(
+              matchInfo.tournament_id,
+              'score_deleted',
+              {
+                tournamentId: matchInfo.tournament_id,
+                matchId: score.match_id,
+                scoreId: scoreId,
+              }
+            );
           }
         } catch (queryErr) {
           logger.error(
@@ -265,10 +245,7 @@ async function deleteScore(scoreId, permanent = false) {
       }
       const existing = await getScoreById(scoreId, true);
       if (existing && existing.is_deleted) {
-        logger.info(
-          { component: 'ScoreModel', scoreId },
-          `Score ${scoreId} já estava na lixeira.`
-        );
+        logger.info({ component: 'ScoreModel', scoreId }, `Score ${scoreId} já estava na lixeira.`);
         return true;
       }
       logger.warn(
@@ -337,27 +314,17 @@ async function getScoresByTournamentId(tournamentId, options = {}) {
     WHERE m.tournament_id = ?
   `;
 
-  const filtered = addScoreIsDeletedFilter(
-    baseSql,
-    [...baseParams],
-    includeDeleted
-  );
+  const filtered = addScoreIsDeletedFilter(baseSql, [...baseParams], includeDeleted);
   let sql = filtered.sql;
   let params = filtered.params;
 
-  const filteredCount = addScoreIsDeletedFilter(
-    countBaseSql,
-    [...baseParams],
-    includeDeleted
-  );
+  const filteredCount = addScoreIsDeletedFilter(countBaseSql, [...baseParams], includeDeleted);
   let countSql = filteredCount.sql;
   let countParams = filteredCount.params;
 
   // ORDER BY clause using mapped and quoted identifiers where appropriate
   // If effectiveOrderBy contains '.', it's likely an aliased column like 's.id'
-  const orderByClause = effectiveOrderBy.includes('.')
-    ? effectiveOrderBy
-    : `"${effectiveOrderBy}"`;
+  const orderByClause = effectiveOrderBy.includes('.') ? effectiveOrderBy : `"${effectiveOrderBy}"`;
   sql += ` ORDER BY ${orderByClause} ${effectiveOrder}`;
 
   if (limit !== undefined && limit !== -1 && limit !== null) {
@@ -450,10 +417,7 @@ async function importScores(tournamentId, scoresData) {
         try {
           let matchDbId = matchCache.get(scoreJson.matchId);
           if (matchDbId === undefined) {
-            const matchInDb = getMatchIdByNumberStmt.get(
-              tournamentId,
-              scoreJson.matchId
-            );
+            const matchInDb = getMatchIdByNumberStmt.get(tournamentId, scoreJson.matchId);
             if (matchInDb) {
               matchDbId = matchInDb.id;
               matchCache.set(scoreJson.matchId, matchDbId);
@@ -498,9 +462,7 @@ async function importScores(tournamentId, scoresData) {
             importedCount++;
           }
         } catch (error) {
-          errors.push(
-            `Erro ao processar score ${JSON.stringify(scoreJson)}: ${error.message}`
-          );
+          errors.push(`Erro ao processar score ${JSON.stringify(scoreJson)}: ${error.message}`);
         }
       }
     });
@@ -634,9 +596,7 @@ async function getAllScores(options = {}) {
     }
     if (filters.is_deleted !== undefined) {
       // Explicitly filter by is_deleted
-      whereClauses = whereClauses.filter(
-        (clause) => !clause.includes('s.is_deleted')
-      ); // Remove default
+      whereClauses = whereClauses.filter((clause) => !clause.includes('s.is_deleted')); // Remove default
       whereClauses.push('s.is_deleted = ?');
       queryParams.push(filters.is_deleted ? 1 : 0);
       countQueryParams.push(filters.is_deleted ? 1 : 0);
@@ -650,9 +610,7 @@ async function getAllScores(options = {}) {
   }
 
   // ORDER BY clause using mapped and quoted identifiers where appropriate
-  const orderByClause = effectiveOrderBy.includes('.')
-    ? effectiveOrderBy
-    : `"${effectiveOrderBy}"`;
+  const orderByClause = effectiveOrderBy.includes('.') ? effectiveOrderBy : `"${effectiveOrderBy}"`;
   let sql = baseSql + ` ORDER BY ${orderByClause} ${effectiveOrder}`;
   let countSql = countBaseSql; // countSql does not need ORDER BY
 
@@ -673,10 +631,7 @@ async function getAllScores(options = {}) {
     const totalResult = await getOneAsync(countSql, countQueryParams); // countQueryParams for count
     return { scores, total: totalResult ? totalResult.total : 0 };
   } catch (err) {
-    logger.error(
-      { component: 'ScoreModel', err, filters },
-      `Erro ao buscar todos os scores.`
-    );
+    logger.error({ component: 'ScoreModel', err, filters }, `Erro ao buscar todos os scores.`);
     throw err;
   }
 }

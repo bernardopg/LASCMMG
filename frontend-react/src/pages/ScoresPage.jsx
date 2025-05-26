@@ -71,10 +71,7 @@ const ScoresPage = () => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
-    } else if (
-      sortConfig.key === key &&
-      sortConfig.direction === 'descending'
-    ) {
+    } else if (sortConfig.key === key && sortConfig.direction === 'descending') {
       // Optional: third click could remove sort or cycle to default
       direction = 'ascending'; // Simple toggle for now
     }
@@ -91,17 +88,9 @@ const ScoresPage = () => {
           const playerName = activeFilters.player.toLowerCase();
           const p1 = (score.player1_name || score.player1 || '').toLowerCase();
           const p2 = (score.player2_name || score.player2 || '').toLowerCase();
-          const winner = (
-            score.winner_name ||
-            score.winner ||
-            ''
-          ).toLowerCase();
+          const winner = (score.winner_name || score.winner || '').toLowerCase();
           if (
-            !(
-              p1.includes(playerName) ||
-              p2.includes(playerName) ||
-              winner.includes(playerName)
-            )
+            !(p1.includes(playerName) || p2.includes(playerName) || winner.includes(playerName))
           ) {
             return false;
           }
@@ -125,8 +114,7 @@ const ScoresPage = () => {
         if (activeFilters.result && activeFilters.player) {
           const playerFilter = activeFilters.player;
           if (activeFilters.result === 'vitoria') {
-            if ((score.winner_name || score.winner) !== playerFilter)
-              return false;
+            if ((score.winner_name || score.winner) !== playerFilter) return false;
           } else if (activeFilters.result === 'derrota') {
             if (
               !(
@@ -160,8 +148,6 @@ const ScoresPage = () => {
         } else if (sortConfig.key === 'score') {
           valA = (a.player1_score ?? 0) + (a.player2_score ?? 0); // Use player1_score, player2_score
           valB = (b.player1_score ?? 0) + (b.player2_score ?? 0); // Use player1_score, player2_score
-        } else if (typeof valA === 'string' && typeof valB === 'string') {
-          valB = (b.score1 ?? 0) + (b.score2 ?? 0);
         } else if (typeof valA === 'string' && typeof valB === 'string') {
           valA = valA.toLowerCase();
           valB = valB.toLowerCase();
@@ -212,11 +198,7 @@ const ScoresPage = () => {
             aria-controls="scores-filters-body"
             onClick={() => setFiltersVisible(!filtersVisible)}
           >
-            <svg
-              className="icon w-6 h-6"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
+            <svg className="icon w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
               <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
             </svg>
           </button>
@@ -291,9 +273,7 @@ const ScoresPage = () => {
                   type="date"
                   id="filter-date"
                   className="filter-input mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
-                  onChange={(e) =>
-                    handleFilterChange('dateAfter', e.target.value)
-                  }
+                  onChange={(e) => handleFilterChange('dateAfter', e.target.value)}
                   value={activeFilters.dateAfter || ''}
                 />
               </div>
@@ -410,10 +390,7 @@ const ScoresPage = () => {
               </tr>
             ) : (
               sortedAndFilteredScores.map((score) => (
-                <tr
-                  key={score.id}
-                  className="hover:bg-gray-50 dark:hover:bg-slate-700"
-                >
+                <tr key={score.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {score.completed_at
                       ? new Date(score.completed_at).toLocaleDateString('pt-BR', {

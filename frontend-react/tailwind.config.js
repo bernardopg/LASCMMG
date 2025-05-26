@@ -157,30 +157,29 @@ module.exports = {
         176: '44rem',
         192: '48rem',
         // Spacing específico para componentes
-        '4.5': '1.125rem',
-        '5.5': '1.375rem',
-        '6.5': '1.625rem',
-        '13': '3.25rem',
-        '15': '3.75rem',
-        '17': '4.25rem',
-        '18': '4.5rem',
-        '19': '4.75rem',
-        '21': '5.25rem',
-        '22': '5.5rem',
-        '23': '5.75rem',
-        '25': '6.25rem',
-        '26': '6.5rem',
-        '27': '6.75rem',
-        '29': '7.25rem',
-        '30': '7.5rem',
-        '31': '7.75rem',
-        '33': '8.25rem',
-        '34': '8.5rem',
-        '35': '8.75rem',
+        4.5: '1.125rem',
+        5.5: '1.375rem',
+        6.5: '1.625rem',
+        13: '3.25rem',
+        15: '3.75rem',
+        17: '4.25rem',
+        18: '4.5rem',
+        19: '4.75rem',
+        21: '5.25rem',
+        22: '5.5rem',
+        23: '5.75rem',
+        25: '6.25rem',
+        26: '6.5rem',
+        27: '6.75rem',
+        29: '7.25rem',
+        30: '7.5rem',
+        31: '7.75rem',
+        33: '8.25rem',
+        34: '8.5rem',
+        35: '8.75rem',
       },
       boxShadow: {
-        DEFAULT:
-          '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
@@ -193,18 +192,18 @@ module.exports = {
         card: '0 4px 20px rgba(0, 0, 0, 0.2)',
         'card-hover': '0 8px 30px rgba(0, 0, 0, 0.25)',
         'card-light': '0 2px 10px rgba(0, 0, 0, 0.1)',
-        'primary': '0 4px 20px rgba(46, 157, 58, 0.3)',
+        primary: '0 4px 20px rgba(46, 157, 58, 0.3)',
         'primary-lg': '0 8px 30px rgba(46, 157, 58, 0.4)',
-        'secondary': '0 4px 20px rgba(212, 180, 85, 0.3)',
-        'success': '0 4px 20px rgba(16, 185, 129, 0.3)',
-        'danger': '0 4px 20px rgba(239, 68, 68, 0.3)',
-        'warning': '0 4px 20px rgba(245, 158, 11, 0.3)',
-        'info': '0 4px 20px rgba(59, 130, 246, 0.3)',
+        secondary: '0 4px 20px rgba(212, 180, 85, 0.3)',
+        success: '0 4px 20px rgba(16, 185, 129, 0.3)',
+        danger: '0 4px 20px rgba(239, 68, 68, 0.3)',
+        warning: '0 4px 20px rgba(245, 158, 11, 0.3)',
+        info: '0 4px 20px rgba(59, 130, 246, 0.3)',
         // Sombras para elementos específicos
-        'sidebar': '4px 0 15px rgba(0, 0, 0, 0.1)',
-        'modal': '0 20px 60px rgba(0, 0, 0, 0.5)',
-        'dropdown': '0 10px 40px rgba(0, 0, 0, 0.15)',
-        'tooltip': '0 4px 20px rgba(0, 0, 0, 0.25)',
+        sidebar: '4px 0 15px rgba(0, 0, 0, 0.1)',
+        modal: '0 20px 60px rgba(0, 0, 0, 0.5)',
+        dropdown: '0 10px 40px rgba(0, 0, 0, 0.15)',
+        tooltip: '0 4px 20px rgba(0, 0, 0, 0.25)',
       },
       borderRadius: {
         sm: '0.125rem',
@@ -218,10 +217,10 @@ module.exports = {
         '5xl': '2.5rem',
         full: '9999px',
         // Raios customizados
-        'card': '0.75rem',
-        'button': '0.5rem',
-        'badge': '9999px',
-        'input': '0.5rem',
+        card: '0.75rem',
+        button: '0.5rem',
+        badge: '9999px',
+        input: '0.5rem',
       },
       // Gradientes personalizados
       backgroundImage: {
@@ -235,7 +234,8 @@ module.exports = {
         'gradient-light': 'linear-gradient(135deg, #f8fffe 0%, #ffffff 100%)',
         // Gradientes especiais
         'gradient-hero': 'linear-gradient(135deg, #2e9d3a 0%, #54c160 50%, #d4b455 100%)',
-        'gradient-card': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        'gradient-card':
+          'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
         'gradient-sidebar': 'linear-gradient(180deg, #223322 0%, #1a2a1a 100%)',
       },
       // Animações customizadas
@@ -248,10 +248,10 @@ module.exports = {
         'slide-in-down': 'slideInDown 0.3s ease-out',
         'bounce-subtle': 'bounceSubtle 2s infinite',
         'pulse-subtle': 'pulseSubtle 2s infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-        'float': 'float 3s ease-in-out infinite',
-        'shimmer': 'shimmer 2s linear infinite',
-        'wiggle': 'wiggle 1s ease-in-out infinite',
+        glow: 'glow 2s ease-in-out infinite alternate',
+        float: 'float 3s ease-in-out infinite',
+        shimmer: 'shimmer 2s linear infinite',
+        wiggle: 'wiggle 1s ease-in-out infinite',
         'heart-beat': 'heartBeat 1.5s ease-in-out infinite',
         'scale-in': 'scaleIn 0.2s ease-out',
         'scale-out': 'scaleOut 0.2s ease-in',
@@ -331,30 +331,30 @@ module.exports = {
       },
       // Transições customizadas
       transitionDuration: {
-        '0': '0ms',
-        '25': '25ms',
-        '50': '50ms',
-        '400': '400ms',
-        '600': '600ms',
-        '800': '800ms',
-        '900': '900ms',
-        '1200': '1200ms',
-        '1500': '1500ms',
-        '2000': '2000ms',
+        0: '0ms',
+        25: '25ms',
+        50: '50ms',
+        400: '400ms',
+        600: '600ms',
+        800: '800ms',
+        900: '900ms',
+        1200: '1200ms',
+        1500: '1500ms',
+        2000: '2000ms',
       },
       // Z-index customizado
       zIndex: {
-        '60': '60',
-        '70': '70',
-        '80': '80',
-        '90': '90',
-        '100': '100',
-        'sidebar': '30',
-        'header': '40',
-        'overlay': '50',
-        'modal': '60',
-        'tooltip': '70',
-        'notification': '80',
+        60: '60',
+        70: '70',
+        80: '80',
+        90: '90',
+        100: '100',
+        sidebar: '30',
+        header: '40',
+        overlay: '50',
+        modal: '60',
+        tooltip: '70',
+        notification: '80',
       },
       // Tipografia customizada
       typography: (theme) => ({
@@ -445,10 +445,10 @@ module.exports = {
       },
       // Breakpoints customizados
       screens: {
-        'xs': '475px',
+        xs: '475px',
         '3xl': '1600px',
         '4xl': '2000px',
-        'print': { 'raw': 'print' },
+        print: { raw: 'print' },
       },
     },
   },
@@ -457,7 +457,7 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
     // Plugin customizado para utilitários adicionais
-    function({ addUtilities, theme }) {
+    function ({ addUtilities }) {
       const newUtilities = {
         // Utilitários de texto
         '.text-balance': {
@@ -488,7 +488,7 @@ module.exports = {
         },
         // Utilitários de aparência
         '.appearance-auto': {
-          'appearance': 'auto',
+          appearance: 'auto',
         },
         // Utilitários de backdrop
         '.backdrop-brightness-25': {
@@ -501,12 +501,12 @@ module.exports = {
         '.glass': {
           'backdrop-filter': 'blur(10px)',
           'background-color': 'rgba(255, 255, 255, 0.1)',
-          'border': '1px solid rgba(255, 255, 255, 0.2)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
         },
         '.glass-dark': {
           'backdrop-filter': 'blur(10px)',
           'background-color': 'rgba(0, 0, 0, 0.3)',
-          'border': '1px solid rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
         },
         '.text-shadow': {
           'text-shadow': '0 1px 2px rgba(0, 0, 0, 0.1)',
@@ -520,8 +520,8 @@ module.exports = {
         '.text-shadow-none': {
           'text-shadow': 'none',
         },
-      }
-      addUtilities(newUtilities)
+      };
+      addUtilities(newUtilities);
     },
   ],
 };

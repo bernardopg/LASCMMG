@@ -1,9 +1,4 @@
-const {
-  queryAsync,
-  runAsync,
-  getOneAsync,
-  transactionAsync,
-} = require('../db/database');
+const { queryAsync, runAsync, getOneAsync, transactionAsync } = require('../db/database');
 const playerModel = require('./playerModel');
 const { logger } = require('../logger/logger');
 
@@ -65,8 +60,7 @@ async function getMatchesByTournamentId(tournamentId, options = {}) {
   // If effectiveOrderBy is an alias like 'player1_name', it doesn't need table prefix.
   // Otherwise, prefix with 'm.' and quote.
   const params = [tournamentId];
-  const countSql =
-    'SELECT COUNT(*) as total FROM matches WHERE tournament_id = ?';
+  const countSql = 'SELECT COUNT(*) as total FROM matches WHERE tournament_id = ?';
 
   if (limit !== undefined) {
     sql += ' LIMIT ?';
@@ -130,10 +124,7 @@ async function createMatch(matchData) {
     ]);
     return await getMatchById(result.lastInsertRowid); // Corrigido para lastInsertRowid
   } catch (err) {
-    logger.error(
-      { component: 'MatchModel', err, matchData },
-      'Erro ao criar partida.'
-    );
+    logger.error({ component: 'MatchModel', err, matchData }, 'Erro ao criar partida.');
     throw err;
   }
 }
@@ -149,15 +140,8 @@ async function updateMatch(matchId, matchData) {
     throw new Error('ID da partida não fornecido');
   }
 
-  const {
-    round,
-    player1_id,
-    player2_id,
-    scheduled_at,
-    next_match,
-    next_loser_match,
-    bracket,
-  } = matchData;
+  const { round, player1_id, player2_id, scheduled_at, next_match, next_loser_match, bracket } =
+    matchData;
 
   const fieldsToUpdate = [];
   const values = [];
@@ -249,15 +233,8 @@ async function deleteMatchesByTournamentId(tournamentId) {
  */
 async function importMatchesFromState(tournamentId, state) {
   const stats = { created: 0, updated: 0, errors: [] };
-  if (
-    !tournamentId ||
-    !state ||
-    !state.matches ||
-    typeof state.matches !== 'object'
-  ) {
-    stats.errors.push(
-      'Dados de entrada inválidos para importMatchesFromState.'
-    );
+  if (!tournamentId || !state || !state.matches || typeof state.matches !== 'object') {
+    stats.errors.push('Dados de entrada inválidos para importMatchesFromState.');
     return stats;
   }
 
@@ -324,14 +301,10 @@ async function importMatchesFromState(tournamentId, state) {
       const result = await createMatchesBulk(tournamentId, matchesFromState);
       stats.created = result.createdCount;
       stats.errors.push(
-        ...result.errors.map(
-          (e) => `Erro ao criar partida ${e.matchData.match_number}: ${e.error}`
-        )
+        ...result.errors.map((e) => `Erro ao criar partida ${e.matchData.match_number}: ${e.error}`)
       );
     } catch (error) {
-      stats.errors.push(
-        `Erro geral ao importar partidas para ${tournamentId}: ${error.message}`
-      );
+      stats.errors.push(`Erro geral ao importar partidas para ${tournamentId}: ${error.message}`);
     }
   }
   return stats;

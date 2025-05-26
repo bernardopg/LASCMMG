@@ -141,10 +141,7 @@ async function csrfProvider(req, res, next) {
 
 async function csrfProtection(req, res, next) {
   // Allow CSRF bypass for testing purposes
-  if (
-    req.originalUrl === '/api/auth/login' ||
-    req.originalUrl === '/api/login'
-  ) {
+  if (req.originalUrl === '/api/auth/login' || req.originalUrl === '/api/login') {
     logger.warn(
       { component: 'CSRFMiddleware', skippedRoute: req.originalUrl },
       `CSRF protection SKIPPED for login route: ${req.originalUrl}`
@@ -157,8 +154,7 @@ async function csrfProtection(req, res, next) {
   }
 
   const token =
-    req.headers[CSRF_CONFIG.headerName.toLowerCase()] ||
-    req.cookies[CSRF_CONFIG.cookieName];
+    req.headers[CSRF_CONFIG.headerName.toLowerCase()] || req.cookies[CSRF_CONFIG.cookieName];
   const userId = req.user?.username || 'anonymous';
   let isValid;
 
@@ -176,8 +172,7 @@ async function csrfProtection(req, res, next) {
   if (!isValid) {
     return res.status(403).json({
       success: false,
-      message:
-        'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
+      message: 'Token CSRF inválido ou expirado. Recarregue a página e tente novamente.',
     });
   }
   next();

@@ -11,13 +11,12 @@ const PlayerSchema = Yup.object().shape({
     .min(2, 'Nome muito curto')
     .max(100, 'Nome muito longo')
     .required('Nome é obrigatório'),
-  nickname: Yup.string()
-    .max(50, 'Apelido muito longo'),
-  email: Yup.string()
-    .email('Email inválido')
-    .max(100, 'Email muito longo'),
+  nickname: Yup.string().max(50, 'Apelido muito longo'),
+  email: Yup.string().email('Email inválido').max(100, 'Email muito longo'),
   gender: Yup.string().oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido').nullable(),
-  skill_level: Yup.string().oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido').nullable(),
+  skill_level: Yup.string()
+    .oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido')
+    .nullable(),
 });
 
 const EditPlayerPage = () => {
@@ -101,27 +100,55 @@ const EditPlayerPage = () => {
           {({ errors, touched, isValid, dirty }) => (
             <Form className="space-y-6">
               <div>
-                <label htmlFor="name" className="label">Nome Completo</label>
-                <Field type="text" name="name" id="name" className={`input mt-1 ${errors.name && touched.name ? 'input-error' : ''}`} />
+                <label htmlFor="name" className="label">
+                  Nome Completo
+                </label>
+                <Field
+                  type="text"
+                  name="name"
+                  id="name"
+                  className={`input mt-1 ${errors.name && touched.name ? 'input-error' : ''}`}
+                />
                 <ErrorMessage name="name" component="div" className="error-message" />
               </div>
 
               <div>
-                <label htmlFor="nickname" className="label">Apelido (Opcional)</label>
-                <Field type="text" name="nickname" id="nickname" className={`input mt-1 ${errors.nickname && touched.nickname ? 'input-error' : ''}`} />
+                <label htmlFor="nickname" className="label">
+                  Apelido (Opcional)
+                </label>
+                <Field
+                  type="text"
+                  name="nickname"
+                  id="nickname"
+                  className={`input mt-1 ${errors.nickname && touched.nickname ? 'input-error' : ''}`}
+                />
                 <ErrorMessage name="nickname" component="div" className="error-message" />
               </div>
 
               <div>
-                <label htmlFor="email" className="label">Email (Opcional)</label>
-                <Field type="email" name="email" id="email" className={`input mt-1 ${errors.email && touched.email ? 'input-error' : ''}`} />
+                <label htmlFor="email" className="label">
+                  Email (Opcional)
+                </label>
+                <Field
+                  type="email"
+                  name="email"
+                  id="email"
+                  className={`input mt-1 ${errors.email && touched.email ? 'input-error' : ''}`}
+                />
                 <ErrorMessage name="email" component="div" className="error-message" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="gender" className="label">Gênero (Opcional)</label>
-                  <Field as="select" name="gender" id="gender" className={`input mt-1 ${errors.gender && touched.gender ? 'input-error' : ''}`}>
+                  <label htmlFor="gender" className="label">
+                    Gênero (Opcional)
+                  </label>
+                  <Field
+                    as="select"
+                    name="gender"
+                    id="gender"
+                    className={`input mt-1 ${errors.gender && touched.gender ? 'input-error' : ''}`}
+                  >
                     <option value="">Não especificado</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
@@ -130,8 +157,15 @@ const EditPlayerPage = () => {
                   <ErrorMessage name="gender" component="div" className="error-message" />
                 </div>
                 <div>
-                  <label htmlFor="skill_level" className="label">Nível de Habilidade (Opcional)</label>
-                  <Field as="select" name="skill_level" id="skill_level" className={`input mt-1 ${errors.skill_level && touched.skill_level ? 'input-error' : ''}`}>
+                  <label htmlFor="skill_level" className="label">
+                    Nível de Habilidade (Opcional)
+                  </label>
+                  <Field
+                    as="select"
+                    name="skill_level"
+                    id="skill_level"
+                    className={`input mt-1 ${errors.skill_level && touched.skill_level ? 'input-error' : ''}`}
+                  >
                     <option value="">Não especificado</option>
                     <option value="Iniciante">Iniciante</option>
                     <option value="Intermediário">Intermediário</option>

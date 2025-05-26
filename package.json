@@ -21,7 +21,8 @@
     "generate-keys": "node scripts/generate-keys.js",
     "generate-keys:backup": "node scripts/generate-keys.js backup",
     "setup:env": "node scripts/generate-keys.js all",
-    "setup:db": "node backend/setup-db.js"
+    "setup:db": "node backend/setup-db.js",
+    "health-check": "node scripts/health-check.js"
   },
   "keywords": [
     "torneio",
@@ -55,14 +56,18 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@vitest/ui": "^3.1.4",
     "concurrently": "^8.2.2",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-cypress": "^4.3.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-n": "^17.18.0",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-security": "^3.0.1",
     "jsdom": "^26.1.0",
     "nodemon": "^3.1.10",
     "pino-pretty": "^13.0.0",

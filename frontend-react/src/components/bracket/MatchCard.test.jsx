@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import MatchCard from './MatchCard'; // Assuming formatMatchDateTime is exported or tested via component
 
 // Helper to format date/time, copied from MatchCard.jsx for direct testing
@@ -20,7 +19,7 @@ const formatMatchDateTime = (dateTimeString) => {
       hour: '2-digit',
       minute: '2-digit',
     });
-  } catch (e) {
+  } catch {
     return 'Data inválida';
   }
 };
@@ -83,9 +82,7 @@ describe('MatchCard component', () => {
 
   it('highlights the winner', () => {
     render(<MatchCard match={mockMatch} />);
-    const player1Display = screen
-      .getByText('Jogador 1')
-      .closest('.player-display'); // Assuming PlayerDisplay has this class
+    const _player1Display = screen.getByText('Jogador 1').closest('.player-display'); // Assuming PlayerDisplay has this class
     // This test needs PlayerDisplay to add a specific class or attribute for winners.
     // For example, if PlayerDisplay adds 'font-bold' or 'text-green-400' to winner.
     // expect(player1Display).toHaveClass('font-bold'); // Example assertion
@@ -93,9 +90,7 @@ describe('MatchCard component', () => {
 
   it('displays match date and time', () => {
     render(<MatchCard match={mockMatch} />);
-    expect(
-      screen.getByText(formatMatchDateTime(mockMatch.dateTime))
-    ).toBeInTheDocument();
+    expect(screen.getByText(formatMatchDateTime(mockMatch.dateTime))).toBeInTheDocument();
   });
 
   it('displays BYE status correctly', () => {

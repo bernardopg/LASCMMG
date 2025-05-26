@@ -20,11 +20,9 @@ async function userExists(username) {
     const result = await getOneAsync(sql, [username]);
     return !!result;
   } catch (err) {
-    logger.error(
-      'UserModel',
-      `Error checking if user ${username} exists: ${err.message}`,
-      { error: err }
-    );
+    logger.error('UserModel', `Error checking if user ${username} exists: ${err.message}`, {
+      error: err,
+    });
     throw err;
   }
 }
@@ -43,11 +41,7 @@ async function getUserByUsername(username) {
   try {
     return await getOneAsync(sql, [username]);
   } catch (err) {
-    logger.error(
-      'UserModel',
-      `Error fetching user ${username}: ${err.message}`,
-      { error: err }
-    );
+    logger.error('UserModel', `Error fetching user ${username}: ${err.message}`, { error: err });
     throw err;
   }
 }
@@ -109,17 +103,14 @@ async function updateUserLastLogin(username) {
   if (!username) {
     throw new Error('Username not provided for last login update');
   }
-  const sql =
-    'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = ?';
+  const sql = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = ?';
   try {
     const result = await runAsync(sql, [username]);
     return result.changes > 0;
   } catch (err) {
-    logger.error(
-      'UserModel',
-      `Error updating last login for ${username}: ${err.message}`,
-      { error: err }
-    );
+    logger.error('UserModel', `Error updating last login for ${username}: ${err.message}`, {
+      error: err,
+    });
     throw err;
   }
 }
@@ -171,23 +162,14 @@ async function authenticateUser(username, password, ipAddress) {
       };
     }
 
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      user.hashedPassword
-    );
+    const isPasswordCorrect = await bcrypt.compare(password, user.hashedPassword);
 
     if (!isPasswordCorrect) {
-      auditLogger.logAction(
-        user.id.toString(),
-        'USER_LOGIN_FAILURE',
-        'user',
-        user.id.toString(),
-        {
-          username: user.username,
-          reason: 'Incorrect password',
-          ipAddress: ipAddress || 'unknown',
-        }
-      );
+      auditLogger.logAction(user.id.toString(), 'USER_LOGIN_FAILURE', 'user', user.id.toString(), {
+        username: user.username,
+        reason: 'Incorrect password',
+        ipAddress: ipAddress || 'unknown',
+      });
       return { success: false, message: 'Invalid credentials.' };
     }
 
@@ -259,21 +241,27 @@ async function updatePasswordById(userId, currentPassword, newPassword, ipAddres
   try {
     // Obter o usuário para validar a senha atual e para auditoria
     // Selecionar username para o log de auditoria.
-    const user = await getOneAsync('SELECT id, username, hashedPassword, role FROM users WHERE id = ?', [userId]);
+    const user = await getOneAsync(
+      'SELECT id, username, hashedPassword, role FROM users WHERE id = ?',
+      [userId]
+    );
 
     if (!user) {
-      logger.warn('UserModel', `Tentativa de atualização de senha para usuário inexistente ID: ${userId}.`);
+      logger.warn(
+        'UserModel',
+        `Tentativa de atualização de senha para usuário inexistente ID: ${userId}.`
+      );
       return { success: false, message: 'Usuário não encontrado.' };
     }
 
     // Verificar se a senha atual está correta
-    const isCurrentPasswordValid = await bcrypt.compare(
-      currentPassword,
-      user.hashedPassword
-    );
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.hashedPassword);
 
     if (!isCurrentPasswordValid) {
-      logger.warn('UserModel', `Tentativa de atualização de senha com senha atual inválida para usuário ID: ${userId}.`);
+      logger.warn(
+        'UserModel',
+        `Tentativa de atualização de senha com senha atual inválida para usuário ID: ${userId}.`
+      );
       return { success: false, message: 'Senha atual incorreta.' };
     }
 
@@ -289,7 +277,10 @@ async function updatePasswordById(userId, currentPassword, newPassword, ipAddres
 
     if (result.changes === 0) {
       // Isso não deveria acontecer se o usuário foi encontrado e a senha atual estava correta.
-      logger.error('UserModel', `Falha ao atualizar a senha no banco de dados para o usuário ID: ${userId}, nenhuma linha afetada.`);
+      logger.error(
+        'UserModel',
+        `Falha ao atualizar a senha no banco de dados para o usuário ID: ${userId}, nenhuma linha afetada.`
+      );
       return { success: false, message: 'Erro ao atualizar a senha. Nenhuma alteração feita.' };
     }
 
