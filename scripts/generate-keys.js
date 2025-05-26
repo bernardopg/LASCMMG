@@ -77,6 +77,7 @@ function updateEnvExample(keys) {
     `BACKUP_ENCRYPTION_KEY=${keys.backup}`
   );
 
+  fs.writeFileSync(envExamplePath, content);
   console.log(`${colors.green}✅ Chaves atualizadas no .env.example${colors.reset}`);
 }
 
@@ -97,12 +98,13 @@ function main() {
       logKey('csrf', generateKey());
       break;
     case 'all':
-    default:
+    default: {
       const keys = generateAllKeys();
       if (arg === '--update-example') {
         updateEnvExample(keys);
       }
       break;
+    }
   }
 
   console.log(

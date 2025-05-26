@@ -37,7 +37,7 @@ const AdminTournamentDetailPage = () => {
       finalTournamentId === 'null' ||
       finalTournamentId.trim() === ''
     ) {
-      setError(`ID do torneio inválido: "${finalTournamentId}". Verifique a URL.`);
+      setError(`ID do torneio inválido: &quot;${finalTournamentId}&quot;. Verifique a URL.`);
       setLoading(false);
       return;
     }
@@ -87,7 +87,7 @@ const AdminTournamentDetailPage = () => {
         <p className="text-gray-600 dark:text-gray-300 mb-2">
           {error || 'Torneio não encontrado.'}
         </p>
-        <p className="text-sm text-gray-500 mb-4">ID do torneio: "{tournamentId}"</p>
+        <p className="text-sm text-gray-500 mb-4">ID do torneio: &quot;{tournamentId}&quot;</p>
         <Link to="/admin/tournaments" className="btn btn-primary mt-6">
           <FaArrowLeft className="mr-2" /> Voltar para Lista de Torneios
         </Link>

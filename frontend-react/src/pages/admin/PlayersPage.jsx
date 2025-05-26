@@ -46,17 +46,17 @@ const Tooltip = ({ children, content }) => {
 
   return (
     <div className="relative inline-block">
-      <div
+      <button
+        type="button"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         onFocus={() => setShowTooltip(true)}
         onBlur={() => setShowTooltip(false)}
-        className="cursor-help"
-        tabIndex="0"
+        className="cursor-help bg-transparent border-none p-0 inline-block"
         aria-describedby="tooltip"
       >
         {children}
-      </div>
+      </button>
       {showTooltip && (
         <div
           id="tooltip"

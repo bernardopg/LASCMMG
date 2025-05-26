@@ -39,15 +39,18 @@ Object.defineProperty(window, 'sessionStorage', {
   writable: true,
 });
 
-/* eslint-env node */
 // Mock de window.alert e window.confirm
+// eslint-disable-next-line no-undef
 global.alert = vi.fn();
+// eslint-disable-next-line no-undef
 global.confirm = vi.fn();
 
 // Mock de window.dispatchEvent
+// eslint-disable-next-line no-undef
 global.dispatchEvent = vi.fn();
 
 // Mock do ResizeObserver
+// eslint-disable-next-line no-undef
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
@@ -55,6 +58,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 }));
 
 // Mock do IntersectionObserver
+// eslint-disable-next-line no-undef
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
