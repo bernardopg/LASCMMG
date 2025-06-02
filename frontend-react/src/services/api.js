@@ -12,16 +12,23 @@
 
 /* eslint-env browser */
 import axios from 'axios';
-
-/**
- * Constants
- */
-const API_TIMEOUT = 20000; // 20 seconds
-const AUTH_STORAGE_KEY = 'authToken';
-const USER_STORAGE_KEY = 'authUser';
-const CSRF_ERROR_RETRY_MAX = 3;
-const NETWORK_RETRY_MAX = 2;
-const NETWORK_RETRY_DELAY = 1000; // 1 second
+import {
+  ensureCsrfTokenInternal,
+  getCurrentCsrfToken,
+  clearCsrfToken as clearCsrfState, // Renamed to avoid conflict if any
+  getCsrfErrorRetryCount,
+  incrementCsrfErrorRetryCount,
+  resetCsrfErrorRetryCount,
+  isCsrfRetryLimitExceeded,
+  CSRF_ERROR_RETRY_MAX, // Import for logging
+} from './csrfService';
+import {
+  API_TIMEOUT,
+  AUTH_STORAGE_KEY,
+  USER_STORAGE_KEY,
+  NETWORK_RETRY_MAX,
+  NETWORK_RETRY_DELAY,
+} from '../config/apiConfig';
 
 /**
  * Request cancellation support
@@ -42,75 +49,11 @@ const api = axios.create({
 });
 
 /**
- * CSRF Token Management
- */
-let currentCsrfToken = null;
-let csrfTokenPromise = null;
-let csrfErrorRetryCount = 0;
-let csrfTokenExpirationTime = null;
-const CSRF_TOKEN_LIFETIME = 30 * 60 * 1000; // 30 minutes
-
-/**
- * Fetches a new CSRF token from the server
- * @returns {Promise<string|null>} The CSRF token or null if the fetch fails
- */
-const ensureCsrfTokenInternal = async () => {
-  // Check if we have a valid token that hasn't expired
-  const now = Date.now();
-  if (currentCsrfToken && csrfTokenExpirationTime && now < csrfTokenExpirationTime) {
-    return currentCsrfToken;
-  }
-
-  // Return existing promise if one is in flight
-  if (csrfTokenPromise) return csrfTokenPromise;
-
-  console.info('Fetching new CSRF token...');
-
-  // Generate a unique request ID for this CSRF fetch
-  const requestId = `csrf-${Date.now()}`;
-
-  const source = axios.CancelToken.source();
-  pendingRequests.set(requestId, source);
-
-  csrfTokenPromise = api
-    .get('/api/csrf-token', {
-      cancelToken: source.token,
-    })
-    .then((response) => {
-      if (response.data && response.data.csrfToken) {
-        currentCsrfToken = response.data.csrfToken;
-        csrfErrorRetryCount = 0; // Reset retry counter on success
-        csrfTokenExpirationTime = Date.now() + CSRF_TOKEN_LIFETIME;
-        console.info('CSRF token fetched successfully');
-        return currentCsrfToken;
-      }
-
-      console.warn('CSRF token not found in response');
-      return null;
-    })
-    .catch((err) => {
-      if (axios.isCancel(err)) {
-        console.info('CSRF token request was cancelled');
-      } else {
-        console.error('Error fetching CSRF token:', err);
-      }
-      return null;
-    })
-    .finally(() => {
-      csrfTokenPromise = null;
-      pendingRequests.delete(requestId);
-    });
-
-  return csrfTokenPromise;
-};
-
-/**
  * Forces refresh of the CSRF token, clearing the current one
  */
 export const refreshCsrfToken = () => {
-  currentCsrfToken = null;
-  csrfTokenExpirationTime = null;
-  return ensureCsrfTokenInternal();
+  clearCsrfState();
+  return ensureCsrfTokenInternal(); // ensureCsrfTokenInternal is now imported
 };
 
 /**
@@ -152,15 +95,15 @@ api.interceptors.request.use(
     config._requestId = requestId;
 
     const protectedMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+    const localCurrentCsrfToken = getCurrentCsrfToken(); // Get token from service
 
     // Add CSRF token to mutating requests
     if (protectedMethods.includes(config.method.toUpperCase())) {
-      if (!currentCsrfToken || (csrfTokenExpirationTime && Date.now() > csrfTokenExpirationTime)) {
-        await ensureCsrfTokenInternal();
-      }
+      // ensureCsrfTokenInternal will handle checking expiration and fetching if needed
+      const tokenToUse = await ensureCsrfTokenInternal(api); // Pass the api instance
 
-      if (currentCsrfToken) {
-        config.headers['X-CSRF-Token'] = currentCsrfToken;
+      if (tokenToUse) {
+        config.headers['X-CSRF-Token'] = tokenToUse;
       } else {
         console.warn('CSRF token unavailable. Request may fail if CSRF protection is required.');
       }
@@ -201,21 +144,20 @@ api.interceptors.response.use(
     if (
       response?.status === 403 &&
       response?.data?.message?.includes('CSRF') &&
-      csrfErrorRetryCount < CSRF_ERROR_RETRY_MAX
+      !isCsrfRetryLimitExceeded() // Use helper from csrfService
     ) {
-      csrfErrorRetryCount++;
+      incrementCsrfErrorRetryCount(); // Use helper from csrfService
       console.warn(
-        `CSRF token rejected. Refreshing token and retrying (${csrfErrorRetryCount}/${CSRF_ERROR_RETRY_MAX})`
+        `CSRF token rejected. Refreshing token and retrying (${getCsrfErrorRetryCount()}/${CSRF_ERROR_RETRY_MAX})` // CSRF_ERROR_RETRY_MAX needs to be defined or imported if used here
       );
 
       // Force refresh the CSRF token
-      currentCsrfToken = null;
-      csrfTokenExpirationTime = null;
-      await ensureCsrfTokenInternal();
+      clearCsrfState(); // Use helper from csrfService
+      const newCsrfToken = await ensureCsrfTokenInternal(api); // Pass the api instance to fetch new token
 
       // Retry the original request
-      if (currentCsrfToken && config) {
-        config.headers['X-CSRF-Token'] = currentCsrfToken;
+      if (newCsrfToken && config) {
+        config.headers['X-CSRF-Token'] = newCsrfToken;
         return axios(config);
       }
     }
@@ -750,6 +692,16 @@ export const getAdminUsers = async (params = {}) => {
 export const createAdminUser = async (userData) => {
   const response = await api.post('/api/admin/users', userData);
   return response.data;
+};
+
+export const getUnscheduledMatchesAdmin = async (params = {}) => {
+  const response = await api.get('/api/admin/matches/unscheduled', { params });
+  return response.data; // Expected: { success: boolean, matches: [...] }
+};
+
+export const getSystemStats = async () => {
+  const response = await api.get('/api/system/stats');
+  return response.data; // Expected: { success: boolean, stats: {...} }
 };
 
 /**

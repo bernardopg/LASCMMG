@@ -1,8 +1,9 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import apiInstance, {
   setAuthToken as setApiAuthToken,
   setAuthSuccessHandler,
 } from '../services/api'; // Import setAuthSuccessHandler
+import { debugTokenStatus } from '../utils/authUtils';
 
 const AuthContext = createContext();
 
@@ -42,7 +43,12 @@ export const AuthProvider = ({ children }) => {
     async (navigate) => {
       try {
         if (currentUser) {
-          await apiInstance.post('/api/auth/logout'); // Call backend logout
+          // Determinar o endpoint de logout com base no tipo de usuário
+          // O backend para admin é /api/auth/logout
+          // O backend para usuário regular é /api/users/logout (assumindo que apiInstance já tem /api como base)
+          const logoutEndpoint =
+            currentUser.role === 'admin' ? '/api/auth/logout' : '/api/users/logout';
+          await apiInstance.post(logoutEndpoint);
         }
       } catch (err) {
         console.warn(
@@ -62,36 +68,8 @@ export const AuthProvider = ({ children }) => {
     [currentUser, clearAuthData]
   );
 
-  const debugTokenStatus = useCallback(() => {
-    const tokenExpiry = localStorage.getItem('tokenExpiry');
-    const authToken = localStorage.getItem('authToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const rememberMe = localStorage.getItem('rememberMe');
-
-    if (tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry, 10);
-      const now = Date.now();
-      const minutesLeft = Math.round((expiryTime - now) / (60 * 1000));
-
-      console.group('[AuthContext] Estado dos tokens');
-      console.log(
-        `Token JWT: ${authToken ? '✅ Presente (' + authToken.substring(0, 15) + '...)' : '❌ Ausente'}`
-      );
-      console.log(
-        `Refresh Token: ${refreshToken ? '✅ Presente (' + refreshToken.substring(0, 15) + '...)' : '❌ Ausente'}`
-      );
-      console.log(`Lembrar-me: ${rememberMe === 'true' ? '✅ Ativado' : '❌ Desativado'}`);
-      console.log(
-        `Expiração do token: ${new Date(expiryTime).toLocaleString()} (${minutesLeft} minutos restantes)`
-      );
-      console.log(
-        `Refresh automático agendado: ${refreshTimeoutRef.current ? '✅ Sim' : '❌ Não'}`
-      );
-      console.groupEnd();
-    } else {
-      console.log('[AuthContext] Nenhum token ativo encontrado');
-    }
-  }, []);
+  // debugTokenStatus is now imported from authUtils.js
+  // The original debugTokenStatus function is removed from here.
 
   const scheduleTokenRefresh = useCallback((expiryTime) => {
     if (refreshTimeoutRef.current) {

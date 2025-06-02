@@ -1,102 +1,141 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { memo } from 'react';
 import {
-  MdOutlineSecurity,
-  MdOutlineBugReport,
-  MdOutlineAnalytics,
-  MdBlock,
   MdArrowBack,
+  MdBlock,
+  MdOutlineAnalytics,
+  MdOutlineBugReport,
+  MdOutlineSecurity,
 } from 'react-icons/md';
+import { Link, useLocation } from 'react-router-dom';
 
-// Placeholder for security-specific sidebar items
 const securityMenuItems = [
   {
     name: 'Visão Geral',
     path: '/admin/security',
-    icon: <MdOutlineSecurity className="w-5 h-5" />,
+    icon: MdOutlineSecurity,
+    description: 'Visão geral do painel de segurança',
   },
   {
     name: 'Honeypots',
     path: '/admin/security/honeypots',
-    icon: <MdOutlineBugReport className="w-5 h-5" />,
+    icon: MdOutlineBugReport,
+    description: 'Gerenciar honeypots de segurança',
   },
   {
     name: 'Análise de Ameaças',
     path: '/admin/security/threat-analytics',
-    icon: <MdOutlineAnalytics className="w-5 h-5" />,
+    icon: MdOutlineAnalytics,
+    description: 'Análise e monitoramento de ameaças',
   },
   {
     name: 'IPs Bloqueados',
     path: '/admin/security/blocked-ips',
-    icon: <MdBlock className="w-5 h-5" />,
+    icon: MdBlock,
+    description: 'Gerenciar IPs bloqueados',
   },
 ];
 
-const AdminSecuritySidebar = () => {
+const AdminSecuritySidebar = memo(() => {
   const location = useLocation();
-  const isActive = (path) =>
-    location.pathname === path ||
-    (path === '/admin/security' && location.pathname.startsWith('/admin/security/'));
+
+  const isActive = (path) => {
+    if (path === '/admin/security') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <aside className="w-64 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 min-h-screen p-4 space-y-2 flex flex-col border-r border-gray-200 dark:border-slate-700">
-      <div className="sidebar-header mb-6">
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Segurança</h1>
+    <aside
+      className="w-64 bg-slate-800 text-slate-200 min-h-screen flex flex-col border-r border-slate-700"
+      role="navigation"
+      aria-label="Menu de segurança"
+    >
+      {/* Header */}
+      <div className="p-6 border-b border-slate-700">
+        <h1 className="text-xl font-semibold text-white">Painel de Segurança</h1>
+        <p className="text-sm text-slate-400 mt-1">Administração e monitoramento</p>
       </div>
-      <nav className="flex-grow">
-        {securityMenuItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={`flex items-center px-3 py-2.5 rounded-md text-sm font-medium
-                        ${
-                          isActive(item.path)
-                            ? 'bg-primary-light dark:bg-primary-dark text-primary dark:text-white' // Active classes
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white' // Inactive classes
-                        }`}
-          >
-            <span
-              className={`mr-3 ${isActive(item.path) ? 'text-primary dark:text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'}`}
+
+      {/* Navigation */}
+      <nav className="flex-grow p-4 space-y-2" aria-label="Navegação de segurança">
+        {securityMenuItems.map((item) => {
+          const IconComponent = item.icon;
+          const active = isActive(item.path);
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                         focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 focus:ring-offset-slate-800
+                         ${
+                           active
+                             ? 'bg-amber-600 text-white shadow-lg border border-amber-500'
+                             : 'text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-600 border border-transparent'
+                         }`}
+              aria-label={`${item.name} - ${item.description}`}
+              title={item.description}
+              aria-current={active ? 'page' : undefined}
             >
-              {item.icon}
-            </span>
-            {item.name}
-          </Link>
-        ))}
+              <IconComponent
+                className={`w-5 h-5 mr-3 ${active ? 'text-white' : 'text-slate-400'}`}
+                aria-hidden="true"
+              />
+              <span>{item.name}</span>
+            </Link>
+          );
+        })}
       </nav>
-      <div className="mt-auto pt-6 border-t border-gray-200 dark:border-slate-700">
+
+      {/* Footer */}
+      <div className="p-4 border-t border-slate-700 mt-auto">
         <Link
           to="/admin"
-          className="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
+          className="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-slate-300
+                     hover:bg-slate-700 hover:text-white transition-all duration-200
+                     focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 focus:ring-offset-slate-800
+                     border border-transparent hover:border-slate-600"
+          aria-label="Voltar ao painel administrativo principal"
         >
-          <MdArrowBack className="w-5 h-5 mr-3" />
+          <MdArrowBack className="w-5 h-5 mr-3 text-slate-400" aria-hidden="true" />
           Voltar ao Admin
         </Link>
-        {/* Logout button can be added here if needed */}
       </div>
     </aside>
   );
-};
+});
+
+AdminSecuritySidebar.displayName = 'AdminSecuritySidebar';
 
 const AdminSecurityLayout = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-900">
-      {' '}
-      {/* Adjusted main bg for consistency */}
+    <div className="flex min-h-screen bg-slate-900">
       <AdminSecuritySidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Optional Header for Admin Security Section - ensure it's theme-aware if uncommented */}
-        {/* <header className="bg-white dark:bg-slate-800 shadow-sm p-4 border-b dark:border-slate-700">
-          <h1 className="text-xl font-semibold text-gray-700 dark:text-gray-200">Painel de Segurança</h1>
-        </header> */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          {' '}
-          {/* Removed redundant bg, inherits from parent */}
+        {/* Optional Header */}
+        <header className="bg-slate-800 shadow-sm border-b border-slate-700">
+          <div className="px-6 py-4">
+            <h1 className="text-xl font-semibold text-slate-200">Administração de Segurança</h1>
+            <p className="text-sm text-slate-400 mt-1">
+              Gerencie configurações de segurança, monitore ameaças e configure proteções
+            </p>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main
+          className="flex-1 overflow-y-auto p-6 bg-slate-50"
+          role="main"
+          aria-label="Conteúdo principal do painel de segurança"
+        >
           {children}
         </main>
       </div>
     </div>
   );
 };
+
+AdminSecurityLayout.displayName = 'AdminSecurityLayout';
 
 export default AdminSecurityLayout;

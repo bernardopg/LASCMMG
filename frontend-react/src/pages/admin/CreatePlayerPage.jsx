@@ -4,7 +4,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { createPlayerAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
-import { FaUserPlus, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUserPlus, FaSave, FaTimes, FaSpinner } from 'react-icons/fa'; // Added FaSpinner
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 
 const PlayerSchema = Yup.object().shape({
   name: Yup.string()
@@ -49,15 +50,26 @@ const CreatePlayerPage = () => {
     }
   };
 
+  const cardBaseClasses = 'bg-slate-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-slate-700';
+  const inputBaseClasses =
+    'block w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 text-slate-100';
+  const inputErrorClasses = 'border-red-500 text-red-400 focus:border-red-500 focus:ring-red-500';
+  const labelClasses = 'block text-sm font-medium text-slate-300';
+  const errorMessageClasses = 'mt-1 text-xs text-red-400';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+  const secondaryButtonClasses = `${buttonBaseClasses} bg-slate-600 hover:bg-slate-500 text-slate-100 focus:ring-slate-400`;
+
   return (
-    <div className="px-4 py-8">
-      {' '}
-      {/* Removed container mx-auto */}
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
-        <FaUserPlus className="mr-3 text-primary dark:text-primary-light" />
-        Adicionar Novo Jogador Global
-      </h1>
-      <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader
+        title="Adicionar Novo Jogador Global"
+        icon={FaUserPlus}
+        iconColor="text-lime-400"
+      />
+
+      <div className={cardBaseClasses}>
         <Formik
           initialValues={{
             name: '',
@@ -72,79 +84,101 @@ const CreatePlayerPage = () => {
           {({ errors, touched, isValid, dirty }) => (
             <Form className="space-y-6">
               <div>
-                <label htmlFor="name" className="label">
+                <label htmlFor="name" className={labelClasses}>
                   Nome Completo
                 </label>
                 <Field
                   type="text"
                   name="name"
                   id="name"
-                  className={`input mt-1 ${errors.name && touched.name ? 'input-error' : ''}`}
+                  className={`${inputBaseClasses} ${errors.name && touched.name ? inputErrorClasses : 'border-slate-600'}`}
                 />
-                <ErrorMessage name="name" component="div" className="error-message" />
+                <ErrorMessage name="name" component="div" className={errorMessageClasses} />
               </div>
 
               <div>
-                <label htmlFor="nickname" className="label">
+                <label htmlFor="nickname" className={labelClasses}>
                   Apelido (Opcional)
                 </label>
                 <Field
                   type="text"
                   name="nickname"
                   id="nickname"
-                  className={`input mt-1 ${errors.nickname && touched.nickname ? 'input-error' : ''}`}
+                  className={`${inputBaseClasses} ${errors.nickname && touched.nickname ? inputErrorClasses : 'border-slate-600'}`}
                 />
-                <ErrorMessage name="nickname" component="div" className="error-message" />
+                <ErrorMessage name="nickname" component="div" className={errorMessageClasses} />
               </div>
 
               <div>
-                <label htmlFor="email" className="label">
+                <label htmlFor="email" className={labelClasses}>
                   Email (Opcional)
                 </label>
                 <Field
                   type="email"
                   name="email"
                   id="email"
-                  className={`input mt-1 ${errors.email && touched.email ? 'input-error' : ''}`}
+                  className={`${inputBaseClasses} ${errors.email && touched.email ? inputErrorClasses : 'border-slate-600'}`}
                 />
-                <ErrorMessage name="email" component="div" className="error-message" />
+                <ErrorMessage name="email" component="div" className={errorMessageClasses} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="gender" className="label">
+                  <label htmlFor="gender" className={labelClasses}>
                     Gênero (Opcional)
                   </label>
                   <Field
                     as="select"
                     name="gender"
                     id="gender"
-                    className={`input mt-1 ${errors.gender && touched.gender ? 'input-error' : ''}`}
+                    className={`${inputBaseClasses} ${errors.gender && touched.gender ? inputErrorClasses : 'border-slate-600'}`}
                   >
-                    <option value="">Não especificado</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Outro">Outro</option>
+                    <option value="" className="bg-slate-700">
+                      Não especificado
+                    </option>
+                    <option value="Masculino" className="bg-slate-700">
+                      Masculino
+                    </option>
+                    <option value="Feminino" className="bg-slate-700">
+                      Feminino
+                    </option>
+                    <option value="Outro" className="bg-slate-700">
+                      Outro
+                    </option>
                   </Field>
-                  <ErrorMessage name="gender" component="div" className="error-message" />
+                  <ErrorMessage name="gender" component="div" className={errorMessageClasses} />
                 </div>
                 <div>
-                  <label htmlFor="skill_level" className="label">
+                  <label htmlFor="skill_level" className={labelClasses}>
                     Nível de Habilidade (Opcional)
                   </label>
                   <Field
                     as="select"
                     name="skill_level"
                     id="skill_level"
-                    className={`input mt-1 ${errors.skill_level && touched.skill_level ? 'input-error' : ''}`}
+                    className={`${inputBaseClasses} ${errors.skill_level && touched.skill_level ? inputErrorClasses : 'border-slate-600'}`}
                   >
-                    <option value="">Não especificado</option>
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                    <option value="Profissional">Profissional</option>
+                    <option value="" className="bg-slate-700">
+                      Não especificado
+                    </option>
+                    <option value="Iniciante" className="bg-slate-700">
+                      Iniciante
+                    </option>
+                    <option value="Intermediário" className="bg-slate-700">
+                      Intermediário
+                    </option>
+                    <option value="Avançado" className="bg-slate-700">
+                      Avançado
+                    </option>
+                    <option value="Profissional" className="bg-slate-700">
+                      Profissional
+                    </option>
                   </Field>
-                  <ErrorMessage name="skill_level" component="div" className="error-message" />
+                  <ErrorMessage
+                    name="skill_level"
+                    component="div"
+                    className={errorMessageClasses}
+                  />
                 </div>
               </div>
 
@@ -152,17 +186,21 @@ const CreatePlayerPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/admin/players')}
-                  className="btn btn-secondary flex items-center"
+                  className={secondaryButtonClasses}
                   disabled={isSubmitting}
                 >
-                  <FaTimes className="mr-2" /> Cancelar
+                  <FaTimes className="mr-2 h-4 w-4" /> Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary flex items-center"
+                  className={primaryButtonClasses}
                   disabled={isSubmitting || !isValid || !dirty}
                 >
-                  <FaSave className="mr-2" />
+                  {isSubmitting ? (
+                    <FaSpinner className="animate-spin mr-2 h-4 w-4" />
+                  ) : (
+                    <FaSave className="mr-2 h-4 w-4" />
+                  )}
                   {isSubmitting ? 'Salvando...' : 'Salvar Jogador'}
                 </button>
               </div>

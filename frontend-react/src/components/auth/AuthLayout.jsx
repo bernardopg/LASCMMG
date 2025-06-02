@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
 
 /**
  * Layout comum para páginas de autenticação
@@ -15,8 +14,6 @@ const AuthLayout = ({
   showLogo = true,
   maxWidth = 'md',
 }) => {
-  const { theme: _theme } = useTheme();
-
   const maxWidthClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -25,9 +22,9 @@ const AuthLayout = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
 
       <div className="relative z-10 mx-auto w-full space-y-8">
         {/* Logo Section */}
@@ -44,30 +41,22 @@ const AuthLayout = ({
               </div>
             </div>
             <div className="space-y-1">
-              <h1 className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide uppercase">
+              <h1 className="text-sm font-medium text-gray-400 tracking-wide uppercase">
                 Liga Acadêmica de Sinuca - CMMG
               </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                Sistema de Gerenciamento de Torneios
-              </p>
+              <p className="text-xs text-gray-500">Sistema de Gerenciamento de Torneios</p>
             </div>
           </div>
         )}
 
         {/* Auth Card */}
         <div className={`mx-auto w-full ${maxWidthClasses[maxWidth]} space-y-6`}>
-          <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-slate-800 shadow-2xl rounded-2xl border border-slate-700 overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-8 sm:px-8 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
+            <div className="px-6 py-8 sm:px-8 border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700">
               <div className="text-center space-y-2">
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                  {title}
-                </h2>
-                {subtitle && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
-                    {subtitle}
-                  </p>
-                )}
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">{title}</h2>
+                {subtitle && <p className="text-sm text-gray-400 max-w-sm mx-auto">{subtitle}</p>}
               </div>
             </div>
 
@@ -78,11 +67,11 @@ const AuthLayout = ({
           {/* Alternative Action */}
           {alternativeText && alternativeLink && alternativeLinkText && (
             <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-400">
                 {alternativeText}{' '}
                 <Link
                   to={alternativeLink}
-                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                  className="font-medium text-lime-400 hover:text-lime-300 transition-colors duration-200"
                 >
                   {alternativeLinkText}
                 </Link>
@@ -94,10 +83,10 @@ const AuthLayout = ({
           <div className="text-center">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-slate-600"></div>
+                <div className="w-full border-t border-slate-600"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-gray-500 dark:text-gray-400">
+                <span className="px-3 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-400">
                   LASCMMG &copy; {new Date().getFullYear()}
                 </span>
               </div>

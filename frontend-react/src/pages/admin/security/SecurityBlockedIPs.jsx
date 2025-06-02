@@ -95,10 +95,8 @@ const SecurityBlockedIPs = () => {
 
   return (
     <div className="space-y-8">
-      <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-          Adicionar Bloqueio Manual
-        </h2>
+      <div className="card bg-slate-800 border border-slate-700 rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Adicionar Bloqueio Manual</h2>
         <Formik
           initialValues={{ ip_address: '', duration_hours: 24, reason: '' }}
           validationSchema={manualBlockValidationSchema}
@@ -110,7 +108,7 @@ const SecurityBlockedIPs = () => {
                 <div>
                   <label
                     htmlFor="ip_address"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    className="label block text-sm font-medium text-gray-300"
                   >
                     Endereço IP
                   </label>
@@ -118,19 +116,19 @@ const SecurityBlockedIPs = () => {
                     type="text"
                     name="ip_address"
                     id="ip_address"
-                    className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-red-500 focus:ring-red-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    className="input mt-1 form-input block w-full rounded-md border-slate-600 shadow-sm focus:border-red-500 focus:ring-red-500 bg-slate-700 text-gray-100"
                     placeholder="Ex: 192.168.1.100"
                   />
                   <ErrorMessage
                     name="ip_address"
                     component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
+                    className="error-message text-red-400 text-xs mt-1"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="duration_hours"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    className="label block text-sm font-medium text-gray-300"
                   >
                     Duração (horas)
                   </label>
@@ -138,32 +136,29 @@ const SecurityBlockedIPs = () => {
                     type="number"
                     name="duration_hours"
                     id="duration_hours"
-                    className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring-primary bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    className="input mt-1 form-input block w-full rounded-md border-slate-600 shadow-sm focus:border-primary focus:ring-primary bg-slate-700 text-gray-100"
                   />
                   <ErrorMessage
                     name="duration_hours"
                     component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
+                    className="error-message text-red-400 text-xs mt-1"
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="reason"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                  <label htmlFor="reason" className="label block text-sm font-medium text-gray-300">
                     Motivo
                   </label>
                   <Field
                     type="text"
                     name="reason"
                     id="reason"
-                    className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring-primary bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    className="input mt-1 form-input block w-full rounded-md border-slate-600 shadow-sm focus:border-primary focus:ring-primary bg-slate-700 text-gray-100"
                     placeholder="Ex: Atividade suspeita"
                   />
                   <ErrorMessage
                     name="reason"
                     component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
+                    className="error-message text-red-400 text-xs mt-1"
                   />
                 </div>
               </div>

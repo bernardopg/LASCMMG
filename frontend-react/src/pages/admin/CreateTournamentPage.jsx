@@ -4,6 +4,8 @@ import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
 import { createTournamentAdmin } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import { FaPlusCircle } from 'react-icons/fa'; // For PageHeader icon
 
 const CreateTournamentPage = () => {
   const { showInfo, showSuccess, showError } = useMessage();
@@ -62,13 +64,13 @@ const CreateTournamentPage = () => {
     }
   };
 
+  const cardBaseClasses = 'bg-slate-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-slate-700';
+
   return (
-    <div className="px-4 py-8">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-          Criar Novo Torneio
-        </h1>
-        <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6 md:p-8">
+        <PageHeader title="Criar Novo Torneio" icon={FaPlusCircle} iconColor="text-lime-400" />
+        <div className={cardBaseClasses}>
           <TournamentForm onSubmit={handleSubmit} isEditing={false} />
         </div>
       </div>

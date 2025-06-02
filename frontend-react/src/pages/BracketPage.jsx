@@ -1,27 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import BracketSection from '../components/bracket/BracketSection'; // Import the new component
+import BracketSection from '../components/bracket/BracketSection';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
-import { getTournamentDetails } from '../services/api'; // Assuming this fetches matches and bracket_type
+import { getTournamentDetails } from '../services/api';
 
 const BracketPage = () => {
   const { currentTournament } = useTournament();
-  const { showError } = useMessage(); // Corrigido para showError
-  const [tournamentState, setTournamentState] = useState(null); // Will hold matches, bracket_type etc.
+  const { showError } = useMessage();
+  const [tournamentState, setTournamentState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedMatchId, setSelectedMatchId] = useState(null);
 
   const handleMatchClick = useCallback((matchId) => {
-    setSelectedMatchId((prev) => (prev === matchId ? null : matchId)); // Toggle selection
+    setSelectedMatchId((prev) => (prev === matchId ? null : matchId));
   }, []);
 
   const fetchBracketData = useCallback(async () => {
-    // Verificação mais rigorosa para evitar requisições com ID undefined
     if (!currentTournament?.id || currentTournament.id === 'undefined') {
       setTournamentState(null);
       setLoading(false);
       return;
     }
+
     setLoading(true);
     try {
       const data = await getTournamentDetails(currentTournament.id);
@@ -42,49 +43,48 @@ const BracketPage = () => {
   }, [fetchBracketData]);
 
   const matchesByBracket = useMemo(() => {
-    // Access matches from tournamentState.tournament.matches
     if (!tournamentState?.tournament?.matches) return { WB: [], LB: [], GF: [] };
 
     const grouped = { WB: [], LB: [], GF: [] };
     Object.entries(tournamentState.tournament.matches).forEach(([id, match]) => {
-      const bracketKey = match.bracket?.toUpperCase() || 'WB'; // Default to Winners Bracket
+      const bracketKey = match.bracket?.toUpperCase() || 'WB';
       if (grouped[bracketKey]) {
-        grouped[bracketKey].push({ id: parseInt(id, 10), ...match }); // Ensure id is number if it comes as string key
+        grouped[bracketKey].push({ id: parseInt(id, 10), ...match });
       } else {
-        grouped.WB.push({ id, ...match }); // Fallback if bracketKey is unknown
+        grouped.WB.push({ id, ...match });
       }
     });
     return grouped;
   }, [tournamentState?.tournament?.matches]);
 
-  // Access bracket_type from tournamentState.tournament.bracket_type
   const bracketType = tournamentState?.tournament?.bracket_type || 'single-elimination';
 
   return (
-    <div className="p-4 md:p-6 text-gray-100">
-      <h2 id="bracket-heading" className="text-2xl font-semibold mb-6">
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold text-white mb-6">
         Chaveamento do Torneio {currentTournament ? `(${currentTournament.name})` : ''}
       </h2>
-      <div
-        id="bracket"
-        className="bracket-container bg-white dark:bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 min-h-[400px]" // Tailwind classes para tema
-      >
+
+      <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 min-h-[400px]">
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
-            <span className="ml-4 mt-4 text-gray-600 dark:text-gray-300">
-              {' '}
-              {/* Ajuste de cor do texto */}
-              Carregando chaveamento...
-            </span>
+          <div className="flex flex-col justify-center items-center py-10 min-h-[300px]">
+            <LoadingSpinner size="lg" />
+            <span className="mt-4 text-slate-400">Carregando chaveamento...</span>
           </div>
         ) : !tournamentState?.tournament?.matches ||
           Object.keys(tournamentState.tournament.matches).length === 0 ? (
-          <p className="text-center text-gray-400 py-10">
-            Nenhum chaveamento disponível para este torneio ou o torneio ainda não foi iniciado.
-          </p>
+          <div className="flex flex-col justify-center items-center py-10 text-center">
+            <p className="text-slate-400 text-lg">
+              Nenhum chaveamento disponível para este torneio ou o torneio ainda não foi iniciado.
+            </p>
+            {!currentTournament && (
+              <p className="text-slate-500 text-sm mt-2">
+                Selecione um torneio para visualizar seu chaveamento.
+              </p>
+            )}
+          </div>
         ) : (
-          <div className="bracket-display-container">
+          <div className="space-y-8">
             {matchesByBracket.WB.length > 0 && (
               <BracketSection
                 title="Chave Superior (Winners)"
@@ -94,6 +94,7 @@ const BracketPage = () => {
                 onMatchClick={handleMatchClick}
               />
             )}
+
             {bracketType === 'double-elimination' && matchesByBracket.LB.length > 0 && (
               <BracketSection
                 title="Chave Inferior (Losers)"
@@ -103,6 +104,7 @@ const BracketPage = () => {
                 onMatchClick={handleMatchClick}
               />
             )}
+
             {matchesByBracket.GF.length > 0 && (
               <BracketSection
                 title="Grande Final"

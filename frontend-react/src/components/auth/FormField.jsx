@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Field, ErrorMessage } from 'formik';
+import { ErrorMessage, Field } from 'formik';
+import { useState } from 'react';
 
 /**
  * Componente de campo de formulário reutilizável com validação visual
@@ -25,7 +25,7 @@ const FormField = ({
   return (
     <div className="space-y-2">
       {/* Label */}
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label htmlFor={name} className="block text-sm font-medium text-gray-300">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -56,8 +56,8 @@ const FormField = ({
             text-sm transition-colors duration-200
             ${
               hasError
-                ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 bg-red-50 dark:bg-red-900/10 dark:border-red-500 dark:text-red-100'
-                : 'border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700'
+                ? 'border-red-300 text-red-100 focus:ring-red-500 focus:border-red-500 bg-red-900/10'
+                : 'border-slate-600 text-white focus:ring-blue-500 focus:border-blue-500 bg-slate-700'
             }
             ${className}
           `}
@@ -74,7 +74,7 @@ const FormField = ({
           >
             {showPassword ? (
               <svg
-                className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="h-5 w-5 text-gray-400 hover:text-gray-300 transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -88,7 +88,7 @@ const FormField = ({
               </svg>
             ) : (
               <svg
-                className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="h-5 w-5 text-gray-400 hover:text-gray-300 transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -115,7 +115,7 @@ const FormField = ({
       <ErrorMessage
         name={name}
         component="div"
-        className="text-sm text-red-600 dark:text-red-400 flex items-center mt-1"
+        className="text-sm text-red-400 flex items-center mt-1"
       />
     </div>
   );

@@ -1,89 +1,48 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from './context/AuthContext';
-import { MessageProvider } from './context/MessageContext';
-import { NotificationProvider } from './context/NotificationContext';
-import { useTheme } from './context/ThemeContext';
-import { TournamentProvider } from './context/TournamentContext';
-import AppRouter from './router/AppRouterOptimized';
+import React, { Suspense } from 'react';
+import { LoadingFallback } from './components/ui/loading';
+import { useAuth } from './context';
+import { useResponsiveLayout } from './hooks';
+import AppRouter from './router/AppRouter';
 
+/**
+ * Main App Component
+ */
 function App() {
-  // Contextos principais
+  // Contexts
   const { loading: authLoading } = useAuth();
-  const { theme, isDarkTheme } = useTheme();
 
-  // Estados de layout
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  // Custom hooks
+  const layoutState = useResponsiveLayout();
 
-  // Detectar tamanho da tela
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-
-      // Auto-colapsar sidebar em telas pequenas
-      if (mobile) {
-        setIsSidebarCollapsed(true);
-        setIsMobileSidebarOpen(false);
-      }
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
-
-  // Aplicar classe do tema ao body
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-  }, [theme]);
-
-  // Handlers para controle do sidebar
-  const toggleSidebarCollapse = () => {
-    setIsSidebarCollapsed((prev) => !prev);
-  };
-
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen((prev) => !prev);
-  };
-
-  const closeMobileSidebar = () => {
-    setIsMobileSidebarOpen(false);
-  };
-
-  // Loading inicial da autenticação
+  // Show loading during authentication
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-gray-600 dark:text-gray-300">Carregando aplicação...</p>
-        </div>
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   return (
-    <div className={`App ${isDarkTheme ? 'dark' : ''}`}>
-      <MessageProvider>
-        <NotificationProvider>
-          <TournamentProvider>
-            <AppRouter
-              isSidebarCollapsed={isSidebarCollapsed}
-              isMobileSidebarOpen={isMobileSidebarOpen}
-              isMobile={isMobile}
-              currentTheme={theme}
-              toggleSidebarCollapse={toggleSidebarCollapse}
-              toggleMobileSidebar={toggleMobileSidebar}
-              closeMobileSidebar={closeMobileSidebar}
-            />
-          </TournamentProvider>
-        </NotificationProvider>
-      </MessageProvider>
+    <div className="App dark min-h-screen relative bg-slate-900">
+      {/* Main App Content */}
+      <Suspense fallback={<LoadingFallback />}>
+        <AppRouter {...layoutState} />
+      </Suspense>
+
+      {/* Mobile Sidebar Overlay */}
+      {layoutState.isMobile && layoutState.isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-overlay lg:hidden"
+          onClick={layoutState.closeMobileSidebar}
+        />
+      )}
+
+      {/* Development Tools */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 right-4 z-50 opacity-50 hover:opacity-100 transition-opacity">
+          <div className="bg-black/80 text-white text-xs p-2 rounded-lg font-mono">
+            <div>Sidebar: {layoutState.isSidebarCollapsed ? 'Collapsed' : 'Expanded'}</div>
+            <div>Mobile: {layoutState.isMobile ? 'Yes' : 'No'}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

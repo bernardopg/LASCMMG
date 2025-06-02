@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { getTrashItems, restoreTrashItem, permanentlyDeleteTrashItem } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUndo, FaTrashAlt, FaFilter } from 'react-icons/fa';
+import PaginatedTable from '../common/PaginatedTable.jsx';
+import { formatDateTimeReadable } from '../../utils/dateUtils';
 
-const AdminTrashTable = () => {
+const AdminTrashTable = memo(() => {
   const [trashItems, setTrashItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,7 +14,7 @@ const AdminTrashTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
-  const [itemTypeFilter, setItemTypeFilter] = useState(''); // 'player', 'score', 'tournament' or '' for all
+  const [itemTypeFilter, setItemTypeFilter] = useState('');
 
   const fetchTrashItems = useCallback(
     async (page = 1, type = '') => {
@@ -24,11 +26,9 @@ const AdminTrashTable = () => {
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
       } catch (err) {
-        setError(err.message || 'Erro ao buscar itens da lixeira.');
-        showMessage(
-          `Erro ao buscar itens da lixeira: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+        const errorMessage = err.message || 'Erro ao buscar itens da lixeira.';
+        setError(errorMessage);
+        showMessage(`Erro ao buscar itens da lixeira: ${errorMessage}`, 'error');
         setTrashItems([]);
       } finally {
         setLoading(false);
@@ -41,36 +41,47 @@ const AdminTrashTable = () => {
     fetchTrashItems(currentPage, itemTypeFilter);
   }, [fetchTrashItems, currentPage, itemTypeFilter]);
 
-  const handleRestore = async (itemId, itemType) => {
-    if (window.confirm(`Tem certeza que deseja restaurar este item (${itemType})?`)) {
-      try {
-        await restoreTrashItem(itemType, itemId);
-        showMessage('Item restaurado com sucesso!', 'success');
-        fetchTrashItems(currentPage, itemTypeFilter); // Refresh list
-      } catch (err) {
-        showMessage(`Erro ao restaurar item: ${err.message || 'Erro desconhecido'}`, 'error');
+  const handleRestore = useCallback(
+    async (itemId, itemType) => {
+      if (window.confirm(`Tem certeza que deseja restaurar este item (${itemType})?`)) {
+        try {
+          await restoreTrashItem(itemType, itemId);
+          showMessage('Item restaurado com sucesso!', 'success');
+          fetchTrashItems(currentPage, itemTypeFilter);
+        } catch (err) {
+          showMessage(`Erro ao restaurar item: ${err.message || 'Erro desconhecido'}`, 'error');
+        }
       }
-    }
-  };
+    },
+    [showMessage, fetchTrashItems, currentPage, itemTypeFilter]
+  );
 
-  const handlePermanentDelete = async (itemId, itemType) => {
-    if (
-      window.confirm(
-        `ATENÇÃO: Esta ação é irreversível! Tem certeza que deseja excluir permanentemente este item (${itemType})?`
-      )
-    ) {
-      try {
-        await permanentlyDeleteTrashItem(itemType, itemId);
-        showMessage('Item excluído permanentemente.', 'success');
-        fetchTrashItems(currentPage, itemTypeFilter); // Refresh list
-      } catch (err) {
-        showMessage(
-          `Erro ao excluir item permanentemente: ${err.message || 'Erro desconhecido'}`,
-          'error'
-        );
+  const handlePermanentDelete = useCallback(
+    async (itemId, itemType) => {
+      if (
+        window.confirm(
+          `ATENÇÃO: Esta ação é irreversível! Tem certeza que deseja excluir permanentemente este item (${itemType})?`
+        )
+      ) {
+        try {
+          await permanentlyDeleteTrashItem(itemType, itemId);
+          showMessage('Item excluído permanentemente.', 'success');
+          fetchTrashItems(currentPage, itemTypeFilter);
+        } catch (err) {
+          showMessage(
+            `Erro ao excluir item permanentemente: ${err.message || 'Erro desconhecido'}`,
+            'error'
+          );
+        }
       }
-    }
-  };
+    },
+    [showMessage, fetchTrashItems, currentPage, itemTypeFilter]
+  );
+
+  const handleFilterChange = useCallback((e) => {
+    setItemTypeFilter(e.target.value);
+    setCurrentPage(1);
+  }, []);
 
   const getItemDescription = (item) => {
     switch (item.type) {
@@ -86,132 +97,114 @@ const AdminTrashTable = () => {
   };
 
   const getItemTypeName = (type) => {
-    switch (type) {
-      case 'player':
-        return 'Jogador';
-      case 'score':
-        return 'Placar';
-      case 'tournament':
-        return 'Torneio';
-      default:
-        return type;
-    }
+    const typeMap = {
+      player: 'Jogador',
+      score: 'Placar',
+      tournament: 'Torneio',
+    };
+    return typeMap[type] || type;
   };
 
-  if (loading)
-    return (
-      <div className="text-center py-10">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto"></div>
-        <p className="mt-2 text-gray-300">Carregando lixeira...</p>
-      </div>
-    );
-  if (error) return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
+  const getTypeColor = (type) => {
+    const colorMap = {
+      player: 'text-blue-400 bg-blue-400/10',
+      score: 'text-yellow-400 bg-yellow-400/10',
+      tournament: 'text-green-400 bg-green-400/10',
+    };
+    return colorMap[type] || 'text-slate-400 bg-slate-400/10';
+  };
+
+  const columns = [
+    {
+      key: 'descricao',
+      label: 'Descrição',
+      render: (item) => (
+        <div className="max-w-xs">
+          <span className="text-slate-100 font-medium break-words">{getItemDescription(item)}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'tipo',
+      label: 'Tipo',
+      render: (item) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(item.type)}`}>
+          {getItemTypeName(item.type)}
+        </span>
+      ),
+    },
+    {
+      key: 'deleted_at',
+      label: 'Data Exclusão',
+      render: (item) => (
+        <span className="text-slate-300 text-sm">{formatDateTimeReadable(item.deleted_at)}</span>
+      ),
+    },
+  ];
+
+  const actions = [
+    {
+      icon: <FaUndo className="w-4 h-4" />,
+      onClick: (item) => handleRestore(item.id, item.type),
+      className:
+        'p-2 rounded-md text-green-400 hover:text-green-300 hover:bg-green-400/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800',
+      title: 'Restaurar Item',
+    },
+    {
+      icon: <FaTrashAlt className="w-4 h-4" />,
+      onClick: (item) => handlePermanentDelete(item.id, item.type),
+      className:
+        'p-2 rounded-md text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800',
+      title: 'Excluir Permanentemente',
+    },
+  ];
 
   return (
-    <div>
-      <div className="mb-4 flex items-center space-x-4">
-        <label htmlFor="itemTypeFilter" className="label text-sm">
-          Filtrar por tipo:
-        </label>
-        <select
-          id="itemTypeFilter"
-          value={itemTypeFilter}
-          onChange={(e) => {
-            setItemTypeFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input text-sm py-1.5"
-        >
-          <option value="">Todos</option>
-          <option value="players">Jogadores</option>
-          <option value="scores">Placares</option>
-          <option value="tournaments">Torneios</option>
-        </select>
-      </div>
-      <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-700">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Descrição
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Data Exclusão
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                Ações
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {trashItems.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-400">
-                  Lixeira vazia.
-                </td>
-              </tr>
-            ) : (
-              trashItems.map((item) => (
-                <tr key={`${item.type}-${item.id}`} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {getItemDescription(item)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {getItemTypeName(item.type)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {item.deleted_at ? new Date(item.deleted_at).toLocaleString('pt-BR') : 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => handleRestore(item.id, item.type)}
-                      className="text-green-400 hover:text-green-300"
-                      title="Restaurar Item"
-                    >
-                      <FaUndo />
-                    </button>
-                    <button
-                      onClick={() => handlePermanentDelete(item.id, item.type)}
-                      className="text-red-500 hover:text-red-400"
-                      title="Excluir Permanentemente"
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      {totalPages > 1 && (
-        <div className="py-4 flex justify-between items-center text-sm text-gray-400">
-          <span>
-            Página {currentPage} de {totalPages}
-          </span>
-          <div className="space-x-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1 || loading}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-            >
-              Anterior
-            </button>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || loading}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-            >
-              Próxima
-            </button>
-          </div>
+    <div className="p-6 bg-slate-900 rounded-xl shadow-lg">
+      {/* Header */}
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-100">Lixeira Administrativa</h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Restaure ou exclua permanentemente itens deletados
+          </p>
         </div>
-      )}
+
+        {/* Filter */}
+        <div className="flex items-center gap-3">
+          <FaFilter className="text-slate-400 h-5 w-5" />
+          <select
+            value={itemTypeFilter}
+            onChange={handleFilterChange}
+            className="px-3 py-2 text-sm text-slate-200 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-colors duration-200"
+            aria-label="Filtrar itens da lixeira por tipo"
+          >
+            <option value="">Todos os Tipos</option>
+            <option value="player">Jogadores</option>
+            <option value="score">Placares</option>
+            <option value="tournament">Torneios</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
+      <PaginatedTable
+        columns={columns}
+        data={trashItems}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        actions={actions}
+        emptyMessage="Lixeira vazia."
+        tableClassName="rounded-lg overflow-hidden"
+        headerClassName="bg-slate-700"
+        rowClassName="bg-slate-800 hover:bg-slate-750 transition-colors duration-150"
+        cellClassName="text-slate-300"
+      />
     </div>
   );
-};
+});
 
-export default AdminTrashTable;
+AdminTrashTable.displayName = 'AdminTrashTable';

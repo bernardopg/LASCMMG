@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TournamentForm from '../../components/admin/TournamentForm';
-import { getTournamentDetails, updateTournamentAdmin } from '../../services/api'; // updateTournamentAdmin needs to be created
+import { getTournamentDetails, updateTournamentAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaEdit, FaExclamationTriangle } from 'react-icons/fa'; // Added FaEdit, FaExclamationTriangle
+import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 
 const EditTournamentPage = () => {
   const { id: tournamentId } = useParams();
@@ -52,23 +54,31 @@ const EditTournamentPage = () => {
     }
   };
 
+  const cardBaseClasses = 'bg-slate-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-slate-700';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <FaSpinner className="animate-spin text-4xl text-primary" />
-        <p className="ml-3 text-lg">Carregando dados do torneio...</p>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
+        <LoadingSpinner size="lg" message="Carregando dados do torneio..." />
       </div>
     );
   }
 
   if (error || !tournament) {
     return (
-      <div className="px-4 py-8 text-center">
-        {' '}
-        {/* Removed container mx-auto */}
-        <h2 className="text-2xl font-semibold text-red-600">Erro</h2>
-        <p>{error || 'Não foi possível carregar o torneio para edição.'}</p>
-        <button onClick={() => navigate('/admin/tournaments')} className="btn btn-primary mt-4">
+      <div className="container mx-auto px-4 py-8 text-center">
+        <FaExclamationTriangle className="mx-auto text-5xl text-red-400 mb-4" />
+        <h2 className="text-2xl font-semibold text-red-300">Erro ao Carregar Torneio</h2>
+        <p className="text-slate-400 mt-2">
+          {error || 'Não foi possível carregar o torneio para edição.'}
+        </p>
+        <button
+          onClick={() => navigate('/admin/tournaments')}
+          className={`${primaryButtonClasses} mt-6`}
+        >
           Voltar para Lista
         </button>
       </div>
@@ -90,17 +100,17 @@ const EditTournamentPage = () => {
   };
 
   return (
-    <div className="px-4 py-8">
-      {' '}
-      {/* Removed container mx-auto */}
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-        Editar Torneio: {tournament.name}
-      </h1>
-      <TournamentForm
-        initialValues={initialValues} // Corrected prop name
-        onSubmit={handleSubmit}
-        isEditing={true} // Corrected prop name
-      />
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <PageHeader
+          title={`Editar Torneio: ${tournament.name}`}
+          icon={FaEdit}
+          iconColor="text-lime-400"
+        />
+        <div className={cardBaseClasses}>
+          <TournamentForm initialValues={initialValues} onSubmit={handleSubmit} isEditing={true} />
+        </div>
+      </div>
     </div>
   );
 };

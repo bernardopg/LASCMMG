@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-// Removed duplicated and partial imports that were here
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   getAdminPlayers,
   deletePlayerAdmin,
@@ -7,137 +6,56 @@ import {
   updatePlayerAdmin,
 } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
-import { FaEdit, FaTrash, FaUndo, FaPlusCircle } from 'react-icons/fa';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { FaEdit, FaTrash, FaPlusCircle } from 'react-icons/fa';
 import * as Yup from 'yup';
+import FormModal from '../common/FormModal.jsx';
+import PaginatedTable from '../common/PaginatedTable.jsx';
 
-const PlayerFormModal = ({ isOpen, onClose, player, onSave }) => {
-  if (!isOpen) return null;
+const playerFields = [
+  { name: 'name', label: 'Nome Completo', type: 'text', fullWidth: true },
+  { name: 'nickname', label: 'Apelido (Opcional)', type: 'text', fullWidth: true },
+  { name: 'email', label: 'Email (Opcional)', type: 'email', fullWidth: true },
+  {
+    name: 'gender',
+    label: 'Gênero',
+    type: 'select',
+    options: [
+      { value: 'Masculino', label: 'Masculino' },
+      { value: 'Feminino', label: 'Feminino' },
+      { value: 'Outro', label: 'Outro' },
+    ],
+    fullWidth: false,
+  },
+  {
+    name: 'skill_level',
+    label: 'Nível de Habilidade',
+    type: 'select',
+    options: [
+      { value: 'Iniciante', label: 'Iniciante' },
+      { value: 'Intermediário', label: 'Intermediário' },
+      { value: 'Avançado', label: 'Avançado' },
+      { value: 'Profissional', label: 'Profissional' },
+    ],
+    fullWidth: false,
+  },
+];
 
-  const initialValues = {
-    name: player?.name || '',
-    nickname: player?.nickname || '',
-    email: player?.email || '', // Added email
-    gender: player?.gender || 'Masculino',
-    skill_level: player?.skill_level || 'Iniciante', // Changed from level to skill_level
-  };
+const playerValidationSchema = Yup.object().shape({
+  name: Yup.string()
+    .required('Nome é obrigatório')
+    .min(2, 'Nome muito curto')
+    .max(100, 'Nome muito longo'),
+  nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
+  email: Yup.string().email('Email inválido').max(100, 'Email muito longo').nullable(),
+  gender: Yup.string()
+    .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
+    .required('Gênero é obrigatório'),
+  skill_level: Yup.string()
+    .oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido')
+    .required('Nível é obrigatório'),
+});
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .required('Nome é obrigatório')
-      .min(2, 'Nome muito curto')
-      .max(100, 'Nome muito longo'),
-    nickname: Yup.string().max(50, 'Apelido muito longo').nullable(),
-    email: Yup.string().email('Email inválido').max(100, 'Email muito longo').nullable(), // Added email validation
-    gender: Yup.string()
-      .oneOf(['Masculino', 'Feminino', 'Outro'], 'Gênero inválido')
-      .required('Gênero é obrigatório'),
-    skill_level: Yup.string() // Changed from level to skill_level
-      .oneOf(['Iniciante', 'Intermediário', 'Avançado', 'Profissional'], 'Nível inválido')
-      .required('Nível é obrigatório'),
-  });
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-in-out">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-lg transform transition-all duration-300 ease-in-out scale-100">
-        <h3 className="text-xl font-semibold mb-6 text-white border-b border-gray-700 pb-3">
-          {player ? 'Editar Jogador' : 'Adicionar Novo Jogador'}
-        </h3>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            onSave(values, player?.id);
-            setSubmitting(false);
-          }}
-          enableReinitialize
-        >
-          {({ isSubmitting, dirty, isValid }) => (
-            <Form className="space-y-4">
-              <div>
-                <label htmlFor="name" className="label">
-                  Nome Completo
-                </label>
-                <Field type="text" name="name" id="name" className="input" />
-                <ErrorMessage name="name" component="div" className="error-message" />
-              </div>
-              <div>
-                <label htmlFor="nickname" className="label">
-                  Apelido (Opcional)
-                </label>
-                <Field type="text" name="nickname" id="nickname" className="input" />
-                <ErrorMessage name="nickname" component="div" className="error-message" />
-              </div>
-              <div>
-                <label htmlFor="email" className="label">
-                  Email (Opcional)
-                </label>
-                <Field type="email" name="email" id="email" className="input" />
-                <ErrorMessage name="email" component="div" className="error-message" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="gender" className="label">
-                    Gênero
-                  </label>
-                  <Field as="select" name="gender" id="gender" className="input">
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Outro">Outro</option>
-                  </Field>
-                  <ErrorMessage name="gender" component="div" className="error-message" />
-                </div>
-                <div>
-                  <label htmlFor="skill_level" className="label">
-                    {' '}
-                    {/* Changed from level to skill_level */}
-                    Nível de Habilidade
-                  </label>
-                  <Field as="select" name="skill_level" id="skill_level" className="input">
-                    {' '}
-                    {/* Changed from level to skill_level */}
-                    <option value="Iniciante">Iniciante</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                    <option value="Profissional">Profissional</option>
-                  </Field>
-                  <ErrorMessage
-                    name="skill_level" // Changed from level to skill_level
-                    component="div"
-                    className="error-message"
-                  />
-                </div>
-              </div>
-              <div className="mt-8 flex justify-end space-x-3 pt-4 border-t border-gray-700">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="btn btn-secondary text-sm"
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary text-sm"
-                  disabled={isSubmitting || !dirty || !isValid}
-                >
-                  {isSubmitting
-                    ? 'Salvando...'
-                    : player
-                      ? 'Atualizar Jogador'
-                      : 'Adicionar Jogador'}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
-    </div>
-  );
-};
-
-const AdminPlayersTable = () => {
+const AdminPlayersTable = memo(() => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -145,7 +63,7 @@ const AdminPlayersTable = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(10); // Items per page
+  const [limit] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -160,8 +78,9 @@ const AdminPlayersTable = () => {
         setTotalPages(data.totalPages || 1);
         setCurrentPage(data.currentPage || 1);
       } catch (err) {
-        setError(err.message || 'Erro ao buscar jogadores.');
-        showMessage(`Erro ao buscar jogadores: ${err.message || 'Erro desconhecido'}`, 'error');
+        const errorMessage = err.message || 'Erro ao buscar jogadores.';
+        setError(errorMessage);
+        showMessage(`Erro ao buscar jogadores: ${errorMessage}`, 'error');
         setPlayers([]);
       } finally {
         setLoading(false);
@@ -174,181 +93,164 @@ const AdminPlayersTable = () => {
     fetchPlayers(currentPage);
   }, [fetchPlayers, currentPage]);
 
-  const handleEdit = (player) => {
+  const handleEdit = useCallback((player) => {
     setEditingPlayer(player);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDelete = async (playerId) => {
-    if (window.confirm('Tem certeza que deseja enviar este jogador para a lixeira?')) {
+  const handleDelete = useCallback(
+    async (playerId) => {
+      if (window.confirm('Tem certeza que deseja enviar este jogador para a lixeira?')) {
+        try {
+          await deletePlayerAdmin(playerId);
+          showMessage('Jogador enviado para a lixeira.', 'success');
+          fetchPlayers(currentPage);
+        } catch (err) {
+          showMessage(`Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`, 'error');
+        }
+      }
+    },
+    [showMessage, fetchPlayers, currentPage]
+  );
+
+  const handleSavePlayer = useCallback(
+    async (playerData, playerId) => {
       try {
-        await deletePlayerAdmin(playerId); // Soft delete by default
-        showMessage('Jogador enviado para a lixeira.', 'success');
-        fetchPlayers(currentPage); // Refresh list
+        if (playerId) {
+          await updatePlayerAdmin(playerId, playerData);
+          showMessage('Jogador atualizado com sucesso!', 'success');
+        } else {
+          await createPlayerAdmin(playerData);
+          showMessage('Jogador adicionado com sucesso!', 'success');
+        }
+        fetchPlayers(currentPage);
+        setIsModalOpen(false);
+        setEditingPlayer(null);
       } catch (err) {
-        showMessage(`Erro ao mover para lixeira: ${err.message || 'Erro desconhecido'}`, 'error');
+        showMessage(`Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`, 'error');
       }
-    }
-  };
+    },
+    [showMessage, fetchPlayers, currentPage]
+  );
 
-  const handleSavePlayer = async (playerData, playerId) => {
-    try {
-      if (playerId) {
-        await updatePlayerAdmin(playerId, playerData);
-        showMessage('Jogador atualizado com sucesso!', 'success');
-      } else {
-        await createPlayerAdmin(playerData);
-        showMessage('Jogador adicionado com sucesso!', 'success');
-      }
-      fetchPlayers(currentPage); // Refresh list
-      setIsModalOpen(false);
-      setEditingPlayer(null);
-    } catch (err) {
-      showMessage(`Erro ao salvar jogador: ${err.message || 'Erro desconhecido'}`, 'error');
-    }
-  };
+  const handleOpenAddModal = useCallback(() => {
+    setEditingPlayer(null);
+    setIsModalOpen(true);
+  }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-10">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
-        <span className="ml-3 text-gray-300">Carregando jogadores...</span>
-      </div>
-    );
-  }
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setEditingPlayer(null);
+  }, []);
 
-  if (error) {
-    return <div className="text-center py-10 text-red-400">Erro: {error}</div>;
-  }
+  const columns = [
+    {
+      key: 'name',
+      label: 'Nome',
+      render: (row) => <span className="text-slate-100 font-medium">{row.name}</span>,
+    },
+    {
+      key: 'nickname',
+      label: 'Apelido',
+      render: (row) => <span className="text-slate-300">{row.nickname || '-'}</span>,
+    },
+    {
+      key: 'gender',
+      label: 'Gênero',
+      render: (row) => <span className="text-slate-300">{row.gender || '-'}</span>,
+    },
+    {
+      key: 'skill_level',
+      label: 'Nível',
+      render: (row) => {
+        const levelColors = {
+          Iniciante: 'text-blue-400',
+          Intermediário: 'text-yellow-400',
+          Avançado: 'text-orange-400',
+          Profissional: 'text-red-400',
+        };
+        const colorClass = levelColors[row.skill_level] || 'text-slate-300';
+        return <span className={`${colorClass} font-medium`}>{row.skill_level || '-'}</span>;
+      },
+    },
+  ];
+
+  const actions = [
+    {
+      icon: <FaEdit className="w-4 h-4" />,
+      onClick: handleEdit,
+      className:
+        'p-2 rounded-md text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800',
+      title: 'Editar Jogador',
+    },
+    {
+      icon: <FaTrash className="w-4 h-4" />,
+      onClick: (player) => handleDelete(player.id),
+      className:
+        'p-2 rounded-md text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800',
+      title: 'Mover para Lixeira',
+    },
+  ];
 
   return (
-    <div>
-      <div className="mb-4 flex justify-end">
+    <div className="p-6 bg-slate-900 rounded-xl shadow-lg">
+      {/* Header */}
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-100">Gerenciar Jogadores</h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Adicione, edite e gerencie os jogadores do sistema
+          </p>
+        </div>
         <button
-          onClick={() => {
-            setEditingPlayer(null);
-            setIsModalOpen(true);
-          }}
-          className="btn btn-primary text-sm"
+          onClick={handleOpenAddModal}
+          className="flex items-center px-4 py-2 bg-lime-600 hover:bg-lime-700 text-white text-sm font-medium rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-200"
+          aria-label="Adicionar novo jogador"
         >
-          <FaPlusCircle className="inline mr-2" /> Adicionar Jogador
+          <FaPlusCircle className="mr-2 h-4 w-4" />
+          Adicionar Jogador
         </button>
       </div>
-      <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-700">
-            <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
-                Nome
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
-                Apelido
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
-                Gênero
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-              >
-                Nível (Skill)
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[120px]"
-              >
-                Ações
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {players.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-400">
-                  Nenhum jogador encontrado.
-                </td>
-              </tr>
-            ) : (
-              players.map((player) => (
-                <tr key={player.id} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
-                    {player.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {player.nickname || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {player.gender || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {player.skill_level || '-'} {/* Changed from player.level */}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => handleEdit(player)}
-                      className="text-blue-400 hover:text-blue-300"
-                      title="Editar"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(player.id)}
-                      className="text-red-400 hover:text-red-300"
-                      title="Mover para Lixeira"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="py-4 flex justify-between items-center text-sm text-gray-400">
-          <span>
-            Página {currentPage} de {totalPages}
-          </span>
-          <div className="space-x-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1 || loading}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-            >
-              Anterior
-            </button>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || loading}
-              className="btn btn-outline btn-sm disabled:opacity-50"
-            >
-              Próxima
-            </button>
-          </div>
-        </div>
-      )}
-      <PlayerFormModal
+
+      {/* Table */}
+      <PaginatedTable
+        columns={columns}
+        data={players}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        actions={actions}
+        emptyMessage="Nenhum jogador encontrado. Clique em 'Adicionar Jogador' para começar."
+        tableClassName="rounded-lg overflow-hidden"
+        headerClassName="bg-slate-700"
+        rowClassName="bg-slate-800 hover:bg-slate-750 transition-colors duration-150"
+        cellClassName="text-slate-300"
+      />
+
+      {/* Modal */}
+      <FormModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingPlayer(null);
+        onClose={handleCloseModal}
+        title={editingPlayer ? 'Editar Jogador' : 'Adicionar Novo Jogador'}
+        initialValues={{
+          name: editingPlayer?.name || '',
+          nickname: editingPlayer?.nickname || '',
+          email: editingPlayer?.email || '',
+          gender: editingPlayer?.gender || 'Masculino',
+          skill_level: editingPlayer?.skill_level || 'Iniciante',
         }}
-        player={editingPlayer}
-        onSave={handleSavePlayer}
+        validationSchema={playerValidationSchema}
+        fields={playerFields}
+        onSubmit={(values) => handleSavePlayer(values, editingPlayer?.id)}
+        submitLabel={editingPlayer ? 'Atualizar Jogador' : 'Adicionar Jogador'}
+        cancelLabel="Cancelar"
       />
     </div>
   );
-};
+});
+
+AdminPlayersTable.displayName = 'AdminPlayersTable';
 
 export default AdminPlayersTable;

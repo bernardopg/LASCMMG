@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useCallback, useEffect, useState } from 'react';
+import { FaBug, FaListUl, FaSave, FaShieldAlt, FaSpinner, FaSyncAlt } from 'react-icons/fa'; // Adicionado FaBug
+import * as Yup from 'yup';
+import { LoadingSpinner } from '../../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../../components/common/PageHeader'; // For consistent page titles
+import { useMessage } from '../../../context/MessageContext';
 import {
   getHoneypotConfig,
-  updateHoneypotConfig,
   getSecurityOverviewStats,
+  updateHoneypotConfig,
 } from '../../../services/api';
-import { useMessage } from '../../../context/MessageContext';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { FaSave, FaSyncAlt } from 'react-icons/fa';
 
 const SecurityHoneypots = () => {
   const [config, setConfig] = useState(null);
@@ -102,46 +104,60 @@ const SecurityHoneypots = () => {
     }
   };
 
+  const cardBaseClasses = 'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700';
+  const inputBaseClasses =
+    'block w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 text-slate-100';
+  const inputErrorClasses = 'border-red-500 text-red-400 focus:border-red-500 focus:ring-red-500';
+  const labelClasses = 'block text-sm font-medium text-slate-300';
+  const errorMessageClasses = 'mt-1 text-xs text-red-400';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+  const outlineButtonClasses = `${buttonBaseClasses} border border-slate-500 hover:border-lime-500 text-slate-300 hover:text-lime-400 hover:bg-slate-700/50 focus:ring-lime-500`;
+
   if (loadingConfig || loadingActive) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
-        <span className="ml-4 text-gray-700 dark:text-gray-300">
-          Carregando dados de honeypots...
-        </span>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-16rem)]">
+        <LoadingSpinner size="lg" message="Carregando dados de honeypots..." />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-          Endpoints Honeypot Ativos
+      <PageHeader title="Gerenciamento de Honeypots" icon={FaBug} iconColor="text-lime-400" />
+
+      <div className={cardBaseClasses}>
+        <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center">
+          <FaListUl className="mr-3 h-5 w-5 text-lime-400" />
+          Endpoints Honeypot Ativos ({activeHoneypots.length})
         </h2>
         {activeHoneypots.length > 0 ? (
-          <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
+          <ul className="list-disc list-inside pl-5 space-y-1 text-slate-300 bg-slate-700/50 p-4 rounded-md">
             {activeHoneypots.map((hp, index) => (
               <li key={index}>
-                <code className="bg-gray-200 dark:bg-slate-600 p-1 rounded text-sm">{hp}</code>
+                <code className="bg-slate-600 p-1 rounded text-sm text-slate-200">{hp}</code>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400">Nenhum honeypot ativo no momento.</p>
+          <p className="text-slate-400">Nenhum honeypot ativo no momento.</p>
         )}
         <button
           onClick={fetchActiveHoneypots}
-          className="btn btn-outline btn-sm text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white mt-3"
+          className={`${outlineButtonClasses} text-xs py-1.5 px-3 mt-4`}
           disabled={loadingActive}
         >
-          <FaSyncAlt className={`inline mr-1.5 ${loadingActive ? 'animate-spin' : ''}`} />
+          <FaSyncAlt
+            className={`inline mr-1.5 h-3.5 w-3.5 ${loadingActive ? 'animate-spin' : ''}`}
+          />
           Atualizar Lista
         </button>
       </div>
 
-      <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
+      <div className={cardBaseClasses}>
+        <h2 className="text-xl font-semibold text-slate-100 mb-6 flex items-center">
+          <FaShieldAlt className="mr-3 h-5 w-5 text-lime-400" />
           Configuração de Honeypots
         </h2>
         {config ? (
@@ -155,58 +171,45 @@ const SecurityHoneypots = () => {
             onSubmit={handleSaveConfig}
             enableReinitialize
           >
-            {({ isSubmitting, dirty, isValid }) => (
+            {({ isSubmitting, dirty, isValid, formik }) => (
               <Form className="space-y-6">
                 <div>
-                  <label
-                    htmlFor="threshold"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                  <label htmlFor="threshold" className={labelClasses}>
                     Limite para Bloqueio (tentativas)
                   </label>
                   <Field
                     type="number"
                     name="threshold"
                     id="threshold"
-                    className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    className={`${inputBaseClasses} ${formik.errors.threshold && formik.touched.threshold ? inputErrorClasses : 'border-slate-600'}`} // Usa formik.errors e formik.touched
                   />
-                  <ErrorMessage
-                    name="threshold"
-                    component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <ErrorMessage name="threshold" component="div" className={errorMessageClasses} />
+                  <p className="text-xs text-slate-400 mt-1">
                     Número de acessos a honeypots (em {config.activityWindowMinutes || 60} min)
                     antes de bloquear um IP. (1-100)
                   </p>
                 </div>
                 <div>
-                  <label
-                    htmlFor="block_duration_hours"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                  <label htmlFor="block_duration_hours" className={labelClasses}>
                     Duração do Bloqueio (horas)
                   </label>
                   <Field
                     type="number"
-                    name="block_duration_hours" // Padronizado
-                    id="block_duration_hours" // Padronizado
-                    className="input mt-1 form-input block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    name="block_duration_hours"
+                    id="block_duration_hours"
+                    className={`${inputBaseClasses} ${formik.errors.block_duration_hours && formik.touched.block_duration_hours ? inputErrorClasses : 'border-slate-600'}`} // Usa formik.errors e formik.touched
                   />
                   <ErrorMessage
-                    name="block_duration_hours" // Padronizado
+                    name="block_duration_hours"
                     component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
+                    className={errorMessageClasses}
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     Tempo que um IP ficará bloqueado (1-720 horas).
                   </p>
                 </div>
                 <div>
-                  <label
-                    htmlFor="whitelist"
-                    className="label block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                  <label htmlFor="whitelist" className={labelClasses}>
                     IPs na Whitelist (um por linha)
                   </label>
                   <Field
@@ -214,25 +217,23 @@ const SecurityHoneypots = () => {
                     name="whitelist"
                     id="whitelist"
                     rows="4"
-                    className="input mt-1 form-textarea block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                    className={`${inputBaseClasses} ${formik.errors.whitelist && formik.touched.whitelist ? inputErrorClasses : 'border-slate-600'}`} // Usa formik.errors e formik.touched
                     placeholder="127.0.0.1&#10;192.168.1.100"
                   />
-                  <ErrorMessage
-                    name="whitelist"
-                    component="div"
-                    className="error-message text-red-500 dark:text-red-400 text-xs mt-1"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    IPs que nunca serão bloqueados.
-                  </p>
+                  <ErrorMessage name="whitelist" component="div" className={errorMessageClasses} />
+                  <p className="text-xs text-slate-400 mt-1">IPs que nunca serão bloqueados.</p>
                 </div>
                 <div className="flex justify-end pt-4">
                   <button
                     type="submit"
-                    className="btn btn-primary" // btn e btn-primary devem ser responsivos ao tema
+                    className={primaryButtonClasses}
                     disabled={isSubmitting || !dirty || !isValid}
                   >
-                    <FaSave className="inline mr-2" />
+                    {isSubmitting ? (
+                      <FaSpinner className="animate-spin mr-2 h-4 w-4" />
+                    ) : (
+                      <FaSave className="mr-2 h-4 w-4" />
+                    )}
                     {isSubmitting ? 'Salvando...' : 'Salvar Configuração'}
                   </button>
                 </div>
@@ -240,9 +241,7 @@ const SecurityHoneypots = () => {
             )}
           </Formik>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400">
-            Não foi possível carregar a configuração.
-          </p>
+          <p className="text-slate-400">Não foi possível carregar a configuração.</p>
         )}
       </div>
     </div>

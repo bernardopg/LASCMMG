@@ -4,6 +4,8 @@ import { getAdminUsers, createAdminUser } from '../../services/api';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FaUsers, FaPlusCircle, FaUserShield, FaSpinner } from 'react-icons/fa';
+import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 
 const NewAdminSchema = Yup.object().shape({
   username: Yup.string() // This will be treated as an email by the backend
@@ -72,57 +74,65 @@ const AdminUserManagementPage = () => {
     return new Date(dateString).toLocaleString('pt-BR');
   };
 
+  const cardBaseClasses = 'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700';
+  const inputBaseClasses =
+    'block w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 text-slate-100';
+  const inputErrorClasses = 'border-red-500 text-red-400 focus:border-red-500 focus:ring-red-500';
+  const labelClasses = 'block text-sm font-medium text-slate-300';
+  const errorMessageClasses = 'mt-1 text-xs text-red-400';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 flex items-center">
-        <FaUserShield className="mr-3 text-primary dark:text-primary-light" />
-        Gerenciamento de Administradores
-      </h1>
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader
+        title="Gerenciamento de Administradores"
+        icon={FaUserShield}
+        iconColor="text-lime-400"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+          <div className={cardBaseClasses}>
+            <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center">
+              <FaUsers className="mr-3 h-5 w-5 text-lime-400" />
               Lista de Administradores
             </h2>
             {loadingUsers ? (
               <div className="flex justify-center items-center py-10">
-                <FaSpinner className="animate-spin text-3xl text-primary" />
+                <LoadingSpinner message="Carregando administradores..." />
               </div>
             ) : adminUsers.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">Nenhum administrador encontrado.</p>
+              <p className="text-slate-400">Nenhum administrador encontrado.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                  <thead className="bg-gray-50 dark:bg-slate-700">
+                <table className="min-w-full divide-y divide-slate-700">
+                  <thead className="bg-slate-700/50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Username
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Role
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Último Login
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Criado Em
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                  <tbody className="bg-slate-800 divide-y divide-slate-700">
                     {adminUsers.map((admin) => (
-                      <tr key={admin.id}>
-                        <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-                          {admin.username}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-                          {admin.role}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                      <tr key={admin.id} className="hover:bg-slate-700/50">
+                        <td className="px-4 py-3 text-sm text-slate-100">{admin.username}</td>
+                        <td className="px-4 py-3 text-sm text-slate-300">{admin.role}</td>
+                        <td className="px-4 py-3 text-sm text-slate-300">
                           {formatDate(admin.last_login)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        <td className="px-4 py-3 text-sm text-slate-300">
                           {formatDate(admin.created_at)}
                         </td>
                         {/* Add actions like edit/delete if needed */}
@@ -136,9 +146,9 @@ const AdminUserManagementPage = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
-              <FaPlusCircle className="mr-2 text-primary dark:text-primary-light" />
+          <div className={cardBaseClasses}>
+            <h2 className="text-xl font-semibold text-slate-100 mb-6 flex items-center">
+              <FaPlusCircle className="mr-3 h-5 w-5 text-lime-400" />
               Criar Novo Administrador
             </h2>
             <Formik
@@ -153,7 +163,7 @@ const AdminUserManagementPage = () => {
               {({ errors, touched, isValid, dirty }) => (
                 <Form className="space-y-4">
                   <div>
-                    <label htmlFor="username" className="label">
+                    <label htmlFor="username" className={labelClasses}>
                       Email (para Username)
                     </label>
                     <Field
@@ -161,54 +171,59 @@ const AdminUserManagementPage = () => {
                       name="username"
                       id="username"
                       placeholder="exemplo@admin.com"
-                      className={`input mt-1 ${errors.username && touched.username ? 'border-danger' : ''}`}
+                      className={`${inputBaseClasses} ${errors.username && touched.username ? inputErrorClasses : 'border-slate-600'}`}
                     />
-                    <ErrorMessage name="username" component="div" className="error-message" />
+                    <ErrorMessage name="username" component="div" className={errorMessageClasses} />
                   </div>
                   <div>
-                    <label htmlFor="password" className="label">
+                    <label htmlFor="password" className={labelClasses}>
                       Senha
                     </label>
                     <Field
                       type="password"
                       name="password"
                       id="password"
-                      className={`input mt-1 ${errors.password && touched.password ? 'border-danger' : ''}`}
+                      className={`${inputBaseClasses} ${errors.password && touched.password ? inputErrorClasses : 'border-slate-600'}`}
                     />
-                    <ErrorMessage name="password" component="div" className="error-message" />
+                    <ErrorMessage name="password" component="div" className={errorMessageClasses} />
                   </div>
                   <div>
-                    <label htmlFor="confirmPassword" className="label">
+                    <label htmlFor="confirmPassword" className={labelClasses}>
                       Confirmar Senha
                     </label>
                     <Field
                       type="password"
                       name="confirmPassword"
                       id="confirmPassword"
-                      className={`input mt-1 ${errors.confirmPassword && touched.confirmPassword ? 'border-danger' : ''}`}
+                      className={`${inputBaseClasses} ${errors.confirmPassword && touched.confirmPassword ? inputErrorClasses : 'border-slate-600'}`}
                     />
                     <ErrorMessage
                       name="confirmPassword"
                       component="div"
-                      className="error-message"
+                      className={errorMessageClasses}
                     />
                   </div>
                   {/* Add role selection if backend supports it and it's desired
                   <div>
-                    <label htmlFor="role" className="label">Role</label>
-                    <Field as="select" name="role" id="role" className={`input mt-1 ${errors.role && touched.role ? 'border-danger' : ''}`}>
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super Admin</option>
+                    <label htmlFor="role" className={labelClasses}>Role</label>
+                    <Field as="select" name="role" id="role" className={`${inputBaseClasses} ${errors.role && touched.role ? inputErrorClasses : 'border-slate-600'}`}>
+                      <option value="admin" className="bg-slate-700">Admin</option>
+                      <option value="super_admin" className="bg-slate-700">Super Admin</option>
                     </Field>
-                    <ErrorMessage name="role" component="div" className="error-message" />
+                    <ErrorMessage name="role" component="div" className={errorMessageClasses} />
                   </div>
                   */}
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="btn btn-primary w-full"
+                      className={`${primaryButtonClasses} w-full`}
                       disabled={isSubmitting || !isValid || !dirty}
                     >
+                      {isSubmitting ? (
+                        <FaSpinner className="animate-spin mr-2 h-4 w-4" />
+                      ) : (
+                        <FaPlusCircle className="mr-2 h-4 w-4" />
+                      )}
                       {isSubmitting ? 'Criando...' : 'Criar Administrador'}
                     </button>
                   </div>

@@ -54,22 +54,22 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
 
   if (!password) return null;
 
-  const getColorClasses = (color, _intensity = 'normal') => {
+  const getColorClasses = (color) => {
     const colors = {
       red: {
         bg: 'bg-red-500',
-        text: 'text-red-600 dark:text-red-400',
-        bgLight: 'bg-red-100 dark:bg-red-900/20',
+        text: 'text-red-400',
+        bgLight: 'bg-red-900/20',
       },
       yellow: {
         bg: 'bg-yellow-500',
-        text: 'text-yellow-600 dark:text-yellow-400',
-        bgLight: 'bg-yellow-100 dark:bg-yellow-900/20',
+        text: 'text-yellow-400',
+        bgLight: 'bg-yellow-900/20',
       },
       green: {
         bg: 'bg-green-500',
-        text: 'text-green-600 dark:text-green-400',
-        bgLight: 'bg-green-100 dark:bg-green-900/20',
+        text: 'text-green-400',
+        bgLight: 'bg-green-900/20',
       },
     };
     return colors[color] || colors.red;
@@ -82,7 +82,7 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
     <div className="mt-2 space-y-2">
       {/* Barra de progresso */}
       <div className="flex items-center space-x-2">
-        <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
           <div
             className={`h-full transition-all duration-300 ${colorClasses.bg}`}
             style={{ width: `${widthPercentage}%` }}
@@ -94,9 +94,7 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
       {/* Detalhes dos critérios */}
       {showDetails && (
         <div className={`p-3 rounded-lg ${colorClasses.bgLight} space-y-1`}>
-          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Critérios de segurança:
-          </p>
+          <p className="text-xs font-medium text-gray-300 mb-2">Critérios de segurança:</p>
           <div className="grid grid-cols-1 gap-1">
             {strength.feedback.map((criterion, index) => (
               <div key={index} className="flex items-center space-x-2">
@@ -118,7 +116,7 @@ const PasswordStrengthIndicator = ({ password, showDetails = true }) => {
                   </svg>
                 )}
                 <span
-                  className={`text-xs ${criterion.passed ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
+                  className={`text-xs ${criterion.passed ? 'text-green-400' : 'text-gray-400'}`}
                 >
                   {criterion.message}
                 </span>

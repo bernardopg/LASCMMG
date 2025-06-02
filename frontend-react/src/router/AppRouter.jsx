@@ -1,555 +1,517 @@
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import ErrorBoundary from '../components/ui/feedback/ErrorBoundary';
+import { LoadingSpinner } from '../components/ui/loading';
+import ProtectedRoute from '../components/router/ProtectedRoute';
+import { useAuth } from '../context';
 
-// Layout Components
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
-import Footer from '../components/layout/Footer';
+// Layout Components - Load immediately as they're used everywhere
+import { Header, Footer, Sidebar } from '../components/layouts';
 
-// Public Pages
+// Public Pages - Load immediately as they're entry points
 import Login from '../pages/Login';
-import RegisterPage from '../pages/RegisterPage';
 import NotFound from '../pages/NotFound';
+import RegisterPage from '../pages/RegisterPage';
 
-// Protected Pages
-import Home from '../pages/Home';
-import TournamentsPage from '../pages/TournamentsPage';
-import TournamentDetailPage from '../pages/TournamentDetailPage';
-import BracketPage from '../pages/BracketPage';
-import ScoresPage from '../pages/ScoresPage';
-import StatsPage from '../pages/StatsPage';
-import ProfilePage from '../pages/ProfilePage';
-import PlayerProfilePage from '../pages/PlayerProfilePage';
-import AddScoreLandingPage from '../pages/AddScoreLandingPage';
-import AddScorePage from '../pages/AddScorePage';
+// === LAZY LOADED PAGES ===
+// User Pages
+const Home = lazy(() => import('../pages/Home'));
+const TournamentsPage = lazy(() => import('../pages/TournamentsPage'));
+const TournamentDetailPage = lazy(() => import('../pages/TournamentDetailPage'));
+const BracketPage = lazy(() => import('../pages/BracketPage'));
+const ScoresPage = lazy(() => import('../pages/ScoresPage'));
+const StatsPage = lazy(() => import('../pages/StatsPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const PlayerProfilePage = lazy(() => import('../pages/PlayerProfilePage'));
+const PlayersPage = lazy(() => import('../pages/PlayersPage'));
+const AddScoreLandingPage = lazy(() => import('../pages/AddScoreLandingPage'));
+const AddScorePage = lazy(() => import('../pages/AddScorePage'));
+
+// Settings Page
+const SettingsPage = lazy(() => import('../pages/admin/SettingsPage'));
 
 // Admin Pages
-import AdminDashboardPage from '../pages/AdminDashboardPage';
-import Dashboard from '../pages/admin/Dashboard';
-import PlayersPage from '../pages/admin/PlayersPage';
-import CreatePlayerPage from '../pages/admin/CreatePlayerPage';
-import EditPlayerPage from '../pages/admin/EditPlayerPage';
-import CreateTournamentPage from '../pages/admin/CreateTournamentPage';
-import EditTournamentPage from '../pages/admin/EditTournamentPage';
-import ManageTournamentPage from '../pages/admin/ManageTournamentPage';
-import AdminTournamentListPage from '../pages/admin/AdminTournamentListPage';
-import AdminTournamentDetailPage from '../pages/admin/AdminTournamentDetailPage';
-import AdminUserManagementPage from '../pages/admin/AdminUserManagementPage';
-import AdminSecurityPage from '../pages/admin/AdminSecurityPage';
-import AdminReportsPage from '../pages/admin/AdminReportsPage';
-import AdminActivityLogPage from '../pages/admin/AdminActivityLogPage';
-import AdminMatchSchedulePage from '../pages/admin/AdminMatchSchedulePage';
-import AdminSchedulePage from '../pages/admin/AdminSchedulePage';
-import TrashPage from '../pages/admin/TrashPage';
-import SettingsPage from '../pages/admin/SettingsPage';
-import AdminPlaceholderPage from '../pages/admin/AdminPlaceholderPage';
+const AdminTournamentListPage = lazy(() => import('../pages/admin/AdminTournamentListPage'));
+const AdminTournamentDetailPage = lazy(() => import('../pages/admin/AdminTournamentDetailPage'));
+const AdminUserManagementPage = lazy(() => import('../pages/admin/AdminUserManagementPage'));
+const AdminSecurityPage = lazy(() => import('../pages/admin/AdminSecurityPage'));
+const AdminReportsPage = lazy(() => import('../pages/admin/AdminReportsPage'));
+const AdminActivityLogPage = lazy(() => import('../pages/admin/AdminActivityLogPage'));
+const AdminMatchSchedulePage = lazy(() => import('../pages/admin/AdminMatchSchedulePage'));
+const AdminSchedulePage = lazy(() => import('../pages/admin/AdminSchedulePage'));
+const CreatePlayerPage = lazy(() => import('../pages/admin/CreatePlayerPage'));
+const CreateTournamentPage = lazy(() => import('../pages/admin/CreateTournamentPage'));
+const AdminPlaceholderPage = lazy(() => import('../pages/admin/AdminPlaceholderPage'));
+const AdminPlayersPage = lazy(() => import('../pages/admin/PlayersPage'));
+const TrashPage = lazy(() => import('../pages/admin/TrashPage'));
+const Dashboard = lazy(() => import('../pages/admin/Dashboard')); // Added Dashboard import
 
-// Admin Security Pages
-import SecurityOverview from '../pages/admin/security/SecurityOverview';
-import SecurityBlockedIPs from '../pages/admin/security/SecurityBlockedIPs';
-import SecurityHoneypots from '../pages/admin/security/SecurityHoneypots';
-import SecurityThreatAnalytics from '../pages/admin/security/SecurityThreatAnalytics';
+/**
+ * Optimized Page Loader with consistent styling
+ */
+const PageLoader = ({ minHeight = '200px' }) => (
+  <div className="flex items-center justify-center w-full" style={{ minHeight }}>
+    <LoadingSpinner />
+  </div>
+);
 
-// Route Protection Components
-const ProtectedRoute = ({ children, requiredRole = null }) => {
-  const { currentUser, loading, isAuthenticated } = useAuth();
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRole && currentUser?.role !== requiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return children;
-};
-
+/**
+ * Public Route component for unauthenticated pages
+ */
 const PublicRoute = ({ children }) => {
   const { currentUser, loading } = useAuth();
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <PageLoader minHeight="100vh" />;
   }
 
   if (currentUser) {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <ErrorBoundary>{children}</ErrorBoundary>;
 };
 
+/**
+ * Admin Route component for admin-only pages
+ */
 const AdminRoute = ({ children }) => {
   return <ProtectedRoute requiredRole="admin">{children}</ProtectedRoute>;
 };
 
-// Main Layout Component
-const AppLayout = ({ children, layoutProps }) => {
+/**
+ * Main Application Layout with responsive design
+ */
+const AppLayout = React.memo(({ children, layoutProps }) => {
   const { currentUser } = useAuth();
 
+  // No layout for public pages (login/register)
   if (!currentUser) {
-    return children; // No layout for login/register pages
+    return children;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
-      <Header
-        toggleSidebarCollapse={layoutProps?.toggleSidebarCollapse}
-        toggleMobileSidebar={layoutProps?.toggleMobileSidebar}
-        isMobile={layoutProps?.isMobile}
-      />
-      <div className="flex flex-1 pt-16">
-        {' '}
-        {/* pt-16 for fixed header */}
-        <Sidebar
-          isCollapsed={layoutProps?.isSidebarCollapsed}
-          isMobileOpen={layoutProps?.isMobileSidebarOpen}
+    <ErrorBoundary>
+      <div className="min-h-screen bg-slate-900 flex flex-col">
+        <Header
+          toggleSidebarCollapse={layoutProps?.toggleSidebarCollapse}
+          toggleMobileSidebar={layoutProps?.toggleMobileSidebar}
           isMobile={layoutProps?.isMobile}
-          onMobileClose={layoutProps?.closeMobileSidebar}
         />
-        <main
-          id="main-content"
-          className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
+
+        <div className="flex flex-1 pt-16">
+          <Sidebar
+            isCollapsed={layoutProps?.isSidebarCollapsed}
+            isMobileOpen={layoutProps?.isMobileSidebarOpen}
+            isMobile={layoutProps?.isMobile}
+            onMobileClose={layoutProps?.closeMobileSidebar}
+          />
+
+          <main
+            id="main-content"
+            className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
+              layoutProps?.isSidebarCollapsed ? 'ml-20' : 'ml-64'
+            } ${layoutProps?.isMobile ? 'ml-0' : ''}`}
+            role="main"
+          >
+            <Suspense fallback={<PageLoader />}>{children}</Suspense>
+          </main>
+        </div>
+
+        <div
+          className={`transition-all duration-300 ${
             layoutProps?.isSidebarCollapsed ? 'ml-20' : 'ml-64'
           } ${layoutProps?.isMobile ? 'ml-0' : ''}`}
-          role="main"
         >
-          {children}
-        </main>
+          <Footer />
+        </div>
       </div>
-      <div
-        className={`transition-all duration-300 ${
-          layoutProps?.isSidebarCollapsed ? 'ml-20' : 'ml-64'
-        } ${layoutProps?.isMobile ? 'ml-0' : ''}`}
-      >
-        <Footer />
-      </div>
-    </div>
+    </ErrorBoundary>
   );
-};
+});
 
+AppLayout.displayName = 'AppLayout';
+
+/**
+ * Main Application Router with optimized route organization
+ */
 const AppRouter = ({
   isSidebarCollapsed,
   isMobileSidebarOpen,
   isMobile,
-  currentTheme,
   toggleSidebarCollapse,
   toggleMobileSidebar,
   closeMobileSidebar,
 }) => {
-  // Props do layout para passar para todos os componentes AppLayout
-  const layoutProps = {
-    isSidebarCollapsed,
-    isMobileSidebarOpen,
-    isMobile,
-    currentTheme,
-    toggleSidebarCollapse,
-    toggleMobileSidebar,
-    closeMobileSidebar,
-  };
+  // Memoize layout props to prevent unnecessary re-renders
+  const layoutProps = React.useMemo(
+    () => ({
+      isSidebarCollapsed,
+      isMobileSidebarOpen,
+      isMobile,
+      toggleSidebarCollapse,
+      toggleMobileSidebar,
+      closeMobileSidebar,
+    }),
+    [
+      isSidebarCollapsed,
+      isMobileSidebarOpen,
+      isMobile,
+      toggleSidebarCollapse,
+      toggleMobileSidebar,
+      closeMobileSidebar,
+    ]
+  );
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
-        />
+      <ErrorBoundary>
+        <Routes>
+          {/* ===== PUBLIC ROUTES ===== */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
 
-        {/* Protected Routes with Layout */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <Home />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* ===== PROTECTED USER ROUTES ===== */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <Home />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Tournament Routes */}
-        <Route
-          path="/tournaments"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <TournamentsPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tournaments/:id"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <TournamentDetailPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/brackets"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <BracketPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/brackets/:id"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <BracketPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Tournament Management */}
+          <Route
+            path="/tournaments"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <TournamentsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tournaments/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <TournamentDetailPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Scores Routes */}
-        <Route
-          path="/scores"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <ScoresPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add-score"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AddScoreLandingPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add-score/:id"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AddScorePage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Bracket Management */}
+          <Route
+            path="/brackets"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <BracketPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/brackets/:tournamentId"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <BracketPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Stats and Players */}
-        <Route
-          path="/stats"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <StatsPage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/players/:id"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <PlayerProfilePage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Score Management */}
+          <Route
+            path="/scores"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <ScoresPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-score"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AddScoreLandingPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-score/:matchId"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AddScorePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Profile Routes */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <ProfilePage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Stats and Players */}
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <StatsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/players"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <PlayersPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/players/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <PlayerProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminDashboardPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <Dashboard />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
+          {/* User Profile */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <ProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin Player Management */}
-        <Route
-          path="/admin/players"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <PlayersPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/players/create"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <CreatePlayerPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/players/:id/edit"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <EditPlayerPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
+          {/* Settings */}
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <SettingsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin Tournament Management */}
-        <Route
-          path="/admin/tournaments"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminTournamentListPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/tournaments/create"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <CreateTournamentPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/tournaments/:id"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminTournamentDetailPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/tournaments/:id/edit"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <EditTournamentPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/tournaments/:id/manage"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <ManageTournamentPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
+          {/* ===== ADMIN ROUTES ===== */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <Dashboard />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <Dashboard />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
 
-        {/* Admin System Management */}
-        <Route
-          path="/admin/users"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminUserManagementPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/security"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminSecurityPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/security/overview"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <SecurityOverview />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/security/blocked-ips"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <SecurityBlockedIPs />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/security/honeypots"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <SecurityHoneypots />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/security/threat-analytics"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <SecurityThreatAnalytics />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/reports"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminReportsPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/activity-log"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminActivityLogPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/schedule"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminSchedulePage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/match-schedule"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminMatchSchedulePage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/trash"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <TrashPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <SettingsPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/*"
-          element={
-            <AdminRoute>
-              <AppLayout layoutProps={layoutProps}>
-                <AdminPlaceholderPage />
-              </AppLayout>
-            </AdminRoute>
-          }
-        />
+          {/* Admin Tournament Management */}
+          <Route
+            path="/admin/tournaments"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminTournamentListPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/tournaments/create"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <CreateTournamentPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/tournaments/:id"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminTournamentDetailPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
 
-        {/* Error and Fallback Routes */}
-        <Route
-          path="/unauthorized"
-          element={
-            <AppLayout layoutProps={layoutProps}>
-              <div className="text-center py-12">
-                <h1 className="text-2xl font-bold text-red-600">Acesso Negado</h1>
-                <p className="mt-2 text-gray-600">
-                  Você não tem permissão para acessar esta página.
-                </p>
-              </div>
-            </AppLayout>
-          }
-        />
+          {/* Admin Player Management */}
+          <Route
+            path="/admin/players"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminPlayersPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/players/create"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <CreatePlayerPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
 
-        {/* 404 Not Found */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* Admin System Management */}
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminUserManagementPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/security"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminSecurityPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminReportsPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/activity-log"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminActivityLogPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/schedule"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminSchedulePage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/match-schedule"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminMatchSchedulePage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+
+          {/* Admin Trash Management */}
+          <Route
+            path="/admin/trash"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <TrashPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+
+          {/* Admin Fallback */}
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRoute>
+                <AppLayout layoutProps={layoutProps}>
+                  <AdminPlaceholderPage />
+                </AppLayout>
+              </AdminRoute>
+            }
+          />
+
+          {/* ===== ERROR ROUTES ===== */}
+          <Route
+            path="/unauthorized"
+            element={
+              <AppLayout layoutProps={layoutProps}>
+                <ErrorBoundary>
+                  <div className="text-center py-12">
+                    <h1 className="text-2xl font-bold text-red-400">Acesso Negado</h1>
+                    <p className="mt-2 text-slate-400">
+                      Você não tem permissão para acessar esta página.
+                    </p>
+                  </div>
+                </ErrorBoundary>
+              </AppLayout>
+            }
+          />
+
+          {/* 404 Not Found */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 };

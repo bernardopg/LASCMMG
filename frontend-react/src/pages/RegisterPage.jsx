@@ -4,54 +4,38 @@ import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import AuthLayout from '../components/auth/AuthLayout';
 import FormField from '../components/auth/FormField';
-import PasswordStrengthIndicator from '../components/auth/PasswordStrengthIndicator';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
 import { registerRegularUser } from '../services/api';
 
-/**
- * Página de Registro refatorada com melhor UX/UI e validação de senha
- */
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { showError, showSuccess } = useMessage();
   const [isLoading, setIsLoading] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
 
-  // Redirecionamento se já estiver autenticado
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
-  // Esquema de validação
   const RegisterSchema = Yup.object().shape({
     email: Yup.string().email('Email inválido').required('Email é obrigatório'),
     password: Yup.string()
       .min(8, 'A senha deve ter pelo menos 8 caracteres')
-      .matches(/[a-z]/, 'Deve conter uma letra minúscula')
-      .matches(/[A-Z]/, 'Deve conter uma letra maiúscula')
-      .matches(/[0-9]/, 'Deve conter um número')
-      .matches(/[!@#$%^&*()_+-=[\]{};':"\\|,.<>/?]/, 'Deve conter um caractere especial')
       .required('Senha é obrigatória'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), null], 'As senhas devem ser iguais')
       .required('Confirmação de senha é obrigatória'),
-    // Campo honeypot para proteção contra bots
-    botField: Yup.string().test('is-empty', 'Bot detectado', (value) => !value),
   });
 
-  // Valores iniciais
   const initialValues = {
     email: '',
     password: '',
     confirmPassword: '',
-    botField: '',
   };
 
-  // Função de submit
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       setIsLoading(true);
@@ -62,9 +46,7 @@ const RegisterPage = () => {
       });
 
       if (responseData.success) {
-        showSuccess(
-          responseData.message || 'Registro realizado com sucesso! Por favor, faça login.'
-        );
+        showSuccess('Registro realizado com sucesso! Por favor, faça login.');
         resetForm();
         navigate('/login');
       } else {
@@ -80,7 +62,6 @@ const RegisterPage = () => {
     }
   };
 
-  // Ícones para os campos
   const EmailIcon = ({ className }) => (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
@@ -128,9 +109,8 @@ const RegisterPage = () => {
         validationSchema={RegisterSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, setFieldValue }) => (
+        {({ errors, touched }) => (
           <Form className="space-y-6">
-            {/* Campo de Email */}
             <FormField
               name="email"
               label="Email"
@@ -142,29 +122,18 @@ const RegisterPage = () => {
               touched={touched}
             />
 
-            {/* Campo de Senha */}
-            <div>
-              <FormField
-                name="password"
-                label="Senha"
-                type="password"
-                placeholder="Crie uma senha forte"
-                required
-                showPasswordToggle
-                icon={LockIcon}
-                errors={errors}
-                touched={touched}
-                onChange={(e) => {
-                  setFieldValue('password', e.target.value);
-                  setCurrentPassword(e.target.value);
-                }}
-              />
+            <FormField
+              name="password"
+              label="Senha"
+              type="password"
+              placeholder="Crie uma senha forte"
+              required
+              showPasswordToggle
+              icon={LockIcon}
+              errors={errors}
+              touched={touched}
+            />
 
-              {/* Indicador de força da senha */}
-              <PasswordStrengthIndicator password={currentPassword} showDetails={true} />
-            </div>
-
-            {/* Campo de Confirmação de Senha */}
             <FormField
               name="confirmPassword"
               label="Confirmar Senha"
@@ -177,60 +146,14 @@ const RegisterPage = () => {
               touched={touched}
             />
 
-            {/* Campo honeypot - invisível */}
-            <div className="hidden" aria-hidden="true">
-              <FormField name="botField" type="text" tabIndex="-1" autoComplete="off" />
-            </div>
-
-            {/* Informações sobre os dados */}
-            <div className="bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                    Proteção de Dados
-                  </h3>
-                  <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>Seus dados são protegidos e criptografados</li>
-                      <li>Usamos apenas para gestão de torneios</li>
-                      <li>Nunca compartilhamos informações pessoais</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Botão de submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className={`
-                group relative w-full flex justify-center py-3 px-4
-                border border-transparent text-sm font-medium rounded-lg
-                text-white bg-gradient-to-r from-green-600 to-emerald-600
-                hover:from-green-700 hover:to-emerald-700
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
-                disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
-                shadow-lg hover:shadow-xl
-              `}
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-lime-600 hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {isLoading ? (
                 <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="-ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -249,53 +172,23 @@ const RegisterPage = () => {
                 </>
               ) : (
                 <>
-                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                    <svg
-                      className="h-5 w-5 text-white opacity-75"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      />
-                    </svg>
-                  </span>
+                  <svg
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    />
+                  </svg>
                   Criar Conta
                 </>
               )}
             </button>
-
-            {/* Informação sobre termos */}
-            <div className="text-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Ao criar uma conta, você concorda com os{' '}
-                <button
-                  type="button"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
-                  onClick={() => {
-                    // TODO: Implementar modal de termos de uso
-                    showError('Termos de uso em desenvolvimento');
-                  }}
-                >
-                  termos de uso
-                </button>{' '}
-                e{' '}
-                <button
-                  type="button"
-                  className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
-                  onClick={() => {
-                    // TODO: Implementar modal de política de privacidade
-                    showError('Política de privacidade em desenvolvimento');
-                  }}
-                >
-                  política de privacidade
-                </button>
-              </p>
-            </div>
           </Form>
         )}
       </Formik>

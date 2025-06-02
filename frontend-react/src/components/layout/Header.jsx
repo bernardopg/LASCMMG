@@ -1,474 +1,475 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState, Fragment, memo } from 'react';
 import {
   FaBars,
-  FaChevronLeft,
-  FaChevronRight,
-  FaCog,
-  FaMoon,
-  FaSignOutAlt,
-  FaSun,
+  FaSearch,
   FaTimes,
+  FaChevronRight,
   FaUser,
+  FaCog,
+  FaSignOutAlt,
 } from 'react-icons/fa';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useLocation, Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import NotificationBell from '../common/NotificationBell';
 import TournamentSelector from '../common/TournamentSelector';
+import { navigationItems } from '../../config/navigationConfig';
 
-const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar, isMobile }) => {
-  // Contextos e hooks
-  const { currentUser, logout } = useAuth();
-  const { theme: _theme, toggleTheme, isDarkTheme } = useTheme();
-  const location = useLocation();
-
-  // Referencias para navegação por teclado
-  const menuButtonRef = useRef(null);
-  const userMenuItems = useRef([]);
-
-  // Estados locais
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [focusableNavItems, setFocusableNavItems] = useState([]);
-
-  // Configuração de itens de navegação
-  const navigationItems = [
-    { name: 'Dashboard', path: '/' },
-    { name: 'Torneios', path: '/tournaments' },
-    { name: 'Jogadores', path: '/players' },
-    { name: 'Chaves', path: '/brackets' },
-    { name: 'Estatísticas', path: '/stats' },
-  ];
-
-  // Função para verificar se um caminho está ativo
-  const isPathActive = (path) => {
-    return location.pathname === path;
+const UserAvatar = memo(({ userName, size = 'md' }) => {
+  const sizeClasses = {
+    sm: 'h-8 w-8 text-sm',
+    md: 'h-10 w-10 text-lg',
+    lg: 'h-12 w-12 text-xl',
   };
 
-  // Coleta itens de navegação na montagem do componente
-  useEffect(() => {
-    const navItems = document.querySelectorAll('nav a');
-    setFocusableNavItems(Array.from(navItems));
-  }, []);
+  const userInitial = userName?.charAt(0).toUpperCase() || 'U';
 
-  // Configuração de navegação por teclado para o menu do usuário
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!userMenuItems.current.length) return;
+  return (
+    <div className="relative">
+      <div
+        className={`${sizeClasses[size]} rounded-xl bg-gradient-to-br from-green-600 via-green-700 to-green-800
+                   flex items-center justify-center text-amber-300 font-bold shadow-lg border-2 border-green-500/70
+                   transition-transform duration-200 hover:scale-105`}
+        role="img"
+        aria-label={`Avatar do usuário ${userName || 'Usuário'}`}
+      >
+        <span className="relative z-10 font-black">{userInitial}</span>
+      </div>
+      <div
+        className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-lime-400 rounded-full border-2 border-green-800 shadow-md"
+        aria-label="Status online"
+      />
+    </div>
+  );
+});
 
-      // Só processa teclas se o menu estiver aberto
-      const menuOpen = document.querySelector('[role="menu"]');
-      if (!menuOpen) return;
+UserAvatar.displayName = 'UserAvatar';
 
-      const currentIndex = userMenuItems.current.findIndex(
-        (item) => item === document.activeElement
+const DesktopUserMenu = memo(({ currentUser, handleLogout }) => (
+  <Menu as="div" className="relative">
+    <Menu.Button
+      className="flex items-center p-1.5 rounded-xl bg-green-800/40 backdrop-blur-md border border-green-700/50
+                 hover:bg-green-700/60 hover:border-lime-500/60 transition-all duration-200
+                 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2 focus:ring-offset-green-900"
+      aria-label="Menu do usuário"
+    >
+      <UserAvatar userName={currentUser?.name} />
+    </Menu.Button>
+
+    <Transition
+      as={Fragment}
+      enter="transition ease-out duration-100"
+      enterFrom="transform opacity-0 scale-95"
+      enterTo="transform opacity-100 scale-100"
+      leave="transition ease-in duration-75"
+      leaveFrom="transform opacity-100 scale-100"
+      leaveTo="transform opacity-0 scale-95"
+    >
+      <Menu.Items
+        className="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl bg-green-900/90 backdrop-blur-lg
+                             border border-green-700/60 shadow-2xl z-50 overflow-hidden focus:outline-none"
+      >
+        <div className="px-5 py-4 border-b border-green-700/40">
+          <div className="flex items-center gap-3">
+            <UserAvatar userName={currentUser?.name} />
+            <div>
+              <p className="text-sm font-semibold text-white">{currentUser?.name || 'Usuário'}</p>
+              <p className="text-xs text-neutral-300">{currentUser?.email || ''}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="py-1">
+          <Menu.Item>
+            {({ active }) => (
+              <Link
+                to="/profile"
+                className={`flex items-center gap-3 mx-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200
+                           ${active ? 'bg-lime-500 text-green-900' : 'text-neutral-200 hover:bg-green-700/50'}`}
+              >
+                <FaUser className="h-4 w-4" />
+                <span>Meu Perfil</span>
+              </Link>
+            )}
+          </Menu.Item>
+
+          <Menu.Item>
+            {({ active }) => (
+              <Link
+                to="/settings"
+                className={`flex items-center gap-3 mx-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200
+                           ${active ? 'bg-amber-500 text-white' : 'text-neutral-200 hover:bg-green-700/50'}`}
+              >
+                <FaCog className="h-4 w-4" />
+                <span>Configurações</span>
+              </Link>
+            )}
+          </Menu.Item>
+
+          <hr className="my-1 border-green-700/40" />
+
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={handleLogout}
+                className={`w-[calc(100%-1rem)] flex items-center gap-3 mx-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200
+                           ${active ? 'bg-red-600 text-white' : 'text-neutral-200 hover:bg-red-700/50'}`}
+              >
+                <FaSignOutAlt className="h-4 w-4" />
+                <span>Sair</span>
+              </button>
+            )}
+          </Menu.Item>
+        </div>
+      </Menu.Items>
+    </Transition>
+  </Menu>
+));
+
+DesktopUserMenu.displayName = 'DesktopUserMenu';
+
+const SearchBar = memo(({ isSearchOpen, searchQuery, setSearchQuery, searchInputRef }) => {
+  if (!isSearchOpen) return null;
+
+  return (
+    <div className="hidden md:flex items-center mr-3">
+      <div className="relative w-72">
+        <input
+          ref={searchInputRef}
+          type="text"
+          placeholder="Buscar..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-4 py-2.5 pl-10 pr-8 rounded-xl bg-green-800/50 backdrop-blur-md border-2 border-green-600/60
+                     text-neutral-100 placeholder-neutral-400 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-amber-500/70 focus:border-amber-500/80
+                     hover:border-green-500/80 transition-all duration-200"
+          aria-label="Campo de busca"
+        />
+        <FaSearch className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-lime-400 pointer-events-none" />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-2.5 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-green-700/50 transition-colors duration-200"
+            title="Limpar busca"
+            aria-label="Limpar busca"
+          >
+            <FaTimes className="h-3.5 w-3.5 text-neutral-400 hover:text-amber-400" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+});
+
+SearchBar.displayName = 'SearchBar';
+
+const DesktopNavigation = memo(({ isPathActive }) => (
+  <nav
+    className="hidden lg:ml-8 lg:flex lg:space-x-1"
+    role="navigation"
+    aria-label="Navegação principal"
+  >
+    {navigationItems.map((item) => {
+      const IconComponent = item.icon;
+      const isActive = isPathActive(item.path);
+
+      return (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold
+                     transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-amber-400
+                     ${
+                       isActive
+                         ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white border-amber-400/70 shadow-lg'
+                         : 'bg-green-800/40 text-neutral-300 border-green-700/50 hover:bg-green-700/60 hover:border-lime-500/60 hover:text-lime-300'
+                     }`}
+          title={item.description}
+          aria-label={`Ir para ${item.name}: ${item.description}`}
+        >
+          <IconComponent
+            className={`h-4 w-4 ${isActive ? 'text-white' : 'text-lime-400'}`}
+            aria-hidden="true"
+          />
+          <span>{item.name}</span>
+        </NavLink>
       );
+    })}
+  </nav>
+));
 
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          const nextIndex = currentIndex < userMenuItems.current.length - 1 ? currentIndex + 1 : 0;
-          userMenuItems.current[nextIndex]?.focus();
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          const prevIndex = currentIndex > 0 ? currentIndex - 1 : userMenuItems.current.length - 1;
-          userMenuItems.current[prevIndex]?.focus();
-          break;
-        }
-        case 'Escape':
-          e.preventDefault();
-          menuButtonRef.current?.focus();
-          setIsMenuOpen(false);
-          break;
-        default:
-          break;
-      }
-    };
+DesktopNavigation.displayName = 'DesktopNavigation';
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+const SidebarToggle = memo(({ isSidebarCollapsed, toggleSidebarCollapse }) => (
+  <button
+    onClick={toggleSidebarCollapse}
+    className="p-3 rounded-2xl bg-green-800/50 backdrop-blur-md border border-green-600/60
+               hover:bg-green-700/70 hover:border-lime-500/70 transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2 focus:ring-offset-green-900"
+    aria-label={isSidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+    aria-expanded={!isSidebarCollapsed}
+    type="button"
+  >
+    <FaChevronRight
+      className={`h-4 w-4 text-lime-400 transition-transform duration-200 ${isSidebarCollapsed ? '' : 'rotate-180'}`}
+      aria-hidden="true"
+    />
+  </button>
+));
 
-  // Fecha menu quando clicar fora
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isMenuOpen && menuButtonRef.current && !menuButtonRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    };
+SidebarToggle.displayName = 'SidebarToggle';
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMenuOpen]);
+const Logo = memo(() => (
+  <div className="flex-shrink-0">
+    <Link
+      to="/"
+      aria-label="Página inicial LASCMMG - Sistema de Torneios"
+      className="flex items-center group p-2 rounded-2xl bg-green-800/30 backdrop-blur-md border border-green-700/40
+                 hover:bg-green-700/50 hover:border-amber-500/60 transition-all duration-200
+                 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-green-900"
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-8 h-8 bg-gradient-to-br from-green-600 via-green-700 to-green-800 rounded-xl
+                        flex items-center justify-center shadow-lg border-2 border-green-500/50
+                        transition-transform duration-200 group-hover:scale-110"
+        >
+          <span className="text-amber-300 font-bold text-sm">L</span>
+        </div>
+        <div className="hidden sm:block">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-amber-400 via-amber-500 to-amber-300 bg-clip-text text-transparent">
+            LASCMMG
+          </h1>
+          <p className="text-xs text-neutral-400 -mt-1">Torneios</p>
+        </div>
+      </div>
+    </Link>
+  </div>
+));
 
-  // Atualiza meta tag de cor do tema para melhor modo escuro
-  useEffect(() => {
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (!metaThemeColor) {
-      const meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      meta.content = isDarkTheme ? '#1e293b' : '#ffffff';
-      document.head.appendChild(meta);
-    } else {
-      metaThemeColor.content = isDarkTheme ? '#1e293b' : '#ffffff';
-    }
-  }, [isDarkTheme]);
+Logo.displayName = 'Logo';
 
-  // Handlers
-  const handleLogout = async () => {
+const MobileNavigation = memo(({ isPathActive }) => (
+  <nav className="pt-4 pb-3 space-y-1.5 px-3" role="navigation" aria-label="Navegação mobile">
+    {navigationItems.map((item) => {
+      const IconComponent = item.icon;
+      const isActive = isPathActive(item.path);
+
+      return (
+        <Disclosure.Button
+          key={item.path}
+          as={Link}
+          to={item.path}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold
+                     transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-amber-400
+                     ${
+                       isActive
+                         ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white border-amber-400/60 shadow-md'
+                         : 'bg-green-800/30 text-neutral-200 border-green-700/40 hover:bg-green-700/50 hover:border-lime-500/50 hover:text-lime-300'
+                     }`}
+          aria-label={`Ir para ${item.name}: ${item.description}`}
+        >
+          <div className={`p-2 rounded-lg ${isActive ? 'bg-white/15' : 'bg-lime-500/20'}`}>
+            <IconComponent
+              className={`h-4 w-4 ${isActive ? 'text-white' : 'text-lime-300'}`}
+              aria-hidden="true"
+            />
+          </div>
+          <span>{item.name}</span>
+        </Disclosure.Button>
+      );
+    })}
+  </nav>
+));
+
+MobileNavigation.displayName = 'MobileNavigation';
+
+const MobileUserProfile = memo(({ currentUser, handleLogout }) => (
+  <div className="pt-3 pb-3 border-t border-green-700/40 mx-3">
+    <div className="flex items-center px-3 py-3 mb-3 rounded-xl bg-green-800/30 backdrop-blur-md border border-green-700/40">
+      <UserAvatar userName={currentUser?.name} />
+      <div className="ml-3">
+        <div className="text-base font-semibold text-white">{currentUser?.name || 'Usuário'}</div>
+        <div className="text-sm text-neutral-300">{currentUser?.email || ''}</div>
+      </div>
+    </div>
+
+    <div className="space-y-1.5">
+      <Disclosure.Button
+        as={Link}
+        to="/profile"
+        className="w-full flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-200
+                   hover:bg-green-700/50 hover:text-white rounded-xl transition-colors duration-200
+                   border border-green-700/40 hover:border-lime-500/50"
+      >
+        <div className="p-2 rounded-lg bg-lime-500/20">
+          <FaUser className="h-4 w-4 text-lime-300" />
+        </div>
+        Meu Perfil
+      </Disclosure.Button>
+
+      <Disclosure.Button
+        as={Link}
+        to="/settings"
+        className="w-full flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-200
+                   hover:bg-green-700/50 hover:text-white rounded-xl transition-colors duration-200
+                   border border-green-700/40 hover:border-amber-500/50"
+      >
+        <div className="p-2 rounded-lg bg-amber-500/20">
+          <FaCog className="h-4 w-4 text-amber-300" />
+        </div>
+        Configurações
+      </Disclosure.Button>
+
+      <Disclosure.Button
+        as="button"
+        onClick={handleLogout}
+        className="w-full flex items-center gap-3 px-4 py-3 text-base font-medium text-neutral-200
+                   hover:bg-red-700/40 hover:text-red-300 rounded-xl transition-colors duration-200
+                   border border-green-700/40 hover:border-red-500/50"
+      >
+        <div className="p-2 rounded-lg bg-red-600/20">
+          <FaSignOutAlt className="h-4 w-4 text-red-400" />
+        </div>
+        Sair
+      </Disclosure.Button>
+    </div>
+  </div>
+));
+
+MobileUserProfile.displayName = 'MobileUserProfile';
+
+const Header = ({ isSidebarCollapsed, toggleSidebarCollapse, toggleMobileSidebar, isMobile }) => {
+  const { currentUser, logout } = useAuth();
+  const location = useLocation();
+  const searchInputRef = useRef(null);
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const isPathActive = useCallback(
+    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`),
+    [location.pathname]
+  );
+
+  const handleLogout = useCallback(async () => {
     try {
       await logout();
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
-  };
+  }, [logout]);
 
-  const handleThemeToggle = () => {
-    toggleTheme();
-  };
-
-  // Registra referência para cada item do menu do usuário
-  const registerUserMenuItem = (el) => {
-    if (el && !userMenuItems.current.includes(el)) {
-      userMenuItems.current.push(el);
-    }
-  };
-
-  // Renderiza botão de toggle do sidebar para desktop
-  const renderDesktopSidebarToggle = () => (
-    <div className="flex items-center mr-4">
-      <button
-        onClick={toggleSidebarCollapse}
-        className="p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-200"
-        aria-label={isSidebarCollapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
-        aria-expanded={!isSidebarCollapsed}
-      >
-        {isSidebarCollapsed ? (
-          <FaChevronRight className="h-5 w-5" />
-        ) : (
-          <FaChevronLeft className="h-5 w-5" />
-        )}
-      </button>
-    </div>
-  );
-
-  // Renderiza botão de toggle do sidebar para mobile
-  const renderMobileSidebarToggle = () => (
-    <button
-      onClick={toggleMobileSidebar}
-      className="p-2 mr-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-200"
-      aria-label="Abrir menu lateral"
-      aria-expanded="false"
-    >
-      <FaBars className="h-5 w-5" />
-    </button>
-  );
-
-  // Renderiza logo da aplicação
-  const renderLogo = () => (
-    <div className="flex-shrink-0 flex items-center">
-      <Link to="/" aria-label="Página inicial LASCMMG">
-        <img
-          className="block h-10 w-auto transition-transform duration-300 hover:scale-105"
-          src="/assets/logo-lascmmg.png"
-          alt="LASCMMG"
-          width="40"
-          height="40"
-        />
-      </Link>
-    </div>
-  );
-
-  // Renderiza navegação principal para desktop
-  const renderDesktopNavigation = () => (
-    <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-      {navigationItems.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={({ isActive }) =>
-            isActive
-              ? 'border-primary text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200'
-              : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-gray-100 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-200'
-          }
-        >
-          {item.name}
-        </NavLink>
-      ))}
-    </div>
-  );
-
-  // Renderiza botão de alternância de tema
-  const renderThemeToggle = (additionalClasses = '') => (
-    <button
-      onClick={handleThemeToggle}
-      className={`p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-all duration-300 ${additionalClasses}`}
-      aria-label={isDarkTheme ? 'Ativar modo claro' : 'Ativar modo escuro'}
-      title={isDarkTheme ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
-    >
-      <div className="relative w-5 h-5">
-        {isDarkTheme ? (
-          <FaSun className="h-5 w-5 transition-all duration-300 transform rotate-0" />
-        ) : (
-          <FaMoon className="h-5 w-5 transition-all duration-300 transform rotate-0" />
-        )}
-      </div>
-    </button>
-  );
-
-  // Renderiza avatar do usuário
-  const renderUserAvatar = () => (
-    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white uppercase font-bold shadow-sm relative overflow-hidden">
-      <span className="relative z-10">{currentUser?.name?.charAt(0) || 'U'}</span>
-      <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark opacity-70"></div>
-    </div>
-  );
-
-  // Renderiza menu do usuário para desktop
-  const renderDesktopUserMenu = () => (
-    <Menu as="div" className="relative">
-      <div>
-        <Menu.Button
-          ref={menuButtonRef}
-          className="bg-white dark:bg-slate-800 rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-secondary transition-transform duration-200 hover:scale-105"
-          aria-label="Menu do usuário"
-          aria-expanded={isMenuOpen}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <span className="sr-only">Abrir menu do usuário</span>
-          {renderUserAvatar()}
-        </Menu.Button>
-      </div>
-      <Transition
-        as={Fragment}
-        enter="transition ease-out duration-200"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-150"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
-        afterEnter={() => setIsMenuOpen(true)}
-        afterLeave={() => setIsMenuOpen(false)}
-      >
-        <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-700 ring-1 ring-black dark:ring-slate-600 ring-opacity-5 focus:outline-none z-10">
-          <Menu.Item>
-            {({ active }) => (
-              <Link
-                ref={registerUserMenuItem}
-                to="/profile"
-                className={`${
-                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
-              >
-                <FaUser className="mr-2 h-4 w-4" aria-hidden="true" />
-                Meu Perfil
-              </Link>
-            )}
-          </Menu.Item>
-          <Menu.Item>
-            {({ active }) => (
-              <Link
-                ref={registerUserMenuItem}
-                to="/settings"
-                className={`${
-                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                } block px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
-              >
-                <FaCog className="mr-2 h-4 w-4" aria-hidden="true" />
-                Configurações
-              </Link>
-            )}
-          </Menu.Item>
-          <Menu.Item>
-            {({ active }) => (
-              <button
-                ref={registerUserMenuItem}
-                onClick={handleLogout}
-                className={`${
-                  active ? 'bg-primary-dark text-white' : 'text-gray-700 dark:text-gray-200'
-                } block w-full text-left px-4 py-2 text-sm hover:bg-primary-dark hover:text-white rounded-md transition-colors duration-150 flex items-center`}
-              >
-                <FaSignOutAlt className="mr-2 h-4 w-4" aria-hidden="true" />
-                Sair
-              </button>
-            )}
-          </Menu.Item>
-        </Menu.Items>
-      </Transition>
-    </Menu>
-  );
-
-  // Renderiza barra de ferramentas para desktop
-  const renderDesktopToolbar = () => (
-    <div className="hidden sm:ml-6 sm:flex sm:items-center">
-      {/* Seletor de torneio */}
-      <div className="mr-4">
-        <TournamentSelector />
-      </div>
-
-      {/* Sino de notificações */}
-      <div className="mr-3 relative" aria-live="polite">
-        <NotificationBell />
-      </div>
-
-      {/* Toggle de tema */}
-      {renderThemeToggle('mr-3 transform hover:scale-105')}
-
-      {/* Menu do perfil */}
-      {renderDesktopUserMenu()}
-    </div>
-  );
-
-  // Renderiza barra de ferramentas para mobile
-  const renderMobileToolbar = ({ open }) => (
-    <div className="-mr-2 flex items-center sm:hidden gap-2">
-      {/* Sino de notificações para mobile */}
-      <div className="relative">
-        <NotificationBell />
-      </div>
-
-      {/* Toggle de tema para mobile */}
-      {renderThemeToggle()}
-
-      <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-dark transition-colors duration-200">
-        <span className="sr-only">Abrir menu principal</span>
-        {open ? (
-          <FaTimes className="block h-6 w-6" aria-hidden="true" />
-        ) : (
-          <FaBars className="block h-6 w-6" aria-hidden="true" />
-        )}
-      </Disclosure.Button>
-    </div>
-  );
-
-  // Renderiza navegação mobile
-  const renderMobileNavigation = () => (
-    <div className="pt-2 pb-3 space-y-1 animate-fadeIn">
-      {navigationItems.map((item) => {
-        const isActive = isPathActive(item.path);
-        return (
-          <Disclosure.Button
-            key={item.path}
-            as={Link}
-            to={item.path}
-            className={
-              isActive
-                ? 'bg-primary-light dark:bg-primary-dark border-primary text-primary-contrast dark:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
-                : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200'
-            }
-          >
-            {item.name}
-          </Disclosure.Button>
-        );
-      })}
-    </div>
-  );
-
-  // Renderiza seção de perfil do usuário no mobile
-  const renderMobileUserProfile = () => (
-    <div className="pt-4 pb-3 border-t border-gray-200 dark:border-slate-700">
-      <div className="flex items-center px-4">
-        <div className="flex-shrink-0">
-          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white uppercase font-bold shadow-sm relative overflow-hidden">
-            <span className="relative z-10">{currentUser?.name?.charAt(0) || 'U'}</span>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark opacity-70"></div>
-          </div>
-        </div>
-        <div className="ml-3">
-          <div className="text-base font-medium text-gray-800 dark:text-white">
-            {currentUser?.name || 'Usuário'}
-          </div>
-          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {currentUser?.email || ''}
-          </div>
-        </div>
-      </div>
-      <div className="mt-3 space-y-2">
-        <Disclosure.Button
-          as={Link}
-          to="/profile"
-          className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md transition-colors duration-200 flex items-center"
-        >
-          <FaUser className="mr-2 h-5 w-5" aria-hidden="true" />
-          Meu Perfil
-        </Disclosure.Button>
-        <Disclosure.Button
-          as={Link}
-          to="/settings"
-          className="block px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md transition-colors duration-200 flex items-center"
-        >
-          <FaCog className="mr-2 h-5 w-5" aria-hidden="true" />
-          Configurações
-        </Disclosure.Button>
-        <Disclosure.Button
-          as="button"
-          onClick={handleLogout}
-          className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-white rounded-md transition-colors duration-200 flex items-center"
-        >
-          <FaSignOutAlt className="mr-2 h-5 w-5" aria-hidden="true" />
-          Sair
-        </Disclosure.Button>
-      </div>
-    </div>
-  );
+  const handleSearchToggle = useCallback(() => {
+    setIsSearchOpen((prev) => {
+      const newState = !prev;
+      if (newState) {
+        setTimeout(() => searchInputRef.current?.focus(), 100);
+      }
+      return newState;
+    });
+  }, []);
 
   return (
-    <>
-      {/* Link de pular para conteúdo para acessibilidade */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-      >
-        Pular para o conteúdo
-      </a>
-
-      <Disclosure
-        as="nav"
-        className="bg-white dark:bg-slate-800 shadow-md border-b border-gray-200 dark:border-slate-700 fixed top-0 right-0 left-0 z-50 transition-all duration-300 ease-in-out print:hidden"
-      >
-        {({ open }) => (
-          <>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16">
-                {/* Seção esquerda - Logo e navegação */}
-                <div className="flex items-center">
-                  {/* Botão do Toggle do Sidebar */}
-                  {isMobile ? renderMobileSidebarToggle() : renderDesktopSidebarToggle()}
-
-                  {/* Logo */}
-                  {renderLogo()}
-
-                  {/* Navegação principal para desktop */}
-                  {renderDesktopNavigation()}
+    <Disclosure as="nav" className="fixed top-0 left-0 right-0 z-50">
+      {({ open }) => (
+        <>
+          <div className="bg-green-900/95 backdrop-blur-xl border-b border-green-700/60 shadow-2xl">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="relative flex h-16 sm:h-20 items-center justify-between">
+                {/* Left side */}
+                <div className="flex items-center space-x-4">
+                  {!isMobile && (
+                    <SidebarToggle
+                      isSidebarCollapsed={isSidebarCollapsed}
+                      toggleSidebarCollapse={toggleSidebarCollapse}
+                    />
+                  )}
+                  <Logo />
+                  {!isMobile && <DesktopNavigation isPathActive={isPathActive} />}
                 </div>
 
-                {/* Seção direita - Ferramentas e menu do usuário */}
-                {renderDesktopToolbar()}
+                {/* Right side */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  {!isMobile ? (
+                    <>
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20
+                                   hover:bg-white/20 transition-colors duration-200"
+                        aria-label="Buscar"
+                      >
+                        <FaSearch className="h-4 w-4 text-lime-400" />
+                      </button>
 
-                {/* Menu mobile */}
-                {renderMobileToolbar({ open })}
+                      <SearchBar
+                        isSearchOpen={isSearchOpen}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        searchInputRef={searchInputRef}
+                      />
+
+                      <TournamentSelector />
+                      <NotificationBell />
+                      <DesktopUserMenu currentUser={currentUser} handleLogout={handleLogout} />
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={handleSearchToggle}
+                        className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20
+                                   hover:bg-white/20 transition-colors duration-200"
+                        aria-label="Buscar"
+                      >
+                        <FaSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lime-400" />
+                      </button>
+
+                      <NotificationBell />
+
+                      <Disclosure.Button
+                        className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20
+                                   hover:bg-white/20 transition-colors duration-200
+                                   focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+                        onClick={toggleMobileSidebar}
+                      >
+                        {open ? (
+                          <FaTimes className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lime-400" />
+                        ) : (
+                          <FaBars className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lime-400" />
+                        )}
+                      </Disclosure.Button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Painel mobile */}
-            <Disclosure.Panel className="sm:hidden border-t border-gray-200 dark:border-slate-700 shadow-lg">
-              {/* Navegação principal mobile */}
-              {renderMobileNavigation()}
-
-              {/* Seletor de torneio no mobile */}
-              <div className="pt-2 px-3 pb-3 border-t border-gray-200 dark:border-slate-700">
-                <TournamentSelector />
-              </div>
-
-              {/* Perfil do usuário mobile */}
-              {renderMobileUserProfile()}
+          {/* Mobile menu */}
+          {open && (
+            <Disclosure.Panel
+              static
+              className="lg:hidden bg-green-900/95 backdrop-blur-xl border-t border-green-700/60 shadow-lg"
+            >
+              {isSearchOpen && (
+                <div className="p-4">
+                  <SearchBar
+                    isSearchOpen={isSearchOpen}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    searchInputRef={searchInputRef}
+                  />
+                </div>
+              )}
+              <MobileNavigation isPathActive={isPathActive} />
+              <MobileUserProfile currentUser={currentUser} handleLogout={handleLogout} />
             </Disclosure.Panel>
-          </>
-        )}
-      </Disclosure>
-    </>
+          )}
+        </>
+      )}
+    </Disclosure>
   );
 };
 

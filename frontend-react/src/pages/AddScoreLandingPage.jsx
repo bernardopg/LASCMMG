@@ -6,47 +6,54 @@ const AddScoreLandingPage = () => {
   const { currentTournament } = useTournament();
 
   return (
-    <div className="px-4 py-8">
-      {' '}
-      {/* Removed container mx-auto */}
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Adicionar Placar</h1>
-      <div className="card bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-          Para adicionar ou editar um placar, primeiro selecione um torneio e depois a partida
-          desejada.
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-white mb-8">Adicionar Placar</h1>
+
+      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
+        <p className="text-slate-300 mb-6">
+          Para adicionar ou editar um placar, primeiro selecione um torneio ativo e depois navegue
+          até a partida desejada na página de gerenciamento do torneio ou no chaveamento.
         </p>
 
         {currentTournament ? (
-          <div className="mb-6">
-            <p className="text-md mb-2 text-gray-600 dark:text-gray-400">
+          <div className="mb-8 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+            <p className="text-slate-400 mb-3">
               Torneio atualmente selecionado:{' '}
-              <strong className="text-primary dark:text-primary-light">
-                {currentTournament.name}
-              </strong>
+              <strong className="text-lime-400">{currentTournament.name}</strong>
             </p>
             <Link
-              to={`/admin/tournaments/manage/${currentTournament.id}`}
-              className="btn btn-primary inline-flex items-center mr-4"
+              to={`/admin/tournaments/${currentTournament.id}`}
+              className="inline-flex items-center px-4 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors"
             >
-              <FaEdit className="mr-2" /> Gerenciar Partidas de &ldquo;{currentTournament.name}
-              &rdquo;
+              <FaEdit className="mr-2 h-4 w-4" />
+              Gerenciar Partidas de {currentTournament.name}
             </Link>
-            <p className="text-sm mt-2 text-gray-500 dark:text-gray-500">
-              (Você poderá adicionar/editar placares na página de gerenciamento do torneio)
+            <p className="text-xs mt-3 text-slate-500">
+              (Você poderá adicionar/editar placares na página de detalhes e gerenciamento do
+              torneio)
             </p>
           </div>
         ) : (
-          <p className="text-md text-yellow-600 dark:text-yellow-400 mb-4">
-            Nenhum torneio selecionado no momento.
-          </p>
+          <div className="mb-8 p-4 bg-yellow-800/30 border border-yellow-700/50 rounded-lg">
+            <p className="text-yellow-400 font-semibold">Nenhum torneio selecionado no momento.</p>
+            <p className="text-yellow-300/80 text-sm mt-1">
+              Por favor, selecione um torneio na lista abaixo para continuar.
+            </p>
+          </div>
         )}
 
-        <Link to="/tournaments" className="btn btn-outline inline-flex items-center">
-          <FaListUl className="mr-2" /> Ver Lista de Torneios
-        </Link>
-        <p className="text-sm mt-2 text-gray-500 dark:text-gray-500">
-          (Selecione um torneio da lista para ver suas partidas)
-        </p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Link
+            to="/tournaments"
+            className="inline-flex items-center px-4 py-2 border border-slate-500 text-slate-300 rounded-lg hover:border-lime-500 hover:text-lime-400 transition-colors"
+          >
+            <FaListUl className="mr-2 h-4 w-4" />
+            Ver Lista de Torneios
+          </Link>
+          <p className="text-sm text-slate-500">
+            (Selecione um torneio da lista para ver suas partidas e adicionar placares)
+          </p>
+        </div>
       </div>
     </div>
   );

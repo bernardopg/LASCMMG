@@ -9,7 +9,18 @@ import {
   getTournamentState, // Added getTournamentState
 } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
-import { FaCog, FaUsers, FaSitemap, FaSpinner, FaEdit, FaListOl, FaPlus } from 'react-icons/fa';
+import {
+  FaCog,
+  FaUsers,
+  FaSitemap,
+  FaSpinner,
+  FaEdit,
+  FaListOl,
+  FaPlus,
+  FaExclamationTriangle,
+} from 'react-icons/fa'; // Added FaExclamationTriangle
+import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 // import BracketDisplay from '../../components/bracket/BracketDisplay'; // A component to render the bracket
 
 const ManageTournamentPage = () => {
@@ -106,22 +117,45 @@ const ManageTournamentPage = () => {
 
   // Placeholder for other actions like updating match scores, advancing players etc.
 
+  const cardBaseClasses = 'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+  const outlineButtonClasses = `${buttonBaseClasses} border border-slate-500 hover:border-lime-500 text-slate-300 hover:text-lime-400 hover:bg-slate-700/50 focus:ring-lime-500`;
+  const successButtonClasses = `${buttonBaseClasses} bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500`;
+  const selectClasses =
+    'form-select flex-grow mt-1 block w-full py-2 px-3 border border-slate-600 bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500 sm:text-sm text-slate-100';
+
+  const getStatusTextClass = (status) => {
+    switch (status) {
+      case 'Em Andamento':
+        return 'text-green-400';
+      case 'Pendente':
+        return 'text-yellow-400';
+      case 'Concluído':
+        return 'text-sky-400';
+      default:
+        return 'text-slate-400';
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <FaSpinner className="animate-spin text-4xl text-primary" />
-        <p className="ml-3 text-lg">Carregando gerenciamento do torneio...</p>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
+        <LoadingSpinner size="lg" message="Carregando gerenciamento do torneio..." />
       </div>
     );
   }
 
   if (!tournament) {
     return (
-      <div className="px-4 py-8 text-center">
-        {' '}
-        {/* Removed container mx-auto */}
-        <h2 className="text-2xl font-semibold text-red-600">Torneio não encontrado.</h2>
-        <button onClick={() => navigate('/admin/tournaments')} className="btn btn-primary mt-4">
+      <div className="container mx-auto px-4 py-8 text-center">
+        <FaExclamationTriangle className="mx-auto text-5xl text-red-400 mb-4" />
+        <h2 className="text-2xl font-semibold text-red-300">Torneio não encontrado.</h2>
+        <button
+          onClick={() => navigate('/admin/tournaments')}
+          className={`${primaryButtonClasses} mt-6`}
+        >
           Voltar para Lista de Torneios
         </button>
       </div>
@@ -129,118 +163,120 @@ const ManageTournamentPage = () => {
   }
 
   return (
-    <div className="px-4 py-8">
-      {' '}
-      {/* Removed container mx-auto */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-          Gerenciar Torneio:{' '}
-          <span className="text-primary dark:text-primary-light">{tournament.name}</span>
-        </h1>
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <PageHeader
+          title={`Gerenciar: ${tournament.name}`}
+          icon={FaCog}
+          iconColor="text-lime-400"
+        />
         <Link
           to={`/admin/tournaments/edit/${tournamentId}`}
-          className="btn btn-outline btn-sm flex items-center"
+          className={`${outlineButtonClasses} text-xs py-1.5 px-3 mt-4 md:mt-0`}
         >
-          <FaEdit className="mr-2" /> Editar Detalhes
+          <FaEdit className="mr-2 h-3.5 w-3.5" /> Editar Detalhes
         </Link>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="card bg-white dark:bg-slate-800 p-4">
-          <h3 className="font-semibold text-lg mb-2">Status</h3>
-          <p
-            className={`font-bold ${
-              tournament.status === 'Em Andamento'
-                ? 'text-green-500'
-                : tournament.status === 'Pendente'
-                  ? 'text-yellow-500'
-                  : tournament.status === 'Concluído'
-                    ? 'text-blue-500'
-                    : 'text-gray-500'
-            }`}
-          >
+        <div className={`${cardBaseClasses} p-4`}>
+          <h3 className="font-semibold text-lg mb-2 text-slate-200">Status</h3>
+          <p className={`font-bold text-xl ${getStatusTextClass(tournament.status)}`}>
             {tournament.status}
           </p>
         </div>
-        <div className="card bg-white dark:bg-slate-800 p-4">
-          <h3 className="font-semibold text-lg mb-2">Jogadores</h3>
-          <p>
+        <div className={`${cardBaseClasses} p-4`}>
+          <h3 className="font-semibold text-lg mb-2 text-slate-200">Jogadores</h3>
+          <p className="text-slate-100 text-xl">
             {players.length} / {tournament.num_players_expected || 'N/A'}
           </p>
         </div>
-        <div className="card bg-white dark:bg-slate-800 p-4">
-          <h3 className="font-semibold text-lg mb-2">Tipo</h3>
-          <p>{tournament.bracket_type?.replace('-', ' ')}</p>
+        <div className={`${cardBaseClasses} p-4`}>
+          <h3 className="font-semibold text-lg mb-2 text-slate-200">Tipo</h3>
+          <p className="text-slate-100 text-xl">
+            {tournament.bracket_type?.replace('-', ' ') || 'N/A'}
+          </p>
         </div>
       </div>
+
       <div className="mb-8 space-y-4 md:space-y-0 md:flex md:space-x-4">
         {tournament.status === 'Pendente' && (
           <button
             onClick={handleGenerateBracket}
-            className="btn btn-success flex items-center"
+            className={`${successButtonClasses} text-sm`}
             disabled={actionLoading || players.length < 2}
           >
             {actionLoading ? (
-              <FaSpinner className="animate-spin mr-2" />
+              <FaSpinner className="animate-spin mr-2 h-4 w-4" />
             ) : (
-              <FaSitemap className="mr-2" />
+              <FaSitemap className="mr-2 h-4 w-4" />
             )}
             {actionLoading ? 'Gerando...' : 'Gerar Chaveamento'}
           </button>
         )}
         <Link
           to={`/brackets?tournament=${tournamentId}`}
-          className="btn btn-primary flex items-center"
+          className={`${primaryButtonClasses} text-sm`}
         >
-          <FaSitemap className="mr-2" /> Ver Chaveamento Público
+          <FaSitemap className="mr-2 h-4 w-4" /> Ver Chaveamento Público
         </Link>
         {/* Add more action buttons here: e.g., Finalizar Torneio, Resetar Chaveamento */}
       </div>
-      {/* Section to display players */}
-      <div className="card bg-white dark:bg-slate-800 p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Adicionar Jogador Existente ao Torneio</h2>
+
+      <div className={`${cardBaseClasses} mb-8`}>
+        <h2 className="text-xl font-semibold mb-4 text-slate-100">
+          Adicionar Jogador Existente ao Torneio
+        </h2>
         {globalPlayers.length > 0 ? (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <select
               value={selectedGlobalPlayerId}
               onChange={(e) => setSelectedGlobalPlayerId(e.target.value)}
-              className="form-select flex-grow mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 dark:text-gray-100"
+              className={selectClasses}
               disabled={assignLoading}
             >
-              <option value="">Selecione um jogador global</option>
+              <option value="" className="bg-slate-700 text-slate-400">
+                Selecione um jogador global
+              </option>
               {globalPlayers.map((gp) => (
-                <option key={gp.id} value={gp.id}>
+                <option key={gp.id} value={gp.id} className="bg-slate-700 text-slate-100">
                   {gp.name} ({gp.nickname || 'N/A'}) - ID: {gp.id}
                 </option>
               ))}
             </select>
             <button
               onClick={handleAssignPlayer}
-              className="btn btn-primary flex items-center"
+              className={`${primaryButtonClasses} text-sm`}
               disabled={assignLoading || !selectedGlobalPlayerId}
             >
               {assignLoading ? (
-                <FaSpinner className="animate-spin mr-2" />
+                <FaSpinner className="animate-spin mr-2 h-4 w-4" />
               ) : (
-                <FaPlus className="mr-2" />
+                <FaPlus className="mr-2 h-4 w-4" />
               )}
-              Adicionar ao Torneio
+              Adicionar
             </button>
           </div>
         ) : (
-          <p>
-            Nenhum jogador global disponível para adicionar. Crie jogadores na{' '}
-            <Link to="/admin/players/create" className="link link-primary">
+          <p className="text-slate-400">
+            Nenhum jogador global disponível. Crie jogadores na{' '}
+            <Link
+              to="/admin/players/create"
+              className="text-lime-400 hover:text-lime-300 underline"
+            >
               página de criação de jogadores
-            </Link>{' '}
-            sem vinculá-los a um torneio.
+            </Link>
+            .
           </p>
         )}
       </div>
-      {/* Section to display players */}
-      <div className="card bg-white dark:bg-slate-800 p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Jogadores Inscritos ({players.length})</h2>
+
+      <div className={`${cardBaseClasses} mb-8`}>
+        <h2 className="text-xl font-semibold mb-4 text-slate-100">
+          Jogadores Inscritos ({players.length})
+        </h2>
         {players.length > 0 ? (
-          <ul className="list-disc pl-5 space-y-1">
+          <ul className="list-disc list-inside pl-5 space-y-1 text-slate-300">
             {players.map((p) => (
               <li key={p.id} className="text-sm">
                 {p.name} {p.nickname ? `(${p.nickname})` : ''} - ID: {p.id}
@@ -248,24 +284,23 @@ const ManageTournamentPage = () => {
             ))}
           </ul>
         ) : (
-          <p>Nenhum jogador inscrito.</p>
+          <p className="text-slate-400">Nenhum jogador inscrito.</p>
         )}
       </div>
-      {/* Section to display bracket/matches - This would be complex */}
-      <div className="card bg-white dark:bg-slate-800 p-6">
-        <h2 className="text-xl font-semibold mb-4">Partidas e Resultados</h2>
+
+      <div className={cardBaseClasses}>
+        <h2 className="text-xl font-semibold mb-4 text-slate-100">Partidas e Resultados</h2>
         {bracketState && bracketState.matches && Object.keys(bracketState.matches).length > 0 ? (
-          <p>
+          <p className="text-slate-300">
             Chaveamento gerado. (Visualização detalhada e gerenciamento de partidas aqui - Em
             desenvolvimento)
           </p>
-        ) : // Here you could map through bracketState.rounds and bracketState.matches
-        // to display match information and provide options to update scores.
-        // Example: <BracketDisplay bracket={bracketState} tournamentId={tournamentId} isAdmin={true} />
-        tournament.status !== 'Pendente' ? (
-          <p>Chaveamento ainda não gerado ou não disponível.</p>
+        ) : tournament.status !== 'Pendente' ? (
+          <p className="text-slate-400">
+            Chaveamento ainda não gerado ou não disponível para este status.
+          </p>
         ) : (
-          <p>Gere o chaveamento para visualizar as partidas.</p>
+          <p className="text-slate-400">Gere o chaveamento para visualizar as partidas.</p>
         )}
       </div>
     </div>

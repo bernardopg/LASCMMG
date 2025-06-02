@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
+/* import { visualizer } from 'rollup-plugin-visualizer'; */
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -7,12 +7,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
     react(),
-    visualizer({
-      filename: 'dist/stats.html', // Output file for the bundle analysis
-      open: true, // Automatically open it in the browser after build
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    // visualizer({
+    //   filename: 'dist/stats.html', // Output file for the bundle analysis
+    //   open: true, // Automatically open it in the browser after build
+    //   gzipSize: true,
+    //   brotliSize: true,
+    // }),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -51,10 +51,6 @@ export default defineConfig({
               plugins: [
                 {
                   handlerDidError: async () => {
-                    // Optional: Provide a fallback response for API errors when offline
-                    // return new Response(JSON.stringify({ success: false, message: 'API offline' }), {
-                    //   headers: { 'Content-Type': 'application/json' }
-                    // });
                     return Response.error(); // Or just let it fail if no specific offline API response is needed
                   },
                 },

@@ -1,101 +1,11 @@
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { useState } from 'react';
-import { BsBell, BsBellFill } from 'react-icons/bs';
+import { useState, useRef } from 'react'; // Added useRef
+import { Bell, BellRing } from 'lucide-react'; // Using Lucide icons
 import { useNotification } from '../../context/NotificationContext';
-
-const NotificationItem = ({ notification /* onClose */ }) => {
-  // Formatar a data relativa
-  const timeAgo = notification.timestamp
-    ? formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true, locale: ptBR })
-    : '';
-
-  // Títulos personalizados com base no tipo de notificação
-  const getTitleForType = (type) => {
-    const titles = {
-      tournament_created: 'Novo torneio criado',
-      tournament_updated: 'Torneio atualizado',
-      tournament_cancelled: 'Torneio cancelado',
-      tournament_deleted: 'Torneio excluído',
-      tournament_started: 'Torneio iniciado',
-      tournament_completed: 'Torneio concluído',
-      player_added: 'Novo jogador adicionado',
-      player_updated: 'Jogador atualizado',
-      player_removed: 'Jogador removido',
-      player_deactivated: 'Jogador desativado',
-      score_added: 'Novo placar registrado',
-      score_updated: 'Placar atualizado',
-      score_deleted: 'Placar removido',
-      bracket_updated: 'Chaveamento atualizado',
-    };
-    return titles[type] || 'Notificação';
-  };
-
-  // Conteúdo personalizado com base no tipo e dados
-  const getContentForNotification = (notification) => {
-    const { type, data } = notification;
-
-    switch (type) {
-      case 'tournament_created':
-        return `O torneio "${data.name}" foi criado.`;
-
-      case 'tournament_updated':
-        return `O torneio "${data.tournament?.name || 'ID: ' + data.tournamentId}" foi atualizado.`;
-
-      case 'tournament_cancelled':
-        return `O torneio "${data.name}" foi cancelado.`;
-
-      case 'tournament_deleted':
-        return `O torneio "${data.name}" foi excluído permanentemente.`;
-
-      case 'tournament_started':
-        return `O torneio "${data.name}" começou!`;
-
-      case 'tournament_completed':
-        return `O torneio "${data.name}" foi concluído.`;
-
-      case 'player_added':
-        return `${data.playerName}${data.playerNickname ? ` (${data.playerNickname})` : ''} foi adicionado ao torneio.`;
-
-      case 'player_updated':
-        return `As informações de ${data.playerName} foram atualizadas.`;
-
-      case 'player_removed':
-        return `${data.playerName} foi removido do torneio.`;
-
-      case 'player_deactivated':
-        return `${data.playerName} foi desativado no torneio.`;
-
-      case 'score_added':
-        return `Um novo placar foi registrado: ${data.player1Score} x ${data.player2Score}`;
-
-      case 'score_updated':
-        return 'Um placar foi atualizado.';
-
-      case 'score_deleted':
-        return 'Um placar foi removido.';
-
-      case 'bracket_updated':
-        return 'O chaveamento do torneio foi atualizado.';
-
-      default:
-        return 'Nova notificação recebida.';
-    }
-  };
-
-  return (
-    <div className="border-b border-gray-200 last:border-b-0 p-3 hover:bg-gray-50">
-      <div className="font-semibold text-sm text-indigo-700">
-        {getTitleForType(notification.type)}
-      </div>
-      <div className="text-sm mt-1">{getContentForNotification(notification)}</div>
-      <div className="text-xs text-gray-500 mt-1">{timeAgo}</div>
-    </div>
-  );
-};
+import NotificationItem from './notifications/NotificationItem'; // Import NotificationItem
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null); // Ref for the dropdown panel
   const { notifications, unreadCount, markAllAsRead, clearNotifications } = useNotification();
 
   const toggleNotifications = () => {
@@ -108,46 +18,60 @@ const NotificationBell = () => {
   return (
     <div className="relative">
       <button
-        className="relative p-2 text-gray-600 hover:text-indigo-600 focus:outline-none"
+        className="relative p-2 text-lime-400 hover:text-amber-400 focus:outline-none transition-colors duration-200"
         onClick={toggleNotifications}
         aria-label="Notificações"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
         {unreadCount > 0 ? (
           <>
-            <BsBellFill className="h-6 w-6" />
-            <span className="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+            <BellRing className="h-5 w-5" />
+            <span className="absolute top-0.5 right-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[0.6rem] font-bold leading-none text-white bg-red-500 rounded-full ring-2 ring-green-800/50">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           </>
         ) : (
-          <BsBell className="h-6 w-6" />
+          <Bell className="h-5 w-5" />
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg overflow-hidden z-50 max-h-96 flex flex-col">
-          <div className="py-2 px-3 bg-gray-100 flex justify-between items-center">
-            <h3 className="text-sm font-medium">Notificações</h3>
-            <button
-              onClick={clearNotifications}
-              className="text-xs text-gray-600 hover:text-red-600"
-            >
-              Limpar
-            </button>
+        <div
+          ref={dropdownRef}
+          className="absolute right-0 mt-2 w-80 bg-green-900/80 backdrop-blur-lg border border-green-700/60 rounded-xl shadow-2xl overflow-hidden z-dropdown max-h-[70vh] flex flex-col"
+          role="menu"
+        >
+          <div className="py-2.5 px-4 bg-green-800/50 flex justify-between items-center border-b border-green-700/50 sticky top-0 z-10">
+            <h3 className="text-sm font-semibold text-neutral-100" id="notifications-heading">
+              Notificações
+            </h3>
+            {notifications.length > 0 && (
+              <button
+                onClick={() => {
+                  clearNotifications();
+                  setIsOpen(false); // Optionally close after clearing
+                }}
+                className="text-xs text-neutral-300 hover:text-red-400 transition-colors duration-150 font-medium"
+              >
+                Limpar Todas
+              </button>
+            )}
           </div>
 
-          <div className="overflow-y-auto flex-grow">
+          <div className="overflow-y-auto flex-grow custom-scrollbar">
+            {' '}
+            {/* Added custom-scrollbar */}
             {notifications.length > 0 ? (
               notifications.map((notification, index) => (
                 <NotificationItem
-                  key={`${notification.type}-${index}`}
+                  key={`${notification.id || notification.timestamp}-${index}`} // Use notification.id if available
                   notification={notification}
-                  onClose={() => setIsOpen(false)}
                 />
               ))
             ) : (
-              <div className="p-4 text-sm text-center text-gray-500">
-                Nenhuma notificação recente
+              <div className="p-6 text-sm text-center text-neutral-400">
+                Nenhuma notificação recente.
               </div>
             )}
           </div>

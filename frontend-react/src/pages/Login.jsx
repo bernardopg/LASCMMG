@@ -1,43 +1,32 @@
-import React, { useState } from 'react';
+import { Form, Formik } from 'formik';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../context/AuthContext';
-import { useMessage } from '../context/MessageContext';
-import { loginRegularUser, loginUser as loginAdminUser } from '../services/api';
 import AuthLayout from '../components/auth/AuthLayout';
 import FormField from '../components/auth/FormField';
+import { useAuth } from '../context/AuthContext';
+import { useMessage } from '../context/MessageContext';
+import { loginUser as loginAdminUser, loginRegularUser } from '../services/api';
 
-/**
- * Página de Login refatorada com melhor UX/UI e responsividade
- */
 const Login = () => {
   const navigate = useNavigate();
   const { login: authContextLogin } = useAuth();
   const { showError, showSuccess } = useMessage();
   const [isLoading, setIsLoading] = useState(false);
-  const [loginType, setLoginType] = useState('user'); // 'user' ou 'admin'
+  const [loginType, setLoginType] = useState('user');
 
-  // Esquema de validação
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email inválido').required('Email é obrigatório'),
-    password: Yup.string()
-      .min(8, 'A senha deve ter pelo menos 8 caracteres')
-      .required('Senha é obrigatória'),
+    password: Yup.string().required('Senha é obrigatória'),
     rememberMe: Yup.boolean(),
-    // Campo honeypot para proteção contra bots
-    botField: Yup.string().test('is-empty', 'Bot detectado', (value) => !value),
   });
 
-  // Valores iniciais
   const initialValues = {
     email: '',
     password: '',
     rememberMe: false,
-    botField: '',
   };
 
-  // Função de submit
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setIsLoading(true);
@@ -51,8 +40,6 @@ const Login = () => {
 
       await authContextLogin(loginApiFunc, credentials, values.rememberMe);
       showSuccess('Login realizado com sucesso!');
-
-      // Redirecionamento baseado no tipo de login
       navigate(loginType === 'admin' ? '/admin' : '/');
     } catch (error) {
       console.error('Erro no login:', error);
@@ -63,7 +50,6 @@ const Login = () => {
     }
   };
 
-  // Ícones para os campos
   const EmailIcon = ({ className }) => (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
@@ -99,14 +85,14 @@ const Login = () => {
         {({ errors, touched, values, setFieldValue }) => (
           <Form className="space-y-6">
             {/* Seletor de tipo de login */}
-            <div className="flex rounded-lg p-1 bg-gray-100 dark:bg-slate-700">
+            <div className="flex rounded-lg p-1 bg-slate-700">
               <button
                 type="button"
                 onClick={() => setLoginType('user')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                   loginType === 'user'
-                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                    ? 'bg-slate-800 text-lime-400'
+                    : 'text-gray-400 hover:text-lime-400'
                 }`}
               >
                 Usuário
@@ -114,17 +100,16 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setLoginType('admin')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                   loginType === 'admin'
-                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                    ? 'bg-slate-800 text-lime-400'
+                    : 'text-gray-400 hover:text-lime-400'
                 }`}
               >
                 Administrador
               </button>
             </div>
 
-            {/* Campo de Email */}
             <FormField
               name="email"
               label="Email"
@@ -136,7 +121,6 @@ const Login = () => {
               touched={touched}
             />
 
-            {/* Campo de Senha */}
             <FormField
               name="password"
               label="Senha"
@@ -149,12 +133,6 @@ const Login = () => {
               touched={touched}
             />
 
-            {/* Campo honeypot - invisível */}
-            <div className="hidden" aria-hidden="true">
-              <FormField name="botField" type="text" tabIndex="-1" autoComplete="off" />
-            </div>
-
-            {/* Opções adicionais */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -163,44 +141,18 @@ const Login = () => {
                   type="checkbox"
                   checked={values.rememberMe}
                   onChange={(e) => setFieldValue('rememberMe', e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700"
+                  className="h-4 w-4 text-lime-600 focus:ring-lime-500 border-slate-600 rounded bg-slate-700"
                 />
-                <label
-                  htmlFor="rememberMe"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-300">
                   Lembrar-me
                 </label>
               </div>
-
-              <div className="text-sm">
-                <button
-                  type="button"
-                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
-                  onClick={() => {
-                    // TODO: Implementar modal de recuperação de senha
-                    showError('Funcionalidade em desenvolvimento');
-                  }}
-                >
-                  Esqueceu sua senha?
-                </button>
-              </div>
             </div>
 
-            {/* Botão de submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className={`
-                group relative w-full flex justify-center py-3 px-4
-                border border-transparent text-sm font-medium rounded-lg
-                text-white bg-gradient-to-r from-blue-600 to-indigo-600
-                hover:from-blue-700 hover:to-indigo-700
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
-                shadow-lg hover:shadow-xl
-              `}
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-lime-600 to-green-600 hover:from-lime-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
             >
               {isLoading ? (
                 <>
@@ -227,36 +179,17 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                    <LockIcon className="h-5 w-5 text-white opacity-75" />
-                  </span>
+                  <LockIcon className="h-5 w-5 mr-2" />
                   Entrar {loginType === 'admin' ? 'como Admin' : ''}
                 </>
               )}
             </button>
 
-            {/* Informação adicional para admin */}
             {loginType === 'admin' && (
-              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      Acesso Administrativo
-                    </h3>
-                    <div className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                      <p>Você está fazendo login como administrador do sistema.</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="p-3 bg-slate-700/50 border border-slate-600 rounded-lg">
+                <p className="text-sm text-slate-300 text-center">
+                  Acesso administrativo ao sistema
+                </p>
               </div>
             )}
           </Form>

@@ -1,7 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FaCog, FaEdit, FaList, FaPlus, FaSitemap, FaSync, FaTrash } from 'react-icons/fa';
+import {
+  FaCog,
+  FaEdit,
+  FaList,
+  FaPlus,
+  FaSitemap,
+  FaSync,
+  FaTrash,
+  FaSpinner,
+  FaTrophy,
+} from 'react-icons/fa'; // Added FaTrophy
 import { Link } from 'react-router-dom';
 import { useMessage } from '../../context/MessageContext';
+import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 import {
   deleteTournamentAdmin,
   generateTournamentBracket,
@@ -87,125 +99,140 @@ const AdminTournamentListPage = () => {
     }
   };
 
+  const cardBaseClasses = 'bg-slate-800 shadow-2xl rounded-xl border border-slate-700';
+  const buttonBaseClasses =
+    'inline-flex items-center justify-center px-3 py-1.5 rounded-md font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed';
+  const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
+  const outlineButtonClasses = `${buttonBaseClasses} border border-slate-500 hover:border-lime-500 text-slate-300 hover:text-lime-400 hover:bg-slate-700/50 focus:ring-lime-500`;
+  const errorButtonClasses = `${buttonBaseClasses} border border-red-600 hover:border-red-500 bg-red-700/30 hover:bg-red-600/50 text-red-300 hover:text-red-200 focus:ring-red-500`;
+
+  const getStatusBadgeClasses = (status) => {
+    switch (status) {
+      case 'Em Andamento':
+        return 'bg-green-500/20 text-green-300 border border-green-500/30';
+      case 'Pendente':
+        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
+      case 'Concluído':
+        return 'bg-sky-500/20 text-sky-300 border border-sky-500/30';
+      case 'Cancelado':
+        return 'bg-red-500/20 text-red-300 border border-red-500/30';
+      default:
+        return 'bg-slate-600/50 text-slate-300 border border-slate-500/50';
+    }
+  };
+
   return (
-    <div className="px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gerenciar Torneios</h1>
-        <Link to="/admin/tournaments/create" className="btn btn-primary">
-          <FaPlus className="mr-2" /> Criar Novo Torneio
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-center mb-8">
+        <PageHeader
+          title="Gerenciar Torneios"
+          icon={FaTrophy}
+          iconColor="text-lime-400"
+          smallMargin={true}
+        />
+        <Link
+          to="/admin/tournaments/create"
+          className={`${primaryButtonClasses} px-4 py-2 text-sm`}
+        >
+          <FaPlus className="mr-2 h-4 w-4" /> Criar Novo Torneio
         </Link>
       </div>
 
       {loading && (
         <div className="text-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light mx-auto"></div>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Carregando torneios...</p>
+          <LoadingSpinner size="lg" message="Carregando torneios..." />
         </div>
       )}
 
       {!loading && tournaments.length === 0 && (
-        <div className="text-center py-10 card bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-          <FaList size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 text-lg">Nenhum torneio encontrado.</p>
-          <p className="text-gray-600 dark:text-gray-500 mt-2">
-            Crie um novo torneio para começar.
-          </p>
+        <div className={`${cardBaseClasses} p-6 text-center`}>
+          <FaList size={48} className="mx-auto text-slate-500 mb-4" />
+          <p className="text-slate-400 text-lg">Nenhum torneio encontrado.</p>
+          <p className="text-slate-500 mt-2">Crie um novo torneio para começar.</p>
         </div>
       )}
 
       {!loading && tournaments.length > 0 && (
-        <div className="card bg-white dark:bg-slate-800 shadow-md rounded-lg overflow-x-auto border border-gray-200 dark:border-slate-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead className="bg-gray-50 dark:bg-slate-700">
+        <div className={`${cardBaseClasses} overflow-x-auto`}>
+          <table className="min-w-full divide-y divide-slate-700">
+            <thead className="bg-slate-700/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                   Nome
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                   Data
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                   Tipo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                   Ações
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+            <tbody className="bg-slate-800 divide-y divide-slate-700">
               {tournaments.map((tournament) => (
-                <tr key={tournament.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                <tr key={tournament.id} className="hover:bg-slate-700/50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-100">
                     {tournament.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
                     {formatDate(tournament.date)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span
-                      className={`badge ${
-                        tournament.status === 'Em Andamento'
-                          ? 'badge-success'
-                          : tournament.status === 'Pendente'
-                            ? 'badge-info'
-                            : tournament.status === 'Concluído'
-                              ? 'badge-primary'
-                              : 'badge-warning'
-                      }`}
+                      className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClasses(tournament.status)}`}
                     >
                       {tournament.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                    {tournament.bracket_type?.replace('-', ' ')}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                    {tournament.bracket_type?.replace('-', ' ') || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex flex-wrap gap-2 items-center justify-start">
                       <Link
                         to={`/admin/tournaments/${tournament.id}/edit`}
-                        className="btn btn-xs btn-outline flex items-center"
+                        className={outlineButtonClasses}
                         title="Editar"
-                        aria-label="Editar torneio"
                       >
-                        <FaEdit className="mr-1" /> Editar
+                        <FaEdit className="mr-1 h-3.5 w-3.5" /> Editar
                       </Link>
                       <Link
                         to={`/admin/tournaments/${tournament.id}/manage`}
-                        className="btn btn-xs btn-outline flex items-center"
+                        className={outlineButtonClasses}
                         title="Gerenciar Estado e Chaveamento"
-                        aria-label="Gerenciar Estado e Chaveamento"
                       >
-                        <FaCog className="mr-1" /> Gerenciar
+                        <FaCog className="mr-1 h-3.5 w-3.5" /> Gerenciar
                       </Link>
                       <button
                         onClick={() => handleDeleteTournament(tournament.id, tournament.name)}
-                        className="btn btn-xs btn-outline btn-error flex items-center"
+                        className={errorButtonClasses}
                         title="Excluir"
-                        aria-label="Excluir torneio"
                         disabled={actionLoading === tournament.id}
                       >
                         {actionLoading === tournament.id ? (
-                          <FaSync className="animate-spin mr-1" />
+                          <FaSpinner className="animate-spin mr-1 h-3.5 w-3.5" />
                         ) : (
-                          <FaTrash className="mr-1" />
+                          <FaTrash className="mr-1 h-3.5 w-3.5" />
                         )}
                         Excluir
                       </button>
                       {tournament.status === 'Pendente' && (
                         <button
                           onClick={() => handleGenerateBracket(tournament.id)}
-                          className="btn btn-xs btn-outline flex items-center"
+                          className={outlineButtonClasses}
                           title="Gerar Chaveamento"
-                          aria-label="Gerar Chaveamento"
                           disabled={actionLoading === tournament.id}
                         >
                           {actionLoading === tournament.id ? (
-                            <FaSync className="animate-spin mr-1" />
+                            <FaSpinner className="animate-spin mr-1 h-3.5 w-3.5" />
                           ) : (
-                            <FaSitemap className="mr-1" />
+                            <FaSitemap className="mr-1 h-3.5 w-3.5" />
                           )}
                           Chaveamento
                         </button>
@@ -217,7 +244,7 @@ const AdminTournamentListPage = () => {
             </tbody>
           </table>
           {totalPages > 1 && (
-            <div className="py-4 px-6 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-slate-700">
+            <div className="py-4 px-6 flex justify-between items-center text-sm text-slate-400 border-t border-slate-700">
               <span>
                 Página {currentPage} de {totalPages}
               </span>
@@ -225,14 +252,14 @@ const AdminTournamentListPage = () => {
                 <button
                   onClick={() => fetchTournaments(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1 || loading}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
+                  className={`${outlineButtonClasses} disabled:opacity-50`}
                 >
                   Anterior
                 </button>
                 <button
                   onClick={() => fetchTournaments(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages || loading}
-                  className="btn btn-outline btn-sm disabled:opacity-50"
+                  className={`${outlineButtonClasses} disabled:opacity-50`}
                 >
                   Próxima
                 </button>

@@ -2,26 +2,18 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { useMessage } from './MessageContext';
+import { getServerUrl } from '../utils/urlUtils';
+import { notificationMessages } from '../config/notificationMessages';
 
 // Criar o contexto de notificações
 const NotificationContext = createContext();
-
-// Função para obter o URL do servidor a partir do ambiente
-const getServerUrl = () => {
-  // Em desenvolvimento, o socket poderia estar em uma porta diferente
-  if (import.meta.env.DEV) {
-    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-  }
-  // Em produção, usamos o mesmo host que o site
-  return '';
-};
 
 export const NotificationProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
   const { showMessage } = useMessage();
 
   // Inicializar a conexão do Socket.IO
@@ -78,36 +70,18 @@ export const NotificationProvider = ({ children }) => {
         socketInstance.disconnect();
       }
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, currentUser]);
 
   // Função para manipular novas notificações recebidas
   const handleNewNotification = (notification) => {
     setNotifications((prev) => [notification, ...prev].slice(0, 50)); // Manter apenas as últimas 50 notificações
     setUnreadCount((prev) => prev + 1);
 
-    // Dependendo do tipo de notificação, podemos mostrar uma mensagem ou toast
-    const messages = {
-      tournament_created: 'Novo torneio criado!',
-      tournament_updated: 'Torneio atualizado',
-      tournament_cancelled: 'Torneio cancelado',
-      tournament_deleted: 'Torneio excluído',
-      tournament_started: 'Um torneio começou!',
-      tournament_completed: 'Torneio concluído',
-      player_added: 'Novo jogador adicionado',
-      player_updated: 'Informações de jogador atualizadas',
-      player_removed: 'Jogador removido',
-      player_deactivated: 'Jogador desativado',
-      score_added: 'Novo placar registrado',
-      score_updated: 'Placar atualizado',
-      score_deleted: 'Placar removido',
-      bracket_updated: 'Chaveamento atualizado',
-    };
-
     // Se tivermos uma mensagem para este tipo de notificação
-    if (messages[notification.type]) {
+    if (notificationMessages[notification.type]) {
       showMessage({
         type: 'info',
-        content: messages[notification.type],
+        content: notificationMessages[notification.type],
         duration: 5000,
       });
     }

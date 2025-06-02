@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { MESSAGE_TYPES, MESSAGE_POSITIONS, MESSAGE_BEHAVIORS } from '../config/messageConfig';
 
 const MessageContext = createContext();
 
@@ -8,31 +9,6 @@ export const useMessage = () => {
     throw new Error('useMessage deve ser usado dentro de um MessageProvider');
   }
   return context;
-};
-
-// Tipos de mensagens disponíveis
-const MESSAGE_TYPES = {
-  INFO: 'info',
-  SUCCESS: 'success',
-  WARNING: 'warning',
-  ERROR: 'error',
-};
-
-// Posições disponíveis para as mensagens
-const MESSAGE_POSITIONS = {
-  TOP: 'top',
-  TOP_RIGHT: 'top-right',
-  TOP_LEFT: 'top-left',
-  BOTTOM: 'bottom',
-  BOTTOM_RIGHT: 'bottom-right',
-  BOTTOM_LEFT: 'bottom-left',
-};
-
-// Comportamentos para múltiplas mensagens
-const MESSAGE_BEHAVIORS = {
-  STACK: 'stack', // Empilha mensagens, mostrando todas
-  REPLACE: 'replace', // Substitui mensagens existentes
-  QUEUE: 'queue', // Coloca em fila, mostrando uma de cada vez
 };
 
 export const MessageProvider = ({ children }) => {
@@ -159,9 +135,28 @@ export const MessageProvider = ({ children }) => {
     [addMessageInternal]
   );
 
-  // Método genérico para mostrar mensagem de qualquer tipo
+  // Método genérico para mostrar mensagem - aceita diferentes formatos
   const showMessage = useCallback(
-    (text, type = MESSAGE_TYPES.INFO, timeout, options = {}) => {
+    (input, type = MESSAGE_TYPES.INFO, timeout, options = {}) => {
+      // Se o input for um objeto (formato: {content, type, duration})
+      if (typeof input === 'object' && input !== null) {
+        const messageObj = input;
+        const text = messageObj.content || messageObj.text || messageObj.message || '';
+        const msgType = messageObj.type || type;
+        const msgTimeout = messageObj.duration || messageObj.timeout || timeout;
+        const msgOptions = { ...options, ...messageObj };
+
+        // Validar tipo
+        if (!Object.values(MESSAGE_TYPES).includes(msgType)) {
+          console.warn(`Tipo de mensagem inválido: ${msgType}. Usando 'info' como padrão.`);
+          return addMessageInternal(text, MESSAGE_TYPES.INFO, msgTimeout, msgOptions);
+        }
+
+        return addMessageInternal(text, msgType, msgTimeout, msgOptions);
+      }
+
+      // Se o input for uma string (formato tradicional)
+      const text = input;
       if (!Object.values(MESSAGE_TYPES).includes(type)) {
         console.warn(`Tipo de mensagem inválido: ${type}. Usando 'info' como padrão.`);
         type = MESSAGE_TYPES.INFO;
@@ -218,8 +213,5 @@ export const MessageProvider = ({ children }) => {
 
   return <MessageContext.Provider value={value}>{children}</MessageContext.Provider>;
 };
-
-// Exportar as constantes para uso em outros componentes
-export { MESSAGE_BEHAVIORS, MESSAGE_POSITIONS, MESSAGE_TYPES };
 
 export default MessageContext;

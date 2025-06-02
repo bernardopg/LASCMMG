@@ -37,7 +37,7 @@ export default [
 
   // Configuration for Node.js files (config files)
   {
-    files: ['*.config.js', '*.config.mjs', 'tailwind.config.js', 'postcss.config.js'],
+    files: ['*.config.js', '*.config.mjs'], // Removido tailwind.config.js e postcss.config.js daqui
     languageOptions: {
       globals: {
         ...globals.node,
@@ -56,7 +56,13 @@ export default [
 
   // Configuration for ES Module config files
   {
-    files: ['vite.config.js', 'vitest.*.config.js', 'eslint.config.js'],
+    files: [
+      'vite.config.js',
+      'vitest.*.config.js',
+      'eslint.config.js',
+      'tailwind.config.js',
+      'postcss.config.js',
+    ], // Adicionado tailwind.config.js e postcss.config.js aqui
     languageOptions: {
       globals: {
         ...globals.node,

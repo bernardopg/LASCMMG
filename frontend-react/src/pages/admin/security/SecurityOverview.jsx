@@ -9,7 +9,9 @@ import {
 } from 'chart.js';
 import { useCallback, useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { FaSyncAlt } from 'react-icons/fa';
+import { FaBug, FaExclamationTriangle, FaShieldAlt, FaSyncAlt, FaUser } from 'react-icons/fa'; // Adicionado FaUser
+import { LoadingSpinner } from '../../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../../components/common/PageHeader'; // For consistent page titles
 import { useMessage } from '../../../context/MessageContext'; // Adjusted path
 import { getSecurityOverviewStats } from '../../../services/api'; // Adjusted path
 
@@ -20,43 +22,81 @@ const OverviewStatCard = ({
   title,
   value,
   subtitle,
-  icon: _icon, // Adicionado para consistência, embora não usado no design original do card
-  // bgColorClass e textColorClass para controle mais fino e adaptação ao tema
-  bgColorClass = 'bg-blue-500 dark:bg-blue-700',
-  textColorClass = 'text-white',
-}) => (
-  <div className={`stats-card ${bgColorClass} ${textColorClass} p-4 rounded-lg shadow`}>
-    <div className="stats-card-title text-sm opacity-80">{title}</div>
-    <div className="stats-card-value text-3xl font-bold">{value}</div>
-    <div className="stats-card-subtitle text-xs opacity-70">{subtitle}</div>
-  </div>
-);
+  icon: Icon,
+  colorScheme = 'neutral', // e.g., 'danger', 'warning', 'info', 'neutral'
+  index = 0,
+}) => {
+  const schemeClasses = {
+    danger: {
+      bg: 'bg-red-600/20',
+      text: 'text-red-200',
+      iconBg: 'bg-red-500',
+      iconText: 'text-white',
+    },
+    warning: {
+      bg: 'bg-yellow-500/20',
+      text: 'text-yellow-200',
+      iconBg: 'bg-yellow-500',
+      iconText: 'text-white',
+    },
+    info: {
+      bg: 'bg-sky-600/20',
+      text: 'text-sky-200',
+      iconBg: 'bg-sky-500',
+      iconText: 'text-white',
+    },
+    neutral: {
+      bg: 'bg-slate-700/50',
+      text: 'text-slate-200',
+      iconBg: 'bg-slate-500',
+      iconText: 'text-white',
+    },
+  };
+  const currentScheme = schemeClasses[colorScheme] || schemeClasses.neutral;
+
+  return (
+    <div
+      className={`${currentScheme.bg} p-4 sm:p-5 rounded-xl shadow-lg border border-slate-700/50`}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <h3
+          className={`text-sm font-semibold uppercase tracking-wider ${currentScheme.text} opacity-80`}
+        >
+          {title}
+        </h3>
+        {Icon && (
+          <div className={`p-2 rounded-lg ${currentScheme.iconBg}`}>
+            <Icon className={`h-5 w-5 ${currentScheme.iconText}`} />
+          </div>
+        )}
+      </div>
+      <p className={`text-3xl font-bold ${currentScheme.text}`}>{value}</p>
+      {subtitle && <p className={`text-xs ${currentScheme.text} opacity-70 mt-1`}>{subtitle}</p>}
+    </div>
+  );
+};
 
 const ThreatsTable = ({ threats }) => {
   if (!threats || threats.length === 0) {
     return (
       <tr>
-        <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">
+        <td colSpan="5" className="text-center py-4 text-gray-400">
           Nenhuma atividade suspeita recente.
         </td>
       </tr>
     );
   }
   return threats.map((threat, index) => (
-    <tr key={threat.ip || index} className="hover:bg-gray-100 dark:hover:bg-slate-700">
-      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-        {index + 1}
-      </td>
-      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+    <tr key={threat.ip || index} className="hover:bg-slate-700">
+      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-300">{index + 1}</td>
+      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-300">
         <code>{threat.ip}</code>
       </td>
-      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-        {threat.count}
-      </td>
-      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-300">{threat.count}</td>
+      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-300">
         {threat.lastSeen ? new Date(threat.lastSeen).toLocaleString('pt-BR') : '-'}
       </td>
-      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-300">
         {threat.topPatterns && threat.topPatterns.length > 0
           ? threat.topPatterns.map((p) => `${p.pattern} (${p.count}x)`).join(', ')
           : 'N/A'}
@@ -67,13 +107,13 @@ const ThreatsTable = ({ threats }) => {
 
 const ActiveHoneypotsList = ({ honeypots }) => {
   if (!honeypots || honeypots.length === 0) {
-    return <p className="text-center text-gray-500 dark:text-gray-400">Nenhum honeypot ativo.</p>;
+    return <p className="text-center text-gray-400">Nenhum honeypot ativo.</p>;
   }
   return (
-    <ul className="list-disc list-inside pl-5 space-y-1 text-gray-700 dark:text-gray-300">
+    <ul className="list-disc list-inside pl-5 space-y-1 text-gray-300">
       {honeypots.map((hp, index) => (
         <li key={index}>
-          <code className="bg-gray-100 dark:bg-slate-700 p-1 rounded text-sm">{hp}</code>
+          <code className="bg-slate-700 p-1 rounded text-sm">{hp}</code>
         </li>
       ))}
     </ul>
@@ -83,7 +123,7 @@ const ActiveHoneypotsList = ({ honeypots }) => {
 const AttackPatternsChartComponent = ({ patterns }) => {
   if (!patterns || patterns.length === 0) {
     return (
-      <p className="text-center text-gray-500 dark:text-gray-400 h-full flex items-center justify-center">
+      <p className="text-center text-gray-400 h-full flex items-center justify-center">
         Sem dados para o gráfico de padrões de ataque.
       </p>
     );
@@ -121,36 +161,28 @@ const AttackPatternsChartComponent = ({ patterns }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563',
-        }, // Adaptado
+          color: '#cbd5e1',
+        },
         grid: {
-          color: document.documentElement.classList.contains('dark')
-            ? 'rgba(203, 213, 225, 0.1)'
-            : 'rgba(209, 213, 219, 0.5)',
-        }, // Adaptado
+          color: 'rgba(203, 213, 225, 0.1)',
+        },
       },
       x: {
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#4b5563',
-        }, // Adaptado
+          color: '#cbd5e1',
+        },
         grid: {
-          color: document.documentElement.classList.contains('dark')
-            ? 'rgba(203, 213, 225, 0.1)'
-            : 'rgba(209, 213, 219, 0.5)',
-        }, // Adaptado
+          color: 'rgba(203, 213, 225, 0.1)',
+        },
       },
     },
     plugins: {
       legend: { display: false },
       tooltip: {
-        titleColor: document.documentElement.classList.contains('dark') ? '#fff' : '#000', // Adaptado
-        bodyColor: document.documentElement.classList.contains('dark') ? '#fff' : '#000', // Adaptado
-        backgroundColor: document.documentElement.classList.contains('dark')
-          ? 'rgba(0,0,0,0.8)'
-          : 'rgba(255,255,255,0.9)', // Adaptado
-        borderColor: document.documentElement.classList.contains('dark')
-          ? 'rgba(255,255,255,0.2)'
-          : 'rgba(0,0,0,0.2)', // Adaptado
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        borderColor: 'rgba(255,255,255,0.2)',
         borderWidth: 1,
       },
     },
@@ -187,20 +219,20 @@ const SecurityOverview = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-primary-light"></div>
-        <span className="ml-4 text-gray-700 dark:text-gray-300">
-          Carregando dados de segurança...
-        </span>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-16rem)]">
+        <LoadingSpinner size="lg" message="Carregando dados de segurança..." />
       </div>
     );
   }
 
   if (!overviewData) {
     return (
-      <p className="text-center text-gray-500 dark:text-gray-400 py-10">
-        Não foi possível carregar os dados de segurança.
-      </p>
+      <div className="text-center py-10">
+        <FaExclamationTriangle className="mx-auto text-5xl text-yellow-500 mb-4" />
+        <p className="text-slate-500">
+          Não foi possível carregar os dados de segurança. Tente atualizar.
+        </p>
+      </div>
     );
   }
 
@@ -214,21 +246,25 @@ const SecurityOverview = () => {
     topPatterns = [],
   } = overviewData;
 
+  const cardBaseClasses = 'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700';
+  const outlineButtonClasses =
+    'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors duration-150 border border-slate-500 hover:border-lime-500 text-slate-300 hover:text-lime-400 hover:bg-slate-700/50 focus:ring-lime-500 disabled:opacity-60';
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h2
-          id="security-overview-heading"
-          className="text-xl font-semibold text-gray-800 dark:text-gray-100"
-        >
-          Visão Geral de Segurança
-        </h2>
+        <PageHeader
+          title="Visão Geral de Segurança"
+          icon={FaShieldAlt}
+          iconColor="text-lime-400"
+          smallMargin={true}
+        />
         <button
           onClick={fetchData}
-          className="btn btn-outline btn-sm text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
+          className={`${outlineButtonClasses} text-xs py-1.5 px-3`}
           disabled={loading}
         >
-          <FaSyncAlt className={`inline mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+          <FaSyncAlt className={`inline mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
         </button>
       </div>
@@ -238,31 +274,31 @@ const SecurityOverview = () => {
           title="Total de Eventos"
           value={totalEvents}
           subtitle="tentativas detectadas"
-          bgColorClass="bg-red-100 dark:bg-red-700"
-          textColorClass="text-red-700 dark:text-red-100"
+          colorScheme="danger"
+          icon={FaExclamationTriangle}
         />
         <OverviewStatCard
           title="IPs Únicos"
           value={uniqueIps}
           subtitle="endereços distintos"
-          bgColorClass="bg-yellow-100 dark:bg-yellow-700"
-          textColorClass="text-yellow-700 dark:text-yellow-100"
+          colorScheme="warning"
+          icon={FaUser}
         />
         <OverviewStatCard
           title="Padrões de Ataque"
           value={uniquePatterns}
           subtitle="tipos detectados"
-          bgColorClass="bg-blue-100 dark:bg-blue-700"
-          textColorClass="text-blue-700 dark:text-blue-100"
+          colorScheme="info"
+          icon={FaBug}
         />
       </div>
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 text-right mb-6">
+      <div className="text-xs text-slate-500 text-right mb-6">
         Última atualização: {lastUpdated ? new Date(lastUpdated).toLocaleString('pt-BR') : 'Nunca'}
       </div>
 
-      <div className="card bg-white dark:bg-slate-800 p-0 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-gray-800 dark:text-gray-100">
+      <div className={`${cardBaseClasses} p-0`}>
+        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-slate-100">
           Padrões de Ataque Mais Comuns
         </h3>
         <div className="chart-container h-72 md:h-80 p-2">
@@ -270,44 +306,40 @@ const SecurityOverview = () => {
         </div>
       </div>
 
-      <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-gray-800 dark:text-gray-100">
+      <div className={cardBaseClasses}>
+        <h3 className="text-lg font-semibold mb-3 text-slate-100">
           Atividades Suspeitas Recentes (Top IPs)
         </h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead className="bg-gray-50 dark:bg-slate-750">
-              {' '}
-              {/* 750 is custom, maybe slate-700 or 800 */}
+          <table className="min-w-full divide-y divide-slate-700">
+            <thead className="bg-slate-700/50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   #
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Endereço IP
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Eventos
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Última Detecção
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Principais Padrões
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+            <tbody className="divide-y divide-slate-700">
               <ThreatsTable threats={topIps} />
             </tbody>
           </table>
         </div>
       </div>
 
-      <div className="card bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 px-4 pt-4 text-gray-800 dark:text-gray-100">
-          Honeypots Ativos
-        </h3>
+      <div className={cardBaseClasses}>
+        <h3 className="text-lg font-semibold mb-3 text-slate-100">Honeypots Ativos</h3>
         <div className="p-4">
           <ActiveHoneypotsList honeypots={activeHoneypots} />
         </div>

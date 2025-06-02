@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { FaChevronDown } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTournament } from '../../context/TournamentContext';
+import { formatDateToLocale } from '../../utils/dateUtils'; // Import date utility
 
 const TournamentSelector = () => {
   const { tournaments, currentTournament, selectTournament, loading } = useTournament();
@@ -45,34 +47,42 @@ const TournamentSelector = () => {
 
   if (loading && safeTournaments.length === 0) {
     return (
-      <div className="select-wrapper">
-        <label htmlFor="tournament-select" className="select-label text-sm text-gray-400">
+      <div className="select-wrapper relative">
+        <label
+          htmlFor="tournament-select-loading"
+          className="select-label sr-only text-sm text-neutral-400"
+        >
           Torneio Atual:
         </label>
         <select
-          id="tournament-select"
-          className="form-select w-full max-w-xs text-sm bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+          id="tournament-select-loading"
+          className="appearance-none w-full max-w-xs text-sm pl-3 pr-10 py-2.5 rounded-xl bg-neutral-700/50 border-2 border-neutral-600/60 text-neutral-400 cursor-not-allowed shadow-inner"
           disabled
         >
-          <option>Carregando torneios...</option>
+          <option>Carregando...</option>
         </select>
+        <FaChevronDown className="w-4 h-4 text-neutral-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
       </div>
     );
   }
 
   if (!safeTournaments || safeTournaments.length === 0) {
     return (
-      <div className="select-wrapper">
-        <label htmlFor="tournament-select" className="select-label text-sm text-gray-400">
+      <div className="select-wrapper relative">
+        <label
+          htmlFor="tournament-select-empty"
+          className="select-label sr-only text-sm text-neutral-400"
+        >
           Torneio Atual:
         </label>
         <select
-          id="tournament-select"
-          className="form-select w-full max-w-xs text-sm bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+          id="tournament-select-empty"
+          className="appearance-none w-full max-w-xs text-sm pl-3 pr-10 py-2.5 rounded-xl bg-neutral-700/50 border-2 border-neutral-600/60 text-neutral-400 cursor-not-allowed shadow-inner"
           disabled
         >
-          <option>Nenhum torneio disponível</option>
+          <option>Sem torneios</option>
         </select>
+        <FaChevronDown className="w-4 h-4 text-neutral-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
       </div>
     );
   }
@@ -88,7 +98,7 @@ const TournamentSelector = () => {
   });
 
   return (
-    <div className="select-wrapper relative">
+    <div className="select-wrapper relative group">
       <label htmlFor="tournament-select" className="select-label sr-only">
         Torneio Atual:
       </label>
@@ -96,35 +106,32 @@ const TournamentSelector = () => {
         id="tournament-select"
         value={currentTournament?.id || ''}
         onChange={handleTournamentChange}
-        className="form-select block w-full max-w-xs text-sm rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 pr-8" // Tailwind form classes
+        className="appearance-none block w-full max-w-xs text-sm pl-3 pr-10 py-2.5 rounded-xl bg-green-800/50 backdrop-blur-md border-2 border-green-600/60
+                   text-neutral-100 shadow-inner transition-all duration-300
+                   focus:outline-none focus:ring-2 focus:ring-amber-500/70 focus:border-amber-500/80
+                   hover:border-lime-500/70 cursor-pointer"
         aria-label="Selecione um torneio"
       >
         {!currentTournament && (
-          <option value="" disabled>
+          <option value="" disabled className="bg-green-900 text-neutral-400">
             Selecione um torneio
           </option>
         )}
         {sortedTournaments.map((tournament) => {
-          let displayDateStr = '';
-          if (tournament.date) {
-            try {
-              const dateObj = new Date(tournament.date);
-              if (!isNaN(dateObj.getTime())) {
-                displayDateStr = ` (${dateObj.toLocaleDateString('pt-BR')})`;
-              }
-            } catch {
-              /* ignore invalid date */
-            }
-          }
+          const displayDateStr = tournament.date ? ` (${formatDateToLocale(tournament.date)})` : '';
           return (
-            <option key={tournament.id} value={tournament.id}>
+            <option
+              key={tournament.id}
+              value={tournament.id}
+              className="bg-green-900 text-neutral-100 hover:bg-green-700"
+            >
               {tournament.name || 'Torneio Sem Nome'}
               {displayDateStr}
             </option>
           );
         })}
       </select>
-      {/* Custom arrow is handled by global CSS for select.input */}
+      <FaChevronDown className="w-4 h-4 text-lime-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none group-hover:text-amber-400 transition-colors duration-200" />
     </div>
   );
 };

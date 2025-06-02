@@ -1,0 +1,21 @@
+/* ================================
+   IDENTIDADE VISUAL ÚNICA - TEMA ESCURO
+   ================================ */
+
+/* Configuração simplificada para tema único */
+@theme {
+  /* Tipografia com Montserrat */
+  --font-family-sans: 'Montserrat', system-ui, sans-serif;
+  --font-family-display: 'Montserrat', system-ui, sans-serif;
+  --font-family-body: 'Montserrat', system-ui, sans-serif;
+
+  /* Z-index organizados */
+  --z-header: 9999;
+  --z-sidebar: 40;
+  --z-overlay: 60;
+  --z-modal: 60;
+  --z-tooltip: 70;
+  --z-dropdown: 80;
+  --z-notification: 90;
+  --z-max: 9999;
+}

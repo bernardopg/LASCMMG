@@ -1,3 +1,4 @@
+import { AlertTriangle, CheckCircle, Info, X, XCircle } from 'lucide-react'; // Import Lucide icons
 import { useEffect } from 'react';
 import { useMessage } from '../../context/MessageContext';
 
@@ -24,89 +25,34 @@ const MessageContainer = () => {
   // Função para obter as classes CSS baseadas no tipo de mensagem
   const getMessageClasses = (type) => {
     const baseClasses =
-      'animate-fade-in message-item rounded-md p-4 mb-3 flex items-start justify-between shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2';
+      'message-item rounded-xl p-4 mb-3 flex items-start justify-between shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 backdrop-blur-md border'; // Removida a classe animate-fade-in
 
     switch (type) {
       case 'success':
-        return `${baseClasses} bg-green-50 dark:bg-green-800 dark:bg-opacity-30 text-green-700 dark:text-green-200 focus:ring-green-500 dark:focus:ring-green-400`;
+        return `${baseClasses} bg-green-700/70 border-green-600/60 text-lime-200 focus:ring-lime-400 focus:ring-offset-transparent`;
       case 'error':
-        return `${baseClasses} bg-red-50 dark:bg-red-800 dark:bg-opacity-30 text-red-700 dark:text-red-200 focus:ring-red-500 dark:focus:ring-red-400`;
+        return `${baseClasses} bg-red-700/70 border-red-600/60 text-red-200 focus:ring-red-400 focus:ring-offset-transparent`;
       case 'warning':
-        return `${baseClasses} bg-yellow-50 dark:bg-yellow-800 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 focus:ring-yellow-500 dark:focus:ring-yellow-400`;
+        return `${baseClasses} bg-amber-700/70 border-amber-600/60 text-amber-200 focus:ring-amber-400 focus:ring-offset-transparent`;
       case 'info':
       default:
-        return `${baseClasses} bg-blue-50 dark:bg-blue-800 dark:bg-opacity-30 text-blue-700 dark:text-blue-200 focus:ring-blue-500 dark:focus:ring-blue-400`;
+        return `${baseClasses} bg-sky-700/70 border-sky-600/60 text-sky-200 focus:ring-sky-400 focus:ring-offset-transparent`;
     }
   };
 
   // Ícone para os diferentes tipos de mensagem
   const getMessageIcon = (type) => {
+    const iconProps = { className: 'h-5 w-5', 'aria-hidden': 'true' };
     switch (type) {
       case 'success':
-        return (
-          <svg
-            className="h-5 w-5 text-green-400 dark:text-green-300"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <CheckCircle {...iconProps} className={`${iconProps.className} text-lime-300`} />;
       case 'error':
-        return (
-          <svg
-            className="h-5 w-5 text-red-400 dark:text-red-300"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <XCircle {...iconProps} className={`${iconProps.className} text-red-300`} />;
       case 'warning':
-        return (
-          <svg
-            className="h-5 w-5 text-yellow-400 dark:text-yellow-300"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <AlertTriangle {...iconProps} className={`${iconProps.className} text-amber-300`} />;
       case 'info':
       default:
-        return (
-          <svg
-            className="h-5 w-5 text-blue-400 dark:text-blue-300"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <Info {...iconProps} className={`${iconProps.className} text-sky-300`} />;
     }
   };
 
@@ -138,22 +84,10 @@ const MessageContainer = () => {
                 <button
                   type="button"
                   onClick={() => removeMessage(message.id)}
-                  className="inline-flex rounded-md p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-slate-800 focus:ring-gray-600 dark:focus:ring-gray-500"
+                  className="inline-flex rounded-md p-1.5 text-neutral-300 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-neutral-400"
                 >
                   <span className="sr-only">Fechar</span>
-                  <svg
-                    className="h-5 w-5" // A cor do ícone de fechar é herdada (currentColor)
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
  * Hook customizado para fazer debounce de valores
@@ -30,33 +30,43 @@ export const useDebounce = (value, delay) => {
  *
  * @param {Function} callback - Função a ser debounced
  * @param {number} delay - Delay em milissegundos
- * @param {Array} deps - Dependências do useCallback
  * @returns {Function} - Função debounced
  */
-export const useDebounceCallback = (callback, delay, deps = []) => {
-  const [debounceTimer, setDebounceTimer] = useState(null);
+export const useDebounceCallback = (callback, delay) => {
+  const timerRef = useRef(null);
+  const callbackRef = useRef(callback);
 
-  const debouncedCallback = (...args) => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
+  // Update callbackRef if callback changes
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
-    const newTimer = setTimeout(() => {
-      callback(...args);
-    }, delay);
+  const debouncedCallback = useCallback(
+    (...args) => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
 
-    setDebounceTimer(newTimer);
-  };
+      timerRef.current = setTimeout(() => {
+        callbackRef.current(...args);
+      }, delay);
+    },
+    [delay] // Only delay needs to be in the dependency array for the outer useCallback
+  );
 
+  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
       }
     };
-  }, [debounceTimer]);
+  }, []);
 
   return debouncedCallback;
 };
 
 export default useDebounce;
+// Note: The default export is useDebounce, but useDebounceCallback is also exported.
+// This is fine, but if only one is primarily used, consider if a default export is needed
+// or if named exports for both are preferred. For now, keeping as is.
