@@ -115,7 +115,7 @@ async function initializeAdmin() {
       console.log(`  ID: ${createdAdmin.id}`);
       console.log(`  Username: ${createdAdmin.username}`);
       console.log(`  Role: ${createdAdmin.role}`);
-      console.log(`\nSenha definida como: ${adminConfig.password} (será criptografada)`);
+      console.log('\nSenha foi definida e será criptografada.');
       console.log(
         'Por favor, certifique-se de que esta senha seja segura e gerenciada adequadamente.'
       );
