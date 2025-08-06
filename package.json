@@ -47,7 +47,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "multer": "^2.0.1",
+    "multer": "^2.0.2",
     "pino": "^9.7.0",
     "pino-http": "^10.4.0",
     "proper-lockfile": "^4.1.2",
