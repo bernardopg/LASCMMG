@@ -1,37 +1,4 @@
 {
-  "name": "lascmmg",
-  "version": "1.1.0",
-  "description": "Sistema de gerenciamento de torneios da LASCMMG",
-  "main": "backend/server.js",
-  "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js",
-    "lint": "eslint . --ext .js,.jsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext .js,.jsx --fix",
-    "format": "prettier --write .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "frontend:dev": "cd frontend-react && npm run dev",
-    "frontend:build": "cd frontend-react && npm run build",
-    "frontend:preview": "cd frontend-react && npm run preview",
-    "frontend:lint": "cd frontend-react && npm run lint",
-    "frontend:lint:fix": "cd frontend-react && npm run lint:fix",
-    "dev:full": "concurrently \"npm run dev\" \"npm run frontend:dev\"",
-    "generate-keys": "node scripts/generate-keys.js",
-    "generate-keys:backup": "node scripts/generate-keys.js backup",
-    "setup:env": "node scripts/generate-keys.js all",
-    "setup:db": "node backend/setup-db.js",
-    "health-check": "node scripts/health-check.js"
-  },
-  "keywords": [
-    "torneio",
-    "gerenciamento",
-    "competição",
-    "chaveamento"
-  ],
-  "author": "LASCMMG",
-  "license": "MIT",
   "dependencies": {
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
@@ -76,5 +43,14 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
     "vitest": "^3.1.4"
+  },
+  "scripts": {
+    "dev:backend": "nodemon backend/server.js",
+    "dev:frontend": "npm run dev --prefix frontend-react",
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "install:backend": "npm install",
+    "install:frontend": "npm install --prefix frontend-react",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "start": "node backend/server.js"
   }
 }
