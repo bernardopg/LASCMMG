@@ -14,7 +14,7 @@ import {
   FaUsers,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import api from '../services/api';

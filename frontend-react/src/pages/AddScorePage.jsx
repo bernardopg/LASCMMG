@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as Yup from 'yup';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useMessage } from '../context/MessageContext';
 import {
   createScoreAdmin,

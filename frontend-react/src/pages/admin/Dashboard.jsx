@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
 // Import getSystemStats and remove direct axios import
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
+import LoadingSpinner from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
 import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
 import {
   getAdminPlayers,
@@ -24,7 +24,8 @@ import {
   getTournaments,
 } from '../../services/api';
 
-const StatCard = ({ title, value, icon: Icon, colorScheme = 'neutral' }) => {
+const StatCard = ({ title, value, icon, colorScheme = 'neutral' }) => {
+  const Icon = icon;
   const schemes = {
     sky: {
       bg: 'bg-sky-600/20',
@@ -74,7 +75,8 @@ const StatCard = ({ title, value, icon: Icon, colorScheme = 'neutral' }) => {
   );
 };
 
-const ActionCard = ({ title, description, icon: Icon, to, buttonText }) => {
+const ActionCard = ({ title, description, icon, to, buttonText }) => {
+  const Icon = icon;
   const cardBaseClasses =
     'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700 flex flex-col h-full';
   const buttonBaseClasses =

@@ -9,7 +9,7 @@ import {
   FaUsers,
 } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
-import { LoadingSpinner } from '../components/common/LoadingSpinner'; // Import LoadingSpinner
+import LoadingSpinner from '../components/common/LoadingSpinner'; // Import LoadingSpinner
 import { useAuth } from '../context/AuthContext'; // To show admin buttons
 import { useMessage } from '../context/MessageContext';
 import { getPlayers, getTournamentDetails } from '../services/api'; // Assuming getPlayers can fetch by tournamentId

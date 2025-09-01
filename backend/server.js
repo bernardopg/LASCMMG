@@ -42,7 +42,8 @@ const port = envPort || 3000;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
+    origin:
+      NODE_ENV === 'production' ? CORS_ORIGIN : ['http://localhost:5173', 'http://localhost:5174'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowHeaders: [
       'Content-Type',
@@ -114,7 +115,8 @@ app.use(
 
 app.use(
   cors({
-    origin: NODE_ENV === 'production' ? CORS_ORIGIN : 'http://localhost:5173',
+    origin:
+      NODE_ENV === 'production' ? CORS_ORIGIN : ['http://localhost:5173', 'http://localhost:5174'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'Content-Type',

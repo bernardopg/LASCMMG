@@ -1,5 +1,5 @@
 import React from 'react';
-import TournamentForm from '../../components/admin/TournamentForm';
+import { TournamentForm } from '../../components/features/admin';
 import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
 import { createTournamentAdmin } from '../../services/api';
