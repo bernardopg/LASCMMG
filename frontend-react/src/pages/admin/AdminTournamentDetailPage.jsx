@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FaArrowLeft, FaInfoCircle, FaTrophy } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import PageHeader from '../../components/common/PageHeader';
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner';
+import PageHeader from '../../components/ui/page/PageHeader';
 import { getTournamentDetails } from '../../services/api';
 
 const AdminTournamentDetailPage = () => {

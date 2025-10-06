@@ -19,8 +19,8 @@ import {
   FaPlus,
   FaExclamationTriangle,
 } from 'react-icons/fa'; // Added FaExclamationTriangle
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 // import BracketDisplay from '../../components/bracket/BracketDisplay'; // A component to render the bracket
 
 const ManageTournamentPage = () => {

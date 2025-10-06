@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BracketSection } from '../components/features/bracket';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import LoadingSpinner from '../components/ui/loading/LoadingSpinner';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import { getTournamentDetails } from '../services/api';

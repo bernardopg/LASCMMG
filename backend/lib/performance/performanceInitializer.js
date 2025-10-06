@@ -20,28 +20,19 @@ class PerformanceInitializer {
       { table: 'players', columns: ['is_deleted'], name: 'idx_players_is_deleted' },
       { table: 'players', columns: ['name'], name: 'idx_players_name' },
 
-      { table: 'scores', columns: ['tournament_id'], name: 'idx_scores_tournament_id' },
-      { table: 'scores', columns: ['player_id'], name: 'idx_scores_player_id' },
+      { table: 'scores', columns: ['match_id'], name: 'idx_scores_match_id_custom' },
+      { table: 'scores', columns: ['winner_id'], name: 'idx_scores_winner_id' },
       { table: 'scores', columns: ['is_deleted'], name: 'idx_scores_is_deleted' },
-      { table: 'scores', columns: ['score'], name: 'idx_scores_score' },
-      { table: 'scores', columns: ['created_at'], name: 'idx_scores_created_at' },
+      { table: 'scores', columns: ['completed_at'], name: 'idx_scores_completed_at' },
 
       { table: 'matches', columns: ['tournament_id'], name: 'idx_matches_tournament_id' },
       { table: 'matches', columns: ['round'], name: 'idx_matches_round' },
-      { table: 'matches', columns: ['status'], name: 'idx_matches_status' },
 
       { table: 'users', columns: ['username'], name: 'idx_users_username' },
       { table: 'users', columns: ['role'], name: 'idx_users_role' },
-      { table: 'users', columns: ['is_active'], name: 'idx_users_is_active' },
 
       // Índices compostos para queries comuns
       { table: 'tournaments', columns: ['status', 'date'], name: 'idx_tournaments_status_date' },
-      {
-        table: 'scores',
-        columns: ['tournament_id', 'player_id'],
-        name: 'idx_scores_tournament_player',
-      },
-      { table: 'scores', columns: ['tournament_id', 'score'], name: 'idx_scores_tournament_score' },
       {
         table: 'matches',
         columns: ['tournament_id', 'round'],

@@ -12,8 +12,8 @@ import {
 } from 'react-icons/fa'; // Added FaTrophy
 import { Link } from 'react-router-dom';
 import { useMessage } from '../../context/MessageContext';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 import {
   deleteTournamentAdmin,
   generateTournamentBracket,

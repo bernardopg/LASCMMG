@@ -14,7 +14,7 @@ import {
   FaUsers,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import { Button, Card } from '../components/ui';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';
 import api from '../services/api';
@@ -42,7 +42,7 @@ const StatCard = ({ title, value, icon, color = 'primary', description, loading 
   const selectedColor = colorClasses[color] || colorClasses.default;
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg">
+    <Card variant="default" padding="md">
       <div className="flex items-start justify-between mb-4">
         <div className={`p-3 rounded-xl ${selectedColor} shadow-lg`}>
           <IconComponent className="w-6 h-6 text-white" />
@@ -64,7 +64,7 @@ const StatCard = ({ title, value, icon, color = 'primary', description, loading 
           <p className="text-sm font-medium text-slate-400">{description}</p>
         </>
       )}
-    </div>
+    </Card>
   );
 };
 
@@ -89,29 +89,38 @@ const HeroSection = ({ generalStats }) => {
         </p>
 
         <div className="flex flex-wrap justify-center gap-6 mb-16">
-          <Link
-            to="/brackets"
-            className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
-          >
-            <FaPlay className="w-5 h-5" />
-            <span>Ver Chaveamentos</span>
-            <FaArrowRight className="w-5 h-5" />
+          <Link to="/brackets">
+            <Button
+              variant="primary"
+              size="lg"
+              leftIcon={<FaPlay />}
+              rightIcon={<FaArrowRight />}
+              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+            >
+              Ver Chaveamentos
+            </Button>
           </Link>
 
-          <Link
-            to="/stats"
-            className="px-8 py-4 bg-white/10 text-white rounded-2xl font-bold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 flex items-center space-x-3"
-          >
-            <FaChartBar className="w-5 h-5" />
-            <span>Estatísticas</span>
+          <Link to="/stats">
+            <Button
+              variant="outline"
+              size="lg"
+              leftIcon={<FaChartBar />}
+              className="bg-white/10 border-white/30 hover:bg-white/20"
+            >
+              Estatísticas
+            </Button>
           </Link>
 
-          <Link
-            to="/tournaments"
-            className="px-8 py-4 bg-transparent text-white rounded-2xl font-bold text-lg border-2 border-green-400/50 hover:bg-green-500/20 transition-all duration-300 flex items-center space-x-3"
-          >
-            <FaTrophy className="w-5 h-5" />
-            <span>Torneios</span>
+          <Link to="/tournaments">
+            <Button
+              variant="outline"
+              size="lg"
+              leftIcon={<FaTrophy />}
+              className="border-green-400/50 hover:bg-green-500/20"
+            >
+              Torneios
+            </Button>
           </Link>
         </div>
 
@@ -158,12 +167,12 @@ const CurrentTournament = ({ currentTournament }) => {
         </Link>
       </div>
 
-      <div className="bg-white/80 rounded-2xl border border-white/30 shadow-2xl">
-        <div className="p-8 bg-gradient-to-br from-green-500/10 via-amber-500/5 to-lime-500/10 border-b border-white/20">
+      <div className="bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-2xl">
+        <div className="p-8 bg-gradient-to-br from-green-900/20 via-amber-900/10 to-lime-900/10 border-b border-slate-700/50">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-3xl font-black text-green-800 mb-4">{currentTournament.name}</h3>
-              <p className="text-lg text-neutral-600 leading-relaxed">
+              <h3 className="text-3xl font-black text-green-400 mb-4">{currentTournament.name}</h3>
+              <p className="text-lg text-slate-300 leading-relaxed">
                 {currentTournament.description ||
                   'Competição oficial da Liga Acadêmica de Sinuca da CMMG'}
               </p>
@@ -173,16 +182,16 @@ const CurrentTournament = ({ currentTournament }) => {
               <span
                 className={`inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-base font-bold uppercase border shadow-lg ${
                   currentTournament.status === 'Em Andamento'
-                    ? 'bg-emerald-100/80 text-emerald-800 border-emerald-200'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                     : currentTournament.status === 'Pendente'
-                      ? 'bg-orange-100/80 text-orange-800 border-orange-200'
-                      : 'bg-green-100/80 text-green-800 border-green-200'
+                      ? 'bg-orange-500/20 text-orange-300 border-orange-500/40'
+                      : 'bg-green-500/20 text-green-300 border-green-500/40'
                 }`}
               >
                 {currentTournament.status || 'Ativo'}
               </span>
 
-              <div className="flex items-center space-x-3 text-neutral-500">
+              <div className="flex items-center space-x-3 text-slate-400">
                 <FaCalendarAlt className="w-5 h-5" />
                 <span className="font-medium">
                   {currentTournament.date
@@ -205,7 +214,8 @@ const CurrentTournament = ({ currentTournament }) => {
                 label: 'Participantes',
                 value: currentTournament.num_players_expected || 'N/A',
                 icon: FaUsers,
-                color: 'from-green-600 to-green-700',
+                color: 'from-emerald-600 to-emerald-700',
+                textColor: 'text-emerald-300',
               },
               {
                 label: 'Formato',
@@ -213,6 +223,7 @@ const CurrentTournament = ({ currentTournament }) => {
                   currentTournament.bracket_type?.replace('-', ' ').toUpperCase() || 'ELIMINATÓRIA',
                 icon: FaSitemap,
                 color: 'from-lime-500 to-lime-600',
+                textColor: 'text-lime-300',
               },
               {
                 label: 'Inscrição',
@@ -221,26 +232,30 @@ const CurrentTournament = ({ currentTournament }) => {
                     ? `R$ ${currentTournament.entry_fee.toFixed(2)}`
                     : 'GRÁTIS',
                 icon: FaGem,
-                color: 'from-emerald-500 to-emerald-600',
+                color: 'from-amber-500 to-amber-600',
+                textColor: 'text-amber-300',
               },
               {
                 label: 'Premiação',
                 value: currentTournament.prize_pool || 'A definir',
                 icon: FaAward,
-                color: 'from-orange-500 to-orange-600',
+                color: 'from-cyan-500 to-cyan-600',
+                textColor: 'text-cyan-300',
               },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="text-center p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 border border-white/40"
+                className="text-center p-6 rounded-2xl bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600/70 hover:-translate-y-1 transition-all duration-300"
               >
                 <div
                   className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.color} shadow-lg mb-4`}
                 >
                   <stat.icon className="w-7 h-7 text-white" />
                 </div>
-                <div className="text-2xl font-black text-neutral-700 mb-2">{stat.value}</div>
-                <div className="text-sm font-bold text-neutral-500 uppercase">{stat.label}</div>
+                <div className={`text-2xl font-black ${stat.textColor} mb-2`}>{stat.value}</div>
+                <div className="text-sm font-bold text-slate-400 uppercase tracking-wide">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>

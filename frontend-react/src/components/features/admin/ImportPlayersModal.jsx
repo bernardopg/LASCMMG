@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { FaFileImport, FaSpinner, FaTimes, FaUpload } from 'react-icons/fa';
 import { useMessage } from '../../../context/MessageContext';
-import { importTournamentPlayers } from '../../../services/api';
+import { importPlayersAdmin } from '../../../services/api';
 
 const ImportPlayersModal = memo(({ tournamentId, isOpen, onClose, onImportSuccess }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -46,10 +46,7 @@ const ImportPlayersModal = memo(({ tournamentId, isOpen, onClose, onImportSucces
 
     setIsImporting(true);
     try {
-      const formData = new FormData();
-      formData.append('jsonFile', selectedFile);
-
-      const responseData = await importTournamentPlayers(tournamentId, formData);
+      const responseData = await importPlayersAdmin(selectedFile, tournamentId);
 
       if (responseData.success) {
         let successMsg = `${responseData.importedCount || 0} jogadores processados com sucesso.`;

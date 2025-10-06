@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FaCalendarAlt, FaFilter, FaListUl, FaSpinner } from 'react-icons/fa';
+import { useCallback, useEffect, useState } from 'react';
+import { FaCalendarAlt, FaFilter, FaListUl } from 'react-icons/fa';
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner';
+import PageHeader from '../../components/ui/page/PageHeader';
 import { useMessage } from '../../context/MessageContext';
 import { getUnscheduledMatchesAdmin } from '../../services/api'; // Import new API function
-import PageHeader from '../../components/common/PageHeader';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 
 const AdminSchedulePage = () => {
   const [viewMode, setViewMode] = useState('list'); // 'calendar' or 'list'

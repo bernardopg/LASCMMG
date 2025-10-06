@@ -2,7 +2,7 @@ import { PackageOpen, Users } from 'lucide-react'; // Icons for EmptyState
 import { memo } from 'react';
 import { formatDateToLocale } from '../../utils/dateUtils'; // Import date utility
 import { getTournamentStatusColorClasses } from '../../utils/uiUtils'; // Import UI utility
-import EmptyState from './EmptyState'; // Import EmptyState component
+import EmptyState from '../ui/display/EmptyState'; // Import EmptyState component
 
 /**
  * Componentes memoizados para otimizar performance

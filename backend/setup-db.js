@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Note: Console statements are acceptable in CLI scripts
+// This is a command-line utility, not production server code
+
 const { program } = require('commander');
 const {
   initializeDatabase, // Alterado para corresponder à exportação de database.js

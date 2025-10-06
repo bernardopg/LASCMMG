@@ -1,5 +1,5 @@
 import { FaChartBar, FaExclamationTriangle } from 'react-icons/fa'; // Added icons
-import PageHeader from '../../../components/common/PageHeader'; // For consistent page titles
+import PageHeader from '../../../components/ui/page/PageHeader'; // For consistent page titles
 
 const SecurityThreatAnalytics = () => {
   const cardBaseClasses = 'bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700';

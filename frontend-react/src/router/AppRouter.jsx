@@ -1,12 +1,12 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from '../components/router/ProtectedRoute';
 import ErrorBoundary from '../components/ui/feedback/ErrorBoundary';
 import { LoadingSpinner } from '../components/ui/loading';
-import ProtectedRoute from '../components/router/ProtectedRoute';
 import { useAuth } from '../context';
 
 // Layout Components - Load immediately as they're used everywhere
-import { Header, Footer, Sidebar } from '../components/layouts';
+import { Footer, Header, Sidebar } from '../components/layouts';
 
 // Public Pages - Load immediately as they're entry points
 import Login from '../pages/Login';
@@ -105,13 +105,18 @@ const AppLayout = React.memo(({ children, layoutProps }) => {
             isMobileOpen={layoutProps?.isMobileSidebarOpen}
             isMobile={layoutProps?.isMobile}
             onMobileClose={layoutProps?.closeMobileSidebar}
+            toggleSidebarCollapse={layoutProps?.toggleSidebarCollapse}
           />
 
           <main
             id="main-content"
             className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
-              layoutProps?.isSidebarCollapsed ? 'ml-20' : 'ml-64'
-            } ${layoutProps?.isMobile ? 'ml-0' : ''}`}
+              !layoutProps?.isMobile && layoutProps?.isSidebarCollapsed
+                ? 'md:ml-16'
+                : !layoutProps?.isMobile
+                  ? 'md:ml-64'
+                  : ''
+            }`}
             role="main"
           >
             <Suspense fallback={<PageLoader />}>{children}</Suspense>
@@ -120,8 +125,12 @@ const AppLayout = React.memo(({ children, layoutProps }) => {
 
         <div
           className={`transition-all duration-300 ${
-            layoutProps?.isSidebarCollapsed ? 'ml-20' : 'ml-64'
-          } ${layoutProps?.isMobile ? 'ml-0' : ''}`}
+            !layoutProps?.isMobile && layoutProps?.isSidebarCollapsed
+              ? 'md:ml-16'
+              : !layoutProps?.isMobile
+                ? 'md:ml-64'
+                : ''
+          }`}
         >
           <Footer />
         </div>

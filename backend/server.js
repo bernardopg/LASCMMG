@@ -19,6 +19,8 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const xss = require('xss-clean');
 const { randomUUID } = require('crypto');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./lib/config/swagger');
 const csrfMiddleware = require('./lib/middleware/csrfMiddleware');
 const honeypot = require('./lib/middleware/honeypot');
 const fs = require('fs').promises;
@@ -297,7 +299,6 @@ const playerRoutes = require('./routes/player'); // Import player routes
 const userRoutes = require('./routes/users'); // Added for user routes
 const performanceRoutes = require('./routes/performance'); // Performance monitoring routes
 // const statsRoutes = require('./routes/stats'); // Removido pois as rotas foram movidas
-const { checkDbConnection } = require('./lib/db/database');
 
 app.use('/api', authRoutes);
 app.use('/api/tournaments', tournamentRoutes); // Agora inclui as rotas de estatísticas de torneio e jogador
@@ -322,23 +323,88 @@ app.get('/api/csrf-token', csrfMiddleware.csrfProvider, (req, res) => {
   });
 });
 
-// Health check endpoint for monitoring and system status
+// API Documentation with Swagger UI
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'LASCMMG API Documentation',
+  })
+);
+
+// Swagger JSON endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+/**
+ * @swagger
+ * /ping:
+ *   get:
+ *     summary: Quick health check
+ *     description: Simple endpoint for quick availability checking
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Server is running
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 message:
+ *                   type: string
+ *                   example: pong
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ */
 app.get('/ping', (req, res) => {
-  const dbStatus = checkDbConnection();
-  if (dbStatus.status === 'ok') {
-    res.status(200).json({
-      status: 'ok',
-      message: 'pong',
-      database: dbStatus,
-    });
-  } else {
-    res.status(503).json({
+  res.status(200).json({
+    status: 'ok',
+    message: 'pong',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Comprehensive health check
+ *     description: Detailed health status of all system components
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: System is healthy or degraded but operational
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthStatus'
+ *       503:
+ *         description: System is unhealthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthStatus'
+ */
+const { performHealthCheck } = require('./lib/services/healthCheckService');
+app.get('/api/health', async (req, res) => {
+  try {
+    const healthStatus = await performHealthCheck();
+    res.status(healthStatus.httpStatus).json(healthStatus);
+  } catch (error) {
+    logger.error({ component: 'HealthCheck', error: error.message }, 'Health check endpoint error');
+    res.status(500).json({
       status: 'error',
-      message: 'Service Unavailable',
-      database: dbStatus,
-      dependencies: {
-        database: 'error',
-      },
+      message: 'Health check failed',
+      error: error.message,
+      timestamp: new Date().toISOString(),
     });
   }
 });

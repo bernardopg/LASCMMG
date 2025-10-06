@@ -1,11 +1,10 @@
-import React from 'react';
+import { FaPlusCircle } from 'react-icons/fa'; // For PageHeader icon
+import { useNavigate } from 'react-router-dom';
 import { TournamentForm } from '../../components/features/admin';
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 import { useMessage } from '../../context/MessageContext';
 import { useTournament } from '../../context/TournamentContext';
 import { createTournamentAdmin } from '../../services/api';
-import { useNavigate } from 'react-router-dom';
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
-import { FaPlusCircle } from 'react-icons/fa'; // For PageHeader icon
 
 const CreateTournamentPage = () => {
   const { showInfo, showSuccess, showError } = useMessage();

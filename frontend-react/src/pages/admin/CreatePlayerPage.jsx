@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { createPlayerAdmin } from '../../services/api';
 import { useMessage } from '../../context/MessageContext';
 import { FaUserPlus, FaSave, FaTimes, FaSpinner } from 'react-icons/fa'; // Added FaSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 
 const PlayerSchema = Yup.object().shape({
   name: Yup.string()

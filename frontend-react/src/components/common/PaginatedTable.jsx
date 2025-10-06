@@ -1,7 +1,6 @@
-import React from 'react';
-import LoadingSpinner from './LoadingSpinner'; // Import LoadingSpinner
-import EmptyState from './EmptyState'; // Import EmptyState
-import { ServerCrash, SearchX } from 'lucide-react'; // Icons for error/empty states
+import { SearchX, ServerCrash } from 'lucide-react'; // Icons for error/empty states
+import EmptyState from '../ui/display/EmptyState'; // Import EmptyState
+import LoadingSpinner from '../ui/loading/LoadingSpinner';
 
 /**
  * Componente de Tabela Genérica com Paginação

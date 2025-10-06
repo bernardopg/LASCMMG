@@ -1,5 +1,9 @@
 // UI Component Library
 
+// Base components
+export { default as Button } from './Button';
+export { default as Card } from './Card';
+
 // Display components
 export * from './display';
 

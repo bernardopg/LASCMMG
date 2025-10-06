@@ -10,8 +10,8 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { FaBug, FaExclamationTriangle, FaShieldAlt, FaSyncAlt, FaUser } from 'react-icons/fa'; // Adicionado FaUser
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../../components/ui/page/PageHeader'; // For consistent page titles
 import { useMessage } from '../../../context/MessageContext'; // Adjusted path
 import { getSecurityOverviewStats } from '../../../services/api'; // Adjusted path
 

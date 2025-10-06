@@ -151,77 +151,105 @@ const TournamentList = () => {
         </div>
 
         {/* Controls Section */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10 p-6 bg-green-900/40 backdrop-blur-lg border border-green-700/50 rounded-3xl shadow-2xl">
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            {/* Search Input */}
-            <div className="relative flex-1 min-w-[220px]">
-              <input
-                type="text"
-                placeholder="Buscar torneios..."
-                value={search}
-                onChange={handleSearchChange}
-                className="w-full pl-12 pr-4 py-3 bg-green-800/60 backdrop-blur-md border-2 border-green-600/70 rounded-xl
-                         text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/80
-                         focus:border-amber-500/90 hover:border-green-500/90 transition-all duration-300"
-              />
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lime-400 w-5 h-5 pointer-events-none" />
+        <div className="bg-gradient-to-br from-green-900/50 to-green-800/40 backdrop-blur-xl border border-green-600/30 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="p-4 sm:p-6">
+            {/* Mobile: Stack everything */}
+            <div className="flex flex-col gap-4">
+              {/* Row 1: Search */}
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Buscar torneios..."
+                  value={search}
+                  onChange={handleSearchChange}
+                  className="w-full pl-11 pr-4 py-3 bg-slate-800/60 backdrop-blur-sm border border-green-600/40 rounded-xl
+                           text-neutral-100 placeholder-neutral-400
+                           focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400
+                           hover:border-green-500/60 transition-all duration-200
+                           text-sm sm:text-base"
+                  aria-label="Buscar torneios"
+                />
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-lime-400/80 w-4 h-4 pointer-events-none" />
+              </div>
+
+              {/* Row 2: Filter and Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                {/* Status Filter */}
+                <div className="relative flex-1 sm:max-w-[240px]">
+                  <select
+                    value={statusFilter}
+                    onChange={handleStatusFilterChange}
+                    className="w-full appearance-none pl-10 pr-9 py-3 bg-slate-800/60 backdrop-blur-sm border border-green-600/40 rounded-xl
+                             text-neutral-100 text-sm sm:text-base
+                             focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400
+                             hover:border-green-500/60 transition-all duration-200 cursor-pointer"
+                    aria-label="Filtrar por status"
+                  >
+                    <option value="" className="bg-slate-800">
+                      Todos Status
+                    </option>
+                    <option value="Pendente" className="bg-slate-800">
+                      Pendente
+                    </option>
+                    <option value="Em Andamento" className="bg-slate-800">
+                      Em Andamento
+                    </option>
+                    <option value="Concluído" className="bg-slate-800">
+                      Concluído
+                    </option>
+                    <option value="Cancelado" className="bg-slate-800">
+                      Cancelado
+                    </option>
+                  </select>
+                  <FaFilter className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lime-400/80 w-3.5 h-3.5 pointer-events-none" />
+                  <FaChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-400/80 w-3.5 h-3.5 pointer-events-none" />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 sm:ml-auto">
+                  {/* Refresh Button */}
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="flex items-center justify-center gap-2 px-4 py-3
+                             bg-gradient-to-r from-lime-500 to-lime-600 text-green-950
+                             rounded-xl shadow-md hover:shadow-lg
+                             hover:from-lime-400 hover:to-lime-500
+                             active:scale-95
+                             transition-all duration-200
+                             disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                             font-medium text-sm whitespace-nowrap"
+                    title="Atualizar lista"
+                    aria-label="Atualizar lista de torneios"
+                  >
+                    <FaSyncAlt
+                      className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+                      aria-hidden="true"
+                    />
+                    <span className="hidden sm:inline">Atualizar</span>
+                  </button>
+
+                  {/* Create Button */}
+                  {isAuthenticated && hasPermission && hasPermission('admin') && (
+                    <Link to="/admin/tournaments/create">
+                      <button
+                        className="flex items-center justify-center gap-2 px-4 py-3
+                                 bg-gradient-to-r from-amber-500 to-amber-600 text-white
+                                 rounded-xl shadow-md hover:shadow-lg
+                                 hover:from-amber-400 hover:to-amber-500
+                                 active:scale-95
+                                 transition-all duration-200
+                                 font-medium text-sm whitespace-nowrap"
+                        aria-label="Criar novo torneio"
+                      >
+                        <FaPlus className="w-4 h-4" aria-hidden="true" />
+                        <span>Novo Torneio</span>
+                      </button>
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
-
-            {/* Status Filter */}
-            <div className="relative min-w-[200px]">
-              <select
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-                className="w-full appearance-none pl-12 pr-8 py-3 bg-green-800/60 backdrop-blur-md border-2 border-green-600/70 rounded-xl
-                         text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/80
-                         focus:border-amber-500/90 hover:border-green-500/90 transition-all duration-300 cursor-pointer"
-              >
-                <option value="" className="bg-green-800 text-white">
-                  Todos Status
-                </option>
-                <option value="Pendente" className="bg-green-800 text-white">
-                  Pendente
-                </option>
-                <option value="Em Andamento" className="bg-green-800 text-white">
-                  Em Andamento
-                </option>
-                <option value="Concluído" className="bg-green-800 text-white">
-                  Concluído
-                </option>
-                <option value="Cancelado" className="bg-green-800 text-white">
-                  Cancelado
-                </option>
-              </select>
-              <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lime-400 w-4 h-4 pointer-events-none" />
-              <FaChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-lime-400 w-4 h-4 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-4 justify-center lg:justify-end">
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-lime-500 to-lime-600 text-green-900
-                       rounded-xl shadow-lg hover:from-lime-400 hover:to-lime-500 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-              title="Atualizar lista"
-            >
-              <FaSyncAlt className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="font-semibold hidden sm:inline">Atualizar</span>
-            </button>
-
-            {isAuthenticated && hasPermission && hasPermission('admin') && (
-              <Link to="/admin/tournaments/create">
-                <button
-                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-amber-500 to-amber-600 text-white
-                         rounded-xl shadow-lg hover:from-amber-400 hover:to-amber-500 transition-all duration-300"
-                >
-                  <FaPlus className="w-4 h-4" />
-                  <span className="font-semibold">Novo Torneio</span>
-                </button>
-              </Link>
-            )}
           </div>
         </div>
       </section>

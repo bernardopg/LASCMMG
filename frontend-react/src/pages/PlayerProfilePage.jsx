@@ -9,8 +9,8 @@ import {
   FaVenusMars,
 } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
-import LoadingSpinner from '../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../components/ui/page/PageHeader'; // For consistent page titles
 import { useMessage } from '../context/MessageContext';
 import { getPlayerDetails } from '../services/api';
 

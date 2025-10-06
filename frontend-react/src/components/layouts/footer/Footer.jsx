@@ -1,13 +1,13 @@
 import { memo, useCallback, useMemo } from 'react';
+import { FaArrowUp, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaHeart, FaArrowUp } from 'react-icons/fa';
 import { footerLinks, socialLinks } from '../../../config/footerConfig';
 
 const Copyright = memo(({ currentYear }) => (
-  <p className="text-center text-neutral-400 text-xs md:text-sm">
+  <p className="text-center md:text-left text-neutral-400 text-xs md:text-sm">
     &copy; {currentYear} Liga Acadêmica de Sinuca de Ciências Médicas de Minas Gerais. Todos os
-    direitos reservados.
-    <span className="inline-flex items-center ml-1.5">
+    direitos reservados.{' '}
+    <span className="inline-flex items-center ml-1.5 whitespace-nowrap">
       Feito com <FaHeart className="mx-1.5 text-red-500 h-3.5 w-3.5" aria-hidden="true" />
       no Brasil
     </span>
@@ -24,10 +24,11 @@ const ScrollToTopButton = memo(() => {
   return (
     <button
       onClick={scrollToTop}
-      className="flex items-center space-x-1.5 text-xs text-neutral-400 hover:text-lime-400
-                 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-lime-500
-                 focus:ring-offset-2 focus:ring-offset-green-900 rounded-lg px-3 py-1.5
-                 hover:bg-green-700/50"
+      className="flex items-center justify-center space-x-1.5 text-xs text-neutral-400
+                 hover:text-lime-400 transition-colors duration-200 focus:outline-none
+                 focus:ring-2 focus:ring-lime-500 focus:ring-offset-2
+                 focus:ring-offset-green-900 rounded-lg px-3 py-1.5 hover:bg-green-700/50
+                 whitespace-nowrap"
       aria-label="Voltar ao topo da página"
       type="button"
     >
@@ -62,7 +63,10 @@ const FooterLogo = memo(() => (
 FooterLogo.displayName = 'FooterLogo';
 
 const FooterNavigation = memo(() => (
-  <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2" aria-label="Links do rodapé">
+  <nav
+    className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-2"
+    aria-label="Links do rodapé"
+  >
     {footerLinks.map((link) => (
       <Link
         key={link.path}
@@ -70,7 +74,7 @@ const FooterNavigation = memo(() => (
         className="text-neutral-300 hover:text-lime-400 transition-colors duration-200
                    text-sm font-medium hover:underline focus:outline-none focus:ring-2
                    focus:ring-lime-500 focus:ring-offset-2 focus:ring-offset-green-900
-                   rounded px-2 py-1"
+                   rounded px-2 py-1 whitespace-nowrap"
       >
         {link.name}
       </Link>
@@ -81,7 +85,7 @@ const FooterNavigation = memo(() => (
 FooterNavigation.displayName = 'FooterNavigation';
 
 const SocialLinks = memo(() => (
-  <div className="flex items-center gap-3">
+  <div className="flex items-center justify-center md:justify-end gap-3 flex-wrap">
     {socialLinks.map((social) => (
       <a
         key={social.name}
@@ -112,14 +116,14 @@ const Footer = () => {
 
   return (
     <footer
-      className="bg-green-900/80 backdrop-blur-lg border-t border-green-700/60 py-8 px-4 sm:px-6
+      className="bg-green-900/80 backdrop-blur-lg border-t border-green-700/60 py-6 px-4 sm:px-6
                  mt-auto print:hidden"
       role="contentinfo"
       aria-label="Rodapé do site"
     >
       <div className="container mx-auto max-w-screen-xl">
         {/* Main content */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-6 mb-6">
           <FooterLogo />
           <FooterNavigation />
           <SocialLinks />
@@ -128,7 +132,7 @@ const Footer = () => {
         <FooterDivider />
 
         {/* Bottom section */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <Copyright currentYear={currentYear} />
           <ScrollToTopButton />
         </div>

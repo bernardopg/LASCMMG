@@ -20,6 +20,8 @@
     "proper-lockfile": "^4.1.2",
     "redis": "^5.1.0",
     "socket.io": "^4.8.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
@@ -51,6 +53,13 @@
     "install:backend": "npm install",
     "install:frontend": "npm install --prefix frontend-react",
     "install:all": "npm run install:backend && npm run install:frontend",
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:backend": "vitest run backend/tests",
+    "test:frontend": "npm run test --prefix frontend-react",
+    "test:all": "npm run test:backend && npm run test:frontend"
   }
 }

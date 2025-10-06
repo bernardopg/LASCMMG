@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { FaCalendarAlt, FaSave, FaSearch, FaSpinner } from 'react-icons/fa';
 import { useMessage } from '../../context/MessageContext';
 import api, { getTournamentState } from '../../services/api';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 
 /**
  * Página de Gerenciamento de Agendamento de Partidas (Admin)

@@ -116,20 +116,20 @@ const TournamentCard = ({ tournament, onView, onEdit, onDelete, isAdmin }) => {
         </div>
 
         {/* Tournament Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
           {[
             {
               label: 'Participantes',
               value: tournament.num_players_expected || 'N/A',
               icon: FaUsers,
-              color: 'from-green-600 to-green-700',
-              textColor: 'text-green-300',
+              iconBg: 'from-emerald-500 to-emerald-600',
+              textColor: 'text-emerald-300',
             },
             {
               label: 'Formato',
               value: tournament.bracket_type?.replace('-', ' ').toUpperCase() || 'ELIMINATÓRIA',
               icon: FaSitemap,
-              color: 'from-lime-500 to-lime-600',
+              iconBg: 'from-lime-500 to-lime-600',
               textColor: 'text-lime-300',
             },
             {
@@ -139,28 +139,47 @@ const TournamentCard = ({ tournament, onView, onEdit, onDelete, isAdmin }) => {
                   ? `R$ ${tournament.entry_fee.toFixed(2)}`
                   : 'GRÁTIS',
               icon: FaGem,
-              color: 'from-amber-500 to-amber-600',
+              iconBg: 'from-amber-500 to-amber-600',
               textColor: 'text-amber-300',
             },
             {
               label: 'Premiação',
               value: tournament.prize_pool || 'A definir',
               icon: FaCrown,
-              color: 'from-sky-500 to-sky-600',
-              textColor: 'text-sky-300',
+              iconBg: 'from-cyan-500 to-cyan-600',
+              textColor: 'text-cyan-300',
             },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="text-center p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/15 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 p-4 rounded-2xl
+                       bg-gradient-to-br from-slate-800/60 to-slate-900/60
+                       backdrop-blur-sm border border-slate-700/50
+                       hover:border-slate-600/70 hover:shadow-xl hover:shadow-black/30
+                       hover:-translate-y-1
+                       transition-all duration-300"
             >
+              {/* Icon */}
               <div
-                className={`inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} shadow-md mb-2`}
+                className={`flex items-center justify-center w-14 h-14 rounded-xl
+                         bg-gradient-to-br ${stat.iconBg}
+                         shadow-lg group-hover:shadow-2xl group-hover:scale-110
+                         transition-all duration-300`}
               >
-                <stat.icon className="w-4 h-4 text-white" />
+                <stat.icon className="w-6 h-6 text-white drop-shadow-lg" />
               </div>
-              <div className={`text-sm font-black ${stat.textColor} mb-1`}>{stat.value}</div>
-              <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+
+              {/* Value */}
+              <div
+                className={`text-lg font-extrabold ${stat.textColor} text-center
+                         leading-tight min-h-[2.5rem] flex items-center justify-center
+                         px-2 w-full break-words hyphens-auto`}
+              >
+                {stat.value}
+              </div>
+
+              {/* Label */}
+              <div className="text-[0.7rem] font-bold text-neutral-400 uppercase tracking-widest text-center">
                 {stat.label}
               </div>
             </div>

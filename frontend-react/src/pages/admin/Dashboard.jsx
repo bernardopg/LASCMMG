@@ -15,8 +15,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMessage } from '../../context/MessageContext';
 // Import getSystemStats and remove direct axios import
-import LoadingSpinner from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 import {
   getAdminPlayers,
   getAdminScores,

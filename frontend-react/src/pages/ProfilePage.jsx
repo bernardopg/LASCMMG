@@ -80,22 +80,23 @@ const ProfilePage = () => {
   const primaryButtonClasses = `${buttonBaseClasses} bg-lime-600 hover:bg-lime-700 text-white focus:ring-lime-500`;
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-3xl sm:text-4xl font-bold text-gray-100 mb-10 text-center sm:text-left">
+    <div className="container mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-100 mb-6 sm:mb-8 lg:mb-10 text-center sm:text-left">
         Meu Perfil
       </h1>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* User Information Section */}
         <div className="lg:col-span-1">
           <div className={cardBaseClasses}>
-            <FaUserCircle className="text-6xl sm:text-7xl text-lime-400 mx-auto mb-5" />
-            <h2 className="text-2xl font-semibold text-center text-gray-100 mb-1">
+            <FaUserCircle className="text-5xl sm:text-6xl lg:text-7xl text-lime-400 mx-auto mb-4 sm:mb-5" />
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-center text-gray-100 mb-1 break-words px-2">
               {currentUser.name || currentUser.username}
             </h2>
-            <p className="text-sm text-center text-slate-400 mb-6 capitalize">{currentUser.role}</p>
-            <div className="text-sm text-slate-300 space-y-2 border-t border-slate-700 pt-4">
-              <p>
-                <strong>Username/Email:</strong> {currentUser.username}
+            <p className="text-xs sm:text-sm text-center text-slate-400 mb-4 sm:mb-6 capitalize">{currentUser.role}</p>
+            <div className="text-xs sm:text-sm text-slate-300 space-y-2 border-t border-slate-700 pt-4">
+              <p className="break-words">
+                <strong className="block sm:inline">Username/Email:</strong>
+                <span className="block sm:inline sm:ml-1">{currentUser.username}</span>
               </p>
               {/* TODO: Add more user details here if available and desired, e.g., registration date */}
             </div>
@@ -105,8 +106,8 @@ const ProfilePage = () => {
         {/* Change Password Section */}
         <div className="lg:col-span-2">
           <div className={cardBaseClasses}>
-            <h2 className="text-xl font-semibold text-gray-100 mb-6 flex items-center">
-              <FaKey className="mr-3 text-lime-400 h-5 w-5" />
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-100 mb-4 sm:mb-6 flex items-center">
+              <FaKey className="mr-2 sm:mr-3 text-lime-400 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
               Alterar Senha
             </h2>
             <Formik
@@ -119,7 +120,7 @@ const ProfilePage = () => {
               onSubmit={handlePasswordChange}
             >
               {({ errors, touched, isValid, dirty }) => (
-                <Form className="space-y-4">
+                <Form className="space-y-4 sm:space-y-5">
                   <div>
                     <label htmlFor="currentPassword" className={labelClasses}>
                       Senha Atual
@@ -168,10 +169,10 @@ const ProfilePage = () => {
                       className={errorMessageClasses}
                     />
                   </div>
-                  <div className="pt-4">
+                  <div className="pt-2 sm:pt-4">
                     <button
                       type="submit"
-                      className={`${primaryButtonClasses} w-full sm:w-auto`}
+                      className={`${primaryButtonClasses} w-full sm:w-auto min-w-[200px]`}
                       disabled={isSubmittingPassword || !isValid || !dirty}
                     >
                       {isSubmittingPassword ? (

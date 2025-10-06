@@ -4,8 +4,8 @@ import { getAdminUsers, createAdminUser } from '../../services/api';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FaUsers, FaPlusCircle, FaUserShield, FaSpinner } from 'react-icons/fa';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 
 const NewAdminSchema = Yup.object().shape({
   username: Yup.string() // This will be treated as an email by the backend

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaChartBar, FaGamepad, FaTrophy, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import LoadingSpinner from '../components/ui/loading/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
 import { useMessage } from '../context/MessageContext';
 import { useTournament } from '../context/TournamentContext';

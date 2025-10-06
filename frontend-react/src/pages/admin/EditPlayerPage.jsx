@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useCallback, useEffect, useState } from 'react';
+import { FaSave, FaSpinner, FaTimes, FaUserEdit } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { getPlayerDetails, updatePlayerAdmin } from '../../services/api';
+import LoadingSpinner from '../../components/ui/loading/LoadingSpinner'; // Import LoadingSpinner
+import PageHeader from '../../components/ui/page/PageHeader'; // For consistent page titles
 import { useMessage } from '../../context/MessageContext';
-import { FaUserEdit, FaSave, FaTimes, FaSpinner } from 'react-icons/fa';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner'; // Import LoadingSpinner
-import PageHeader from '../../components/common/PageHeader'; // For consistent page titles
+import { getPlayerDetails, updatePlayerAdmin } from '../../services/api';
 
 const PlayerSchema = Yup.object().shape({
   name: Yup.string()

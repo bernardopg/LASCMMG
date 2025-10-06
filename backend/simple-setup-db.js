@@ -2,6 +2,9 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
+// Note: Using console.log in setup scripts is acceptable as they're one-time utilities
+// For production code, use the Pino logger instead
+
 function simpleSetupDatabase() {
   try {
     console.log('🗄️ Configurando banco de dados (versão simples)...');
