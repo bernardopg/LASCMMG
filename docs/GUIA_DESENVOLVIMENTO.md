@@ -356,6 +356,6 @@ logger.info({ userId: 123 }, 'Usuário fez login');
 
 ---
 
-**Bom desenvolvimento! 🚀**
+## Bom desenvolvimento! 🚀
 
 *Este guia foi criado para acelerar seu onboarding no projeto LASCMMG. Mantenha-o atualizado conforme o sistema evolui.*

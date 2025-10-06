@@ -1,6 +1,6 @@
 # Frontend Architecture & UI/UX Review
 
-**LASCMMG Tournament Management System**
+## LASCMMG Tournament Management System
 
 **Date:** 2025-01-XX
 **Reviewer:** GitHub Copilot
